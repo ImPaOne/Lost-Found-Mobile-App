@@ -4,27 +4,27 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- DAVIS HUMPHRIES DESIGN - NUDE PALETTE (EXACT HEX CODES) -->
-    <color name="nude_dark">#FF3A2D28</color>      <!-- #3A2D28: Main dark text, headlines, top squircle, active chips, post pill -->
-    <color name="nude_taupe">#FFA48374</color>     <!-- #A48374: Accent warm links, icons, secondary emphasis -->
-    <color name="nude_sand">#FFCBAD8D</color>      <!-- #CBAD8D: Warm sand accent -->
-    <color name="nude_light_taupe">#FFD1C7BD</color><!-- #D1C7BD: Muted text, secondary labels, icons -->
-    <color name="nude_cream">#FFEBE3DB</color>      <!-- #EBE3DB: Filled card backgrounds, stats banner fill -->
-    <color name="nude_soft_white">#FFF1EDE6</color> <!-- #F1EDE6: Subtle card fills, background tint -->
+    <!-- DAVIS HUMPHRIES DESIGN - NUDE PALETTE (EXACT) -->
+    <color name="nude_dark">#FF3A2D28</color>       <!-- #3A2D28: Main dark text, headers, primary buttons -->
+    <color name="nude_taupe">#FFA48374</color>      <!-- #A48374: Accent warm links, secondary icons -->
+    <color name="nude_sand">#FFCBAD8D</color>       <!-- #CBAD8D: Warm sand accent -->
+    <color name="nude_light_taupe">#FFD1C7BD</color> <!-- #D1C7BD: Light borders, muted icons -->
+    <color name="nude_cream">#FFEBE3DB</color>       <!-- #EBE3DB: Segment bar container, alert pill background -->
+    <color name="nude_soft_white">#FFF1EDE6</color>  <!-- #F1EDE6: Soft background tint -->
 
-    <!-- LIGHT COMPONENT STROKES (FROM PALETTE #EBE3DB / #D1C7BD) -->
-    <color name="component_stroke">#FFEBE3DB</color>
-    <color name="component_stroke_border">#FFD1C7BD</color>
-
-    <!-- Semantic Mapping -->
+    <!-- Semantics -->
     <color name="background_screen">#FFFFFFFF</color>
     <color name="text_primary">#FF3A2D28</color>
     <color name="text_secondary">#FFA48374</color>
     <color name="text_hint">#FFD1C7BD</color>
-    <color name="beige_fill">#FFEBE3DB</color>
+    <color name="component_stroke">#FFEBE3DB</color>
+    <color name="component_stroke_border">#FFD1C7BD</color>
 
-    <!-- Status Tags -->
-    <color name="tag_lost_color">#FFD43838</color>
-    <color name="tag_found_color">#FF3B7A57</color>
-    <color name="see_all_color">#FFA48374</color>
+    <!-- Moderation Specific Action & Status Colors -->
+    <color name="btn_approve">#FF675349</color>
+    <color name="btn_reject">#FFD44343</color>
+    <color name="badge_flagged_bg">#FFFDF2F2</color>
+    <color name="badge_flagged_text">#FFDE4343</color>
+    <color name="badge_pending_bg">#FFFDF8EE</color>
+    <color name="badge_pending_text">#FFB87A26</color>
 </resources>
