@@ -11,15 +11,17 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
 /**
- * Reusable Bottom Navigation Component (Home, Explore, My reports, Profile).
- * Clean human-written code with concise 3-8 character variable names.
+ * Reusable 5-tab Bottom Navigation Component:
+ * Home, Explore, + Post, Messages, Profile.
+ * Uses clean human-written code with concise 3-8 character variable names.
  */
 class BottomNavFragment : Fragment() {
 
     enum class NavigationTab {
         HOME,
         EXPLORE,
-        REPORTS,
+        POST,
+        MESSAGES,
         PROFILE
     }
 
@@ -31,12 +33,13 @@ class BottomNavFragment : Fragment() {
 
     private lateinit var tabHome: LinearLayout
     private lateinit var tabExplore: LinearLayout
-    private lateinit var tabReports: LinearLayout
+    private lateinit var tabPost: LinearLayout
+    private lateinit var tabMessages: LinearLayout
     private lateinit var tabProfile: LinearLayout
 
     private lateinit var lblHome: TextView
     private lateinit var lblExplore: TextView
-    private lateinit var lblReports: TextView
+    private lateinit var lblMessages: TextView
     private lateinit var lblProfile: TextView
 
     private var curTab: NavigationTab = NavigationTab.HOME
@@ -61,17 +64,21 @@ class BottomNavFragment : Fragment() {
 
         tabHome = view.findViewById(R.id.tabHome)
         tabExplore = view.findViewById(R.id.tabExplore)
-        tabReports = view.findViewById(R.id.tabReports)
+        tabPost = view.findViewById(R.id.tabPost)
+        tabMessages = view.findViewById(R.id.tabMessages)
         tabProfile = view.findViewById(R.id.tabProfile)
 
         lblHome = view.findViewById(R.id.lblHome)
         lblExplore = view.findViewById(R.id.lblExplore)
-        lblReports = view.findViewById(R.id.lblReports)
+        lblMessages = view.findViewById(R.id.lblMessages)
         lblProfile = view.findViewById(R.id.lblProfile)
 
         tabHome.setOnClickListener { pickTab(NavigationTab.HOME) }
         tabExplore.setOnClickListener { pickTab(NavigationTab.EXPLORE) }
-        tabReports.setOnClickListener { pickTab(NavigationTab.REPORTS) }
+        tabPost.setOnClickListener {
+            navListener?.onTabSelected(NavigationTab.POST)
+        }
+        tabMessages.setOnClickListener { pickTab(NavigationTab.MESSAGES) }
         tabProfile.setOnClickListener { pickTab(NavigationTab.PROFILE) }
 
         updateTabStyle(curTab)
@@ -89,7 +96,7 @@ class BottomNavFragment : Fragment() {
 
         lblHome.setTextColor(if (tab == NavigationTab.HOME) colAct else colInact)
         lblExplore.setTextColor(if (tab == NavigationTab.EXPLORE) colAct else colInact)
-        lblReports.setTextColor(if (tab == NavigationTab.REPORTS) colAct else colInact)
+        lblMessages.setTextColor(if (tab == NavigationTab.MESSAGES) colAct else colInact)
         lblProfile.setTextColor(if (tab == NavigationTab.PROFILE) colAct else colInact)
     }
 
