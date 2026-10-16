@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/bottomNavigationCard"
     android:layout_width="match_parent"
-    android:layout_height="68dp"
+    android:layout_height="70dp"
     android:background="@color/white"
     android:baselineAligned="false"
     android:elevation="6dp"
@@ -34,7 +34,7 @@
             android:layout_marginTop="3dp"
             android:fontFamily="sans-serif-medium"
             android:text="Home"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/see_all_color"
             android:textSize="11sp" />
     </LinearLayout>
 
@@ -63,16 +63,16 @@
             android:layout_marginTop="3dp"
             android:fontFamily="sans-serif-medium"
             android:text="Explore"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/see_all_color"
             android:textSize="11sp" />
     </LinearLayout>
 
-    <!-- 3. Post Tab (Center rounded warm clay pill) -->
+    <!-- 3. Post Tab (Center prominent rounded pill button in clay_dark) -->
     <LinearLayout
         android:id="@+id/tabPost"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1.1"
+        android:layout_weight="1.15"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center">
@@ -80,13 +80,14 @@
         <LinearLayout
             android:id="@+id/buttonPostPill"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:background="@drawable/bg_nav_post_pill"
             android:gravity="center"
             android:orientation="vertical">
 
+            <!-- Plus Icon -->
             <ImageView
                 android:id="@+id/imagePostIcon"
                 android:layout_width="20dp"
@@ -100,14 +101,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
                 android:fontFamily="sans-serif-bold"
-                android:text="+ Post"
+                android:text="Post"
                 android:textColor="@color/white"
                 android:textSize="10sp"
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 4. Messages Tab (No red dot in this screenshot) -->
+    <!-- 4. Messages Tab -->
     <LinearLayout
         android:id="@+id/tabMessages"
         android:layout_width="0dp"
@@ -132,7 +133,7 @@
             android:layout_marginTop="3dp"
             android:fontFamily="sans-serif-medium"
             android:text="Messages"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/see_all_color"
             android:textSize="11sp" />
     </LinearLayout>
 
@@ -161,7 +162,7 @@
             android:layout_marginTop="3dp"
             android:fontFamily="sans-serif-medium"
             android:text="Profile"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/see_all_color"
             android:textSize="11sp" />
     </LinearLayout>
 
