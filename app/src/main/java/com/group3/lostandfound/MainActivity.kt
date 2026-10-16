@@ -43,16 +43,12 @@ class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelec
                 // Explore tab loads Moderation screen
                 loadScreenFragment(ModerationFragment.newInstance())
             }
-            BottomNavFragment.NavigationTab.POST -> {
-                Toast.makeText(this, "+ Post action triggered", Toast.LENGTH_SHORT).show()
-            }
-            BottomNavFragment.NavigationTab.MESSAGES -> {
-                // Messages tab loads Analytics screen
-                loadScreenFragment(AnalyticsFragment.newInstance())
+            BottomNavFragment.NavigationTab.REPORTS -> {
+                // My reports tab loads ReportsFragment
+                loadScreenFragment(ReportsFragment.newInstance())
             }
             BottomNavFragment.NavigationTab.PROFILE -> {
-                // Profile tab loads My Reports screen
-                loadScreenFragment(ReportsFragment.newInstance())
+                Toast.makeText(this, "Profile screen", Toast.LENGTH_SHORT).show()
             }
         }
     }
