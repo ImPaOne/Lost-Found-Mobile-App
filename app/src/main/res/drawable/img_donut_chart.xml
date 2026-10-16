@@ -1,0 +1,40 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Segment 1: Electronics 38% (0 deg to ~137 deg) - Brown #A48374 -->
+    <!-- Arc from top (60, 10) to bottom right -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#A48374"
+        android:strokeWidth="18"
+        android:strokeCap="butt"
+        android:pathData="M60,19 A41,41 0 0,1 87,91" />
+
+    <!-- Segment 2: Other 17% (bottom right to bottom left) - Dark clay #3A2D28 -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#3A2D28"
+        android:strokeWidth="18"
+        android:strokeCap="butt"
+        android:pathData="M87,91 A41,41 0 0,1 33,91" />
+
+    <!-- Segment 3: Pets 18% (bottom left to mid left) - Sand #CBAD8D -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#CBAD8D"
+        android:strokeWidth="18"
+        android:strokeCap="butt"
+        android:pathData="M33,91 A41,41 0 0,1 21,48" />
+
+    <!-- Segment 4: Documents 27% (mid left to top) - Light taupe #D1C7BD -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#D1C7BD"
+        android:strokeWidth="18"
+        android:strokeCap="butt"
+        android:pathData="M21,48 A41,41 0 0,1 60,19" />
+
+</vector>
