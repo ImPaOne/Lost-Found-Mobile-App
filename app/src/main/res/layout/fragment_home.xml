@@ -33,7 +33,7 @@
                 android:clickable="true"
                 android:contentDescription="Close or dismiss"
                 android:focusable="true"
-                android:src="@drawable/ic_top_button_cross"
+                android:src="@drawable/ic_close"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -113,7 +113,7 @@
                 android:layout_width="22dp"
                 android:layout_height="22dp"
                 android:contentDescription="Search Icon"
-                android:src="@drawable/ic_search_cylinder" />
+                android:src="@drawable/ic_search" />
 
             <EditText
                 android:id="@+id/inputSearchField"
@@ -169,8 +169,8 @@
 
                 <ImageView
                     android:id="@+id/iconReportLost"
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:contentDescription="Report Lost"
                     android:src="@drawable/ic_report_lost" />
 
@@ -205,8 +205,8 @@
 
                 <ImageView
                     android:id="@+id/iconReportFound"
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:contentDescription="Report Found"
                     android:src="@drawable/ic_report_found" />
 
@@ -391,7 +391,7 @@
                     android:layout_height="86dp"
                     android:contentDescription="Wallet item image"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/img_wallet_placeholder"
+                    android:src="@drawable/img_wallet"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
                 <LinearLayout
@@ -499,7 +499,7 @@
                     android:layout_height="86dp"
                     android:contentDescription="Dog item image"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/img_dog_placeholder"
+                    android:src="@drawable/img_dog_milo"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
                 <LinearLayout

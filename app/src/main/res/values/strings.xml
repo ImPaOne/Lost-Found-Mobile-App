@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">Lost And Found</string>
+    <string name="app_name">Foundly</string>
+    <string name="admin_dashboard">Admin Dashboard</string>
+    <string name="plus_six_today">+6 today</string>
+    <string name="send_announcement">Send\nAnnouncement</string>
+    <string name="review_reports">Review Reports</string>
+    <string name="manage_users">Manage Users</string>
 </resources>

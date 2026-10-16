@@ -91,7 +91,7 @@
                     android:layout_height="170dp"
                     android:contentDescription="Wallet photo"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/img_wallet_banner"
+                    android:src="@drawable/img_wallet"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
                 <!-- Bottom row: Title & Matched Badge -->

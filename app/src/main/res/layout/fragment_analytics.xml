@@ -579,23 +579,23 @@
             android:textColor="@color/text_secondary"
             android:textSize="12sp" />
 
-        <!-- Heat Map Card Container -->
-        <LinearLayout
+        <!-- Geographic Leaflet Heat Map Card -->
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardGeographicHeatMap"
             android:layout_width="match_parent"
-            android:layout_height="96dp"
+            android:layout_height="200dp"
             android:layout_marginTop="12dp"
-            android:background="@drawable/bg_card_report_found"
-            android:gravity="center"
-            android:orientation="horizontal">
+            app:cardCornerRadius="18dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/stroke_light"
+            app:strokeWidth="1dp">
 
-            <ImageView
-                android:id="@+id/imageHeatMapRadar"
+            <WebView
+                android:id="@+id/webHeatMap"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:contentDescription="Geographic heat map radar"
-                android:src="@drawable/img_heat_map_radar" />
-        </LinearLayout>
+                android:layout_height="match_parent"
+                android:overScrollMode="never" />
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

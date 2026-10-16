@@ -17,9 +17,11 @@ import androidx.fragment.app.Fragment
 class AdminFragment : Fragment() {
 
     private lateinit var btnBack: ImageView
+    private lateinit var tvTitle: TextView
     private lateinit var btnBell: ImageView
 
     private lateinit var boxQueue: ConstraintLayout
+    private lateinit var tagToday: TextView
     private lateinit var btnReview: TextView
     private lateinit var btnUsers: TextView
     private lateinit var btnAnnounce: TextView
@@ -36,12 +38,18 @@ class AdminFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         btnBack = view.findViewById(R.id.btnBack)
+        tvTitle = view.findViewById(R.id.tvTitle)
         btnBell = view.findViewById(R.id.btnBell)
 
         boxQueue = view.findViewById(R.id.boxQueue)
+        tagToday = view.findViewById(R.id.tagToday)
         btnReview = view.findViewById(R.id.btnReview)
         btnUsers = view.findViewById(R.id.btnUsers)
         btnAnnounce = view.findViewById(R.id.btnAnnounce)
+
+        // Explicitly set titles in code to guarantee no layout preview fallback
+        tvTitle.text = "Admin Dashboard"
+        tagToday.text = "+6 today"
 
         btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()

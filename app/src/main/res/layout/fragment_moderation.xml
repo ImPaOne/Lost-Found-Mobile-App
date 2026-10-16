@@ -60,7 +60,7 @@
                 android:contentDescription="Search reports"
                 android:focusable="true"
                 android:padding="8dp"
-                android:src="@drawable/ic_search_header"
+                android:src="@drawable/ic_search"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

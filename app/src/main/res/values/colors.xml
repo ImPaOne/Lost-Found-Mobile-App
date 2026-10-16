@@ -19,6 +19,12 @@
     <color name="text_hint">#FFD1C7BD</color>
     <color name="component_stroke">#FFEBE3DB</color>
     <color name="component_stroke_border">#FFD1C7BD</color>
+    <color name="stroke_light">#FFE4DDD6</color>
+    <color name="beige_card_bg">#FFF0EAE3</color>
+    <color name="see_all_color">#FFA48374</color>
+    <color name="tag_lost_color">#FFD43838</color>
+    <color name="tag_found_color">#FF3B7A57</color>
+    <color name="notification_badge_red">#FFDE4343</color>
 
     <!-- Moderation Specific Action & Status Colors -->
     <color name="btn_approve">#FF675349</color>
