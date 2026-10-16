@@ -2,597 +2,25 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/mainRootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_screen"
     tools:context=".MainActivity">
 
-    <!-- Scrollable Content -->
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/nestedScrollView"
+    <!-- Fragment Container for screens -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:fillViewport="true"
-        android:overScrollMode="never"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavCard"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationCard"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="20dp"
-            android:paddingTop="14dp"
-            android:paddingEnd="20dp"
-            android:paddingBottom="24dp">
-
-            <!-- Top Header Bar -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/btnHeaderClose"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
-                    android:clickable="true"
-                    android:contentDescription="Close or Menu"
-                    android:focusable="true"
-                    android:src="@drawable/ic_top_button_cross"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tvAppTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-black"
-                    android:text="Foundly"
-                    android:textColor="@color/text_primary"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <FrameLayout
-                    android:id="@+id/btnNotification"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageView
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:layout_gravity="center"
-                        android:contentDescription="Notifications"
-                        android:src="@drawable/ic_bell" />
-                </FrameLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Greeting Section -->
-            <TextView
-                android:id="@+id/tvGreeting"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="Good morning, Nadeesha"
-                android:textColor="@color/text_secondary"
-                android:textSize="15sp" />
-
-            <TextView
-                android:id="@+id/tvHeadline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif-black"
-                android:text="Let's bring it home."
-                android:textColor="@color/text_primary"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-
-            <!-- Search Bar -->
-            <LinearLayout
-                android:id="@+id/searchBarLayout"
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/bg_search_box"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
-
-                <ImageView
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:contentDescription="Search Icon"
-                    android:src="@drawable/ic_search" />
-
-                <EditText
-                    android:id="@+id/etSearch"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="12dp"
-                    android:layout_marginEnd="12dp"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:hint="Search lost and found items"
-                    android:imeOptions="actionSearch"
-                    android:inputType="text"
-                    android:maxLines="1"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_hint"
-                    android:textSize="15sp" />
-
-                <ImageView
-                    android:id="@+id/btnFilter"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:clickable="true"
-                    android:contentDescription="Filter options"
-                    android:focusable="true"
-                    android:src="@drawable/ic_filter" />
-            </LinearLayout>
-
-            <!-- Quick Action Cards: Report Lost & Report Found -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <!-- Report Lost Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardReportLost"
-                    android:layout_width="0dp"
-                    android:layout_height="116dp"
-                    android:layout_marginEnd="7dp"
-                    android:layout_weight="1"
-                    android:clickable="true"
-                    android:focusable="true"
-                    app:cardBackgroundColor="@color/surface_card"
-                    app:cardCornerRadius="18dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/card_stroke"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical|start"
-                        android:orientation="vertical"
-                        android:paddingStart="18dp"
-                        android:paddingTop="16dp"
-                        android:paddingEnd="16dp"
-                        android:paddingBottom="16dp">
-
-                        <ImageView
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:contentDescription="Report Lost Icon"
-                            android:src="@drawable/ic_report_lost" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="14dp"
-                            android:fontFamily="sans-serif-black"
-                            android:text="Report Lost"
-                            android:textColor="@color/text_primary"
-                            android:textSize="17sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Report Found Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardReportFound"
-                    android:layout_width="0dp"
-                    android:layout_height="116dp"
-                    android:layout_marginStart="7dp"
-                    android:layout_weight="1"
-                    android:clickable="true"
-                    android:focusable="true"
-                    app:cardBackgroundColor="@color/surface_card"
-                    app:cardCornerRadius="18dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/card_stroke"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical|start"
-                        android:orientation="vertical"
-                        android:paddingStart="18dp"
-                        android:paddingTop="16dp"
-                        android:paddingEnd="16dp"
-                        android:paddingBottom="16dp">
-
-                        <ImageView
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:contentDescription="Report Found Icon"
-                            android:src="@drawable/ic_report_found" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="14dp"
-                            android:fontFamily="sans-serif-black"
-                            android:text="Report Found"
-                            android:textColor="@color/text_primary"
-                            android:textSize="17sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-
-            <!-- Black Stats Banner -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/layoutStatsBanner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:background="@drawable/bg_stat_banner"
-                android:paddingStart="18dp"
-                android:paddingTop="16dp"
-                android:paddingEnd="18dp"
-                android:paddingBottom="16dp">
-
-                <TextView
-                    android:id="@+id/tvReunitedCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="128 reunited this month"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tvVerifiedRate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-black"
-                    android:text="92% verified"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Filter Chips (All, Electronics, Documents, etc.) -->
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:overScrollMode="never"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <!-- "All" Chip (Selected) -->
-                    <TextView
-                        android:id="@+id/chipAll"
-                        android:layout_width="wrap_content"
-                        android:layout_height="40dp"
-                        android:background="@drawable/bg_chip_selected"
-                        android:gravity="center"
-                        android:paddingStart="22dp"
-                        android:paddingEnd="22dp"
-                        android:text="All"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <!-- "Electronics" Chip -->
-                    <TextView
-                        android:id="@+id/chipElectronics"
-                        android:layout_width="wrap_content"
-                        android:layout_height="40dp"
-                        android:layout_marginStart="10dp"
-                        android:background="@drawable/bg_chip_unselected"
-                        android:gravity="center"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:text="Electronics"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <!-- "Documents" Chip -->
-                    <TextView
-                        android:id="@+id/chipDocuments"
-                        android:layout_width="wrap_content"
-                        android:layout_height="40dp"
-                        android:layout_marginStart="10dp"
-                        android:background="@drawable/bg_chip_unselected"
-                        android:gravity="center"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:text="Documents"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </HorizontalScrollView>
-
-            <!-- Section Header: Recent nearby & See all -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:layout_marginBottom="12dp">
-
-                <TextView
-                    android:id="@+id/tvRecentNearbyTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-black"
-                    android:text="Recent nearby"
-                    android:textColor="@color/text_primary"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tvSeeAll"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="See all"
-                    android:textColor="@color/accent_blue"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Item Card 1: Black leather wallet -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardWallet"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardBackgroundColor="@color/surface_card"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/card_stroke"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
-
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/ivWalletImage"
-                        android:layout_width="86dp"
-                        android:layout_height="86dp"
-                        android:contentDescription="Wallet item image"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/img_wallet_placeholder"
-                        app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:id="@+id/tvWalletStatusTag"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-black"
-                                android:text="LOST"
-                                android:textColor="@color/tag_lost_color"
-                                android:textSize="12sp"
-                                android:textStyle="bold"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <TextView
-                                android:id="@+id/tvWalletTime"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-medium"
-                                android:text="2h ago"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
-                        <TextView
-                            android:id="@+id/tvWalletTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:ellipsize="end"
-                            android:fontFamily="sans-serif-black"
-                            android:maxLines="1"
-                            android:text="Black leather wallet"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:contentDescription="Location icon"
-                                android:src="@drawable/ic_location" />
-
-                            <TextView
-                                android:id="@+id/tvWalletLocation"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="5dp"
-                                android:fontFamily="sans-serif-medium"
-                                android:text="Colombo 03"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="13sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Item Card 2: Golden retriever, Milo -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardDog"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="14dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardBackgroundColor="@color/surface_card"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/card_stroke"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
-
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/ivDogImage"
-                        android:layout_width="86dp"
-                        android:layout_height="86dp"
-                        android:contentDescription="Dog item image"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/img_dog_placeholder"
-                        app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:id="@+id/tvDogStatusTag"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-black"
-                                android:text="FOUND"
-                                android:textColor="@color/tag_found_color"
-                                android:textSize="12sp"
-                                android:textStyle="bold"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <TextView
-                                android:id="@+id/tvDogTime"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-medium"
-                                android:text="35m"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
-                        <TextView
-                            android:id="@+id/tvDogTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:ellipsize="end"
-                            android:fontFamily="sans-serif-black"
-                            android:maxLines="1"
-                            android:text="Golden retriever, Milo"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:contentDescription="Location icon"
-                                android:src="@drawable/ic_location" />
-
-                            <TextView
-                                android:id="@+id/tvDogLocation"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="5dp"
-                                android:fontFamily="sans-serif-medium"
-                                android:text="Viharamahadevi Park"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="13sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Bottom Navigation Bar Container -->
     <androidx.cardview.widget.CardView
-        android:id="@+id/bottomNavCard"
+        android:id="@+id/bottomNavigationCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="@color/white"
@@ -602,16 +30,15 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
-            android:id="@+id/bottomNavContent"
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:baselineAligned="false"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <!-- Nav 1: Home -->
+            <!-- Nav: Home Tab -->
             <LinearLayout
-                android:id="@+id/navHome"
+                android:id="@+id/navHomeTab"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -621,12 +48,14 @@
                 android:orientation="vertical">
 
                 <ImageView
+                    android:id="@+id/navHomeIcon"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:contentDescription="Home"
                     android:src="@drawable/ic_nav_home" />
 
                 <TextView
+                    android:id="@+id/navHomeLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
@@ -637,9 +66,9 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Nav 2: Explore -->
+            <!-- Nav: Explore Tab -->
             <LinearLayout
-                android:id="@+id/navExplore"
+                android:id="@+id/navExploreTab"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -649,12 +78,14 @@
                 android:orientation="vertical">
 
                 <ImageView
+                    android:id="@+id/navExploreIcon"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:contentDescription="Explore"
                     android:src="@drawable/ic_nav_explore" />
 
                 <TextView
+                    android:id="@+id/navExploreLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
@@ -664,9 +95,9 @@
                     android:textSize="11sp" />
             </LinearLayout>
 
-            <!-- Nav 3: + Post (Prominent Center Pill Button) -->
+            <!-- Nav: + Post (Prominent Center Pill Button) -->
             <LinearLayout
-                android:id="@+id/navPost"
+                android:id="@+id/navPostTab"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1.2"
@@ -701,9 +132,9 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Nav 4: Messages -->
+            <!-- Nav: Messages Tab -->
             <LinearLayout
-                android:id="@+id/navMessages"
+                android:id="@+id/navMessagesTab"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -717,6 +148,7 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
+                        android:id="@+id/navMessagesIcon"
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:contentDescription="Messages"
@@ -731,6 +163,7 @@
                 </FrameLayout>
 
                 <TextView
+                    android:id="@+id/navMessagesLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
@@ -740,9 +173,9 @@
                     android:textSize="11sp" />
             </LinearLayout>
 
-            <!-- Nav 5: Profile -->
+            <!-- Nav: Profile Tab -->
             <LinearLayout
-                android:id="@+id/navProfile"
+                android:id="@+id/navProfileTab"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -752,12 +185,14 @@
                 android:orientation="vertical">
 
                 <ImageView
+                    android:id="@+id/navProfileIcon"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:contentDescription="Profile"
                     android:src="@drawable/ic_nav_profile" />
 
                 <TextView
+                    android:id="@+id/navProfileLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
