@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="60dp"
+    android:viewportWidth="300"
+    android:viewportHeight="60">
+
+    <!-- Smooth spline graph line in dark clay #675349 -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#675349"
+        android:strokeWidth="2.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M10,50 C40,42 60,25 90,26 C120,27 130,34 160,24 C190,14 210,21 240,14 C260,10 275,10 285,12" />
+
+</vector>

@@ -7,8 +7,10 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.card.MaterialCardView
 
@@ -16,7 +18,7 @@ import com.google.android.material.card.MaterialCardView
  * HomeFragment displays the main dashboard of the Foundly app:
  * - Search bar with filter options
  * - Quick action cards: "Report Lost" & "Report Found"
- * - Monthly community statistics
+ * - Monthly community statistics in warm beige tone
  * - Category filter chips ("All", "Electronics", "Documents")
  * - Recent lost and found item listings
  */
@@ -31,8 +33,8 @@ class HomeFragment : Fragment() {
     private lateinit var buttonFilterSettings: ImageView
 
     // Action cards
-    private lateinit var cardReportLostItem: MaterialCardView
-    private lateinit var cardReportFoundItem: MaterialCardView
+    private lateinit var cardReportLostItem: LinearLayout
+    private lateinit var cardReportFoundItem: LinearLayout
 
     // Category chips
     private lateinit var chipCategoryAll: TextView
@@ -107,8 +109,12 @@ class HomeFragment : Fragment() {
             Toast.makeText(requireContext(), "Viewing all recent items", Toast.LENGTH_SHORT).show()
         }
 
+        // Tapping black wallet card opens DetailsFragment
         cardWalletItem.setOnClickListener {
-            Toast.makeText(requireContext(), "Item: Black leather wallet", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, DetailsFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         cardDogItem.setOnClickListener {
@@ -121,10 +127,10 @@ class HomeFragment : Fragment() {
         for (chip in allChips) {
             if (chip == selectedChip) {
                 chip.setBackgroundResource(R.drawable.bg_chip_selected)
-                chip.setTextColor(requireContext().getColor(R.color.white))
+                chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
             } else {
                 chip.setBackgroundResource(R.drawable.bg_chip_unselected)
-                chip.setTextColor(requireContext().getColor(R.color.text_primary))
+                chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
             }
         }
     }

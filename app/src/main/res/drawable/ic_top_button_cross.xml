@@ -1,22 +1,23 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="40dp"
-    android:height="40dp"
-    android:viewportWidth="40"
-    android:viewportHeight="40">
+    android:width="42dp"
+    android:height="42dp"
+    android:viewportWidth="42"
+    android:viewportHeight="42">
+  <!-- Rounded squircle button in clay_dark -->
   <path
-      android:fillColor="#111827"
-      android:pathData="M20,20m-18,0a18,18 0 1,1 36,0a18,18 0 1,1 -36,0" />
-  <!-- circular outline inside -->
-  <path
-      android:fillColor="@android:color/transparent"
-      android:strokeColor="#FFFFFF"
-      android:strokeWidth="1.6"
-      android:pathData="M20,20m-9,0a9,9 0 1,1 18,0a9,9 0 1,1 -18,0" />
-  <!-- cross inside -->
+      android:fillColor="#675349"
+      android:pathData="M13,0h16a13,13 0 0,1 13,13v16a13,13 0 0,1 -13,13H13a13,13 0 0,1 -13,-13V13a13,13 0 0,1 13,-13z" />
+  <!-- Inner circle outline -->
   <path
       android:fillColor="@android:color/transparent"
       android:strokeColor="#FFFFFF"
-      android:strokeWidth="1.6"
+      android:strokeWidth="1.8"
+      android:pathData="M21,21m-9,0a9,9 0 1,1 18,0a9,9 0 1,1 -18,0" />
+  <!-- Inner cross -->
+  <path
+      android:fillColor="@android:color/transparent"
+      android:strokeColor="#FFFFFF"
+      android:strokeWidth="1.8"
       android:strokeLineCap="round"
-      android:pathData="M16.5,16.5l7,7M23.5,16.5l-7,7" />
+      android:pathData="M17.5,17.5l7,7M24.5,17.5l-7,7" />
 </vector>

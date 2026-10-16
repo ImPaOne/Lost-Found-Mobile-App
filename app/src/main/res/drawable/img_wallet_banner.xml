@@ -1,0 +1,34 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="160dp"
+    android:viewportWidth="300"
+    android:viewportHeight="160">
+
+    <!-- Neutral Studio Background -->
+    <path
+        android:fillColor="#E3DDD7"
+        android:pathData="M0,0h300v160H0z" />
+
+    <!-- Vertical Black Wallet Spine & Fold -->
+    <path
+        android:fillColor="#1C1B1A"
+        android:pathData="M95,0h110v160H95z" />
+
+    <!-- Leather texture highlight band -->
+    <path
+        android:fillColor="#2B2928"
+        android:pathData="M102,0h88v160h-88z" />
+
+    <!-- Outer stitch line along spine -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#111111"
+        android:strokeWidth="1.2"
+        android:pathData="M198,0v160" />
+
+    <!-- Embossed logo outline on bottom corner -->
+    <path
+        android:fillColor="#211F1E"
+        android:pathData="M164,120h22v22h-22z" />
+
+</vector>
