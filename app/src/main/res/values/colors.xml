@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Base -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    
-    <!-- Exact Color Palette Sampled From Design -->
+
+    <!-- DAVIS HUMPHRIES DESIGN - NUDE PALETTE (EXACT HEX CODES) -->
+    <color name="nude_dark">#FF3A2D28</color>      <!-- #3A2D28: Main dark text, headlines, top squircle, active chips, post pill -->
+    <color name="nude_taupe">#FFA48374</color>     <!-- #A48374: Accent warm links, icons, secondary emphasis -->
+    <color name="nude_sand">#FFCBAD8D</color>      <!-- #CBAD8D: Warm sand accent -->
+    <color name="nude_light_taupe">#FFD1C7BD</color><!-- #D1C7BD: Muted text, secondary labels, icons -->
+    <color name="nude_cream">#FFEBE3DB</color>      <!-- #EBE3DB: Filled card backgrounds, stats banner fill -->
+    <color name="nude_soft_white">#FFF1EDE6</color> <!-- #F1EDE6: Subtle card fills, background tint -->
+
+    <!-- LIGHT COMPONENT STROKES (FROM PALETTE #EBE3DB / #D1C7BD) -->
+    <color name="component_stroke">#FFEBE3DB</color>
+    <color name="component_stroke_border">#FFD1C7BD</color>
+
+    <!-- Semantic Mapping -->
     <color name="background_screen">#FFFFFFFF</color>
-    <color name="surface_card">#FFFFFFFF</color>
-    
-    <!-- Warm Earthy Text & Icons -->
-    <color name="text_primary">#FF4A382F</color>
-    <color name="text_secondary">#FF82736B</color>
-    <color name="text_hint">#FFA5978F</color>
-    
-    <!-- Card & Banner Borders & Fills -->
-    <color name="stroke_light">#FFE4DDD6</color>
-    <color name="stroke_medium">#FFD8CEC5</color>
-    
-    <!-- Beige Fills with Subtle Border Tint -->
-    <color name="beige_fill">#FFF1ECE6</color>
-    <color name="beige_card_stroke">#FFE2D8CD</color>
-    
-    <!-- Dark Clay Buttons & Pills -->
-    <color name="clay_dark">#FF675349</color>
-    <color name="clay_chip_selected">#FF675349</color>
-    
-    <!-- Status Badges -->
+    <color name="text_primary">#FF3A2D28</color>
+    <color name="text_secondary">#FFA48374</color>
+    <color name="text_hint">#FFD1C7BD</color>
+    <color name="beige_fill">#FFEBE3DB</color>
+
+    <!-- Status Tags -->
     <color name="tag_lost_color">#FFD43838</color>
     <color name="tag_found_color">#FF3B7A57</color>
-    <color name="see_all_color">#FF705649</color>
+    <color name="see_all_color">#FFA48374</color>
 </resources>
