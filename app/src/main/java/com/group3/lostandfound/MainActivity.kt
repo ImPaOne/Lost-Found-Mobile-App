@@ -51,7 +51,8 @@ class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelec
                 loadScreenFragment(AnalyticsFragment.newInstance())
             }
             BottomNavFragment.NavigationTab.PROFILE -> {
-                Toast.makeText(this, "Profile screen selected", Toast.LENGTH_SHORT).show()
+                // Profile tab loads My Reports screen
+                loadScreenFragment(ReportsFragment.newInstance())
             }
         }
     }
