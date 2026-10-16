@@ -17,16 +17,19 @@ class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelec
 
         applyWindowInsets()
 
-        // Initialize with HomeFragment if this is the first launch
         if (savedInstanceState == null) {
-            loadScreenFragment(HomeFragment.newInstance())
+            // Load the reusable bottom navigation fragment into its container
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.bottomNavFragmentContainer, BottomNavFragment.newInstance())
+                .replace(R.id.screenFragmentContainer, HomeFragment.newInstance())
+                .commit()
         }
     }
 
     private fun applyWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainRootLayout)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
     }

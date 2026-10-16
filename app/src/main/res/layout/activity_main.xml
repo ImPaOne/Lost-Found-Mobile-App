@@ -8,7 +8,7 @@
     android:background="@color/background_screen"
     tools:context=".MainActivity">
 
-    <!-- Screen Fragment Container -->
+    <!-- Screen Fragment Container for Home, Explore, etc. -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/screenFragmentContainer"
         android:layout_width="0dp"
@@ -18,12 +18,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Reusable Bottom Navigation Fragment Container -->
+    <!-- Reusable Bottom Navigation Fragment Container (Explicit height: 64dp) -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/bottomNavFragmentContainer"
-        android:name="com.group3.lostandfound.BottomNavFragment"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="64dp"
+        android:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
