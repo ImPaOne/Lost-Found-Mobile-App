@@ -40,15 +40,16 @@ class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelec
                 loadScreenFragment(HomeFragment.newInstance())
             }
             BottomNavFragment.NavigationTab.EXPLORE -> {
-                // Explore tab loads Moderation screen
-                loadScreenFragment(ModerationFragment.newInstance())
+                // Explore tab loads Admin Dashboard
+                loadScreenFragment(AdminFragment.newInstance())
             }
             BottomNavFragment.NavigationTab.REPORTS -> {
                 // My reports tab loads ReportsFragment
                 loadScreenFragment(ReportsFragment.newInstance())
             }
             BottomNavFragment.NavigationTab.PROFILE -> {
-                Toast.makeText(this, "Profile screen", Toast.LENGTH_SHORT).show()
+                // Profile tab loads Analytics screen
+                loadScreenFragment(AnalyticsFragment.newInstance())
             }
         }
     }

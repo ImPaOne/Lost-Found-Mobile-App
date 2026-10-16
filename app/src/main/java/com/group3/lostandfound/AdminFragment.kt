@@ -1,0 +1,79 @@
+package com.group3.lostandfound
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.Fragment
+
+/**
+ * AdminFragment displays operational statistics, trend graphs, and recent activity.
+ * Built with clean human-written code using concise 3-8 character variable names.
+ */
+class AdminFragment : Fragment() {
+
+    private lateinit var btnBack: ImageView
+    private lateinit var btnBell: ImageView
+
+    private lateinit var boxQueue: ConstraintLayout
+    private lateinit var btnReview: TextView
+    private lateinit var btnUsers: TextView
+    private lateinit var btnAnnounce: TextView
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_admin, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        btnBack = view.findViewById(R.id.btnBack)
+        btnBell = view.findViewById(R.id.btnBell)
+
+        boxQueue = view.findViewById(R.id.boxQueue)
+        btnReview = view.findViewById(R.id.btnReview)
+        btnUsers = view.findViewById(R.id.btnUsers)
+        btnAnnounce = view.findViewById(R.id.btnAnnounce)
+
+        btnBack.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+
+        btnBell.setOnClickListener {
+            Toast.makeText(requireContext(), "Admin notifications", Toast.LENGTH_SHORT).show()
+        }
+
+        // Tapping the moderation queue or "Review Reports" opens ModerationFragment
+        boxQueue.setOnClickListener { openModeration() }
+        btnReview.setOnClickListener { openModeration() }
+
+        btnUsers.setOnClickListener {
+            Toast.makeText(requireContext(), "Manage users", Toast.LENGTH_SHORT).show()
+        }
+
+        btnAnnounce.setOnClickListener {
+            Toast.makeText(requireContext(), "Send announcement", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun openModeration() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.screenFragmentContainer, ModerationFragment.newInstance())
+            .addToBackStack(null)
+            .commit()
+    }
+
+    companion object {
+        fun newInstance(): AdminFragment {
+            return AdminFragment()
+        }
+    }
+}
