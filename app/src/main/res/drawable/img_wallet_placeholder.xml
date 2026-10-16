@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+  <path
+      android:fillColor="#D8D3CC"
+      android:pathData="M0,0h100v100H0z" />
+  <!-- Wallet shape -->
+  <path
+      android:fillColor="#2D2B29"
+      android:pathData="M24,28h52a4,4 0 0,1 4,4v36a4,4 0 0,1 -4,4H24a4,4 0 0,1 -4,-4V32a4,4 0 0,1 4,-4z" />
+  <path
+      android:fillColor="#3D3B39"
+      android:pathData="M24,32h52v8H24z" />
+  <path
+      android:fillColor="#1E1D1B"
+      android:pathData="M60,46h18a2,2 0 0,1 2,2v12a2,2 0 0,1 -2,2H60a4,4 0 0,1 -4,-4V50a4,4 0 0,1 4,-4z" />
+  <path
+      android:fillColor="#C4B59D"
+      android:pathData="M63,54m-2,0a2,2 0 1,1 4,0a2,2 0 1,1 -4,0" />
+</vector>
