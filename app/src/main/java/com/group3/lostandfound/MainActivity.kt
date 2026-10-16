@@ -18,16 +18,16 @@ class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelec
         applyWindowInsets()
 
         if (savedInstanceState == null) {
-            // Load reusable bottom navigation fragment and the initial screen fragment
+            // Load persistent bottom navigation bar once and start on AdminFragment / HomeFragment
             supportFragmentManager.beginTransaction()
-                .replace(R.id.bottomNavFragmentContainer, BottomNavFragment.newInstance())
-                .replace(R.id.screenFragmentContainer, HomeFragment.newInstance())
+                .replace(R.id.navBox, BottomNavFragment.newInstance())
+                .replace(R.id.screenBox, AdminFragment.newInstance())
                 .commit()
         }
     }
 
     private fun applyWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainRootLayout)) { view, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainBox)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -37,26 +37,26 @@ class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelec
     override fun onTabSelected(tab: BottomNavFragment.NavigationTab) {
         when (tab) {
             BottomNavFragment.NavigationTab.HOME -> {
-                loadScreenFragment(HomeFragment.newInstance())
+                loadScreen(HomeFragment.newInstance())
             }
             BottomNavFragment.NavigationTab.EXPLORE -> {
-                // Explore tab loads Admin Dashboard
-                loadScreenFragment(AdminFragment.newInstance())
+                loadScreen(AdminFragment.newInstance())
             }
-            BottomNavFragment.NavigationTab.REPORTS -> {
-                // My reports tab loads ReportsFragment
-                loadScreenFragment(ReportsFragment.newInstance())
+            BottomNavFragment.NavigationTab.POST -> {
+                Toast.makeText(this, "+ Post", Toast.LENGTH_SHORT).show()
+            }
+            BottomNavFragment.NavigationTab.MESSAGES -> {
+                loadScreen(AnalyticsFragment.newInstance())
             }
             BottomNavFragment.NavigationTab.PROFILE -> {
-                // Profile tab loads Analytics screen
-                loadScreenFragment(AnalyticsFragment.newInstance())
+                loadScreen(ReportsFragment.newInstance())
             }
         }
     }
 
-    private fun loadScreenFragment(fragment: Fragment) {
+    private fun loadScreen(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.screenFragmentContainer, fragment)
+            .replace(R.id.screenBox, fragment)
             .addToBackStack(null)
             .commit()
     }
