@@ -1,20 +1,14 @@
 package com.group3.lostandfound
 
 import android.os.Bundle
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.Fragment
 
-class MainActivity : AppCompatActivity() {
-
-    private lateinit var navHomeTab: LinearLayout
-    private lateinit var navExploreTab: LinearLayout
-    private lateinit var navPostTab: LinearLayout
-    private lateinit var navMessagesTab: LinearLayout
-    private lateinit var navProfileTab: LinearLayout
+class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelectedListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,13 +16,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         applyWindowInsets()
-        initBottomNavigation()
 
-        // Load the HomeFragment as the default screen
+        // Initialize with HomeFragment if this is the first launch
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainerView, HomeFragment.newInstance())
-                .commit()
+            loadScreenFragment(HomeFragment.newInstance())
         }
     }
 
@@ -40,33 +31,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initBottomNavigation() {
-        navHomeTab = findViewById(R.id.navHomeTab)
-        navExploreTab = findViewById(R.id.navExploreTab)
-        navPostTab = findViewById(R.id.navPostTab)
-        navMessagesTab = findViewById(R.id.navMessagesTab)
-        navProfileTab = findViewById(R.id.navProfileTab)
-
-        navHomeTab.setOnClickListener {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainerView, HomeFragment.newInstance())
-                .commit()
+    override fun onTabSelected(tab: BottomNavFragment.NavigationTab) {
+        when (tab) {
+            BottomNavFragment.NavigationTab.HOME -> {
+                loadScreenFragment(HomeFragment.newInstance())
+            }
+            BottomNavFragment.NavigationTab.EXPLORE -> {
+                Toast.makeText(this, "Explore screen selected", Toast.LENGTH_SHORT).show()
+            }
+            BottomNavFragment.NavigationTab.POST -> {
+                Toast.makeText(this, "+ Post action triggered", Toast.LENGTH_SHORT).show()
+            }
+            BottomNavFragment.NavigationTab.MESSAGES -> {
+                Toast.makeText(this, "Messages screen selected", Toast.LENGTH_SHORT).show()
+            }
+            BottomNavFragment.NavigationTab.PROFILE -> {
+                Toast.makeText(this, "Profile screen selected", Toast.LENGTH_SHORT).show()
+            }
         }
+    }
 
-        navExploreTab.setOnClickListener {
-            Toast.makeText(this, "Explore", Toast.LENGTH_SHORT).show()
-        }
-
-        navPostTab.setOnClickListener {
-            Toast.makeText(this, "+ Post New Item", Toast.LENGTH_SHORT).show()
-        }
-
-        navMessagesTab.setOnClickListener {
-            Toast.makeText(this, "Messages", Toast.LENGTH_SHORT).show()
-        }
-
-        navProfileTab.setOnClickListener {
-            Toast.makeText(this, "Profile", Toast.LENGTH_SHORT).show()
-        }
+    private fun loadScreenFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.screenFragmentContainer, fragment)
+            .commit()
     }
 }
