@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingStart="20dp"
-        android:paddingTop="14dp"
+        android:paddingTop="12dp"
         android:paddingEnd="20dp"
         android:paddingBottom="24dp">
 
@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- Branded Top Left Close/Dismiss Button -->
+            <!-- Rounded Clay Squircle Close/Dismiss Button -->
             <ImageView
                 android:id="@+id/buttonHeaderClose"
                 android:layout_width="38dp"
@@ -38,7 +38,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- App Title "Foundly" -->
+            <!-- App Title "Foundly" in bold dark clay/brown -->
             <TextView
                 android:id="@+id/textAppTitle"
                 android:layout_width="wrap_content"
@@ -66,8 +66,8 @@
 
                 <ImageView
                     android:id="@+id/iconNotificationBell"
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:contentDescription="Notifications"
                     android:src="@drawable/ic_bell" />
@@ -79,7 +79,7 @@
             android:id="@+id/textGreetingMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
+            android:layout_marginTop="24dp"
             android:fontFamily="sans-serif-medium"
             android:text="Good morning, Nadeesha"
             android:textColor="@color/text_secondary"
@@ -93,14 +93,14 @@
             android:fontFamily="sans-serif-black"
             android:text="Let's bring it home."
             android:textColor="@color/text_primary"
-            android:textSize="28sp"
+            android:textSize="29sp"
             android:textStyle="bold" />
 
-        <!-- Search Bar with Search Icon and Filter Button -->
+        <!-- Search Bar with Stacked Cylinder & Filter Icons -->
         <LinearLayout
             android:id="@+id/searchContainerLayout"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
+            android:layout_height="52dp"
             android:layout_marginTop="20dp"
             android:background="@drawable/bg_search_box"
             android:gravity="center_vertical"
@@ -113,7 +113,7 @@
                 android:layout_width="22dp"
                 android:layout_height="22dp"
                 android:contentDescription="Search Icon"
-                android:src="@drawable/ic_search" />
+                android:src="@drawable/ic_search_cylinder" />
 
             <EditText
                 android:id="@+id/inputSearchField"
@@ -141,44 +141,43 @@
                 android:src="@drawable/ic_filter" />
         </LinearLayout>
 
-        <!-- Quick Action Cards: Report Lost & Report Found -->
+        <!-- Quick Action Cards: Report Lost (Left, white/open) & Report Found (Right, filled beige) -->
         <LinearLayout
             android:id="@+id/actionCardsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="20dp"
             android:baselineAligned="false"
             android:orientation="horizontal">
 
-            <!-- Report Lost Card -->
+            <!-- Report Lost Card (Clean white surface without border to match screenshot) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardReportLostItem"
                 android:layout_width="0dp"
-                android:layout_height="116dp"
+                android:layout_height="112dp"
                 android:layout_marginEnd="7dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardBackgroundColor="@color/surface_card"
+                app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/card_stroke"
-                app:strokeWidth="1dp">
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical|start"
                     android:orientation="vertical"
-                    android:paddingStart="18dp"
+                    android:paddingStart="16dp"
                     android:paddingTop="16dp"
                     android:paddingEnd="16dp"
                     android:paddingBottom="16dp">
 
                     <ImageView
                         android:id="@+id/iconReportLost"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:contentDescription="Report Lost"
                         android:src="@drawable/ic_report_lost" />
 
@@ -186,7 +185,7 @@
                         android:id="@+id/textReportLostTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="14dp"
+                        android:layout_marginTop="16dp"
                         android:fontFamily="sans-serif-black"
                         android:text="Report Lost"
                         android:textColor="@color/text_primary"
@@ -195,35 +194,34 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Report Found Card -->
+            <!-- Report Found Card (Filled Warm Beige #F0EAE3 matching Figma) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardReportFoundItem"
                 android:layout_width="0dp"
-                android:layout_height="116dp"
+                android:layout_height="112dp"
                 android:layout_marginStart="7dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardBackgroundColor="@color/surface_card"
+                app:cardBackgroundColor="@color/beige_card_bg"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/card_stroke"
-                app:strokeWidth="1dp">
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical|start"
                     android:orientation="vertical"
-                    android:paddingStart="18dp"
+                    android:paddingStart="16dp"
                     android:paddingTop="16dp"
                     android:paddingEnd="16dp"
                     android:paddingBottom="16dp">
 
                     <ImageView
                         android:id="@+id/iconReportFound"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:contentDescription="Report Found"
                         android:src="@drawable/ic_report_found" />
 
@@ -231,7 +229,7 @@
                         android:id="@+id/textReportFoundTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="14dp"
+                        android:layout_marginTop="16dp"
                         android:fontFamily="sans-serif-black"
                         android:text="Report Found"
                         android:textColor="@color/text_primary"
@@ -241,12 +239,12 @@
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
-        <!-- Dark Community Statistics Banner -->
+        <!-- Warm Beige Statistics Banner -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/statisticsBannerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="16dp"
             android:background="@drawable/bg_stat_banner"
             android:paddingStart="18dp"
             android:paddingTop="16dp"
@@ -259,7 +257,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
                 android:text="128 reunited this month"
-                android:textColor="@color/white"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -271,7 +269,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-black"
                 android:text="92% verified"
-                android:textColor="@color/white"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -293,7 +291,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <!-- "All" Chip (Active) -->
+                <!-- "All" Chip (Dark Clay Active) -->
                 <TextView
                     android:id="@+id/chipCategoryAll"
                     android:layout_width="wrap_content"
@@ -374,7 +372,7 @@
                 android:focusable="true"
                 android:fontFamily="sans-serif-bold"
                 android:text="See all"
-                android:textColor="@color/accent_blue"
+                android:textColor="@color/accent_warm_link"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -387,13 +385,13 @@
             android:id="@+id/cardWalletItem"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="14dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardBackgroundColor="@color/surface_card"
+            app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="18dp"
             app:cardElevation="0dp"
-            app:strokeColor="@color/card_stroke"
+            app:strokeColor="@color/border_light"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -498,10 +496,10 @@
             android:layout_marginBottom="14dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardBackgroundColor="@color/surface_card"
+            app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="18dp"
             app:cardElevation="0dp"
-            app:strokeColor="@color/card_stroke"
+            app:strokeColor="@color/border_light"
             app:strokeWidth="1dp">
 
             <LinearLayout

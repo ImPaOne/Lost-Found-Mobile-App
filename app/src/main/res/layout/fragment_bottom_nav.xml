@@ -2,10 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/bottomNavigationCard"
     android:layout_width="match_parent"
-    android:layout_height="64dp"
+    android:layout_height="68dp"
     android:background="@color/white"
     android:baselineAligned="false"
-    android:elevation="8dp"
+    android:elevation="6dp"
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
@@ -32,11 +32,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            android:fontFamily="sans-serif-bold"
+            android:fontFamily="sans-serif-medium"
             android:text="Home"
             android:textColor="@color/text_primary"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+            android:textSize="11sp" />
     </LinearLayout>
 
     <!-- 2. Explore Tab -->
@@ -68,12 +67,12 @@
             android:textSize="11sp" />
     </LinearLayout>
 
-    <!-- 3. Post Tab (Center prominent rounded pill button) -->
+    <!-- 3. Post Tab (Center rounded warm clay pill) -->
     <LinearLayout
         android:id="@+id/tabPost"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1.2"
+        android:layout_weight="1.1"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center">
@@ -81,10 +80,10 @@
         <LinearLayout
             android:id="@+id/buttonPostPill"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
-            android:background="@drawable/bg_stat_banner"
+            android:layout_height="48dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_nav_post_pill"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -108,7 +107,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 4. Messages Tab -->
+    <!-- 4. Messages Tab (No red dot in this screenshot) -->
     <LinearLayout
         android:id="@+id/tabMessages"
         android:layout_width="0dp"
@@ -119,25 +118,12 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:id="@+id/imageMessagesIcon"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:contentDescription="Messages icon"
-                android:src="@drawable/ic_nav_messages" />
-
-            <!-- Red notification unread badge -->
-            <View
-                android:id="@+id/badgeMessagesDot"
-                android:layout_width="7dp"
-                android:layout_height="7dp"
-                android:layout_gravity="top|end"
-                android:background="@drawable/bg_red_dot" />
-        </FrameLayout>
+        <ImageView
+            android:id="@+id/imageMessagesIcon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:contentDescription="Messages icon"
+            android:src="@drawable/ic_nav_messages" />
 
         <TextView
             android:id="@+id/textMessagesLabel"

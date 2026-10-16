@@ -3,17 +3,16 @@
     android:height="28dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-  <!-- hand holding heart in teal/green -->
   <path
       android:fillColor="@android:color/transparent"
-      android:strokeColor="#10B981"
+      android:strokeColor="#5E4B43"
       android:strokeWidth="1.8"
       android:strokeLineCap="round"
       android:strokeLineJoin="round"
       android:pathData="M16.5,3.5c-1.5,0 -2.5,1 -2.5,2.5 0,-1.5 -1,-2.5 -2.5,-2.5 -1.5,0 -2.5,1.2 -2.5,2.7 0,2.1 4.5,5.3 5,5.3s5,-3.2 5,-5.3c0,-1.5 -1,-2.7 -2.5,-2.7z" />
   <path
       android:fillColor="@android:color/transparent"
-      android:strokeColor="#10B981"
+      android:strokeColor="#5E4B43"
       android:strokeWidth="1.8"
       android:strokeLineCap="round"
       android:strokeLineJoin="round"
