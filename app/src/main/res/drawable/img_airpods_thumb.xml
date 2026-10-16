@@ -1,0 +1,31 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+  <!-- Sunset beach / Galle face sky and sea background -->
+  <path
+      android:fillColor="#F6C28B"
+      android:pathData="M0,0h100v45H0z" />
+  <path
+      android:fillColor="#7BA0A6"
+      android:pathData="M0,45h100v18H0z" />
+  <!-- Wooden ledge / boardwalk railing -->
+  <path
+      android:fillColor="#4E3629"
+      android:pathData="M0,63h100v15H0z" />
+  <path
+      android:fillColor="#BCA282"
+      android:pathData="M0,78h100v22H0z" />
+  <!-- White AirPods Pro charging case resting on ledge -->
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M38,58h24a6,6 0 0,1 6,6v2a6,6 0 0,1 -6,6H38a6,6 0 0,1 -6,-6v-2a6,6 0 0,1 6,-6z" />
+  <!-- AirPods case seam & led dot -->
+  <path
+      android:fillColor="#D8D8D8"
+      android:pathData="M32,64h36v1H32z" />
+  <path
+      android:fillColor="#A0A0A0"
+      android:pathData="M50,67m-1,0a1,1 0 1,1 2,0a1,1 0 1,1 -2,0" />
+</vector>
