@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.card.MaterialCardView
 
@@ -16,7 +17,7 @@ import com.google.android.material.card.MaterialCardView
  * HomeFragment displays the main dashboard of the Foundly app:
  * - Search bar with filter options
  * - Quick action cards: "Report Lost" & "Report Found"
- * - Monthly community statistics
+ * - Monthly community statistics in warm beige tone
  * - Category filter chips ("All", "Electronics", "Documents")
  * - Recent lost and found item listings
  */
@@ -121,10 +122,10 @@ class HomeFragment : Fragment() {
         for (chip in allChips) {
             if (chip == selectedChip) {
                 chip.setBackgroundResource(R.drawable.bg_chip_selected)
-                chip.setTextColor(requireContext().getColor(R.color.white))
+                chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
             } else {
                 chip.setBackgroundResource(R.drawable.bg_chip_unselected)
-                chip.setTextColor(requireContext().getColor(R.color.text_primary))
+                chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
             }
         }
     }
