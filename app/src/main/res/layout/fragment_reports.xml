@@ -133,25 +133,27 @@
             android:id="@+id/card1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="22dp"
+            android:layout_marginBottom="14dp"
+            android:background="@drawable/bg_card_report_item"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="12dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/img1"
-                android:layout_width="92dp"
-                android:layout_height="92dp"
+                android:layout_width="84dp"
+                android:layout_height="84dp"
                 android:contentDescription="Wallet item image"
                 android:scaleType="centerCrop"
-                android:src="@drawable/img_wallet_placeholder"
+                android:src="@drawable/img_wallet"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="14dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -178,18 +180,18 @@
                     android:maxLines="1"
                     android:text="Black leather wallet"
                     android:textColor="@color/text_primary"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/sub1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Colombo 03 · 12 Sep"
                     android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <ImageView
@@ -208,25 +210,27 @@
             android:id="@+id/card2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="22dp"
+            android:layout_marginBottom="14dp"
+            android:background="@drawable/bg_card_report_item"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="12dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/img2"
-                android:layout_width="92dp"
-                android:layout_height="92dp"
+                android:layout_width="84dp"
+                android:layout_height="84dp"
                 android:contentDescription="Passport item image"
                 android:scaleType="centerCrop"
-                android:src="@drawable/img_passport_thumb"
+                android:src="@drawable/img_passport"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="14dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -253,18 +257,18 @@
                     android:maxLines="1"
                     android:text="Sri Lankan passport"
                     android:textColor="@color/text_primary"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/sub2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Fort Railway · 08 Sep"
                     android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <ImageView
@@ -283,25 +287,27 @@
             android:id="@+id/card3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="22dp"
+            android:layout_marginBottom="14dp"
+            android:background="@drawable/bg_card_report_item"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="12dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/img3"
-                android:layout_width="92dp"
-                android:layout_height="92dp"
+                android:layout_width="84dp"
+                android:layout_height="84dp"
                 android:contentDescription="AirPods Pro item image"
                 android:scaleType="centerCrop"
-                android:src="@drawable/img_airpods_thumb"
+                android:src="@drawable/img_airpods"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="14dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -328,18 +334,18 @@
                     android:maxLines="1"
                     android:text="AirPods Pro case"
                     android:textColor="@color/text_primary"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/sub3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Galle Face · 31 Aug"
                     android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <ImageView
