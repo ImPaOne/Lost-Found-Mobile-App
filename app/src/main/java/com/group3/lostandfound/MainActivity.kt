@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelec
         applyWindowInsets()
 
         if (savedInstanceState == null) {
-            // Load the reusable bottom navigation fragment into its container
+            // Load reusable bottom navigation fragment and the initial screen fragment
             supportFragmentManager.beginTransaction()
                 .replace(R.id.bottomNavFragmentContainer, BottomNavFragment.newInstance())
                 .replace(R.id.screenFragmentContainer, HomeFragment.newInstance())
@@ -40,7 +40,8 @@ class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelec
                 loadScreenFragment(HomeFragment.newInstance())
             }
             BottomNavFragment.NavigationTab.EXPLORE -> {
-                Toast.makeText(this, "Explore screen selected", Toast.LENGTH_SHORT).show()
+                // Explore tab navigates to Moderation dashboard
+                loadScreenFragment(ModerationFragment.newInstance())
             }
             BottomNavFragment.NavigationTab.POST -> {
                 Toast.makeText(this, "+ Post action triggered", Toast.LENGTH_SHORT).show()
@@ -57,6 +58,7 @@ class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelec
     private fun loadScreenFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.screenFragmentContainer, fragment)
+            .addToBackStack(null)
             .commit()
     }
 }
