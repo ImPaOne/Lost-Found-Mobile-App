@@ -40,14 +40,15 @@ class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelec
                 loadScreenFragment(HomeFragment.newInstance())
             }
             BottomNavFragment.NavigationTab.EXPLORE -> {
-                // Explore tab navigates to Moderation dashboard
+                // Explore tab loads Moderation screen
                 loadScreenFragment(ModerationFragment.newInstance())
             }
             BottomNavFragment.NavigationTab.POST -> {
                 Toast.makeText(this, "+ Post action triggered", Toast.LENGTH_SHORT).show()
             }
             BottomNavFragment.NavigationTab.MESSAGES -> {
-                Toast.makeText(this, "Messages screen selected", Toast.LENGTH_SHORT).show()
+                // Messages tab loads Analytics screen
+                loadScreenFragment(AnalyticsFragment.newInstance())
             }
             BottomNavFragment.NavigationTab.PROFILE -> {
                 Toast.makeText(this, "Profile screen selected", Toast.LENGTH_SHORT).show()
