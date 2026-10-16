@@ -112,7 +112,7 @@ class HomeFragment : Fragment() {
         // Tapping black wallet card opens DetailsFragment
         cardWalletItem.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenFragmentContainer, DetailsFragment.newInstance())
+                .replace(R.id.screenBox, DetailsFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
         }
