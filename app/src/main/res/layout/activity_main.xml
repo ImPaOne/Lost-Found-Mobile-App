@@ -2,25 +2,25 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mainRootLayout"
+    android:id="@+id/mainBox"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_screen"
     tools:context=".MainActivity">
 
-    <!-- Screen Fragment Container for Home, Explore, etc. -->
+    <!-- Screen Fragment Container for all screens -->
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/screenFragmentContainer"
+        android:id="@+id/screenBox"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavFragmentContainer"
+        app:layout_constraintBottom_toTopOf="@+id/navBox"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Reusable Bottom Navigation Fragment Container (Explicit height: 64dp) -->
+    <!-- Persistent Bottom Navigation Bar Container for EVERY screen -->
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/bottomNavFragmentContainer"
+        android:id="@+id/navBox"
         android:layout_width="0dp"
         android:layout_height="64dp"
         android:elevation="8dp"
