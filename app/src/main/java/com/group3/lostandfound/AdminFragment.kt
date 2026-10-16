@@ -66,7 +66,7 @@ class AdminFragment : Fragment() {
 
     private fun openModeration() {
         parentFragmentManager.beginTransaction()
-            .replace(R.id.screenFragmentContainer, ModerationFragment.newInstance())
+            .replace(R.id.screenBox, ModerationFragment.newInstance())
             .addToBackStack(null)
             .commit()
     }
