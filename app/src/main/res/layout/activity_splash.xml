@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/splashRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".SplashActivity">
+
+    <!-- Center Branding Container -->
+    <LinearLayout
+        android:id="@+id/centerBrandingBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.48">
+
+        <!-- Outer Logo Card with soft rounded corners -->
+        <FrameLayout
+            android:id="@+id/logoOuterBox"
+            android:layout_width="104dp"
+            android:layout_height="104dp"
+            android:background="@drawable/bg_splash_outer_card"
+            android:elevation="2dp">
+
+            <!-- Inner Dark Clay Card -->
+            <FrameLayout
+                android:id="@+id/logoInnerBox"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_splash_inner_card">
+
+                <!-- Person Profile + Checkmark Icon -->
+                <ImageView
+                    android:id="@+id/logoIcon"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="FindIt LK Logo"
+                    android:src="@drawable/ic_splash_logo" />
+            </FrameLayout>
+        </FrameLayout>
+
+        <!-- App Brand Title -->
+        <TextView
+            android:id="@+id/appNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:fontFamily="sans-serif-black"
+            android:text="FindIt LK"
+            android:textColor="#4A3528"
+            android:textSize="31sp"
+            android:textStyle="bold" />
+
+        <!-- Accent Divider -->
+        <View
+            android:id="@+id/brandDivider"
+            android:layout_width="34dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_splash_divider" />
+
+        <!-- Tagline / Subtitle -->
+        <TextView
+            android:id="@+id/taglineText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.01"
+            android:text="Lost less. Found faster."
+            android:textColor="#A48374"
+            android:textSize="14.5sp" />
+
+        <!-- 3 Page Indicator Dots -->
+        <LinearLayout
+            android:id="@+id/indicatorDotsRow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="38dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/dotFirst"
+                android:layout_width="6.5dp"
+                android:layout_height="6.5dp"
+                android:background="@drawable/bg_dot_active" />
+
+            <View
+                android:id="@+id/dotSecond"
+                android:layout_width="6.5dp"
+                android:layout_height="6.5dp"
+                android:layout_marginStart="7dp"
+                android:background="@drawable/bg_dot_inactive_1" />
+
+            <View
+                android:id="@+id/dotThird"
+                android:layout_width="6.5dp"
+                android:layout_height="6.5dp"
+                android:layout_marginStart="7dp"
+                android:background="@drawable/bg_dot_inactive_2" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
