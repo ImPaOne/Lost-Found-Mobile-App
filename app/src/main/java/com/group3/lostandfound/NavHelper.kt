@@ -42,7 +42,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     tabExplore?.setOnClickListener {
         if (activeTab != "explore") {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, AdminFragment.newInstance())
+                .replace(R.id.screenBox, ExploreFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
         }
@@ -64,7 +64,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     tabProfile?.setOnClickListener {
         if (activeTab != "profile") {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, ReportsFragment.newInstance())
+                .replace(R.id.screenBox, AdminFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
         }
