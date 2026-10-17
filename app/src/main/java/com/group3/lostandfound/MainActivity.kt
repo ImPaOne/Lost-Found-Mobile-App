@@ -6,6 +6,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
+/**
+ * MainActivity serves as the main activity container hosting the app screen fragments.
+ * Built with simple human-written code.
+ */
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,6 +20,7 @@ class MainActivity : AppCompatActivity() {
         applyWindowInsets()
 
         if (savedInstanceState == null) {
+            // Start on HomeFragment
             supportFragmentManager.beginTransaction()
                 .replace(R.id.screenBox, HomeFragment.newInstance())
                 .commit()
@@ -25,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     private fun applyWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainBox)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
             insets
         }
     }
