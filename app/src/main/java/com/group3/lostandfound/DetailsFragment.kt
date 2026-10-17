@@ -42,7 +42,7 @@ class DetailsFragment : Fragment() {
 
         initViews(view)
         setupListeners()
-        setupBottomNav(view)
+        NavigationHelper.setup(this, view, NavigationHelper.Tab.HOME)
     }
 
     private fun initViews(view: View) {
