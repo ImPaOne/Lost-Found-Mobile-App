@@ -67,7 +67,10 @@ class AdminFragment : Fragment() {
         btnReview.setOnClickListener { openModeration() }
 
         btnUsers.setOnClickListener {
-            Toast.makeText(requireContext(), "Manage users", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, TrustFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         btnAnnounce.setOnClickListener {
