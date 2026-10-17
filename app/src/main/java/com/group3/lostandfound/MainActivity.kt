@@ -1,14 +1,12 @@
 package com.group3.lostandfound
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.Fragment
 
-class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelectedListener {
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,9 +16,7 @@ class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelec
         applyWindowInsets()
 
         if (savedInstanceState == null) {
-            // Load persistent bottom navigation bar once and start on HomeFragment
             supportFragmentManager.beginTransaction()
-                .replace(R.id.navBox, BottomNavFragment.newInstance())
                 .replace(R.id.screenBox, HomeFragment.newInstance())
                 .commit()
         }
@@ -32,32 +28,5 @@ class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelec
             view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-    }
-
-    override fun onTabSelected(tab: BottomNavFragment.NavigationTab) {
-        when (tab) {
-            BottomNavFragment.NavigationTab.HOME -> {
-                loadScreen(HomeFragment.newInstance())
-            }
-            BottomNavFragment.NavigationTab.EXPLORE -> {
-                loadScreen(AdminFragment.newInstance())
-            }
-            BottomNavFragment.NavigationTab.POST -> {
-                Toast.makeText(this, "+ Post", Toast.LENGTH_SHORT).show()
-            }
-            BottomNavFragment.NavigationTab.MESSAGES -> {
-                loadScreen(AnalyticsFragment.newInstance())
-            }
-            BottomNavFragment.NavigationTab.PROFILE -> {
-                loadScreen(ReportsFragment.newInstance())
-            }
-        }
-    }
-
-    private fun loadScreen(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.screenBox, fragment)
-            .addToBackStack(null)
-            .commit()
     }
 }
