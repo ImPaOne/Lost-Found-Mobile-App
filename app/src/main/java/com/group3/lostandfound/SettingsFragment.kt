@@ -120,7 +120,10 @@ class SettingsFragment : Fragment() {
         }
 
         rowLogout.setOnClickListener {
-            Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, SignUpFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
     }
 
