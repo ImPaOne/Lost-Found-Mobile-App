@@ -56,7 +56,10 @@ class ReportsFragment : Fragment() {
         }
 
         btnAdd.setOnClickListener {
-            Toast.makeText(requireContext(), "Create report", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, SettingsFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         tabAct.setOnClickListener { pickTab(tabAct) }

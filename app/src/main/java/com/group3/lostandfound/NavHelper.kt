@@ -64,7 +64,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     tabProfile?.setOnClickListener {
         if (activeTab != "profile") {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, AdminFragment.newInstance())
+                .replace(R.id.screenBox, TrustFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
         }

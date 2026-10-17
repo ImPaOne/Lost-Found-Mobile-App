@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             // Start on HomeFragment
             supportFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, HomeFragment.newInstance())
+                .replace(R.id.screenBox, OnboardingFragment.newInstance())
                 .commit()
         }
     }

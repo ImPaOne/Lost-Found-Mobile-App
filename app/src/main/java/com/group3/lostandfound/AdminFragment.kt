@@ -72,18 +72,17 @@ class AdminFragment : Fragment() {
         }
 
         manageUsersButton.setOnClickListener {
-            Toast.makeText(requireContext(), "Manage users", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, TrustFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         announcementButton.setOnClickListener {
             Toast.makeText(requireContext(), "Send announcement", Toast.LENGTH_SHORT).show()
         }
 
-<<<<<<< HEAD
         NavigationHelper.setup(this, view, NavigationHelper.Tab.EXPLORE)
-=======
-        setupBottomNav(view, "profile")
->>>>>>> c05a9c9ed8291e3e368b7e215914556a2659bc9b
     }
 
     private fun openModerationScreen() {
