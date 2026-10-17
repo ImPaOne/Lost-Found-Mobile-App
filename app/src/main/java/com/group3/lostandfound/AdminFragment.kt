@@ -11,20 +11,21 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 
 /**
- * AdminFragment displays operational statistics, trend graphs, and recent activity.
- * Built with clean human-written code using concise 3-8 character variable names.
+ * AdminFragment displays the operations overview, statistics, trend chart,
+ * moderation queue banner, quick actions, and recent activity.
+ * Built with simple human-written code and meaningful variable names.
  */
 class AdminFragment : Fragment() {
 
-    private lateinit var btnBack: ImageView
-    private lateinit var tvTitle: TextView
-    private lateinit var btnBell: ImageView
+    private lateinit var backButton: ImageView
+    private lateinit var headerTitle: TextView
+    private lateinit var notificationBell: ImageView
 
-    private lateinit var boxQueue: ConstraintLayout
-    private lateinit var tagToday: TextView
-    private lateinit var btnReview: TextView
-    private lateinit var btnUsers: TextView
-    private lateinit var btnAnnounce: TextView
+    private lateinit var moderationQueueCard: ConstraintLayout
+    private lateinit var todayBadge: TextView
+    private lateinit var reviewReportsButton: TextView
+    private lateinit var manageUsersButton: TextView
+    private lateinit var announcementButton: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,47 +38,51 @@ class AdminFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        btnBack = view.findViewById(R.id.btnBack)
-        tvTitle = view.findViewById(R.id.tvTitle)
-        btnBell = view.findViewById(R.id.btnBell)
+        // Initialize header controls
+        backButton = view.findViewById(R.id.backButton)
+        headerTitle = view.findViewById(R.id.headerTitle)
+        notificationBell = view.findViewById(R.id.notificationBell)
 
-        boxQueue = view.findViewById(R.id.boxQueue)
-        tagToday = view.findViewById(R.id.tagToday)
-        btnReview = view.findViewById(R.id.btnReview)
-        btnUsers = view.findViewById(R.id.btnUsers)
-        btnAnnounce = view.findViewById(R.id.btnAnnounce)
+        // Initialize action buttons and cards
+        moderationQueueCard = view.findViewById(R.id.moderationQueueCard)
+        todayBadge = view.findViewById(R.id.todayBadge)
+        reviewReportsButton = view.findViewById(R.id.reviewReportsButton)
+        manageUsersButton = view.findViewById(R.id.manageUsersButton)
+        announcementButton = view.findViewById(R.id.announcementButton)
 
-        // Explicitly set titles in code to guarantee no layout preview fallback
-        tvTitle.text = "Admin Dashboard"
-        tagToday.text = "+6 today"
+        // Set static text explicitly
+        headerTitle.text = "Admin Dashboard"
+        todayBadge.text = "+6 today"
 
-        btnBack.setOnClickListener {
+        // Set click listeners
+        backButton.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        btnBell.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, NotificationsFragment.newInstance())
-                .addToBackStack(null)
-                .commit()
+        notificationBell.setOnClickListener {
+            Toast.makeText(requireContext(), "Admin notifications", Toast.LENGTH_SHORT).show()
         }
 
-        // Tapping the moderation queue or "Review Reports" opens ModerationFragment
-        boxQueue.setOnClickListener { openModeration() }
-        btnReview.setOnClickListener { openModeration() }
+        moderationQueueCard.setOnClickListener {
+            openModerationScreen()
+        }
 
-        btnUsers.setOnClickListener {
+        reviewReportsButton.setOnClickListener {
+            openModerationScreen()
+        }
+
+        manageUsersButton.setOnClickListener {
             Toast.makeText(requireContext(), "Manage users", Toast.LENGTH_SHORT).show()
         }
 
-        btnAnnounce.setOnClickListener {
+        announcementButton.setOnClickListener {
             Toast.makeText(requireContext(), "Send announcement", Toast.LENGTH_SHORT).show()
         }
 
-        setupBottomNav(view, "explore")
+        NavigationHelper.setup(this, view, NavigationHelper.Tab.EXPLORE)
     }
 
-    private fun openModeration() {
+    private fun openModerationScreen() {
         parentFragmentManager.beginTransaction()
             .replace(R.id.screenBox, ModerationFragment.newInstance())
             .addToBackStack(null)
