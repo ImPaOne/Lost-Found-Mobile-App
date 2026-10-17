@@ -74,7 +74,7 @@ class AdminFragment : Fragment() {
             Toast.makeText(requireContext(), "Send announcement", Toast.LENGTH_SHORT).show()
         }
 
-        setupBottomNav(view, "explore")
+        setupBottomNav(view, "profile")
     }
 
     private fun openModeration() {
