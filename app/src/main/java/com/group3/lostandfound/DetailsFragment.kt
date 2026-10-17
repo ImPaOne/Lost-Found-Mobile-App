@@ -60,7 +60,7 @@ class DetailsFragment : Fragment() {
             Toast.makeText(requireContext(), "Report deleted", Toast.LENGTH_SHORT).show()
         }
 
-        setupBottomNav(view)
+        NavigationHelper.setup(this, view, NavigationHelper.Tab.HOME)
     }
 
     companion object {
