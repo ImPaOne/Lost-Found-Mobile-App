@@ -59,7 +59,7 @@ class HomeFragment : Fragment() {
 
         initViews(view)
         setupClickListeners()
-        setupBottomNav(view, "home")
+        NavigationHelper.setup(this, view, NavigationHelper.Tab.HOME)
     }
 
     private fun initViews(view: View) {
