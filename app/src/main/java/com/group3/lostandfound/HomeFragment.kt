@@ -98,11 +98,17 @@ class HomeFragment : Fragment() {
         }
 
         cardReportLostItem.setOnClickListener {
-            Toast.makeText(requireContext(), "Report Lost clicked", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, CreateReportFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         cardReportFoundItem.setOnClickListener {
-            Toast.makeText(requireContext(), "Report Found clicked", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, CreateReportFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         chipCategoryAll.setOnClickListener { selectCategoryChip(chipCategoryAll) }
