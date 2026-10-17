@@ -38,7 +38,7 @@ class OnboardingFoundFragment : Fragment() {
 
         btnNext.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, SignUpFragment.newInstance())
+                .replace(R.id.screenBox, OnboardingReuniteFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
         }
