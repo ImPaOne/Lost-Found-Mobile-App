@@ -77,7 +77,10 @@ class SettingsFragment : Fragment() {
         }
 
         rowEditProfile.setOnClickListener {
-            Toast.makeText(requireContext(), "Edit Profile", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, TrustFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         rowChangePassword.setOnClickListener {
@@ -117,7 +120,10 @@ class SettingsFragment : Fragment() {
         }
 
         rowLogout.setOnClickListener {
-            Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, SignUpFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
     }
 
