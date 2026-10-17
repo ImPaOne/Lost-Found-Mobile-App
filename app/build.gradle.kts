@@ -30,10 +30,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-<<<<<<< HEAD
-
-=======
->>>>>>> 092352fe0549174d82cdf57070ef38b8da8131b2
     buildFeatures {
         viewBinding = true
     }
