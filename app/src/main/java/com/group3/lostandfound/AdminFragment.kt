@@ -73,6 +73,8 @@ class AdminFragment : Fragment() {
         btnAnnounce.setOnClickListener {
             Toast.makeText(requireContext(), "Send announcement", Toast.LENGTH_SHORT).show()
         }
+
+        setupBottomNav(view, "explore")
     }
 
     private fun openModeration() {
