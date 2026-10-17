@@ -70,6 +70,46 @@ class AdminFragment : Fragment() {
                 .commit()
         }
 
+        view.findViewById<View>(R.id.totalReportsNumber)?.setOnClickListener {
+            openModerationScreen()
+        }
+
+        view.findViewById<View>(R.id.activeCasesNumber)?.setOnClickListener {
+            openModerationScreen()
+        }
+
+        view.findViewById<View>(R.id.resolvedCasesNumber)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, AnalyticsFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        view.findViewById<View>(R.id.totalUsersNumber)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, TrustFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        view.findViewById<View>(R.id.activityItemApproved)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, DetailsFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        view.findViewById<View>(R.id.activityItemVerification)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, TrustFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        view.findViewById<View>(R.id.activityItemEscalated)?.setOnClickListener {
+            openModerationScreen()
+        }
+
         setupBottomNav(view, "admin")
     }
 
