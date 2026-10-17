@@ -52,6 +52,7 @@ class AnalyticsFragment : Fragment() {
         initViews(view)
         setupMap()
         setupClickListeners()
+        setupBottomNav(view, "messages")
     }
 
     private fun initViews(view: View) {

@@ -59,6 +59,8 @@ class DetailsFragment : Fragment() {
         btnDel.setOnClickListener {
             Toast.makeText(requireContext(), "Report deleted", Toast.LENGTH_SHORT).show()
         }
+
+        setupBottomNav(view)
     }
 
     companion object {

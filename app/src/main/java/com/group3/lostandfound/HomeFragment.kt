@@ -59,6 +59,7 @@ class HomeFragment : Fragment() {
 
         initViews(view)
         setupClickListeners()
+        setupBottomNav(view, "home")
     }
 
     private fun initViews(view: View) {

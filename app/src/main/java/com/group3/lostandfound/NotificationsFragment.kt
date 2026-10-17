@@ -50,6 +50,8 @@ class NotificationsFragment : Fragment() {
         dotAdmin = view.findViewById(R.id.dotAdmin)
         dotGalleFace = view.findViewById(R.id.dotGalleFace)
 
+        setupBottomNav(view)
+
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
