@@ -10,17 +10,24 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 
 /**
- * DetailsFragment shows item details, resolution progress, and match suggestions.
- * Built using clean human-written code with concise 3-8 character variable names.
+ * DetailsFragment displays full item report details:
+ * - Photo with carousel indicator
+ * - Outlined status tag (LOST)
+ * - Item title, description, and location metadata
+ * - Address banner and reporter verification info
+ * - "Contact Reporter" action
+ * - Similar items recommendations
+ * - Persistent bottom navigation
  */
 class DetailsFragment : Fragment() {
 
     private lateinit var btnBack: ImageView
-    private lateinit var btnMore: ImageView
+    private lateinit var btnBookmark: ImageView
+    private lateinit var btnContact: TextView
+    private lateinit var bannerLocation: View
+    private lateinit var cardSimilarItem: View
 
-    private lateinit var btnEdit: TextView
-    private lateinit var btnRes: TextView
-    private lateinit var btnDel: TextView
+    private var isBookmarked = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,34 +40,47 @@ class DetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initViews(view)
+        setupListeners()
+        setupBottomNav(view)
+    }
+
+    private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
-        btnMore = view.findViewById(R.id.btnMore)
+        btnBookmark = view.findViewById(R.id.btnBookmark)
+        btnContact = view.findViewById(R.id.btnContact)
+        bannerLocation = view.findViewById(R.id.bannerLocation)
+        cardSimilarItem = view.findViewById(R.id.cardSimilarItem)
+    }
 
-        btnEdit = view.findViewById(R.id.btnEdit)
-        btnRes = view.findViewById(R.id.btnRes)
-        btnDel = view.findViewById(R.id.btnDel)
-
+    private fun setupListeners() {
         btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        btnMore.setOnClickListener {
-            Toast.makeText(requireContext(), "More report options", Toast.LENGTH_SHORT).show()
+        btnBookmark.setOnClickListener {
+            isBookmarked = !isBookmarked
+            if (isBookmarked) {
+                Toast.makeText(requireContext(), "Item saved to bookmarks", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Removed from bookmarks", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        btnEdit.setOnClickListener {
-            Toast.makeText(requireContext(), "Edit report", Toast.LENGTH_SHORT).show()
+        btnContact.setOnClickListener {
+            Toast.makeText(requireContext(), "Contacting Tharindu Perera...", Toast.LENGTH_SHORT).show()
         }
 
-        btnRes.setOnClickListener {
-            Toast.makeText(requireContext(), "Marked as resolved", Toast.LENGTH_SHORT).show()
+        bannerLocation.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, MapFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
-        btnDel.setOnClickListener {
-            Toast.makeText(requireContext(), "Report deleted", Toast.LENGTH_SHORT).show()
+        cardSimilarItem.setOnClickListener {
+            Toast.makeText(requireContext(), "Viewing: Brown card holder", Toast.LENGTH_SHORT).show()
         }
-
-        setupBottomNav(view)
     }
 
     companion object {
