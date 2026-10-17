@@ -18,10 +18,10 @@ class MainActivity : AppCompatActivity(), BottomNavFragment.OnNavigationTabSelec
         applyWindowInsets()
 
         if (savedInstanceState == null) {
-            // Load persistent bottom navigation bar once and start on AdminFragment / HomeFragment
+            // Load persistent bottom navigation bar once and start on HomeFragment
             supportFragmentManager.beginTransaction()
                 .replace(R.id.navBox, BottomNavFragment.newInstance())
-                .replace(R.id.screenBox, AdminFragment.newInstance())
+                .replace(R.id.screenBox, HomeFragment.newInstance())
                 .commit()
         }
     }

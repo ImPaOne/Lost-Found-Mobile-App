@@ -56,7 +56,10 @@ class AdminFragment : Fragment() {
         }
 
         btnBell.setOnClickListener {
-            Toast.makeText(requireContext(), "Admin notifications", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, NotificationsFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         // Tapping the moderation queue or "Review Reports" opens ModerationFragment
