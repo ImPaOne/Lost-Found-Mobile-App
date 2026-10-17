@@ -57,7 +57,7 @@ class ModerationFragment : Fragment() {
 
         initViews(view)
         setupClickListeners()
-        setupBottomNav(view, "explore")
+        NavigationHelper.setup(this, view, NavigationHelper.Tab.EXPLORE)
     }
 
     private fun initViews(view: View) {
