@@ -63,6 +63,13 @@ class AdminFragment : Fragment() {
             Toast.makeText(requireContext(), "Send announcement", Toast.LENGTH_SHORT).show()
         }
 
+        view.findViewById<View>(R.id.trendGraph)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, AnalyticsFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
+        }
+
         setupBottomNav(view, "admin")
     }
 
