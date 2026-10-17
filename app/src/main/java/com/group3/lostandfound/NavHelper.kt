@@ -1,6 +1,7 @@
 package com.group3.lostandfound
 
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -21,6 +22,11 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     val lblMessages = rootView.findViewById<TextView>(R.id.lblMessages)
     val lblProfile = rootView.findViewById<TextView>(R.id.lblProfile)
 
+    val imgHome = rootView.findViewById<ImageView>(R.id.imgHome)
+    val imgExplore = rootView.findViewById<ImageView>(R.id.imgExplore)
+    val imgMessages = rootView.findViewById<ImageView>(R.id.imgMessages)
+    val imgProfile = rootView.findViewById<ImageView>(R.id.imgProfile)
+
     val activeColor = ContextCompat.getColor(requireContext(), R.color.text_primary)
     val inactiveColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
 
@@ -28,6 +34,11 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     lblExplore?.setTextColor(if (activeTab == "explore") activeColor else inactiveColor)
     lblMessages?.setTextColor(if (activeTab == "messages") activeColor else inactiveColor)
     lblProfile?.setTextColor(if (activeTab == "profile") activeColor else inactiveColor)
+
+    imgHome?.setColorFilter(if (activeTab == "home") activeColor else inactiveColor)
+    imgExplore?.setColorFilter(if (activeTab == "explore") activeColor else inactiveColor)
+    imgMessages?.setColorFilter(if (activeTab == "messages") activeColor else inactiveColor)
+    imgProfile?.setColorFilter(if (activeTab == "profile") activeColor else inactiveColor)
 
     fun navigateTo(dest: Fragment) {
         parentFragmentManager.beginTransaction()

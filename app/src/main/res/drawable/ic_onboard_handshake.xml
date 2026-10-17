@@ -1,0 +1,51 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="36dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Top Left Arm / Cuff -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M3,8 L6.5,11.5" />
+
+    <!-- Clasping Hands Body -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M14.5,6 C13.7,5.2 12.3,5.2 11.5,6 L6.5,11.5 L10.5,15.5 L13,13 L15,15 C15.5,15.5 16.3,15.5 16.8,15 L18.5,13.3 C19.1,12.7 19.1,11.8 18.5,11.2 L14.5,6 Z" />
+
+    <!-- Curled fingers beneath -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M9.5,14.5 L12,17 C12.6,17.6 13.4,17.6 14,17 L15.5,15.5" />
+
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M11,18.5 C11.5,19 12.3,19 12.8,18.5 L14.5,16.8" />
+
+    <!-- Bottom Right Arm / Cuff -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M17.5,14 L21,17.5" />
+
+</vector>

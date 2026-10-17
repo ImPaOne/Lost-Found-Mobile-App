@@ -75,8 +75,6 @@ class ReportsFragment : Fragment() {
         opt3.setOnClickListener {
             Toast.makeText(requireContext(), "Options: AirPods", Toast.LENGTH_SHORT).show()
         }
-
-        NavigationHelper.setup(this, view, NavigationHelper.Tab.PROFILE)
     }
 
     private fun pickTab(target: TextView) {

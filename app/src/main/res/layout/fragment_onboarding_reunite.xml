@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".OnboardingReuniteFragment">
+
+    <!-- Top Right Skip Button -->
+    <TextView
+        android:id="@+id/btnSkip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="sans-serif"
+        android:padding="8dp"
+        android:text="Skip"
+        android:textColor="#8A786E"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Center Content: Concentric Circles with Handshake Icon, Title & Description -->
+    <LinearLayout
+        android:id="@+id/boxCenterContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/dotsIndicator"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSkip"
+        app:layout_constraintVertical_bias="0.42">
+
+        <!-- Outer Soft Beige Circle -->
+        <FrameLayout
+            android:id="@+id/boxIllustration"
+            android:layout_width="196dp"
+            android:layout_height="196dp"
+            android:background="@drawable/bg_onboard_outer_circle">
+
+            <!-- Inner Light Circle -->
+            <FrameLayout
+                android:layout_width="156dp"
+                android:layout_height="156dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_onboard_inner_circle">
+
+                <!-- Center Dark Brown Squircle -->
+                <FrameLayout
+                    android:layout_width="86dp"
+                    android:layout_height="86dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_onboard_squircle">
+
+                    <ImageView
+                        android:id="@+id/iconHandshake"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Reunite Icon"
+                        android:src="@drawable/ic_onboard_handshake" />
+                </FrameLayout>
+            </FrameLayout>
+        </FrameLayout>
+
+        <!-- Main Title -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:fontFamily="sans-serif-bold"
+            android:gravity="center"
+            android:text="Reunite &amp; Connect"
+            android:textColor="#3D2619"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <!-- Subtitle Description -->
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:paddingStart="36dp"
+            android:paddingEnd="36dp"
+            android:text="Private chat and verified claims bring\npeople and belongings back together."
+            android:textColor="#7D6F67"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- Page Indicator Dots: 1st inactive, 2nd inactive, 3rd active pill -->
+    <LinearLayout
+        android:id="@+id/dotsIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="28dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/btnGetStarted"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <View
+            android:id="@+id/dotInactive1"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_onboard_dot_inactive" />
+
+        <View
+            android:id="@+id/dotInactive2"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_onboard_dot_inactive" />
+
+        <View
+            android:id="@+id/dotActive"
+            android:layout_width="22dp"
+            android:layout_height="5dp"
+            android:background="@drawable/bg_onboard_dot_active" />
+    </LinearLayout>
+
+    <!-- Bottom "Get Started" Button -->
+    <TextView
+        android:id="@+id/btnGetStarted"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="36dp"
+        android:background="@drawable/bg_btn_onboard"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:text="Get Started"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
