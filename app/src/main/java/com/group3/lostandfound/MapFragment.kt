@@ -73,7 +73,10 @@ class MapFragment : Fragment() {
         }
 
         btnListView.setOnClickListener {
-            Toast.makeText(requireContext(), "Switching to list view", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, ExploreFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         btnFilterSliders.setOnClickListener {
