@@ -86,7 +86,10 @@ class HomeFragment : Fragment() {
         }
 
         buttonNotifications.setOnClickListener {
-            Toast.makeText(requireContext(), "Notifications", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, NotificationsFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         buttonFilterSettings.setOnClickListener {
