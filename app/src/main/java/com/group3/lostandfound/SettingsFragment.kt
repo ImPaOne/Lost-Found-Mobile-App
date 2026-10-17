@@ -124,7 +124,7 @@ class SettingsFragment : Fragment() {
 
         rowLogout.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, SignUpFragment.newInstance())
+                .replace(R.id.screenBox, LoginFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
         }

@@ -110,7 +110,10 @@ class SignUpFragment : Fragment() {
         }
 
         rowLogin.setOnClickListener {
-            Toast.makeText(requireContext(), "Navigate to Login", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, LoginFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
     }
 
