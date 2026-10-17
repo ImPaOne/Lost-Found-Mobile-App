@@ -38,12 +38,19 @@ class OnboardingFragment : Fragment() {
         tvDescription = view.findViewById(R.id.tvDescription)
 
         btnSkip.setOnClickListener { navigateToHome() }
-        btnNext.setOnClickListener { navigateToHome() }
+        btnNext.setOnClickListener { navigateToSignUp() }
     }
 
     private fun navigateToHome() {
         parentFragmentManager.beginTransaction()
             .replace(R.id.screenBox, HomeFragment.newInstance())
+            .commit()
+    }
+
+    private fun navigateToSignUp() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.screenBox, SignUpFragment.newInstance())
+            .addToBackStack(null)
             .commit()
     }
 

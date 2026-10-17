@@ -49,7 +49,10 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     }
 
     tabPost?.setOnClickListener {
-        Toast.makeText(requireContext(), "+ Post new report", Toast.LENGTH_SHORT).show()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.screenBox, CreateReportFragment.newInstance())
+            .addToBackStack(null)
+            .commit()
     }
 
     tabMessages?.setOnClickListener {
