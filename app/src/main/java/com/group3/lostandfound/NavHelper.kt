@@ -2,7 +2,6 @@ package com.group3.lostandfound
 
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
@@ -30,46 +29,40 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     lblMessages?.setTextColor(if (activeTab == "messages") activeColor else inactiveColor)
     lblProfile?.setTextColor(if (activeTab == "profile") activeColor else inactiveColor)
 
+    fun navigateTo(dest: Fragment) {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.screenBox, dest)
+            .addToBackStack(null)
+            .commit()
+    }
+
     tabHome.setOnClickListener {
         if (activeTab != "home") {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, HomeFragment.newInstance())
-                .addToBackStack(null)
-                .commit()
+            navigateTo(HomeFragment.newInstance())
         }
     }
 
     tabExplore?.setOnClickListener {
         if (activeTab != "explore") {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, ExploreFragment.newInstance())
-                .addToBackStack(null)
-                .commit()
+            navigateTo(ExploreFragment.newInstance())
         }
     }
 
     tabPost?.setOnClickListener {
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.screenBox, CreateReportFragment.newInstance())
-            .addToBackStack(null)
-            .commit()
+        if (activeTab != "post") {
+            navigateTo(CreateReportFragment.newInstance())
+        }
     }
 
     tabMessages?.setOnClickListener {
         if (activeTab != "messages") {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, AnalyticsFragment.newInstance())
-                .addToBackStack(null)
-                .commit()
+            navigateTo(NotificationsFragment.newInstance())
         }
     }
 
     tabProfile?.setOnClickListener {
         if (activeTab != "profile") {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, TrustFragment.newInstance())
-                .addToBackStack(null)
-                .commit()
+            navigateTo(ReportsFragment.newInstance())
         }
     }
 }

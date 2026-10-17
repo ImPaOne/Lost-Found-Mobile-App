@@ -41,6 +41,7 @@ class UiKitFragment : Fragment() {
 
         initViews(view)
         setupListeners()
+        setupBottomNav(view)
     }
 
     private fun initViews(view: View) {

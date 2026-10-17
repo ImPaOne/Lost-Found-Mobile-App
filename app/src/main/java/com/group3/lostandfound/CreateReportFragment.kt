@@ -51,7 +51,7 @@ class CreateReportFragment : Fragment() {
 
         initViews(view)
         setupListeners()
-        setupBottomNav(view)
+        setupBottomNav(view, "post")
     }
 
     private fun initViews(view: View) {

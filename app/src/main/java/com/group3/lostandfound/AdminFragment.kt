@@ -5,27 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 
 /**
  * AdminFragment displays the operations overview, statistics, trend chart,
  * moderation queue banner, quick actions, and recent activity.
- * Built with simple human-written code and meaningful variable names.
+ * Built with clean human-written code.
  */
 class AdminFragment : Fragment() {
-
-    private lateinit var backButton: ImageView
-    private lateinit var headerTitle: TextView
-    private lateinit var notificationBell: ImageView
-
-    private lateinit var moderationQueueCard: ConstraintLayout
-    private lateinit var todayBadge: TextView
-    private lateinit var reviewReportsButton: TextView
-    private lateinit var manageUsersButton: TextView
-    private lateinit var announcementButton: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,51 +26,44 @@ class AdminFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize header controls
-        backButton = view.findViewById(R.id.backButton)
-        headerTitle = view.findViewById(R.id.headerTitle)
-        notificationBell = view.findViewById(R.id.notificationBell)
+        val btnBack = view.findViewById<ImageView>(R.id.backButton)
+        val btnBell = view.findViewById<ImageView>(R.id.notificationBell)
+        val cardModQueue = view.findViewById<View>(R.id.moderationQueueCard)
+        val btnReview = view.findViewById<View>(R.id.reviewReportsButton)
+        val btnUsers = view.findViewById<View>(R.id.manageUsersButton)
+        val btnAnnounce = view.findViewById<View>(R.id.announcementButton)
 
-        // Initialize action buttons and cards
-        moderationQueueCard = view.findViewById(R.id.moderationQueueCard)
-        todayBadge = view.findViewById(R.id.todayBadge)
-        reviewReportsButton = view.findViewById(R.id.reviewReportsButton)
-        manageUsersButton = view.findViewById(R.id.manageUsersButton)
-        announcementButton = view.findViewById(R.id.announcementButton)
-
-        // Set static text explicitly
-        headerTitle.text = "Admin Dashboard"
-        todayBadge.text = "+6 today"
-
-        // Set click listeners
-        backButton.setOnClickListener {
+        btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        notificationBell.setOnClickListener {
-            Toast.makeText(requireContext(), "Admin notifications", Toast.LENGTH_SHORT).show()
+        btnBell.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, NotificationsFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
-        moderationQueueCard.setOnClickListener {
+        cardModQueue.setOnClickListener {
             openModerationScreen()
         }
 
-        reviewReportsButton.setOnClickListener {
+        btnReview.setOnClickListener {
             openModerationScreen()
         }
 
-        manageUsersButton.setOnClickListener {
+        btnUsers.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.screenBox, TrustFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
         }
 
-        announcementButton.setOnClickListener {
+        btnAnnounce.setOnClickListener {
             Toast.makeText(requireContext(), "Send announcement", Toast.LENGTH_SHORT).show()
         }
 
-        NavigationHelper.setup(this, view, NavigationHelper.Tab.EXPLORE)
+        setupBottomNav(view, "admin")
     }
 
     private fun openModerationScreen() {
@@ -93,8 +74,6 @@ class AdminFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(): AdminFragment {
-            return AdminFragment()
-        }
+        fun newInstance(): AdminFragment = AdminFragment()
     }
 }
