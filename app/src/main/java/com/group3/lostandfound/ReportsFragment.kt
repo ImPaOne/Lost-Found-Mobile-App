@@ -49,6 +49,8 @@ class ReportsFragment : Fragment() {
         opt2 = view.findViewById(R.id.opt2)
         opt3 = view.findViewById(R.id.opt3)
 
+        setupBottomNav(view, "profile")
+
         btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
