@@ -83,7 +83,14 @@ class HomeFragment : Fragment() {
 
     private fun setupClickListeners() {
         buttonHeaderClose.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            if (parentFragmentManager.backStackEntryCount > 0) {
+                parentFragmentManager.popBackStack()
+            } else {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.screenBox, ProfileFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
 
         buttonNotifications.setOnClickListener {
@@ -94,19 +101,19 @@ class HomeFragment : Fragment() {
         }
 
         buttonFilterSettings.setOnClickListener {
-            Toast.makeText(requireContext(), "Filter items", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Filtering: All recent items", Toast.LENGTH_SHORT).show()
         }
 
         cardReportLostItem.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, CreateReportFragment.newInstance())
+                .replace(R.id.screenBox, CreateReportFragment.newInstance(isLost = true))
                 .addToBackStack(null)
                 .commit()
         }
 
         cardReportFoundItem.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, CreateReportFragment.newInstance())
+                .replace(R.id.screenBox, CreateReportFragment.newInstance(isLost = false))
                 .addToBackStack(null)
                 .commit()
         }
@@ -116,19 +123,43 @@ class HomeFragment : Fragment() {
         chipCategoryDocuments.setOnClickListener { selectCategoryChip(chipCategoryDocuments) }
 
         buttonSeeAllRecent.setOnClickListener {
-            Toast.makeText(requireContext(), "Viewing all recent items", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, ExploreFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         // Tapping black wallet card opens DetailsFragment
         cardWalletItem.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, DetailsFragment.newInstance())
+                .replace(
+                    R.id.screenBox,
+                    DetailsFragment.newInstance(
+                        title = "Black leather wallet",
+                        desc = "Slim wallet with national ID and two bank cards. Small scratch near the clasp.",
+                        status = "LOST",
+                        location = "Colombo 03",
+                        imageResId = R.drawable.img_wallet_details
+                    )
+                )
                 .addToBackStack(null)
                 .commit()
         }
 
         cardDogItem.setOnClickListener {
-            Toast.makeText(requireContext(), "Item: Golden retriever, Milo", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(
+                    R.id.screenBox,
+                    DetailsFragment.newInstance(
+                        title = "Golden retriever, Milo",
+                        desc = "Friendly golden retriever with blue collar and brass tag. Missing since yesterday afternoon.",
+                        status = "LOST",
+                        location = "Cinnamon Gardens",
+                        imageResId = R.drawable.img_tabby_cat
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
         }
     }
 
