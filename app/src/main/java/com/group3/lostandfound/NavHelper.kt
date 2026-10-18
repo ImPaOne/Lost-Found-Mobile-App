@@ -14,6 +14,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     val tabHome = rootView.findViewById<View>(R.id.tabHome) ?: return
     val tabExplore = rootView.findViewById<View>(R.id.tabExplore)
     val tabPost = rootView.findViewById<View>(R.id.tabPost)
+    val btnPostPill = rootView.findViewById<View>(R.id.btnPostPill)
     val tabMessages = rootView.findViewById<View>(R.id.tabMessages)
     val tabProfile = rootView.findViewById<View>(R.id.tabProfile)
 
@@ -59,11 +60,13 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
         }
     }
 
-    tabPost?.setOnClickListener {
+    val openPostAction = View.OnClickListener {
         if (activeTab != "post") {
             navigateTo(CreateReportFragment.newInstance())
         }
     }
+    tabPost?.setOnClickListener(openPostAction)
+    btnPostPill?.setOnClickListener(openPostAction)
 
     tabMessages?.setOnClickListener {
         if (activeTab != "messages") {
@@ -73,7 +76,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
 
     tabProfile?.setOnClickListener {
         if (activeTab != "profile") {
-            navigateTo(ReportsFragment.newInstance())
+            navigateTo(ProfileFragment.newInstance())
         }
     }
 }
