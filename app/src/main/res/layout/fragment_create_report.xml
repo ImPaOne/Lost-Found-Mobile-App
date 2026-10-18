@@ -176,3 +176,37 @@
                         android:textSize="13sp"
                         android:textStyle="bold" />
                 </LinearLayout>
+                <!-- Found item Card (Unselected by default) -->
+                <LinearLayout
+                    android:id="@+id/cardFoundItem"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_card_select_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp">
+
+                    <ImageView
+                        android:id="@+id/iconFound"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="Found icon"
+                        android:src="@drawable/ic_report_hand_heart" />
+
+                    <TextView
+                        android:id="@+id/tvFoundLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="Found item"
+                        android:textColor="#3D2619"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
