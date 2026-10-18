@@ -115,7 +115,10 @@ class SettingsFragment : Fragment() {
         }
 
         rowAbout.setOnClickListener {
-            Toast.makeText(requireContext(), "Lost & Found App v1.0", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, UiKitFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         rowRateApp.setOnClickListener {
