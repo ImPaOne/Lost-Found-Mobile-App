@@ -37,18 +37,24 @@ class OnboardingFragment : Fragment() {
         tvTitle = view.findViewById(R.id.tvTitle)
         tvDescription = view.findViewById(R.id.tvDescription)
 
-        btnSkip.setOnClickListener { navigateToHome() }
+        // Smooth entry animation
+        view.alpha = 0f
+        view.animate().alpha(1f).setDuration(400).start()
+
+        btnSkip.setOnClickListener { navigateToLogin() }
         btnNext.setOnClickListener { navigateToFoundScreen() }
     }
 
-    private fun navigateToHome() {
+    private fun navigateToLogin() {
         parentFragmentManager.beginTransaction()
-            .replace(R.id.screenBox, HomeFragment.newInstance())
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+            .replace(R.id.screenBox, LoginFragment.newInstance())
             .commit()
     }
 
     private fun navigateToFoundScreen() {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(R.id.screenBox, OnboardingFoundFragment.newInstance())
             .addToBackStack(null)
             .commit()
