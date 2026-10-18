@@ -56,3 +56,26 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
+                        <!-- 2. Step Progress Bar: 5 horizontal segments -->
+            <LinearLayout
+                android:id="@+id/progressBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/segStep1"
+                    android:layout_width="0dp"
+                    android:layout_height="4dp"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_step_progress_active" />
+
+                <View
+                    android:id="@+id/segStep2"
+                    android:layout_width="0dp"
+                    android:layout_height="4dp"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_step_progress_active" />
