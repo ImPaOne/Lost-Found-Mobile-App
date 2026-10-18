@@ -1,5 +1,6 @@
 package com.group3.lostandfound
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,11 +9,15 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 
 /**
  * DetailsFragment displays full item report details:
- * - Photo with carousel indicator
- * - Outlined status tag (LOST)
+ * - Slideable multiple item photos via ViewPager2
+ * - Interactive carousel dot indicators
+ * - Tap to enlarge photos in full-screen modal
+ * - Outlined status tag (LOST / FOUND)
  * - Item title, description, and location metadata
  * - Address banner and reporter verification info
  * - "Contact Reporter" action
@@ -31,9 +36,16 @@ class DetailsFragment : Fragment() {
     private lateinit var tvDescription: TextView
     private lateinit var tagStatus: TextView
     private lateinit var tvLocationText: TextView
-    private lateinit var imgWallet: ImageView
+
+    // Photo Carousel Views
+    private lateinit var pagerPhotos: ViewPager2
+    private lateinit var badgeEnlargeHint: View
+    private lateinit var dotPhoto1: View
+    private lateinit var dotPhoto2: View
+    private lateinit var dotPhoto3: View
 
     private var isBookmarked = false
+    private var itemPhotoList = listOf<Int>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,7 +75,12 @@ class DetailsFragment : Fragment() {
         tvDescription = view.findViewById(R.id.tvDescription)
         tagStatus = view.findViewById(R.id.tagStatus)
         tvLocationText = view.findViewById(R.id.tvLocationText)
-        imgWallet = view.findViewById(R.id.imgWallet)
+
+        pagerPhotos = view.findViewById(R.id.pagerPhotos)
+        badgeEnlargeHint = view.findViewById(R.id.badgeEnlargeHint)
+        dotPhoto1 = view.findViewById(R.id.dotPhoto1)
+        dotPhoto2 = view.findViewById(R.id.dotPhoto2)
+        dotPhoto3 = view.findViewById(R.id.dotPhoto3)
     }
 
     private fun bindData() {
@@ -77,16 +94,79 @@ class DetailsFragment : Fragment() {
         tvDescription.text = desc
         tagStatus.text = status
         tvLocationText.text = location
-        try {
-            imgWallet.setImageResource(imageRes)
-        } catch (_: Exception) {
-            imgWallet.setImageResource(R.drawable.img_wallet_details)
+
+        // Build list of multiple slideable photos for this item
+        itemPhotoList = when {
+            title.contains("wallet", ignoreCase = true) -> listOf(
+                imageRes,
+                R.drawable.img_wallet,
+                R.drawable.img_passport
+            )
+            title.contains("dog", ignoreCase = true) || title.contains("Milo", ignoreCase = true) -> listOf(
+                R.drawable.img_dog_milo,
+                R.drawable.img_tabby_cat,
+                imageRes
+            )
+            title.contains("phone", ignoreCase = true) || title.contains("samsung", ignoreCase = true) -> listOf(
+                R.drawable.img_samsung_phone,
+                R.drawable.img_airpods_bench,
+                imageRes
+            )
+            title.contains("airpods", ignoreCase = true) -> listOf(
+                R.drawable.img_airpods_bench,
+                R.drawable.img_wallet_details,
+                imageRes
+            )
+            else -> listOf(
+                imageRes,
+                R.drawable.img_wallet,
+                R.drawable.img_wallet_details
+            )
         }
+
+        // Setup ViewPager2 Adapter
+        pagerPhotos.adapter = PhotoSliderAdapter(itemPhotoList) { clickedImageRes ->
+            showEnlargedPhotoDialog(clickedImageRes, title)
+        }
+
+        pagerPhotos.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                updateDots(position)
+            }
+        })
+    }
+
+    private fun updateDots(selectedIndex: Int) {
+        val activeRes = R.drawable.bg_onboard_dot_active
+        val inactiveRes = R.drawable.bg_onboard_dot_inactive
+
+        dotPhoto1.setBackgroundResource(if (selectedIndex == 0) activeRes else inactiveRes)
+        dotPhoto2.setBackgroundResource(if (selectedIndex == 1) activeRes else inactiveRes)
+        dotPhoto3.setBackgroundResource(if (selectedIndex == 2) activeRes else inactiveRes)
+
+        dotPhoto1.layoutParams.width = if (selectedIndex == 0) dpToPx(18) else dpToPx(5)
+        dotPhoto2.layoutParams.width = if (selectedIndex == 1) dpToPx(18) else dpToPx(5)
+        dotPhoto3.layoutParams.width = if (selectedIndex == 2) dpToPx(18) else dpToPx(5)
+
+        dotPhoto1.requestLayout()
+        dotPhoto2.requestLayout()
+        dotPhoto3.requestLayout()
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
     }
 
     private fun setupListeners() {
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
+        }
+
+        badgeEnlargeHint.setOnClickListener {
+            val currentIdx = pagerPhotos.currentItem
+            val currentImg = if (currentIdx in itemPhotoList.indices) itemPhotoList[currentIdx] else itemPhotoList.firstOrNull() ?: R.drawable.img_wallet_details
+            showEnlargedPhotoDialog(currentImg, tvItemTitle.text.toString())
         }
 
         btnBookmark.setOnClickListener {
@@ -101,7 +181,7 @@ class DetailsFragment : Fragment() {
         }
 
         btnContact.setOnClickListener {
-            Toast.makeText(requireContext(), "Opening contact options for reporter...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Opening secure contact channel...", Toast.LENGTH_SHORT).show()
         }
 
         bannerLocation.setOnClickListener {
@@ -126,6 +206,61 @@ class DetailsFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
+    }
+
+    private fun showEnlargedPhotoDialog(imageRes: Int, title: String) {
+        val dialog = Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        dialog.setContentView(R.layout.dialog_enlarged_photo)
+        dialog.setCancelable(true)
+
+        val imgEnlargedView = dialog.findViewById<ImageView>(R.id.imgEnlargedView)
+        val btnCloseLargePhoto = dialog.findViewById<View>(R.id.btnCloseLargePhoto)
+        val tvEnlargedTitle = dialog.findViewById<TextView>(R.id.tvEnlargedTitle)
+
+        imgEnlargedView.setImageResource(imageRes)
+        tvEnlargedTitle.text = title
+
+        btnCloseLargePhoto.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        imgEnlargedView.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    /**
+     * ViewPager2 adapter for slideable photos
+     */
+    private class PhotoSliderAdapter(
+        private val photos: List<Int>,
+        private val onPhotoClicked: (Int) -> Unit
+    ) : RecyclerView.Adapter<PhotoSliderAdapter.PhotoViewHolder>() {
+
+        class PhotoViewHolder(val imageView: ImageView) : RecyclerView.ViewHolder(imageView)
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
+            val img = ImageView(parent.context).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                scaleType = ImageView.ScaleType.CENTER_CROP
+            }
+            return PhotoViewHolder(img)
+        }
+
+        override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
+            val resId = photos[position]
+            holder.imageView.setImageResource(resId)
+            holder.imageView.setOnClickListener {
+                onPhotoClicked(resId)
+            }
+        }
+
+        override fun getItemCount(): Int = photos.size
     }
 
     companion object {

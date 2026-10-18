@@ -73,19 +73,41 @@
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- 2. Main Photo Banner with Pager Indicator Overlay -->
+            <!-- 2. Main Photo Banner with Slideable ViewPager2 and Dot Indicators -->
             <FrameLayout
                 android:id="@+id/boxPhoto"
                 android:layout_width="match_parent"
-                android:layout_height="185dp">
+                android:layout_height="220dp"
+                android:background="#1E1612">
 
-                <ImageView
-                    android:id="@+id/imgWallet"
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/pagerPhotos"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:contentDescription="Wallet on cafe table"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/img_wallet_details" />
+                    android:layout_height="match_parent" />
+
+                <!-- Tap to enlarge hint badge -->
+                <LinearLayout
+                    android:id="@+id/badgeEnlargeHint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="26dp"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="14dp"
+                    android:background="@drawable/bg_card_badge"
+                    android:backgroundTint="#80000000"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="⤢ Tap to enlarge"
+                        android:textColor="@color/white"
+                        android:textSize="10.5sp" />
+                </LinearLayout>
 
                 <!-- Carousel Dots Indicator Overlay -->
                 <LinearLayout
@@ -98,24 +120,24 @@
                     android:orientation="horizontal">
 
                     <View
+                        android:id="@+id/dotPhoto1"
                         android:layout_width="18dp"
-                        android:layout_height="4dp"
-                        android:layout_marginEnd="5dp"
-                        android:background="@drawable/bg_onboard_dot_active"
-                        android:backgroundTint="#FFFFFF" />
-
-                    <View
-                        android:layout_width="4.5dp"
                         android:layout_height="4.5dp"
                         android:layout_marginEnd="5dp"
-                        android:background="@drawable/bg_onboard_dot_inactive"
-                        android:backgroundTint="#B0FFFFFF" />
+                        android:background="@drawable/bg_onboard_dot_active" />
 
                     <View
-                        android:layout_width="4.5dp"
+                        android:id="@+id/dotPhoto2"
+                        android:layout_width="5dp"
                         android:layout_height="4.5dp"
-                        android:background="@drawable/bg_onboard_dot_inactive"
-                        android:backgroundTint="#B0FFFFFF" />
+                        android:layout_marginEnd="5dp"
+                        android:background="@drawable/bg_onboard_dot_inactive" />
+
+                    <View
+                        android:id="@+id/dotPhoto3"
+                        android:layout_width="5dp"
+                        android:layout_height="4.5dp"
+                        android:background="@drawable/bg_onboard_dot_inactive" />
                 </LinearLayout>
             </FrameLayout>
 

@@ -249,150 +249,174 @@
                 android:orientation="horizontal">
 
                 <!-- Left Card: Blue Samsung phone -->
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardPhone"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="6dp"
                     android:layout_weight="1"
                     android:clickable="true"
                     android:focusable="true"
-                    android:orientation="vertical">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        app:cardCornerRadius="14dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="0dp">
-
-                        <ImageView
-                            android:id="@+id/imgPhone"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:contentDescription="Blue Samsung phone"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/img_samsung_phone" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <TextView
-                        android:id="@+id/tvPhoneStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="7dp"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="LOST · 2h"
-                        android:textColor="#D43838"
-                        android:textSize="11sp" />
-
-                    <TextView
-                        android:id="@+id/tvPhoneTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:fontFamily="sans-serif-bold"
-                        android:text="Blue Samsung\nphone"
-                        android:textColor="#3A2D28"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/stroke_light"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        android:padding="8dp">
 
-                        <ImageView
-                            android:layout_width="11dp"
-                            android:layout_height="11dp"
-                            android:contentDescription="Location pin"
-                            android:src="@drawable/ic_location_compass" />
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="match_parent"
+                            android:layout_height="116dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0.5dp"
+                            app:strokeColor="@color/stroke_light">
+
+                            <ImageView
+                                android:id="@+id/imgPhone"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="Blue Samsung phone"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/img_samsung_phone" />
+                        </com.google.android.material.card.MaterialCardView>
 
                         <TextView
-                            android:id="@+id/tvPhoneLocation"
+                            android:id="@+id/tvPhoneStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:fontFamily="sans-serif"
-                            android:text="Bambalapitiya"
-                            android:textColor="#7D6F67"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="LOST · 2h"
+                            android:textColor="#D43838"
                             android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/tvPhoneTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Blue Samsung\nphone"
+                            android:textColor="#3A2D28"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="11dp"
+                                android:layout_height="11dp"
+                                android:contentDescription="Location pin"
+                                android:src="@drawable/ic_location_compass" />
+
+                            <TextView
+                                android:id="@+id/tvPhoneLocation"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:fontFamily="sans-serif"
+                                android:text="Bambalapitiya"
+                                android:textColor="#7D6F67"
+                                android:textSize="11sp" />
+                        </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Right Card: Sri Lankan passport -->
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardPassport"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     android:clickable="true"
                     android:focusable="true"
-                    android:orientation="vertical">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        app:cardCornerRadius="14dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="0dp">
-
-                        <ImageView
-                            android:id="@+id/imgPassport"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:contentDescription="Sri Lankan passport"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/img_passport" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <TextView
-                        android:id="@+id/tvPassportStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="7dp"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="FOUND · 2h"
-                        android:textColor="#3D2E27"
-                        android:textSize="11sp" />
-
-                    <TextView
-                        android:id="@+id/tvPassportTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:fontFamily="sans-serif-bold"
-                        android:text="Sri Lankan passport"
-                        android:textColor="#3A2D28"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/stroke_light"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        android:padding="8dp">
 
-                        <ImageView
-                            android:layout_width="11dp"
-                            android:layout_height="11dp"
-                            android:contentDescription="Location pin"
-                            android:src="@drawable/ic_location_compass" />
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="match_parent"
+                            android:layout_height="116dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0.5dp"
+                            app:strokeColor="@color/stroke_light">
+
+                            <ImageView
+                                android:id="@+id/imgPassport"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="Sri Lankan passport"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/img_passport" />
+                        </com.google.android.material.card.MaterialCardView>
 
                         <TextView
-                            android:id="@+id/tvPassportLocation"
+                            android:id="@+id/tvPassportStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:fontFamily="sans-serif"
-                            android:text="Fort Railway Station"
-                            android:textColor="#7D6F67"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="FOUND · 2h"
+                            android:textColor="#3D2E27"
                             android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/tvPassportTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Sri Lankan passport"
+                            android:textColor="#3A2D28"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="11dp"
+                                android:layout_height="11dp"
+                                android:contentDescription="Location pin"
+                                android:src="@drawable/ic_location_compass" />
+
+                            <TextView
+                                android:id="@+id/tvPassportLocation"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:fontFamily="sans-serif"
+                                android:text="Fort Railway Station"
+                                android:textColor="#7D6F67"
+                                android:textSize="11sp" />
+                        </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <!-- ROW 2: Brown tabby cat & AirPods Pro case -->
@@ -400,155 +424,179 @@
                 android:id="@+id/rowItems2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="14dp"
                 android:baselineAligned="false"
                 android:orientation="horizontal">
 
                 <!-- Left Card: Brown tabby cat -->
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardCat"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="6dp"
                     android:layout_weight="1"
                     android:clickable="true"
                     android:focusable="true"
-                    android:orientation="vertical">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        app:cardCornerRadius="14dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="0dp">
-
-                        <ImageView
-                            android:id="@+id/imgCat"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:contentDescription="Brown tabby cat"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/img_tabby_cat" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <TextView
-                        android:id="@+id/tvCatStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="7dp"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="LOST · 2h"
-                        android:textColor="#D43838"
-                        android:textSize="11sp" />
-
-                    <TextView
-                        android:id="@+id/tvCatTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:fontFamily="sans-serif-bold"
-                        android:text="Brown tabby cat"
-                        android:textColor="#3A2D28"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/stroke_light"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        android:padding="8dp">
 
-                        <ImageView
-                            android:layout_width="11dp"
-                            android:layout_height="11dp"
-                            android:contentDescription="Location pin"
-                            android:src="@drawable/ic_location_compass" />
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="match_parent"
+                            android:layout_height="116dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0.5dp"
+                            app:strokeColor="@color/stroke_light">
+
+                            <ImageView
+                                android:id="@+id/imgCat"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="Brown tabby cat"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/img_tabby_cat" />
+                        </com.google.android.material.card.MaterialCardView>
 
                         <TextView
-                            android:id="@+id/tvCatLocation"
+                            android:id="@+id/tvCatStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:fontFamily="sans-serif"
-                            android:text="Nugegoda"
-                            android:textColor="#7D6F67"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="LOST · 2h"
+                            android:textColor="#D43838"
                             android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/tvCatTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Brown tabby cat"
+                            android:textColor="#3A2D28"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="11dp"
+                                android:layout_height="11dp"
+                                android:contentDescription="Location pin"
+                                android:src="@drawable/ic_location_compass" />
+
+                            <TextView
+                                android:id="@+id/tvCatLocation"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:fontFamily="sans-serif"
+                                android:text="Nugegoda"
+                                android:textColor="#7D6F67"
+                                android:textSize="11sp" />
+                        </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Right Card: AirPods Pro case -->
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardAirpods"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     android:clickable="true"
                     android:focusable="true"
-                    android:orientation="vertical">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        app:cardCornerRadius="14dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="0dp">
-
-                        <ImageView
-                            android:id="@+id/imgAirpods"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:contentDescription="AirPods Pro case"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/img_airpods_bench" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <TextView
-                        android:id="@+id/tvAirpodsStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="7dp"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="FOUND · 2h"
-                        android:textColor="#3D2E27"
-                        android:textSize="11sp" />
-
-                    <TextView
-                        android:id="@+id/tvAirpodsTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:fontFamily="sans-serif-bold"
-                        android:text="AirPods Pro case"
-                        android:textColor="#3A2D28"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/stroke_light"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        android:padding="8dp">
 
-                        <ImageView
-                            android:layout_width="11dp"
-                            android:layout_height="11dp"
-                            android:contentDescription="Location pin"
-                            android:src="@drawable/ic_location_compass" />
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="match_parent"
+                            android:layout_height="116dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0.5dp"
+                            app:strokeColor="@color/stroke_light">
+
+                            <ImageView
+                                android:id="@+id/imgAirpods"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="AirPods Pro case"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/img_airpods_bench" />
+                        </com.google.android.material.card.MaterialCardView>
 
                         <TextView
-                            android:id="@+id/tvAirpodsLocation"
+                            android:id="@+id/tvAirpodsStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:fontFamily="sans-serif"
-                            android:text="Galle Face"
-                            android:textColor="#7D6F67"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="FOUND · 2h"
+                            android:textColor="#3D2E27"
                             android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/tvAirpodsTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="AirPods Pro case"
+                            android:textColor="#3A2D28"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="11dp"
+                                android:layout_height="11dp"
+                                android:contentDescription="Location pin"
+                                android:src="@drawable/ic_location_compass" />
+
+                            <TextView
+                                android:id="@+id/tvAirpodsLocation"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:fontFamily="sans-serif"
+                                android:text="Galle Face"
+                                android:textColor="#7D6F67"
+                                android:textSize="11sp" />
+                        </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F018120F">
+
+    <!-- Top Bar with Photo Counter and Close Button -->
+    <RelativeLayout
+        android:id="@+id/topBarEnlarged"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_alignParentTop="true"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
+
+        <TextView
+            android:id="@+id/tvEnlargedTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:fontFamily="sans-serif-bold"
+            android:text="Item Photo"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:id="@+id/btnCloseLargePhoto"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bg_close_btn"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:contentDescription="Close enlarged photo"
+                android:src="@drawable/ic_close_white" />
+        </FrameLayout>
+    </RelativeLayout>
+
+    <!-- Main Enlarged Photo View -->
+    <ImageView
+        android:id="@+id/imgEnlargedView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomCaptionBar"
+        android:layout_below="@+id/topBarEnlarged"
+        android:layout_centerInParent="true"
+        android:contentDescription="Enlarged photo"
+        android:padding="8dp"
+        android:scaleType="fitCenter" />
+
+    <!-- Bottom Caption Bar -->
+    <LinearLayout
+        android:id="@+id/bottomCaptionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/tvEnlargedCaption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="Tap anywhere or press back to close"
+            android:textColor="#CDBFB5"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+</RelativeLayout>
