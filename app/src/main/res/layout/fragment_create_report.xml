@@ -242,3 +242,30 @@
                     android:textColor="#3D2619"
                     android:textSize="14sp" />
             </FrameLayout>
+            <!-- 6. Form Field 2: Item title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="sans-serif-bold"
+                android:text="Item title"
+                android:textColor="#3D2619"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/inputTitle"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_input_field"
+                android:fontFamily="sans-serif"
+                android:hint="e.g. Blue Samsung Galaxy S24"
+                android:imeOptions="actionNext"
+                android:inputType="textCapWords"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:singleLine="true"
+                android:textColor="#3D2619"
+                android:textColorHint="#A48374"
+                android:textSize="14sp" />
