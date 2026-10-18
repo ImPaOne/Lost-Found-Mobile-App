@@ -50,3 +50,20 @@ class ExploreFragment : Fragment() {
     private lateinit var tvPassportStatus: TextView
     private lateinit var tvCatStatus: TextView
     private lateinit var tvAirpodsStatus: TextView
+
+        override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_explore, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        initViews(view)
+        setupStatusBadges()
+        setupListeners()
+        setupBottomNav(view, "explore")
+    }
