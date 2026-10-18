@@ -67,3 +67,28 @@ class ExploreFragment : Fragment() {
         setupListeners()
         setupBottomNav(view, "explore")
     }
+        private fun initViews(view: View) {
+        btnClose = view.findViewById(R.id.btnClose)
+        btnMapView = view.findViewById(R.id.btnMapView)
+
+        inputSearch = view.findViewById(R.id.inputSearch)
+        btnFilter = view.findViewById(R.id.btnFilter)
+
+        chipAll = view.findViewById(R.id.chipAll)
+        chipLost = view.findViewById(R.id.chipLost)
+        chipFound = view.findViewById(R.id.chipFound)
+        chipPets = view.findViewById(R.id.chipPets)
+
+        btnGridView = view.findViewById(R.id.btnGridView)
+        btnListView = view.findViewById(R.id.btnListView)
+
+        cardPhone = view.findViewById(R.id.cardPhone)
+        cardPassport = view.findViewById(R.id.cardPassport)
+        cardCat = view.findViewById(R.id.cardCat)
+        cardAirpods = view.findViewById(R.id.cardAirpods)
+
+        tvPhoneStatus = view.findViewById(R.id.tvPhoneStatus)
+        tvPassportStatus = view.findViewById(R.id.tvPassportStatus)
+        tvCatStatus = view.findViewById(R.id.tvCatStatus)
+        tvAirpodsStatus = view.findViewById(R.id.tvAirpodsStatus)
+    }
