@@ -56,6 +56,10 @@ class UiKitFragment : Fragment() {
     }
 
     private fun setupListeners() {
+        view?.findViewById<View>(R.id.tvKitTitle)?.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+
         btnPrimary.setOnClickListener {
             Toast.makeText(requireContext(), "Primary Button clicked", Toast.LENGTH_SHORT).show()
         }

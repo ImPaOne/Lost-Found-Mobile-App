@@ -57,7 +57,7 @@ class ModerationFragment : Fragment() {
 
         initViews(view)
         setupClickListeners()
-        NavigationHelper.setup(this, view, NavigationHelper.Tab.EXPLORE)
+        setupBottomNav(view, "admin")
     }
 
     private fun initViews(view: View) {
@@ -86,7 +86,7 @@ class ModerationFragment : Fragment() {
 
     private fun setupClickListeners() {
         buttonBack.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            parentFragmentManager.popBackStack()
         }
 
         buttonSearch.setOnClickListener {

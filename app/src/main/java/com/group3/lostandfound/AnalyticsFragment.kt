@@ -52,7 +52,7 @@ class AnalyticsFragment : Fragment() {
         initViews(view)
         setupMap()
         setupClickListeners()
-        NavigationHelper.setup(this, view, NavigationHelper.Tab.MESSAGES)
+        setupBottomNav(view, "admin")
     }
 
     private fun initViews(view: View) {
@@ -115,7 +115,7 @@ class AnalyticsFragment : Fragment() {
 
     private fun setupClickListeners() {
         buttonBack.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            parentFragmentManager.popBackStack()
         }
 
         buttonDownloadReport.setOnClickListener {
@@ -123,11 +123,17 @@ class AnalyticsFragment : Fragment() {
         }
 
         buttonTimeframeSelector.setOnClickListener {
-            Toast.makeText(requireContext(), "Select timeframe: Last 30 days", Toast.LENGTH_SHORT).show()
+            val options = arrayOf("Last 7 days", "Last 30 days", "Last 90 days", "This Year")
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Select Timeframe")
+                .setItems(options) { _, which ->
+                    textSelectedTimeframe.text = options[which]
+                }
+                .show()
         }
 
         buttonExport.setOnClickListener {
-            Toast.makeText(requireContext(), "Analytics exported successfully", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Analytics exported successfully (CSV)", Toast.LENGTH_SHORT).show()
         }
 
         cardMedianResponse.setOnClickListener {

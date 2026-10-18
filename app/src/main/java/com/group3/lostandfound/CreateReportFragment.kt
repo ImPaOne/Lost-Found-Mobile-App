@@ -50,6 +50,10 @@ class CreateReportFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initViews(view)
+        
+        val initialIsLost = arguments?.getBoolean(ARG_IS_LOST, true) ?: true
+        setItemType(initialIsLost)
+
         setupListeners()
         setupBottomNav(view, "post")
     }
@@ -70,54 +74,87 @@ class CreateReportFragment : Fragment() {
         inputDescription = view.findViewById(R.id.inputDescription)
     }
 
+    private fun setItemType(isLost: Boolean) {
+        isLostSelected = isLost
+        if (isLost) {
+            cardLostItem.setBackgroundResource(R.drawable.bg_card_select_lost)
+            iconLost.setColorFilter(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
+
+            cardFoundItem.setBackgroundResource(R.drawable.bg_card_select_unselected)
+            iconFound.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
+        } else {
+            cardFoundItem.setBackgroundResource(R.drawable.bg_card_select_lost)
+            iconFound.setColorFilter(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
+
+            cardLostItem.setBackgroundResource(R.drawable.bg_card_select_unselected)
+            iconLost.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
+        }
+    }
+
     private fun setupListeners() {
         btnBack.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            parentFragmentManager.popBackStack()
         }
 
         btnBackBottom.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            parentFragmentManager.popBackStack()
         }
 
         cardLostItem.setOnClickListener {
             if (!isLostSelected) {
-                isLostSelected = true
-                cardLostItem.setBackgroundResource(R.drawable.bg_card_select_lost)
-                iconLost.setColorFilter(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
-
-                cardFoundItem.setBackgroundResource(R.drawable.bg_card_select_unselected)
-                iconFound.clearColorFilter()
+                setItemType(true)
             }
         }
 
         cardFoundItem.setOnClickListener {
             if (isLostSelected) {
-                isLostSelected = false
-                cardFoundItem.setBackgroundResource(R.drawable.bg_card_select_lost)
-                iconFound.setColorFilter(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
-
-                cardLostItem.setBackgroundResource(R.drawable.bg_card_select_unselected)
-                iconLost.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                setItemType(false)
             }
         }
 
         boxCategory.setOnClickListener {
-            Toast.makeText(requireContext(), "Select category (Electronics selected)", Toast.LENGTH_SHORT).show()
+            val categories = arrayOf(
+                "Electronics",
+                "Documents & IDs",
+                "Wallets & Bags",
+                "Pets & Animals",
+                "Keys",
+                "Jewelry & Watches",
+                "Other"
+            )
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Select Category")
+                .setItems(categories) { _, which ->
+                    tvCategoryValue.text = categories[which]
+                }
+                .show()
         }
 
         btnContinue.setOnClickListener {
             val title = inputTitle.text.toString().trim()
             if (title.isEmpty()) {
                 Toast.makeText(requireContext(), "Please enter an item title", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(requireContext(), "Report drafted: Moving to Step 3 (Location)", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            val itemType = if (isLostSelected) "Lost" else "Found"
+            Toast.makeText(requireContext(), "$itemType report published successfully!", Toast.LENGTH_SHORT).show()
+
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, ReportsFragment.newInstance())
+                .commit()
         }
     }
 
     companion object {
-        fun newInstance(): CreateReportFragment {
-            return CreateReportFragment()
+        private const val ARG_IS_LOST = "arg_is_lost"
+
+        fun newInstance(isLost: Boolean = true): CreateReportFragment {
+            val fragment = CreateReportFragment()
+            val args = Bundle()
+            args.putBoolean(ARG_IS_LOST, isLost)
+            fragment.arguments = args
+            return fragment
         }
     }
 }

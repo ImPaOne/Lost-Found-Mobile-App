@@ -34,7 +34,13 @@ class AdminFragment : Fragment() {
         val btnAnnounce = view.findViewById<View>(R.id.announcementButton)
 
         btnBack.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            if (parentFragmentManager.backStackEntryCount > 0) {
+                parentFragmentManager.popBackStack()
+            } else {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.screenBox, ProfileFragment.newInstance())
+                    .commit()
+            }
         }
 
         btnBell.setOnClickListener {

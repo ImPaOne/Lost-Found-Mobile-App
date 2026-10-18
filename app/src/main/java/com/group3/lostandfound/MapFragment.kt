@@ -99,33 +99,72 @@ class MapFragment : Fragment() {
             Toast.makeText(requireContext(), "Centered to current location", Toast.LENGTH_SHORT).show()
         }
 
+        var currentTitle = "Red laptop sleeve"
+        var currentLocation = "Independence Square"
+        var currentStatus = "FOUND"
+        var currentImage = R.drawable.img_wallet_details
+        var currentDesc = "Padded red neoprene laptop sleeve found on park bench."
+
         pinCenter.setOnClickListener {
-            textItemTitle.text = "Red laptop sleeve"
-            textItemLocation.text = "Independence Square"
-            tagFoundStatus.text = "FOUND"
+            currentTitle = "Red laptop sleeve"
+            currentLocation = "Independence Square"
+            currentStatus = "FOUND"
+            currentImage = R.drawable.img_wallet_details
+            currentDesc = "Padded red neoprene laptop sleeve found on park bench near walking path."
+
+            textItemTitle.text = currentTitle
+            textItemLocation.text = currentLocation
+            tagFoundStatus.text = currentStatus
         }
 
         pinTopLeft.setOnClickListener {
-            textItemTitle.text = "Black leather wallet"
-            textItemLocation.text = "Kollupitiya"
-            tagFoundStatus.text = "LOST"
+            currentTitle = "Black leather wallet"
+            currentLocation = "Kollupitiya"
+            currentStatus = "LOST"
+            currentImage = R.drawable.img_wallet
+            currentDesc = "Slim bifold wallet with national ID and driving license."
+
+            textItemTitle.text = currentTitle
+            textItemLocation.text = currentLocation
+            tagFoundStatus.text = currentStatus
         }
 
         pinTopRight.setOnClickListener {
-            textItemTitle.text = "Sri Lankan passport"
-            textItemLocation.text = "Fort Station"
-            tagFoundStatus.text = "FOUND"
+            currentTitle = "Sri Lankan passport"
+            currentLocation = "Fort Station"
+            currentStatus = "FOUND"
+            currentImage = R.drawable.img_passport
+            currentDesc = "Sri Lankan passport found on waiting hall chair at Fort Railway Station."
+
+            textItemTitle.text = currentTitle
+            textItemLocation.text = currentLocation
+            tagFoundStatus.text = currentStatus
         }
 
         pinBottomRight.setOnClickListener {
-            textItemTitle.text = "AirPods Pro Case"
-            textItemLocation.text = "Bambalapitiya"
-            tagFoundStatus.text = "FOUND"
+            currentTitle = "AirPods Pro Case"
+            currentLocation = "Bambalapitiya"
+            currentStatus = "FOUND"
+            currentImage = R.drawable.img_wallet_details
+            currentDesc = "White AirPods Pro case left behind at cafe table."
+
+            textItemTitle.text = currentTitle
+            textItemLocation.text = currentLocation
+            tagFoundStatus.text = currentStatus
         }
 
         cardLaptopItem.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, DetailsFragment.newInstance())
+                .replace(
+                    R.id.screenBox,
+                    DetailsFragment.newInstance(
+                        title = currentTitle,
+                        desc = currentDesc,
+                        status = currentStatus,
+                        location = currentLocation,
+                        imageResId = currentImage
+                    )
+                )
                 .addToBackStack(null)
                 .commit()
         }

@@ -113,7 +113,7 @@ class ExploreFragment : Fragment() {
     }
         private fun setupListeners() {
         btnClose.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            parentFragmentManager.popBackStack()
         }
 
         btnMapView.setOnClickListener {
@@ -140,12 +140,44 @@ class ExploreFragment : Fragment() {
             Toast.makeText(requireContext(), "Switching to list view", Toast.LENGTH_SHORT).show()
         }
 
-        // Tapping any item card opens DetailsFragment
-        cardPhone.setOnClickListener { openDetails() }
-        cardPassport.setOnClickListener { openDetails() }
-        cardCat.setOnClickListener { openDetails() }
-        cardAirpods.setOnClickListener { openDetails() }
+        cardPhone.setOnClickListener {
+            openDetails(
+                title = "Blue Samsung phone",
+                desc = "Blue Samsung Galaxy with transparent protective case. Lost on bus route 138.",
+                status = "LOST",
+                location = "Bambalapitiya",
+                imageResId = R.drawable.img_samsung_phone
+            )
+        }
+        cardPassport.setOnClickListener {
+            openDetails(
+                title = "Sri Lankan passport",
+                desc = "Found maroon Sri Lankan passport near ticket counter at Fort Railway Station.",
+                status = "FOUND",
+                location = "Fort Railway Station",
+                imageResId = R.drawable.img_passport
+            )
+        }
+        cardCat.setOnClickListener {
+            openDetails(
+                title = "Brown tabby cat",
+                desc = "Lost domestic tabby cat, friendly, answers to 'Ginger'. Wearing green collar.",
+                status = "LOST",
+                location = "Dehiwala",
+                imageResId = R.drawable.img_tabby_cat
+            )
+        }
+        cardAirpods.setOnClickListener {
+            openDetails(
+                title = "AirPods Pro Case",
+                desc = "White AirPods Pro case found on coffee table. Please describe engraving to claim.",
+                status = "FOUND",
+                location = "Kollupitiya",
+                imageResId = R.drawable.img_wallet_details
+            )
+        }
     }
+
     private fun selectChip(active: TextView) {
         val chips = listOf(chipAll, chipLost, chipFound, chipPets)
         for (chip in chips) {
@@ -158,9 +190,25 @@ class ExploreFragment : Fragment() {
             }
         }
     }
-        private fun openDetails() {
+
+    private fun openDetails(
+        title: String,
+        desc: String,
+        status: String,
+        location: String,
+        imageResId: Int
+    ) {
         parentFragmentManager.beginTransaction()
-            .replace(R.id.screenBox, DetailsFragment.newInstance())
+            .replace(
+                R.id.screenBox,
+                DetailsFragment.newInstance(
+                    title = title,
+                    desc = desc,
+                    status = status,
+                    location = location,
+                    imageResId = imageResId
+                )
+            )
             .addToBackStack(null)
             .commit()
     }
