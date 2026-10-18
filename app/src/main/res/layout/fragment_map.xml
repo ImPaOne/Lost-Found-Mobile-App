@@ -5,102 +5,16 @@
     android:id="@+id/mapRootBox"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F7F4EF">
+    android:background="@color/white">
 
-    <!-- 1. City Road Map Background Graphic -->
-    <ImageView
-        android:id="@+id/imgMapBackground"
+    <!-- 1. Interactive Leaflet Map WebView -->
+    <WebView
+        android:id="@+id/webViewLeafletMap"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/cardLaptopItem"
-        android:contentDescription="Map Area"
-        android:scaleType="centerCrop"
-        android:src="@drawable/img_map_bg" />
+        android:layout_above="@+id/bottomNav" />
 
-    <!-- 2. Map Marker Pins -->
-    <!-- Pin 1: Top-Left Red -->
-    <FrameLayout
-        android:id="@+id/pinTopLeft"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="72dp"
-        android:layout_marginTop="200dp"
-        android:background="@drawable/bg_pin_red"
-        android:clickable="true"
-        android:elevation="4dp"
-        android:focusable="true">
-
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_gravity="center"
-            android:contentDescription="Pin location"
-            android:src="@drawable/ic_pin_white" />
-    </FrameLayout>
-
-    <!-- Pin 2: Center Red (Active / Selected) -->
-    <FrameLayout
-        android:id="@+id/pinCenter"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="320dp"
-        android:background="@drawable/bg_pin_red"
-        android:clickable="true"
-        android:elevation="6dp"
-        android:focusable="true">
-
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_gravity="center"
-            android:contentDescription="Pin location"
-            android:src="@drawable/ic_pin_white" />
-    </FrameLayout>
-
-    <!-- Pin 3: Top-Right Brown -->
-    <FrameLayout
-        android:id="@+id/pinTopRight"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="250dp"
-        android:layout_marginEnd="68dp"
-        android:background="@drawable/bg_pin_brown"
-        android:clickable="true"
-        android:elevation="4dp"
-        android:focusable="true">
-
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_gravity="center"
-            android:contentDescription="Pin location"
-            android:src="@drawable/ic_pin_white" />
-    </FrameLayout>
-
-    <!-- Pin 4: Bottom-Right Brown -->
-    <FrameLayout
-        android:id="@+id/pinBottomRight"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="360dp"
-        android:layout_marginEnd="38dp"
-        android:background="@drawable/bg_pin_brown"
-        android:clickable="true"
-        android:elevation="4dp"
-        android:focusable="true">
-
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_gravity="center"
-            android:contentDescription="Pin location"
-            android:src="@drawable/ic_pin_white" />
-    </FrameLayout>
-
-    <!-- 3. Floating GPS Target Button (FAB) -->
+    <!-- 2. Floating GPS Target Button (FAB) -->
     <FrameLayout
         android:id="@+id/btnGpsTarget"
         android:layout_width="44dp"
@@ -123,7 +37,7 @@
             app:tint="#5C4638" />
     </FrameLayout>
 
-    <!-- 4. Top Overlay Controls: Header, Search, Chips -->
+    <!-- 3. Top Overlay Controls: Header, Search, Chips -->
     <LinearLayout
         android:id="@+id/topControlsBox"
         android:layout_width="match_parent"
@@ -163,7 +77,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:fontFamily="sans-serif-bold"
-                android:text="Map"
+                android:text="Live Map"
                 android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -178,60 +92,72 @@
                 android:clickable="true"
                 android:contentDescription="List view"
                 android:focusable="true"
-                android:src="@drawable/ic_list_view" />
+                android:src="@drawable/ic_list_view"
+                app:tint="#5C4638" />
         </RelativeLayout>
 
-        <!-- Search Bar: Cylinder icon, Hint, Filter icon -->
-        <LinearLayout
-            android:id="@+id/searchBarBox"
+        <!-- Floating Search Input Box -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSearchContainer"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginStart="20dp"
             android:layout_marginTop="6dp"
             android:layout_marginEnd="20dp"
-            android:background="@drawable/bg_search_box"
-            android:elevation="4dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp">
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="4dp"
+            app:strokeColor="@color/stroke_light"
+            app:strokeWidth="1dp">
 
-            <ImageView
-                android:id="@+id/iconCylinder"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:contentDescription="Search Icon"
-                android:src="@drawable/ic_search_cylinder" />
-
-            <EditText
-                android:id="@+id/inputSearchArea"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="1"
-                android:background="@null"
-                android:fontFamily="sans-serif"
-                android:hint="Search this area"
-                android:imeOptions="actionSearch"
-                android:inputType="text"
-                android:textColor="@color/text_primary"
-                android:textColorHint="#998B82"
-                android:textSize="14sp" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp">
 
-            <ImageView
-                android:id="@+id/btnFilterSliders"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:clickable="true"
-                android:contentDescription="Filter items"
-                android:focusable="true"
-                android:src="@drawable/ic_filter" />
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/iconSearchLens"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="Search"
+                    android:src="@drawable/ic_search"
+                    app:tint="#8E7E75" />
 
-        <!-- Filter Chips Row: Lost, Found, Today -->
+                <EditText
+                    android:id="@+id/inputSearchArea"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:fontFamily="sans-serif"
+                    android:hint="Search area or landmark..."
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/btnFilterSliders"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:clickable="true"
+                    android:contentDescription="Filter sliders"
+                    android:focusable="true"
+                    android:src="@drawable/ic_filter"
+                    app:tint="#5C4638" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Filter Chips Row (Lost, Found, Today) -->
         <LinearLayout
-            android:id="@+id/chipRow"
+            android:id="@+id/filterChipsRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
@@ -240,55 +166,71 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/chipLost"
+                android:id="@+id/chipAllMap"
                 android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                android:background="@drawable/bg_chip_lost"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_chip_selected"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
-                android:paddingStart="18dp"
-                android:paddingEnd="18dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="All"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/chipLost"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_chip_unselected"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:text="Lost"
-                android:textColor="#DE4343"
-                android:textSize="13sp"
+                android:textColor="@color/text_primary"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/chipFound"
                 android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/bg_chip_found"
+                android:layout_height="32dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_chip_unselected"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
-                android:paddingStart="18dp"
-                android:paddingEnd="18dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:text="Found"
-                android:textColor="#5C4638"
-                android:textSize="13sp"
+                android:textColor="@color/text_primary"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/chipToday"
                 android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/bg_chip_today"
+                android:layout_height="32dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_chip_unselected"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
-                android:paddingStart="18dp"
-                android:paddingEnd="18dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:text="Today"
-                android:textColor="#5C4638"
-                android:textSize="13sp"
+                android:textColor="@color/text_primary"
+                android:textSize="12sp"
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 5. Floating Item Preview Card (Red laptop sleeve) -->
+    <!-- 4. Floating Item Preview Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardLaptopItem"
         android:layout_width="match_parent"
@@ -300,7 +242,8 @@
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="18dp"
         app:cardElevation="6dp"
-        app:strokeWidth="0dp">
+        app:strokeColor="@color/stroke_light"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -309,21 +252,22 @@
             android:orientation="horizontal"
             android:padding="12dp">
 
-            <!-- Red Laptop Sleeve Thumbnail -->
+            <!-- Item Thumbnail -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="74dp"
                 android:layout_height="74dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:strokeWidth="0dp">
+                app:strokeColor="@color/stroke_light"
+                app:strokeWidth="0.5dp">
 
                 <ImageView
                     android:id="@+id/imgLaptopThumb"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:contentDescription="Red laptop sleeve"
+                    android:contentDescription="Item image"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/img_laptop" />
+                    android:src="@drawable/img_wallet_details" />
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Item Information -->
@@ -343,10 +287,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
-                        android:fontFamily="sans-serif-bold"
+                        android:fontFamily="sans-serif-black"
                         android:text="FOUND"
-                        android:textColor="#5C4638"
-                        android:textSize="11sp"
+                        android:textColor="@color/tag_found_color"
+                        android:textSize="12sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -355,7 +299,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:fontFamily="sans-serif"
-                        android:text="12m"
+                        android:text="12m ago"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
                 </RelativeLayout>
@@ -365,10 +309,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
+                    android:ellipsize="end"
                     android:fontFamily="sans-serif-bold"
+                    android:maxLines="1"
                     android:text="Red laptop sleeve"
                     android:textColor="@color/text_primary"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <LinearLayout
@@ -393,14 +339,14 @@
                         android:fontFamily="sans-serif"
                         android:text="Independence Square"
                         android:textColor="#7C6E66"
-                        android:textSize="12.5sp" />
+                        android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- 6. Bottom Navigation Bar on screen -->
+    <!-- 5. Bottom Navigation Bar on screen -->
     <include
         android:id="@+id/bottomNav"
         layout="@layout/fragment_bottom_nav"
