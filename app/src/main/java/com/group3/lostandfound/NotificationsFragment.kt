@@ -66,31 +66,70 @@ class NotificationsFragment : Fragment() {
         itemWallet.setOnClickListener {
             dotWallet.visibility = View.GONE
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, DetailsFragment.newInstance())
+                .replace(
+                    R.id.screenBox,
+                    DetailsFragment.newInstance(
+                        title = "Black leather wallet",
+                        desc = "Slim wallet with national ID and two bank cards. A user sent you a match lead.",
+                        status = "LOST",
+                        location = "Colombo 03",
+                        imageResId = R.drawable.img_wallet_details
+                    )
+                )
                 .addToBackStack(null)
                 .commit()
         }
 
         itemKasun.setOnClickListener {
-            Toast.makeText(requireContext(), "Kasun sent a message about your report.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Kasun: 'Hi, I think I found your wallet at Coffee Beans!'", Toast.LENGTH_LONG).show()
         }
 
         itemPassport.setOnClickListener {
-            Toast.makeText(requireContext(), "Your passport report is under review.", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(
+                    R.id.screenBox,
+                    DetailsFragment.newInstance(
+                        title = "Sri Lankan passport",
+                        desc = "Your reported passport has passed moderation review and is visible to the community.",
+                        status = "FOUND",
+                        location = "Fort Railway Station",
+                        imageResId = R.drawable.img_passport
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
         }
 
         itemAdmin.setOnClickListener {
             dotAdmin.visibility = View.GONE
-            Toast.makeText(requireContext(), "Please verify your contact number.", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, TrustFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         itemAirPods.setOnClickListener {
-            Toast.makeText(requireContext(), "AirPods Pro case marked as resolved.", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(
+                    R.id.screenBox,
+                    DetailsFragment.newInstance(
+                        title = "AirPods Pro Case",
+                        desc = "This case has been marked as resolved and reunited with owner.",
+                        status = "RESOLVED",
+                        location = "Bambalapitiya",
+                        imageResId = R.drawable.img_wallet_details
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
         }
 
         itemGalleFace.setOnClickListener {
             dotGalleFace.visibility = View.GONE
-            Toast.makeText(requireContext(), "New possible match near Galle Face.", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, MapFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
     }
 
