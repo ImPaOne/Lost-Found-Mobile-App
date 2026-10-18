@@ -51,7 +51,7 @@ class ExploreFragment : Fragment() {
     private lateinit var tvCatStatus: TextView
     private lateinit var tvAirpodsStatus: TextView
 
-    override fun onCreateView(
+        override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -67,8 +67,7 @@ class ExploreFragment : Fragment() {
         setupListeners()
         setupBottomNav(view, "explore")
     }
-
-    private fun initViews(view: View) {
+        private fun initViews(view: View) {
         btnClose = view.findViewById(R.id.btnClose)
         btnMapView = view.findViewById(R.id.btnMapView)
 
@@ -93,8 +92,7 @@ class ExploreFragment : Fragment() {
         tvCatStatus = view.findViewById(R.id.tvCatStatus)
         tvAirpodsStatus = view.findViewById(R.id.tvAirpodsStatus)
     }
-
-    private fun setupStatusBadges() {
+        private fun setupStatusBadges() {
         // Formats "LOST · 2h" and "FOUND · 2h" with two-tone colors
         val lostColor = ContextCompat.getColor(requireContext(), R.color.tag_lost_color)
         val foundColor = ContextCompat.getColor(requireContext(), R.color.text_primary)
@@ -113,8 +111,7 @@ class ExploreFragment : Fragment() {
         span.setSpan(ForegroundColorSpan(timeColor), status.length, span.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         textView.text = span
     }
-
-    private fun setupListeners() {
+        private fun setupListeners() {
         btnClose.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
@@ -149,7 +146,6 @@ class ExploreFragment : Fragment() {
         cardCat.setOnClickListener { openDetails() }
         cardAirpods.setOnClickListener { openDetails() }
     }
-
     private fun selectChip(active: TextView) {
         val chips = listOf(chipAll, chipLost, chipFound, chipPets)
         for (chip in chips) {
@@ -162,8 +158,7 @@ class ExploreFragment : Fragment() {
             }
         }
     }
-
-    private fun openDetails() {
+        private fun openDetails() {
         parentFragmentManager.beginTransaction()
             .replace(R.id.screenBox, DetailsFragment.newInstance())
             .addToBackStack(null)

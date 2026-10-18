@@ -7,7 +7,6 @@
     android:background="@color/white"
     android:orientation="vertical"
     tools:context=".CreateReportFragment">
-
     <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollBox"
@@ -25,7 +24,6 @@
             android:paddingTop="12dp"
             android:paddingEnd="20dp"
             android:paddingBottom="24dp">
-
             <!-- 1. Header: Back Arrow, "Create report" title -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/headerRow"
@@ -44,7 +42,6 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
-
                 <TextView
                     android:id="@+id/tvHeaderTitle"
                     android:layout_width="wrap_content"
@@ -59,8 +56,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- 2. Step Progress Bar: 5 horizontal segments -->
+                        <!-- 2. Step Progress Bar: 5 horizontal segments -->
             <LinearLayout
                 android:id="@+id/progressBar"
                 android:layout_width="match_parent"
@@ -83,8 +79,7 @@
                     android:layout_marginEnd="6dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_step_progress_active" />
-
-                <View
+                                    <View
                     android:id="@+id/segStep3"
                     android:layout_width="0dp"
                     android:layout_height="4dp"
@@ -107,7 +102,6 @@
                     android:layout_weight="1"
                     android:background="@drawable/bg_step_progress_inactive" />
             </LinearLayout>
-
             <!-- 3. Step Headings -->
             <TextView
                 android:id="@+id/tvStepNumber"
@@ -131,7 +125,6 @@
                 android:textColor="#3D2619"
                 android:textSize="24sp"
                 android:textStyle="bold" />
-
             <TextView
                 android:id="@+id/tvStepSubtitle"
                 android:layout_width="wrap_content"
@@ -141,7 +134,6 @@
                 android:text="Tell the community what to look for."
                 android:textColor="#7D6F67"
                 android:textSize="14sp" />
-
             <!-- 4. Toggle Selector Cards (Lost item / Found item) -->
             <LinearLayout
                 android:id="@+id/rowItemType"
@@ -184,7 +176,6 @@
                         android:textSize="13sp"
                         android:textStyle="bold" />
                 </LinearLayout>
-
                 <!-- Found item Card (Unselected by default) -->
                 <LinearLayout
                     android:id="@+id/cardFoundItem"
@@ -219,7 +210,6 @@
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
-
             <!-- 5. Form Field 1: Category -->
             <TextView
                 android:layout_width="wrap_content"
@@ -252,8 +242,7 @@
                     android:textColor="#3D2619"
                     android:textSize="14sp" />
             </FrameLayout>
-
-            <!-- 6. Form Field 2: Item title -->
+            
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -280,7 +269,6 @@
                 android:textColor="#3D2619"
                 android:textColorHint="#A48374"
                 android:textSize="14sp" />
-
             <!-- 7. Form Field 3: Description -->
             <TextView
                 android:layout_width="wrap_content"
@@ -310,7 +298,6 @@
                 android:textColor="#3D2619"
                 android:textColorHint="#A48374"
                 android:textSize="14sp" />
-
             <!-- 8. "Next up" Info Banner -->
             <LinearLayout
                 android:id="@+id/bannerNextUp"
@@ -339,7 +326,6 @@
                     android:textColor="#7D6F67"
                     android:textSize="12sp" />
             </LinearLayout>
-
             <!-- 9. Bottom Buttons: Back & Continue -->
             <LinearLayout
                 android:id="@+id/rowActionButtons"
@@ -363,7 +349,6 @@
                     android:textColor="#3D2619"
                     android:textSize="15sp"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/btnContinue"
                     android:layout_width="0dp"
@@ -383,8 +368,7 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <!-- 10. Persistent Bottom Navigation Bar -->
+    
     <include
         android:id="@+id/bottomNavBox"
         layout="@layout/fragment_bottom_nav" />
