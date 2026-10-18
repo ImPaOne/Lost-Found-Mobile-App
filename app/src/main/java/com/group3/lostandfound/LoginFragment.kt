@@ -39,6 +39,10 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Smooth entry animation
+        view.alpha = 0f
+        view.animate().alpha(1f).setDuration(400).start()
+
         initViews(view)
         setupListeners()
         setupBottomNav(view)
@@ -66,22 +70,11 @@ class LoginFragment : Fragment() {
             passwordInput.setSelection(cursorPosition)
         }
 
+        // Direct redirect without blocking validations
         loginBtn.setOnClickListener {
-            val email = emailInput.text.toString().trim()
-            val password = passwordInput.text.toString().trim()
-
-            if (email.isEmpty()) {
-                Toast.makeText(requireContext(), "Please enter your email or phone", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (password.isEmpty()) {
-                Toast.makeText(requireContext(), "Please enter your password", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            Toast.makeText(requireContext(), "Welcome back!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Welcome to Foundly!", Toast.LENGTH_SHORT).show()
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.screenBox, HomeFragment.newInstance())
                 .commit()
         }
@@ -92,6 +85,7 @@ class LoginFragment : Fragment() {
 
         signUpRow.setOnClickListener {
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.screenBox, SignUpFragment.newInstance())
                 .addToBackStack(null)
                 .commit()

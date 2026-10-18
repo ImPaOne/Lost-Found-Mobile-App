@@ -130,17 +130,15 @@ class CreateReportFragment : Fragment() {
                 .show()
         }
 
+        // Direct redirect without blocking validations
         btnContinue.setOnClickListener {
             val title = inputTitle.text.toString().trim()
-            if (title.isEmpty()) {
-                Toast.makeText(requireContext(), "Please enter an item title", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
+            val reportTitle = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
             val itemType = if (isLostSelected) "Lost" else "Found"
-            Toast.makeText(requireContext(), "$itemType report published successfully!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "$itemType report '$reportTitle' published successfully!", Toast.LENGTH_SHORT).show()
 
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.screenBox, ReportsFragment.newInstance())
                 .commit()
         }

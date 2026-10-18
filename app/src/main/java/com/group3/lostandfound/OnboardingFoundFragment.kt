@@ -30,14 +30,20 @@ class OnboardingFoundFragment : Fragment() {
         val btnSkip = view.findViewById<TextView>(R.id.btnSkip)
         val btnNext = view.findViewById<TextView>(R.id.btnNext)
 
+        // Smooth entry animation
+        view.alpha = 0f
+        view.animate().alpha(1f).setDuration(400).start()
+
         btnSkip.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, HomeFragment.newInstance())
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(R.id.screenBox, LoginFragment.newInstance())
                 .commit()
         }
 
         btnNext.setOnClickListener {
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.screenBox, OnboardingReuniteFragment.newInstance())
                 .addToBackStack(null)
                 .commit()

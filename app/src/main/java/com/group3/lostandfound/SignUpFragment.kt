@@ -48,6 +48,10 @@ class SignUpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Smooth entry animation
+        view.alpha = 0f
+        view.animate().alpha(1f).setDuration(400).start()
+
         initViews(view)
         setupListeners()
         setupBottomNav(view)
@@ -91,26 +95,21 @@ class SignUpFragment : Fragment() {
             inputConfirmPassword.setSelection(cursorPosition)
         }
 
+        // Direct redirect without blocking validations
         btnCreateAccount.setOnClickListener {
             val name = inputFullName.text.toString().trim()
-            val email = inputEmail.text.toString().trim()
-            val agreed = checkTerms.isChecked
-
-            if (!agreed) {
-                Toast.makeText(requireContext(), "Please agree to the Terms of Service", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val displayName = if (name.isNotEmpty()) name else "Nadeesha Silva"
+            val displayName = if (name.isNotEmpty()) name else "New Member"
             Toast.makeText(requireContext(), "Account created for $displayName!", Toast.LENGTH_SHORT).show()
 
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.screenBox, HomeFragment.newInstance())
                 .commit()
         }
 
         rowLogin.setOnClickListener {
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.screenBox, LoginFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
