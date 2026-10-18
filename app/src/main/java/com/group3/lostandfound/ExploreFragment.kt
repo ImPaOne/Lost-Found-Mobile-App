@@ -111,3 +111,38 @@ class ExploreFragment : Fragment() {
         span.setSpan(ForegroundColorSpan(timeColor), status.length, span.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         textView.text = span
     }
+        private fun setupListeners() {
+        btnClose.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+
+        btnMapView.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, MapFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        btnFilter.setOnClickListener {
+            Toast.makeText(requireContext(), "Filter items", Toast.LENGTH_SHORT).show()
+        }
+
+        chipAll.setOnClickListener { selectChip(chipAll) }
+        chipLost.setOnClickListener { selectChip(chipLost) }
+        chipFound.setOnClickListener { selectChip(chipFound) }
+        chipPets.setOnClickListener { selectChip(chipPets) }
+
+        btnGridView.setOnClickListener {
+            Toast.makeText(requireContext(), "Grid view active", Toast.LENGTH_SHORT).show()
+        }
+
+        btnListView.setOnClickListener {
+            Toast.makeText(requireContext(), "Switching to list view", Toast.LENGTH_SHORT).show()
+        }
+
+        // Tapping any item card opens DetailsFragment
+        cardPhone.setOnClickListener { openDetails() }
+        cardPassport.setOnClickListener { openDetails() }
+        cardCat.setOnClickListener { openDetails() }
+        cardAirpods.setOnClickListener { openDetails() }
+    }
