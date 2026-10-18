@@ -162,7 +162,7 @@ class HomeFragment : Fragment() {
                 .commit()
         }
 
-        view.findViewById<View>(R.id.cardLaptopHome)?.setOnClickListener {
+        view?.findViewById<View>(R.id.cardLaptopHome)?.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(
                     R.id.screenBox,
