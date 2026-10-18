@@ -43,6 +43,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
 
     fun navigateTo(dest: Fragment) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(R.id.screenBox, dest)
             .addToBackStack(null)
             .commit()
