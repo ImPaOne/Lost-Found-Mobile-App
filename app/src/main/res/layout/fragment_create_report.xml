@@ -368,3 +368,9 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+    <!-- 10. Persistent Bottom Navigation Bar -->
+    <include
+        android:id="@+id/bottomNavBox"
+        layout="@layout/fragment_bottom_nav" />
+
+</LinearLayout>
