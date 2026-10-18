@@ -161,6 +161,22 @@ class HomeFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
+
+        view.findViewById<View>(R.id.cardLaptopHome)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(
+                    R.id.screenBox,
+                    DetailsFragment.newInstance(
+                        title = "Red laptop sleeve",
+                        desc = "Padded red neoprene laptop sleeve found on park bench near walking path.",
+                        status = "FOUND",
+                        location = "Independence Square",
+                        imageResId = R.drawable.img_wallet_details
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     private fun selectCategoryChip(selectedChip: TextView) {
