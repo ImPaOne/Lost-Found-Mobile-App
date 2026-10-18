@@ -146,3 +146,15 @@ class ExploreFragment : Fragment() {
         cardCat.setOnClickListener { openDetails() }
         cardAirpods.setOnClickListener { openDetails() }
     }
+    private fun selectChip(active: TextView) {
+        val chips = listOf(chipAll, chipLost, chipFound, chipPets)
+        for (chip in chips) {
+            if (chip == active) {
+                chip.setBackgroundResource(R.drawable.bg_chip_selected)
+                chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            } else {
+                chip.setBackgroundResource(R.drawable.bg_chip_unselected)
+                chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            }
+        }
+    }
