@@ -92,3 +92,22 @@ class ExploreFragment : Fragment() {
         tvCatStatus = view.findViewById(R.id.tvCatStatus)
         tvAirpodsStatus = view.findViewById(R.id.tvAirpodsStatus)
     }
+        private fun setupStatusBadges() {
+        // Formats "LOST · 2h" and "FOUND · 2h" with two-tone colors
+        val lostColor = ContextCompat.getColor(requireContext(), R.color.tag_lost_color)
+        val foundColor = ContextCompat.getColor(requireContext(), R.color.text_primary)
+        val mutedColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+
+        formatBadge(tvPhoneStatus, "LOST", " · 2h", lostColor, mutedColor)
+        formatBadge(tvPassportStatus, "FOUND", " · 2h", foundColor, mutedColor)
+        formatBadge(tvCatStatus, "LOST", " · 2h", lostColor, mutedColor)
+        formatBadge(tvAirpodsStatus, "FOUND", " · 2h", foundColor, mutedColor)
+    }
+
+    private fun formatBadge(textView: TextView, status: String, time: String, statusColor: Int, timeColor: Int) {
+        val span = SpannableString("$status$time")
+        span.setSpan(ForegroundColorSpan(statusColor), 0, status.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        span.setSpan(StyleSpan(Typeface.BOLD), 0, status.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        span.setSpan(ForegroundColorSpan(timeColor), status.length, span.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        textView.text = span
+    }
