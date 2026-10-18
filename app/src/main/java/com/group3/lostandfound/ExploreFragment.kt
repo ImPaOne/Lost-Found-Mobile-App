@@ -158,3 +158,16 @@ class ExploreFragment : Fragment() {
             }
         }
     }
+        private fun openDetails() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.screenBox, DetailsFragment.newInstance())
+            .addToBackStack(null)
+            .commit()
+    }
+
+    companion object {
+        fun newInstance(): ExploreFragment {
+            return ExploreFragment()
+        }
+    }
+}
