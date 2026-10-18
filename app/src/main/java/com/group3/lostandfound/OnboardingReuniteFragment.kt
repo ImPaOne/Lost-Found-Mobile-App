@@ -44,8 +44,7 @@ class OnboardingReuniteFragment : Fragment() {
         btnGetStarted.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                .replace(R.id.screenBox, SignUpFragment.newInstance())
-                .addToBackStack(null)
+                .replace(R.id.screenBox, LoginFragment.newInstance())
                 .commit()
         }
     }
