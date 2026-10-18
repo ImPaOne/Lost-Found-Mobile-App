@@ -102,3 +102,26 @@
                     android:layout_weight="1"
                     android:background="@drawable/bg_step_progress_inactive" />
             </LinearLayout>
+            <!-- 3. Step Headings -->
+            <TextView
+                android:id="@+id/tvStepNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="sans-serif-bold"
+                android:letterSpacing="0.05"
+                android:text="STEP 2 OF 5"
+                android:textColor="#624E43"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvStepTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-bold"
+                android:text="Category &amp; details"
+                android:textColor="#3D2619"
+                android:textSize="24sp"
+                android:textStyle="bold" />
