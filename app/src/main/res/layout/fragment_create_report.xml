@@ -298,3 +298,31 @@
                 android:textColor="#3D2619"
                 android:textColorHint="#A48374"
                 android:textSize="14sp" />
+            <!-- 8. "Next up" Info Banner -->
+            <LinearLayout
+                android:id="@+id/bannerNextUp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_next_up_banner"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Next up"
+                    android:textColor="#5C4638"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="3 Location picker · 4 Photos upload · 5 Review &amp; submit"
+                    android:textColor="#7D6F67"
+                    android:textSize="12sp" />
+            </LinearLayout>
