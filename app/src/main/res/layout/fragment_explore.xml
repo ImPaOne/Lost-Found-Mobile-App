@@ -550,3 +550,158 @@
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
+            <!-- ROW 2: Brown tabby cat & AirPods Pro case -->
+            <LinearLayout
+                android:id="@+id/rowItems2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <!-- Left Card: Brown tabby cat -->
+                <LinearLayout
+                    android:id="@+id/cardCat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+
+                        <ImageView
+                            android:id="@+id/imgCat"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="Brown tabby cat"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/img_tabby_cat" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/tvCatStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="7dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="LOST · 2h"
+                        android:textColor="#D43838"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/tvCatTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="Brown tabby cat"
+                        android:textColor="#3A2D28"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="11dp"
+                            android:layout_height="11dp"
+                            android:contentDescription="Location pin"
+                            android:src="@drawable/ic_location_compass" />
+
+                        <TextView
+                            android:id="@+id/tvCatLocation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:fontFamily="sans-serif"
+                            android:text="Nugegoda"
+                            android:textColor="#7D6F67"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Right Card: AirPods Pro case -->
+                <LinearLayout
+                    android:id="@+id/cardAirpods"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+
+                        <ImageView
+                            android:id="@+id/imgAirpods"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="AirPods Pro case"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/img_airpods_bench" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/tvAirpodsStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="7dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="FOUND · 2h"
+                        android:textColor="#3D2E27"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/tvAirpodsTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="AirPods Pro case"
+                        android:textColor="#3A2D28"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="11dp"
+                            android:layout_height="11dp"
+                            android:contentDescription="Location pin"
+                            android:src="@drawable/ic_location_compass" />
+
+                        <TextView
+                            android:id="@+id/tvAirpodsLocation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:fontFamily="sans-serif"
+                            android:text="Galle Face"
+                            android:textColor="#7D6F67"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
