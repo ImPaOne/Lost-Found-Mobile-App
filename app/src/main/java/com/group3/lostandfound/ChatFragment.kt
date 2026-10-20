@@ -63,6 +63,8 @@ class ChatFragment : Fragment() {
             recipientUserName = "Dilshan Perera"
             chatConversationId = chatRepository.generateChatConversationId(currentUserId, recipientUserId)
         }
+
+        chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
     }
 
     override fun onCreateView(
