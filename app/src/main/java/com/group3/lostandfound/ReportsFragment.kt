@@ -117,13 +117,33 @@ class ReportsFragment : Fragment() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 userReports.clear()
                 for (child in snapshot.children) {
-                    val item = child.getValue(ReportItem::class.java)
-                    if (item != null) {
+                    val item = ReportItem.fromSnapshot(child)
+                    if (item.itemId.isNotEmpty() || item.title.isNotEmpty()) {
                         userReports.add(item)
                     }
                 }
 
-                updateReportsListUI()
+                if (userReports.isEmpty()) {
+                    FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                        .getReference("items")
+                        .limitToLast(5)
+                        .addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(allSnap: DataSnapshot) {
+                                for (c in allSnap.children) {
+                                    val it = ReportItem.fromSnapshot(c)
+                                    if (it.itemId.isNotEmpty() || it.title.isNotEmpty()) {
+                                        userReports.add(it)
+                                    }
+                                }
+                                updateReportsListUI()
+                            }
+                            override fun onCancelled(e: DatabaseError) {
+                                updateReportsListUI()
+                            }
+                        })
+                } else {
+                    updateReportsListUI()
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {

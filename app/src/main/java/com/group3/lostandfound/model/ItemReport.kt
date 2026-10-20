@@ -33,7 +33,10 @@ data class ItemReport(
             "location" to if (location.isNotEmpty()) location else "$category, Western Province",
             "latitude" to latitude,
             "longitude" to longitude,
-            "timestamp" to timestamp
+            "timestamp" to timestamp,
+            "isFlagged" to false,
+            "flagReason" to "",
+            "authorName" to "Community Member"
         )
     }
 
@@ -51,6 +54,7 @@ data class ItemReport(
             val category = snapshot.child("category").getValue(String::class.java).orEmpty()
             val status = snapshot.child("status").getValue(String::class.java)?.takeIf { it.isNotEmpty() } ?: "LOST"
             val imageUrl = snapshot.child("imageUrl").getValue(String::class.java).orEmpty()
+            val location = snapshot.child("location").getValue(String::class.java).orEmpty()
 
             val rawLat = snapshot.child("latitude").value
             val latitude = when (rawLat) {
@@ -81,6 +85,7 @@ data class ItemReport(
                 category = category,
                 status = status,
                 imageUrl = imageUrl,
+                location = location,
                 latitude = latitude,
                 longitude = longitude,
                 timestamp = timestamp

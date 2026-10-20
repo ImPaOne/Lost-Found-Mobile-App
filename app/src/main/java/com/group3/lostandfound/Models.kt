@@ -1,5 +1,7 @@
 package com.group3.lostandfound
 
+import com.google.firebase.database.DataSnapshot
+
 /**
  * Data Models for Lost and Found System, Team Developer Prompts,
  * and Admin Moderation Engine.
@@ -47,7 +49,6 @@ data class AdminAction(
     val timestamp: Long = System.currentTimeMillis()
 )
 
-// 3. Pabasara Madhawa (GAHNDSE261F-010): Item Report model for /items/{itemId}
 data class ReportItem(
     val itemId: String = "",
     val title: String = "",
@@ -61,7 +62,57 @@ data class ReportItem(
     val authorName: String = "",
     val timestamp: Long = System.currentTimeMillis(),
     val imageUrl: String = ""
-)
+) {
+    companion object {
+        fun fromSnapshot(child: DataSnapshot): ReportItem {
+            return try {
+                val key = child.key.orEmpty()
+                val itemId = child.child("itemId").getValue(String::class.java)?.takeIf { it.isNotEmpty() } ?: key
+                val title = child.child("title").getValue(String::class.java).orEmpty()
+                val description = child.child("description").getValue(String::class.java).orEmpty()
+                val category = child.child("category").getValue(String::class.java)?.takeIf { it.isNotEmpty() } ?: "Electronics"
+                val location = child.child("location").getValue(String::class.java)?.takeIf { it.isNotEmpty() } ?: "Colombo 03"
+                val status = child.child("status").getValue(String::class.java)?.takeIf { it.isNotEmpty() } ?: "LOST"
+
+                val rawFlagged = child.child("isFlagged").value
+                val isFlagged = when (rawFlagged) {
+                    is Boolean -> rawFlagged
+                    is String -> rawFlagged.toBoolean()
+                    else -> false
+                }
+
+                val flagReason = child.child("flagReason").getValue(String::class.java).orEmpty()
+                val userId = child.child("userId").getValue(String::class.java).orEmpty()
+                val authorName = child.child("authorName").getValue(String::class.java)?.takeIf { it.isNotEmpty() } ?: "Community Member"
+
+                val rawTime = child.child("timestamp").value
+                val timestamp = when (rawTime) {
+                    is Number -> rawTime.toLong()
+                    is String -> rawTime.toLongOrNull() ?: System.currentTimeMillis()
+                    else -> System.currentTimeMillis()
+                }
+                val imageUrl = child.child("imageUrl").getValue(String::class.java).orEmpty()
+
+                ReportItem(
+                    itemId = itemId,
+                    title = title,
+                    description = description,
+                    category = category,
+                    location = location,
+                    status = status,
+                    isFlagged = isFlagged,
+                    flagReason = flagReason,
+                    userId = userId,
+                    authorName = authorName,
+                    timestamp = timestamp,
+                    imageUrl = imageUrl
+                )
+            } catch (e: Exception) {
+                ReportItem()
+            }
+        }
+    }
+}
 
 // User Moderation model for /users/{uid}
 data class UserData(

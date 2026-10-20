@@ -125,14 +125,19 @@ class HomeFragment : Fragment() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     liveReportsList.clear()
                     for (child in snapshot.children) {
-                        val report = child.getValue(ReportItem::class.java)
-                        if (report != null && (report.itemId.isNotEmpty() || report.title.isNotEmpty())) {
+                        val report = ReportItem.fromSnapshot(child)
+                        if (report.itemId.isNotEmpty() || report.title.isNotEmpty()) {
                             liveReportsList.add(report)
                         }
                     }
 
                     updateUrgentSliderFromLive(liveReportsList)
                     updateRecentCardsFromLive(liveReportsList)
+
+                    view?.findViewById<TextView>(R.id.textReunitedStatistics)?.let { tvStat ->
+                        val countDisplay = liveReportsList.size
+                        tvStat.text = "$countDisplay community reports active"
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {}
@@ -346,9 +351,18 @@ class HomeFragment : Fragment() {
                 .commit()
         }
 
-        chipCategoryAll.setOnClickListener { selectCategoryChip(chipCategoryAll) }
-        chipCategoryElectronics.setOnClickListener { selectCategoryChip(chipCategoryElectronics) }
-        chipCategoryDocuments.setOnClickListener { selectCategoryChip(chipCategoryDocuments) }
+        chipCategoryAll.setOnClickListener {
+            selectCategoryChip(chipCategoryAll)
+            updateRecentCardsFromLive(liveReportsList)
+        }
+        chipCategoryElectronics.setOnClickListener {
+            selectCategoryChip(chipCategoryElectronics)
+            updateRecentCardsFromLive(liveReportsList.filter { it.category.contains("Electronic", ignoreCase = true) })
+        }
+        chipCategoryDocuments.setOnClickListener {
+            selectCategoryChip(chipCategoryDocuments)
+            updateRecentCardsFromLive(liveReportsList.filter { it.category.contains("Document", ignoreCase = true) })
+        }
 
         buttonSeeAllRecent.setOnClickListener {
             parentFragmentManager.beginTransaction()

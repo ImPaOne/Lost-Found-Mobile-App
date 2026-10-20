@@ -46,6 +46,11 @@ class OnboardingFragment : Fragment() {
     }
 
     private fun navigateToLogin() {
+        requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean("onboarding_completed", true)
+            .apply()
+
         parentFragmentManager.beginTransaction()
             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(R.id.screenBox, LoginFragment.newInstance())
