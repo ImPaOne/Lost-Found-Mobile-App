@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 
@@ -59,9 +60,22 @@ class NotificationsFragment : Fragment() {
 
         notifRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
             override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
-                if (snapshot.exists() && snapshot.childrenCount > 0) {
-                    dotWallet.visibility = View.VISIBLE
-                }
+                val hasNotifs = snapshot.exists() && snapshot.childrenCount > 0
+                itemWallet.visibility = if (hasNotifs) View.VISIBLE else View.GONE
+                itemKasun.visibility = if (hasNotifs) View.VISIBLE else View.GONE
+                itemPassport.visibility = View.GONE
+                itemAdmin.visibility = View.GONE
+                itemAirPods.visibility = View.GONE
+                itemGalleFace.visibility = View.GONE
+
+                dotWallet.visibility = if (hasNotifs) View.VISIBLE else View.GONE
+                dotAdmin.visibility = View.GONE
+                dotGalleFace.visibility = View.GONE
+
+                val lblToday = view.findViewById<TextView>(R.id.lblToday)
+                val lblEarlier = view.findViewById<TextView>(R.id.lblEarlier)
+                lblToday?.text = if (hasNotifs) "TODAY" else "No new notifications. You're all caught up!"
+                lblEarlier?.visibility = View.GONE
             }
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
         })
