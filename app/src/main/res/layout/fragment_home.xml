@@ -261,6 +261,51 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- Important & Urgent Items Slider Banner -->
+        <LinearLayout
+            android:id="@+id/urgentSliderContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vpUrgentAlertSlider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never" />
+
+            <!-- Slider Indicator Dots -->
+            <LinearLayout
+                android:id="@+id/layoutSliderDots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/dotSlider1"
+                    android:layout_width="16dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/bg_dot_active" />
+
+                <View
+                    android:id="@+id/dotSlider2"
+                    android:layout_width="6dp"
+                    android:layout_height="5dp"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/bg_dot_inactive_1" />
+
+                <View
+                    android:id="@+id/dotSlider3"
+                    android:layout_width="6dp"
+                    android:layout_height="5dp"
+                    android:background="@drawable/bg_dot_inactive_2" />
+            </LinearLayout>
+        </LinearLayout>
+
         <!-- Category Filter Chips -->
         <HorizontalScrollView
             android:id="@+id/categoryFilterScrollView"
