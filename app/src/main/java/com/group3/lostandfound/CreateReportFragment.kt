@@ -195,10 +195,29 @@ class CreateReportFragment : Fragment() {
             if (currentStep < 5) {
                 slideForward()
             } else {
-                // Submit step 5
+                // Submit step 5 & save to Firebase Realtime DB
                 val title = inputTitle.text.toString().trim()
+                val landmark = inputLandmark.text.toString().trim()
+                val desc = inputDescription.text.toString().trim()
                 val reportTitle = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
                 val itemType = if (isLostSelected) "Lost" else "Found"
+
+                val newItemId = FirebaseManager.itemsRef.push().key ?: "item_${System.currentTimeMillis()}"
+                val newReport = ReportItem(
+                    itemId = newItemId,
+                    title = reportTitle,
+                    description = desc,
+                    category = selectedCategory,
+                    location = "$selectedArea ${if (landmark.isNotEmpty()) "· $landmark" else ""}",
+                    status = "PENDING",
+                    isFlagged = false,
+                    userId = FirebaseManager.currentUid,
+                    authorName = "Report Owner",
+                    timestamp = System.currentTimeMillis()
+                )
+
+                FirebaseManager.itemsRef.child(newItemId).setValue(newReport)
+
                 Toast.makeText(requireContext(), "🎉 $itemType report '$reportTitle' published successfully!", Toast.LENGTH_LONG).show()
 
                 parentFragmentManager.beginTransaction()
