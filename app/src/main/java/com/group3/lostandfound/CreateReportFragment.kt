@@ -610,13 +610,29 @@ class CreateReportFragment : Fragment() {
             result.onSuccess { createdReport ->
                 pbUploadBar.progress = 100
                 tvUploadPercentage.text = "100%"
-                tvUploadStatusText.text = "🎉 Successfully published!"
+                tvUploadStatusText.text = "Successfully published"
 
-                Toast.makeText(
+                if (isLostSelected) {
+                    com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                        requireContext(),
+                        "Lost Item Broadcasted",
+                        "Search alert active for '${createdReport.title}'. Nearby community members notified.",
+                        createdReport.itemId
+                    )
+                } else {
+                    com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                        requireContext(),
+                        "Found Item Registered",
+                        "Thank you for reporting '${createdReport.title}'. Searching for the verified owner.",
+                        createdReport.itemId
+                    )
+                }
+
+                com.group3.lostandfound.util.ModernToast.show(
                     requireContext(),
-                    "🎉 Report published successfully! Redirecting to My Reports...",
-                    Toast.LENGTH_SHORT
-                ).show()
+                    "Report published successfully. Redirecting to My Reports.",
+                    view
+                )
 
                 // Redirect user directly to My Reports (ReportsFragment) as requested
                 parentFragmentManager.beginTransaction()
