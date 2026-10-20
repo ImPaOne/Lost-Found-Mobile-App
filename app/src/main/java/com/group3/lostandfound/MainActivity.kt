@@ -27,9 +27,9 @@ class MainActivity : AppCompatActivity() {
         setupDoubleTapBackToHome()
 
         if (savedInstanceState == null) {
-            // Start on OnboardingFragment
+            // Start on LoginFragment for immediate access to Admin login and Dashboard
             supportFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, OnboardingFragment.newInstance())
+                .replace(R.id.screenBox, LoginFragment.newInstance())
                 .commit()
         }
     }
