@@ -12,9 +12,16 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ViewFlipper
+import android.net.Uri
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseAuth
+import com.group3.lostandfound.model.ItemReport
+import com.group3.lostandfound.repository.ReportRepository
+import kotlinx.coroutines.launch
 
 /**
  * CreateReportFragment allows users to report a lost or found item across 5 sliding steps:
@@ -86,7 +93,19 @@ class CreateReportFragment : Fragment() {
     private var selectedDate = "Today"
     private var selectedCategory = "Electronics"
     private var selectedArea = "Colombo 03"
-    private var photosCount = 2
+    private var photosCount = 0
+    private var selectedImageUri: Uri? = null
+
+    private val reportRepository = ReportRepository()
+
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            selectedImageUri = uri
+            photosCount = 1
+            tvPhotosCountStatus.text = "$photosCount photo attached"
+            Toast.makeText(requireContext(), "Added photo from device gallery", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -195,16 +214,7 @@ class CreateReportFragment : Fragment() {
             if (currentStep < 5) {
                 slideForward()
             } else {
-                // Submit step 5
-                val title = inputTitle.text.toString().trim()
-                val reportTitle = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
-                val itemType = if (isLostSelected) "Lost" else "Found"
-                Toast.makeText(requireContext(), "🎉 $itemType report '$reportTitle' published successfully!", Toast.LENGTH_LONG).show()
-
-                parentFragmentManager.beginTransaction()
-                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                    .replace(R.id.screenBox, ReportsFragment.newInstance())
-                    .commit()
+                submitReport()
             }
         }
 
@@ -268,9 +278,7 @@ class CreateReportFragment : Fragment() {
 
         // Step 4: Photo dropzone
         cardUploadDropzone.setOnClickListener {
-            photosCount++
-            tvPhotosCountStatus.text = "$photosCount photos attached (Tap to add more)"
-            Toast.makeText(requireContext(), "Added photo from device gallery", Toast.LENGTH_SHORT).show()
+            pickImageLauncher.launch("image/*")
         }
     }
 
@@ -381,6 +389,46 @@ class CreateReportFragment : Fragment() {
                 tvReviewCategory.text = selectedCategory
                 tvReviewLocation.text = "$selectedArea ${if (landmark.isNotEmpty()) "· $landmark" else ""} · Reported $selectedDate"
                 tvReviewDesc.text = if (desc.isNotEmpty()) desc else "No additional description provided."
+            }
+        }
+    }
+
+    private fun submitReport() {
+        val title = inputTitle.text.toString().trim()
+        val desc = inputDescription.text.toString().trim()
+        val landmark = inputLandmark.text.toString().trim()
+        val reportTitle = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
+
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous_user"
+
+        val report = ItemReport(
+            userId = uid,
+            title = reportTitle,
+            description = if (desc.isNotEmpty()) desc else landmark,
+            category = selectedCategory,
+            status = if (isLostSelected) "LOST" else "FOUND",
+            latitude = 6.9271, // Dummy data for location
+            longitude = 79.8612 // Dummy data for location
+        )
+
+        btnContinue.isEnabled = false
+        btnContinue.text = "Uploading... 0%"
+
+        lifecycleScope.launch {
+            val result = reportRepository.uploadImageAndCreateReport(selectedImageUri, report) { progress ->
+                btnContinue.text = "Uploading... $progress%"
+            }
+            
+            result.onSuccess {
+                Toast.makeText(requireContext(), "🎉 Report published successfully!", Toast.LENGTH_LONG).show()
+                parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                    .replace(R.id.screenBox, ReportsFragment.newInstance())
+                    .commit()
+            }.onFailure { error ->
+                Toast.makeText(requireContext(), "Upload failed: ${error.message}. Please try again.", Toast.LENGTH_LONG).show()
+                btnContinue.isEnabled = true
+                btnContinue.text = "Publish Report"
             }
         }
     }

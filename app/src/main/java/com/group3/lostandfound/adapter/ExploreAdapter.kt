@@ -14,7 +14,7 @@ class ExploreAdapter(
     private val onItemClick: (ItemReport) -> Unit
 ) : RecyclerView.Adapter<ExploreAdapter.ViewHolder>() {
 
-    class ViewHolder(view: View) : RecyclerView.Adapter<ViewHolder>(view) {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imgItem: ImageView = view.findViewById(R.id.imgItem)
         val tvStatus: TextView = view.findViewById(R.id.tvStatus)
         val tvTitle: TextView = view.findViewById(R.id.tvTitle)
