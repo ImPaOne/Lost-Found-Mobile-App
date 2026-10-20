@@ -23,8 +23,10 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 object FirebaseManager {
 
+    const val DATABASE_URL = "https://lost-and-found-9-10-11-15-default-rtdb.firebaseio.com"
+
     private val auth: FirebaseAuth get() = FirebaseAuth.getInstance()
-    private val database: FirebaseDatabase get() = FirebaseDatabase.getInstance()
+    val database: FirebaseDatabase get() = FirebaseDatabase.getInstance(DATABASE_URL)
 
     // Database references
     val itemsRef: DatabaseReference get() = database.getReference("items")
