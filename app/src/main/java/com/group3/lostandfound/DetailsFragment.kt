@@ -313,7 +313,6 @@ class DetailsFragment : Fragment() {
         private const val ARG_STATUS = "arg_status"
         private const val ARG_LOCATION = "arg_location"
         private const val ARG_IMAGE_RES = "arg_image_res"
-        private const val ARG_ITEM_ID = "arg_item_id"
 
         fun newInstance(
             title: String = "Black leather wallet",
@@ -331,7 +330,6 @@ class DetailsFragment : Fragment() {
                 putString(ARG_STATUS, status)
                 putString(ARG_LOCATION, location)
                 putInt(ARG_IMAGE_RES, imageResId)
-                putString(ARG_ITEM_ID, itemId)
             }
             fragment.arguments = args
             return fragment
