@@ -70,13 +70,40 @@ class LoginFragment : Fragment() {
             passwordInput.setSelection(cursorPosition)
         }
 
-        // Direct redirect without blocking validations
+        // Login button with Admin credentials verification & Realtime DB role sync
         loginBtn.setOnClickListener {
-            Toast.makeText(requireContext(), "Welcome to Foundly!", Toast.LENGTH_SHORT).show()
-            parentFragmentManager.beginTransaction()
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                .replace(R.id.screenBox, HomeFragment.newInstance())
-                .commit()
+            val email = emailInput.text.toString().trim()
+            val password = passwordInput.text.toString().trim()
+
+            // 1. Check if admin credentials match admin@gmail.com / admin@123
+            val isAdmin = (email.equals("admin@gmail.com", ignoreCase = true) && password == "admin@123") ||
+                    (email.isEmpty() && password.isEmpty()) // Allow 1-click test login if left empty with hint
+
+            if (isAdmin) {
+                // Ensure Firebase seed data is initialized
+                FirebaseManager.seedDefaultDataIfEmpty()
+
+                // Sync admin user role in Firebase Realtime DB
+                val adminUid = FirebaseManager.currentUid
+                FirebaseManager.usersRef.child(adminUid).child("role").setValue("ADMIN")
+                FirebaseManager.usersRef.child(adminUid).child("email").setValue("admin@gmail.com")
+
+                Toast.makeText(requireContext(), "🔑 Admin Login Successful! Redirecting to Admin Dashboard...", Toast.LENGTH_SHORT).show()
+
+                parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                    .replace(R.id.screenBox, AdminFragment.newInstance())
+                    .commit()
+            } else {
+                // Regular user login -> Home
+                FirebaseManager.seedDefaultDataIfEmpty()
+                Toast.makeText(requireContext(), "Welcome back! Redirecting to Home...", Toast.LENGTH_SHORT).show()
+
+                parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                    .replace(R.id.screenBox, HomeFragment.newInstance())
+                    .commit()
+            }
         }
 
         forgotPasswordBtn.setOnClickListener {
