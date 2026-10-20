@@ -240,7 +240,7 @@ class ModerationFragment : Fragment() {
         FirebaseManager.approveItem(
             itemId = itemId,
             onSuccess = {
-                Toast.makeText(requireContext(), "✅ Approved report: $title", Toast.LENGTH_SHORT).show()
+                com.group3.lostandfound.util.ModernToast.show(requireContext(), "Approved report: $title", view)
             },
             onError = { error ->
                 showAuthorizationAlert(error)
@@ -259,7 +259,7 @@ class ModerationFragment : Fragment() {
                 FirebaseManager.removeItem(
                     itemId = itemId,
                     onSuccess = {
-                        Toast.makeText(requireContext(), "🗑️ Removed item: $title", Toast.LENGTH_SHORT).show()
+                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "Removed item: $title", view)
                     },
                     onError = { error ->
                         showAuthorizationAlert(error)
@@ -285,7 +285,7 @@ class ModerationFragment : Fragment() {
                             itemId = itemId,
                             isFlagged = true,
                             onSuccess = {
-                                Toast.makeText(requireContext(), "🚩 '$title' marked as Flagged", Toast.LENGTH_SHORT).show()
+                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "'$title' marked as Flagged", view)
                             },
                             onError = { showAuthorizationAlert(it) }
                         )
@@ -300,7 +300,7 @@ class ModerationFragment : Fragment() {
                             itemId = itemId,
                             isFlagged = false,
                             onSuccess = {
-                                Toast.makeText(requireContext(), "🏳️ '$title' unflagged", Toast.LENGTH_SHORT).show()
+                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "'$title' unflagged", view)
                             },
                             onError = { showAuthorizationAlert(it) }
                         )
@@ -322,7 +322,7 @@ class ModerationFragment : Fragment() {
                     targetUid = targetUid,
                     isBanned = true,
                     onSuccess = {
-                        Toast.makeText(requireContext(), "🚫 User '$targetUid' has been BANNED", Toast.LENGTH_LONG).show()
+                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "User '$targetUid' has been banned", view, durationLong = true)
                     },
                     onError = { showAuthorizationAlert(it) }
                 )
@@ -338,7 +338,7 @@ class ModerationFragment : Fragment() {
         listOf("item_1", "item_2", "item_3").forEach { id ->
             FirebaseManager.approveItem(id, {}, {})
         }
-        Toast.makeText(requireContext(), "✅ All selected reports approved", Toast.LENGTH_SHORT).show()
+        com.group3.lostandfound.util.ModernToast.show(requireContext(), "All selected reports approved", view)
     }
 
     /**
