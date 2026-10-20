@@ -195,6 +195,7 @@ class SignUpFragment : Fragment() {
                     requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
                         .edit()
                         .putBoolean("is_logged_in", true)
+                        .putBoolean("is_admin", false)
                         .putBoolean("onboarding_completed", true)
                         .apply()
 
