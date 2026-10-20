@@ -31,28 +31,9 @@ class MainActivity : AppCompatActivity() {
         FCMService.syncUserToken(this)
 
         if (savedInstanceState == null) {
-            val notifyItemId = intent?.getStringExtra("extra_item_id")
-            if (!notifyItemId.isNullOrEmpty()) {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.screenBox, DetailsFragment.newInstance(itemId = notifyItemId))
-                    .commit()
-            } else {
-                // Start on OnboardingFragment
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.screenBox, OnboardingFragment.newInstance())
-                    .commit()
-            }
-        }
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        setIntent(intent)
-        val notifyItemId = intent.getStringExtra("extra_item_id")
-        if (!notifyItemId.isNullOrEmpty()) {
+            // Start on LoginFragment for immediate access to Admin login and Dashboard
             supportFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, DetailsFragment.newInstance(itemId = notifyItemId))
-                .addToBackStack(null)
+                .replace(R.id.screenBox, LoginFragment.newInstance())
                 .commit()
         }
     }
