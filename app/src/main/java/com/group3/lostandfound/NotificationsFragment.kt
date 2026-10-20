@@ -96,7 +96,18 @@ class NotificationsFragment : Fragment() {
         }
 
         itemKasun.setOnClickListener {
-            Toast.makeText(requireContext(), "Kasun: 'Hi, I think I found your wallet at Coffee Beans!'", Toast.LENGTH_LONG).show()
+            parentFragmentManager.beginTransaction()
+                .replace(
+                    R.id.screenBox,
+                    ChatFragment.newInstance(
+                        recipientUserId = "user_perera",
+                        recipientName = "Kasun Perera",
+                        itemId = "item_4",
+                        itemTitle = "Black leather wallet"
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
         }
 
         itemPassport.setOnClickListener {
