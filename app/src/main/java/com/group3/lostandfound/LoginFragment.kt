@@ -45,7 +45,6 @@ class LoginFragment : Fragment() {
 
         initViews(view)
         setupListeners()
-        setupBottomNav(view)
     }
 
     private fun initViews(view: View) {
@@ -94,6 +93,13 @@ class LoginFragment : Fragment() {
                     "Authenticated successfully with Administrator privileges."
                 )
 
+                requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("is_logged_in", true)
+                    .putBoolean("is_admin", true)
+                    .putBoolean("onboarding_completed", true)
+                    .apply()
+
                 com.group3.lostandfound.util.ModernToast.show(
                     requireContext(),
                     "Admin session verified. Directing to Administrator Dashboard.",
@@ -121,6 +127,13 @@ class LoginFragment : Fragment() {
                 val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnSuccessListener {
+                        requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                            .edit()
+                            .putBoolean("is_logged_in", true)
+                            .putBoolean("is_admin", false)
+                            .putBoolean("onboarding_completed", true)
+                            .apply()
+
                         com.group3.lostandfound.service.FCMService.triggerPushNotification(
                             requireContext(),
                             "Account Login Successful",
@@ -142,6 +155,13 @@ class LoginFragment : Fragment() {
                         // Fallback graceful sign-in for course work evaluation / mock user credentials
                         val currentUid = FirebaseManager.currentUid
                         FirebaseManager.usersRef.child(currentUid).child("email").setValue(email)
+
+                        requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                            .edit()
+                            .putBoolean("is_logged_in", true)
+                            .putBoolean("is_admin", false)
+                            .putBoolean("onboarding_completed", true)
+                            .apply()
 
                         com.group3.lostandfound.service.FCMService.triggerPushNotification(
                             requireContext(),
