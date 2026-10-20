@@ -89,3 +89,22 @@ data class NotificationItem(
     val timestamp: Long = System.currentTimeMillis(),
     val read: Boolean = false
 )
+
+// 5. Real-Time Messaging Models (Finder & Owner Chat)
+data class ChatMessage(
+    val chatMessageId: String = "",
+    val senderUserId: String = "",
+    val recipientUserId: String = "",
+    val chatMessageTextContent: String = "",
+    val messageSentTimestamp: Long = 0L
+)
+
+data class ConversationMetadata(
+    val chatConversationId: String = "",
+    val otherUserId: String = "",
+    val otherUserName: String = "",
+    val lastMessageTextContent: String = "",
+    val lastUpdatedTimestamp: Long = 0L,
+    val relatedItemId: String = ""
+)
+
