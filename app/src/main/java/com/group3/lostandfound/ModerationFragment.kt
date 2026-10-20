@@ -119,8 +119,8 @@ class ModerationFragment : Fragment() {
                 allModerationReports.clear()
                 var pendingCount = 0
                 for (child in snapshot.children) {
-                    val report = child.getValue(ReportItem::class.java)
-                    if (report != null && (report.itemId.isNotEmpty() || report.title.isNotEmpty())) {
+                    val report = ReportItem.fromSnapshot(child)
+                    if (report.itemId.isNotEmpty() || report.title.isNotEmpty()) {
                         allModerationReports.add(report)
                         if (report.status.equals("PENDING", ignoreCase = true)) {
                             pendingCount++
