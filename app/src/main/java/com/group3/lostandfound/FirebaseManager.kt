@@ -58,56 +58,141 @@ object FirebaseManager {
         var resolvedReports = 0
         var flaggedItems = 0
         var totalUsers = 0
+        var pendingReview = 0
+        var todayCount = 0
+        var categoryMap = mapOf<String, Int>()
+        var colomboStats = Pair(0, 0)
+        var kandyStats = Pair(0, 0)
+        var galleStats = Pair(0, 0)
+        var heatPoints = listOf<MapMarkerItem>()
 
-        // Observe /items node
+        // Observe /items node for live metrics
         itemsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 var total = 0
                 var resolved = 0
                 var flagged = 0
+                var pending = 0
+                var today = 0
+
+                val catCounts = mutableMapOf<String, Int>()
+                var colTotal = 0; var colRes = 0
+                var kanTotal = 0; var kanRes = 0
+                var galTotal = 0; var galRes = 0
+                val points = mutableListOf<MapMarkerItem>()
+
+                val now = System.currentTimeMillis()
 
                 for (child in snapshot.children) {
                     val status = child.child("status").getValue(String::class.java) ?: ""
                     val isFlagged = child.child("isFlagged").getValue(Boolean::class.java) ?: false
+                    val category = child.child("category").getValue(String::class.java) ?: "Other"
+                    val location = child.child("location").getValue(String::class.java) ?: ""
+                    val timestamp = child.child("timestamp").getValue(Long::class.java) ?: 0L
+                    val lat = child.child("latitude").getValue(Double::class.java) ?: 0.0
+                    val lng = child.child("longitude").getValue(Double::class.java) ?: 0.0
+                    val title = child.child("title").getValue(String::class.java) ?: "Report"
 
                     total++
-                    if (status.equals("RESOLVED", ignoreCase = true)) {
-                        resolved++
+                    val isResolved = status.equals("RESOLVED", ignoreCase = true)
+                    if (isResolved) resolved++
+                    if (isFlagged) flagged++
+                    if (status.equals("PENDING", ignoreCase = true) || isFlagged) pending++
+                    if (now - timestamp < 86400000L) today++
+
+                    // Category grouping
+                    val catKey = when {
+                        category.contains("Electronic", true) -> "Electronics"
+                        category.contains("Document", true) -> "Documents"
+                        category.contains("Pet", true) -> "Pets"
+                        category.contains("Wallet", true) || category.contains("Bag", true) -> "Wallets"
+                        else -> "Other"
                     }
-                    if (isFlagged) {
-                        flagged++
+                    catCounts[catKey] = (catCounts[catKey] ?: 0) + 1
+
+                    // City resolution rates
+                    val locLower = location.lowercase()
+                    if (locLower.contains("colombo") || locLower.contains("kollupitiya") || locLower.contains("bambalapitiya") || locLower.contains("fort")) {
+                        colTotal++
+                        if (isResolved) colRes++
+                    } else if (locLower.contains("kandy")) {
+                        kanTotal++
+                        if (isResolved) kanRes++
+                    } else if (locLower.contains("galle")) {
+                        galTotal++
+                        if (isResolved) galRes++
+                    }
+
+                    // Geographic coordinates for heat map
+                    if (lat != 0.0 && lng != 0.0) {
+                        points.add(
+                            MapMarkerItem(
+                                itemId = child.key ?: "",
+                                title = title,
+                                status = status,
+                                latitude = lat,
+                                longitude = lng
+                            )
+                        )
                     }
                 }
 
                 totalReports = total
                 resolvedReports = resolved
                 flaggedItems = flagged
+                pendingReview = pending
+                todayCount = today
+                categoryMap = catCounts
+                colomboStats = Pair(colTotal, colRes)
+                kandyStats = Pair(kanTotal, kanRes)
+                galleStats = Pair(galTotal, galRes)
+                heatPoints = points
 
-                _analyticsFlow.value = AnalyticsSummary(
+                _analyticsFlow.value = _analyticsFlow.value.copy(
                     totalReports = totalReports,
                     resolvedReports = resolvedReports,
-                    userCount = if (totalUsers > 0) totalUsers else 12,
-                    flaggedItemsCount = flaggedItems
+                    flaggedItemsCount = flaggedItems,
+                    pendingReviewCount = pendingReview,
+                    todayReportsCount = todayCount,
+                    categoryDistribution = categoryMap,
+                    colomboStats = colomboStats,
+                    kandyStats = kandyStats,
+                    galleStats = galleStats,
+                    heatMapPoints = heatPoints
                 )
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                // Handled gracefully
-            }
+            override fun onCancelled(error: DatabaseError) {}
         })
 
-        // Observe /users node
+        // Observe /users node for real user count
         usersRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 totalUsers = snapshot.childrenCount.toInt()
                 _analyticsFlow.value = _analyticsFlow.value.copy(
-                    userCount = if (totalUsers > 0) totalUsers else 12
+                    userCount = totalUsers
                 )
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                // Handled gracefully
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+        // Observe /admin_logs for audit activity
+        adminLogsRef.limitToLast(6).addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val logs = mutableListOf<AdminAction>()
+                for (child in snapshot.children) {
+                    val log = child.getValue(AdminAction::class.java)
+                    if (log != null) {
+                        logs.add(log)
+                    }
+                }
+                _analyticsFlow.value = _analyticsFlow.value.copy(
+                    recentLogs = logs.reversed()
+                )
             }
+
+            override fun onCancelled(error: DatabaseError) {}
         })
     }
 
