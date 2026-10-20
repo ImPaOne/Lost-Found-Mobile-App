@@ -72,8 +72,13 @@ object ModernToast {
     }
 }
 
-fun Fragment.showModernToast(message: String, isError: Boolean = false) {
-    ModernToast.show(context, message, view, durationLong = isError)
+/**
+ * Fragment extension for fast, modern pill toasts.
+ */
+fun Fragment.showModernToast(message: String, isLong: Boolean = false) {
+    if (isAdded && context != null) {
+        ModernToast.show(requireContext(), message, view, isLong)
+    }
 }
 
 fun Activity.showModernToast(message: String, isError: Boolean = false) {
