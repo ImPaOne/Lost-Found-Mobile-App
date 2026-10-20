@@ -88,7 +88,17 @@ class LoginFragment : Fragment() {
                 FirebaseManager.usersRef.child(adminUid).child("role").setValue("ADMIN")
                 FirebaseManager.usersRef.child(adminUid).child("email").setValue("admin@gmail.com")
 
-                Toast.makeText(requireContext(), "🔑 Admin Login Successful! Redirecting to Admin Dashboard...", Toast.LENGTH_SHORT).show()
+                com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                    requireContext(),
+                    "Admin Session Active",
+                    "Authenticated successfully with Administrator privileges."
+                )
+
+                com.group3.lostandfound.util.ModernToast.show(
+                    requireContext(),
+                    "Admin session verified. Directing to Administrator Dashboard.",
+                    view
+                )
 
                 parentFragmentManager.beginTransaction()
                     .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
@@ -111,7 +121,18 @@ class LoginFragment : Fragment() {
                 val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Welcome back! Redirecting to Home...", Toast.LENGTH_SHORT).show()
+                        com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                            requireContext(),
+                            "Account Login Successful",
+                            "Welcome back to Foundly. Signed in as $email."
+                        )
+
+                        com.group3.lostandfound.util.ModernToast.show(
+                            requireContext(),
+                            "Welcome back. Navigating to Homepage.",
+                            view
+                        )
+
                         parentFragmentManager.beginTransaction()
                             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                             .replace(R.id.screenBox, HomeFragment.newInstance())
@@ -121,7 +142,18 @@ class LoginFragment : Fragment() {
                         // Fallback graceful sign-in for course work evaluation / mock user credentials
                         val currentUid = FirebaseManager.currentUid
                         FirebaseManager.usersRef.child(currentUid).child("email").setValue(email)
-                        Toast.makeText(requireContext(), "Signed in as $email", Toast.LENGTH_SHORT).show()
+
+                        com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                            requireContext(),
+                            "Account Login",
+                            "Signed in to Foundly community profile ($email)."
+                        )
+
+                        com.group3.lostandfound.util.ModernToast.show(
+                            requireContext(),
+                            "Signed in as $email",
+                            view
+                        )
 
                         parentFragmentManager.beginTransaction()
                             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
