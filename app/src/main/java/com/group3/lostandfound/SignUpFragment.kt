@@ -144,7 +144,18 @@ class SignUpFragment : Fragment() {
                     // Store initial user document at /users/{uid} via setValue()
                     FirebaseManager.usersRef.child(uid).setValue(userDoc)
 
-                    Toast.makeText(requireContext(), "Account created successfully for $name!", Toast.LENGTH_SHORT).show()
+                    com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                        requireContext(),
+                        "Account Registered",
+                        "Welcome to Foundly, $name. Your account has been created successfully."
+                    )
+
+                    com.group3.lostandfound.util.ModernToast.show(
+                        requireContext(),
+                        "Account created successfully. Welcome to Foundly.",
+                        view
+                    )
+
                     parentFragmentManager.beginTransaction()
                         .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                         .replace(R.id.screenBox, HomeFragment.newInstance())
@@ -167,7 +178,18 @@ class SignUpFragment : Fragment() {
                     )
                     FirebaseManager.usersRef.child(uid).setValue(userDoc)
 
-                    Toast.makeText(requireContext(), "Welcome $name! (${error.localizedMessage ?: "Registered"})", Toast.LENGTH_SHORT).show()
+                    com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                        requireContext(),
+                        "Registration Complete",
+                        "Welcome $name to the Foundly community."
+                    )
+
+                    com.group3.lostandfound.util.ModernToast.show(
+                        requireContext(),
+                        "Profile configured successfully for $name.",
+                        view
+                    )
+
                     parentFragmentManager.beginTransaction()
                         .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                         .replace(R.id.screenBox, HomeFragment.newInstance())
