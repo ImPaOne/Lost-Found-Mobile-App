@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.database)
     implementation(libs.material)
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     testImplementation(libs.junit)
