@@ -115,21 +115,23 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tvNotifTitle1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
-                        android:text="Match found"
+                        android:text="Notification Alert"
                         android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvNotifDesc1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:fontFamily="sans-serif"
                         android:lineSpacingExtra="2dp"
-                        android:text="A wallet found in Kollupitiya is a 92% match."
+                        android:text="Live update received."
                         android:textColor="#75675F"
                         android:textSize="13sp" />
                 </LinearLayout>
@@ -192,21 +194,23 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tvNotifTitle2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
-                        android:text="Message received"
+                        android:text="Message Alert"
                         android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvNotifDesc2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:fontFamily="sans-serif"
                         android:lineSpacingExtra="2dp"
-                        android:text="Kasun sent a message about your report."
+                        android:text="New message notification received."
                         android:textColor="#75675F"
                         android:textSize="13sp" />
                 </LinearLayout>
