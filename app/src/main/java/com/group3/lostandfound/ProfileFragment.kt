@@ -101,6 +101,12 @@ class ProfileFragment : Fragment() {
         }
 
         rowLogout.setOnClickListener {
+            requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean("is_logged_in", false)
+                .putBoolean("is_admin", false)
+                .apply()
+            com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
             Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
             parentFragmentManager.beginTransaction()
                 .replace(R.id.screenBox, LoginFragment.newInstance())
