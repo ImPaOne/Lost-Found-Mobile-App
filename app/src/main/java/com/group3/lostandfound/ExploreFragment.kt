@@ -1,11 +1,8 @@
 package com.group3.lostandfound
 
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
-import android.text.style.StyleSpan
-import android.graphics.Typeface
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,19 +15,23 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.group3.lostandfound.adapter.ExploreAdapter
+import com.group3.lostandfound.model.ItemReport
 import com.group3.lostandfound.repository.ExploreRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
- * ExploreFragment displays the Explore screen with:
- * - Search bar with filter options
- * - Category filter chips (All, Lost, Found, Pets)
- * - Result count with toggle for Grid & List view
- * - 2-column grid of lost and found item cards
- * - Bottom navigation bar
+ * ExploreFragment displays the Explore Search Screen:
+ * - Realtime search with client-side Flow filtering on title & description
+ * - Status & Category filter chips (All, Lost, Found, Pets)
+ * - Grid (2 cols) and List (1 col) layout toggles
+ * - Live Firebase Realtime Database item stream with null-safe parsing
+ * - Navigation to live DetailsFragment passing itemId
  */
 class ExploreFragment : Fragment() {
 
@@ -51,9 +52,13 @@ class ExploreFragment : Fragment() {
     private lateinit var rvItems: RecyclerView
     private lateinit var exploreAdapter: ExploreAdapter
     private val exploreRepository = ExploreRepository()
-    private var currentFilterStatus = "ALL"
 
-        override fun onCreateView(
+    private var currentFilterStatus = "ALL"
+    private var currentSearchQuery = ""
+    private var searchJob: Job? = null
+    private var fetchJob: Job? = null
+
+    override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -69,7 +74,8 @@ class ExploreFragment : Fragment() {
         setupBottomNav(view, "explore")
         fetchItems()
     }
-        private fun initViews(view: View) {
+
+    private fun initViews(view: View) {
         btnClose = view.findViewById(R.id.btnClose)
         btnMapView = view.findViewById(R.id.btnMapView)
 
@@ -85,31 +91,28 @@ class ExploreFragment : Fragment() {
         btnListView = view.findViewById(R.id.btnListView)
 
         rvItems = view.findViewById(R.id.rvItems)
-        
-        exploreAdapter = ExploreAdapter(emptyList()) { item ->
-            // Assume imageResId is normally 0 or loaded from URL in DetailsFragment
-            openDetails(
-                title = item.title,
-                desc = item.description,
-                status = item.status,
-                location = "${item.latitude}, ${item.longitude}",
-                imageResId = R.drawable.img_samsung_phone
-            )
+
+        exploreAdapter = ExploreAdapter(emptyList(), viewLifecycleOwner.lifecycleScope) { item ->
+            openDetails(item)
         }
+
         rvItems.layoutManager = GridLayoutManager(requireContext(), 2)
         rvItems.adapter = exploreAdapter
     }
-    
+
     private fun fetchItems() {
-        lifecycleScope.launch {
-            val query = inputSearch.text.toString()
-            exploreRepository.getItemsFiltered(query, currentFilterStatus).collectLatest { items ->
+        fetchJob?.cancel()
+        fetchJob = viewLifecycleOwner.lifecycleScope.launch {
+            exploreRepository.getItemsFiltered(
+                query = currentSearchQuery,
+                status = currentFilterStatus
+            ).collectLatest { items ->
                 exploreAdapter.updateItems(items)
             }
         }
     }
 
-        private fun setupListeners() {
+    private fun setupListeners() {
         btnClose.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
@@ -122,36 +125,56 @@ class ExploreFragment : Fragment() {
         }
 
         btnFilter.setOnClickListener {
-            Toast.makeText(requireContext(), "Filter items", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Showing filter options", Toast.LENGTH_SHORT).show()
         }
 
-        chipAll.setOnClickListener { 
+        // Live search with debounce
+        inputSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                searchJob?.cancel()
+                searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                    delay(250) // Debounce rapid user input
+                    currentSearchQuery = s?.toString().orEmpty()
+                    fetchItems()
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        // Chip Filters
+        chipAll.setOnClickListener {
             currentFilterStatus = "ALL"
             selectChip(chipAll)
             fetchItems()
         }
-        chipLost.setOnClickListener { 
+        chipLost.setOnClickListener {
             currentFilterStatus = "LOST"
             selectChip(chipLost)
             fetchItems()
         }
-        chipFound.setOnClickListener { 
+        chipFound.setOnClickListener {
             currentFilterStatus = "FOUND"
             selectChip(chipFound)
             fetchItems()
         }
-        chipPets.setOnClickListener { 
+        chipPets.setOnClickListener {
             currentFilterStatus = "PETS"
             selectChip(chipPets)
             fetchItems()
         }
 
+        // Grid / List Toggle
         btnGridView.setOnClickListener {
-            Toast.makeText(requireContext(), "Grid view active", Toast.LENGTH_SHORT).show()
+            rvItems.layoutManager = GridLayoutManager(requireContext(), 2)
+            btnGridView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            btnListView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_secondary))
         }
 
         btnListView.setOnClickListener {
-            Toast.makeText(requireContext(), "Switching to list view", Toast.LENGTH_SHORT).show()
+            rvItems.layoutManager = LinearLayoutManager(requireContext())
+            btnListView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            btnGridView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_secondary))
         }
     }
 
@@ -168,22 +191,16 @@ class ExploreFragment : Fragment() {
         }
     }
 
-    private fun openDetails(
-        title: String,
-        desc: String,
-        status: String,
-        location: String,
-        imageResId: Int
-    ) {
+    private fun openDetails(item: ItemReport) {
         parentFragmentManager.beginTransaction()
             .replace(
                 R.id.screenBox,
                 DetailsFragment.newInstance(
-                    title = title,
-                    desc = desc,
-                    status = status,
-                    location = location,
-                    imageResId = imageResId
+                    title = item.title,
+                    desc = item.description,
+                    status = item.status,
+                    location = if (item.latitude != 0.0 || item.longitude != 0.0) "${item.latitude}, ${item.longitude}" else "Colombo 03",
+                    itemId = item.itemId
                 )
             )
             .addToBackStack(null)
