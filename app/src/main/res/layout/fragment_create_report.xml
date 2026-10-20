@@ -658,7 +658,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-bold"
-                            android:text="Pin on Map ➔"
+                            android:text="Pin on Map"
                             android:textColor="@color/tag_lost_color"
                             android:textSize="11sp"
                             android:textStyle="bold" />
