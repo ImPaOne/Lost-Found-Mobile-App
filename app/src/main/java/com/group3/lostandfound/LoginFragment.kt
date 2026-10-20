@@ -74,9 +74,24 @@ class LoginFragment : Fragment() {
             val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
 
-            // 1. Check if admin credentials match admin@gmail.com / admin@123 or 1-click test login
-            val isAdmin = (email.equals("admin@gmail.com", ignoreCase = true) && password == "admin@123") ||
-                    (email.isEmpty() && password.isEmpty())
+            if (email.isEmpty()) {
+                emailInput.error = "Please enter your email"
+                emailInput.requestFocus()
+                return@setOnClickListener
+            }
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                emailInput.error = "Please enter a valid email address"
+                emailInput.requestFocus()
+                return@setOnClickListener
+            }
+            if (password.isEmpty()) {
+                passwordInput.error = "Please enter your password"
+                passwordInput.requestFocus()
+                return@setOnClickListener
+            }
+
+            // 1. Check if admin credentials match admin@gmail.com / admin@123
+            val isAdmin = email.equals("admin@gmail.com", ignoreCase = true) && password == "admin@123"
 
             if (isAdmin) {
                 // Ensure Firebase seed data is initialized
@@ -111,17 +126,6 @@ class LoginFragment : Fragment() {
                     .replace(R.id.screenBox, AdminFragment.newInstance())
                     .commit()
             } else {
-                // Input validation for regular email/password login
-                if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    emailInput.error = "Please enter a valid email address"
-                    emailInput.requestFocus()
-                    return@setOnClickListener
-                }
-                if (password.isEmpty()) {
-                    passwordInput.error = "Password cannot be empty"
-                    passwordInput.requestFocus()
-                    return@setOnClickListener
-                }
 
                 // Attempt FirebaseAuth.signInWithEmailAndPassword
                 val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
