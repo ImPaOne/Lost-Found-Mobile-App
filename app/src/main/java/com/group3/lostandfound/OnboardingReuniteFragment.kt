@@ -34,19 +34,19 @@ class OnboardingReuniteFragment : Fragment() {
         view.alpha = 0f
         view.animate().alpha(1f).setDuration(400).start()
 
-        btnSkip.setOnClickListener {
+        val completeOnboardingAndOpenLogin = {
+            requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean("onboarding_completed", true)
+                .apply()
             parentFragmentManager.beginTransaction()
                 .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.screenBox, LoginFragment.newInstance())
                 .commit()
         }
 
-        btnGetStarted.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                .replace(R.id.screenBox, LoginFragment.newInstance())
-                .commit()
-        }
+        btnSkip.setOnClickListener { completeOnboardingAndOpenLogin() }
+        btnGetStarted.setOnClickListener { completeOnboardingAndOpenLogin() }
     }
 
     companion object {
