@@ -150,11 +150,11 @@ class ChatFragment : Fragment() {
                                 chatViewModel.resetSendMessageStatus()
                             }
                             is ResultState.Error -> {
-                                Toast.makeText(
+                                com.group3.lostandfound.util.ModernToast.show(
                                     requireContext(),
                                     "Error sending: ${operationStatus.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                    binding.root
+                                )
                                 chatViewModel.resetSendMessageStatus()
                             }
                             is ResultState.Loading -> {
