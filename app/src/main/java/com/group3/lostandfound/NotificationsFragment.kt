@@ -67,7 +67,11 @@ class NotificationsFragment : Fragment() {
             override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
                 val notifList = mutableListOf<com.group3.lostandfound.NotificationItem>()
                 for (child in snapshot.children) {
-                    val notif = child.getValue(com.group3.lostandfound.NotificationItem::class.java)
+                    val notif = try {
+                        child.getValue(com.group3.lostandfound.NotificationItem::class.java)
+                    } catch (e: Exception) {
+                        null
+                    }
                     if (notif != null) {
                         notifList.add(notif)
                     } else {
