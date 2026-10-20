@@ -1,6 +1,7 @@
 package com.group3.lostandfound
 
 import android.app.Dialog
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,25 +9,26 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.group3.lostandfound.repository.ExploreRepository
+import com.group3.lostandfound.util.ImageLoader
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
- * DetailsFragment displays full item report details:
- * - Slideable multiple item photos via ViewPager2
- * - Interactive carousel dot indicators
+ * DetailsFragment displays full item report details with:
+ * - Live real-time single-item observer from `/items/{itemId}` via addValueEventListener
+ * - Slideable multiple item photos via ViewPager2 with Coroutine ImageLoader
+ * - Dynamic status updates (LOST / FOUND / RESOLVED)
  * - Tap to enlarge photos in full-screen modal
- * - Outlined status tag (LOST / FOUND)
- * - Item title, description, and location metadata
- * - Address banner and reporter verification info
- * - "Contact Reporter" action
- * - Similar items recommendations
- * - Persistent bottom navigation
+ * - Title, description, and location coordinates
+ * - Contact reporter and listing resolution
  */
 class DetailsFragment : Fragment() {
 
@@ -50,9 +52,11 @@ class DetailsFragment : Fragment() {
 
     private var isBookmarked = false
     private var itemPhotoList = listOf<String>()
-    
+    private var activeImageUrl: String = ""
+
     private val exploreRepository = ExploreRepository()
     private var itemId: String? = null
+    private var detailsJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -91,42 +95,51 @@ class DetailsFragment : Fragment() {
     }
 
     private fun bindData() {
-        val title = arguments?.getString(ARG_TITLE) ?: "Black leather wallet"
-        val desc = arguments?.getString(ARG_DESC) ?: "Slim wallet with national ID and two bank cards. Small scratch near the clasp."
-        val status = arguments?.getString(ARG_STATUS) ?: "LOST"
-        val location = arguments?.getString(ARG_LOCATION) ?: "Colombo 03"
-        val imageRes = arguments?.getInt(ARG_IMAGE_RES, R.drawable.img_wallet_details) ?: R.drawable.img_wallet_details
+        val initialTitle = arguments?.getString(ARG_TITLE) ?: "Item Report"
+        val initialDesc = arguments?.getString(ARG_DESC) ?: "No description provided."
+        val initialStatus = arguments?.getString(ARG_STATUS) ?: "LOST"
+        val initialLocation = arguments?.getString(ARG_LOCATION) ?: "Colombo 03"
         itemId = arguments?.getString(ARG_ITEM_ID)
 
-        if (itemId != null) {
-            lifecycleScope.launch {
-                exploreRepository.getItemDetails(itemId!!).collectLatest { item ->
-                    if (item != null) {
-                        tvItemTitle.text = item.title
-                        tvDescription.text = item.description
-                        tagStatus.text = item.status
-                        tvLocationText.text = "${item.latitude}, ${item.longitude}"
-                        // Simplified multiple photos fallback to same URL
-                        itemPhotoList = listOf(item.imageUrl)
-                        
-                        pagerPhotos.adapter = PhotoSliderAdapter(itemPhotoList) { url ->
-                            // Enlarge feature for URL
+        // Set initial bundle data
+        tvItemTitle.text = initialTitle
+        tvDescription.text = initialDesc
+        updateStatusTag(initialStatus)
+        tvLocationText.text = initialLocation
+
+        // Setup Photo Carousel
+        val fallbackPhotos = listOf("")
+        itemPhotoList = fallbackPhotos
+        pagerPhotos.adapter = PhotoSliderAdapter(itemPhotoList, viewLifecycleOwner.lifecycleScope) { url ->
+            showEnlargedPhotoDialog(url, tvItemTitle.text.toString())
+        }
+
+        // Live status updates from /items/{itemId}
+        if (!itemId.isNullOrEmpty()) {
+            detailsJob?.cancel()
+            detailsJob = viewLifecycleOwner.lifecycleScope.launch {
+                exploreRepository.getItemDetails(itemId!!).collectLatest { report ->
+                    if (report != null) {
+                        tvItemTitle.text = report.title.ifEmpty { "Report Details" }
+                        tvDescription.text = report.description.ifEmpty { "No description provided." }
+                        updateStatusTag(report.status)
+
+                        val loc = if (report.latitude != 0.0 || report.longitude != 0.0) {
+                            "${report.latitude}, ${report.longitude}"
+                        } else {
+                            "Colombo 03"
+                        }
+                        tvLocationText.text = loc
+
+                        if (report.imageUrl.isNotEmpty()) {
+                            activeImageUrl = report.imageUrl
+                            itemPhotoList = listOf(report.imageUrl)
+                            pagerPhotos.adapter = PhotoSliderAdapter(itemPhotoList, viewLifecycleOwner.lifecycleScope) { url ->
+                                showEnlargedPhotoDialog(url, report.title)
+                            }
                         }
                     }
                 }
-            }
-        } else {
-            tvItemTitle.text = title
-            tvDescription.text = desc
-            tagStatus.text = status
-            tvLocationText.text = location
-
-            // Keep the previous static flow for compatibility if no itemId
-            itemPhotoList = listOf("") // Provide a fallback list of Strings to match the new type
-
-            // Setup ViewPager2 Adapter
-            pagerPhotos.adapter = PhotoSliderAdapter(itemPhotoList) { url ->
-                // showEnlargedPhotoDialog(0, title) - Ignored in fallback string URLs mode for simplicity
             }
         }
 
@@ -136,6 +149,28 @@ class DetailsFragment : Fragment() {
                 updateDots(position)
             }
         })
+    }
+
+    private fun updateStatusTag(status: String) {
+        tagStatus.text = status.uppercase()
+        when (status.uppercase()) {
+            "LOST" -> {
+                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
+                tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
+            }
+            "FOUND" -> {
+                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
+                tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
+            }
+            "RESOLVED" -> {
+                tagStatus.setTextColor(Color.parseColor("#4A7C59"))
+                tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
+            }
+            else -> {
+                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
+            }
+        }
     }
 
     private fun updateDots(selectedIndex: Int) {
@@ -165,7 +200,7 @@ class DetailsFragment : Fragment() {
         }
 
         badgeEnlargeHint.setOnClickListener {
-            // Simplified handling for URL images
+            showEnlargedPhotoDialog(activeImageUrl, tvItemTitle.text.toString())
         }
 
         btnBookmark.setOnClickListener {
@@ -183,46 +218,28 @@ class DetailsFragment : Fragment() {
             Toast.makeText(requireContext(), "Opening secure contact channel...", Toast.LENGTH_SHORT).show()
         }
 
-        // Admin & Reporter Action: Long press Contact button or click tag to manage status
+        // Live status resolution & management
         tagStatus.setOnClickListener {
-            val itemId = arguments?.getString(ARG_ITEM_ID) ?: "item_4"
+            val currentItemId = itemId ?: return@setOnClickListener
             val itemTitle = tvItemTitle.text.toString()
-            val options = arrayOf("Mark as RESOLVED (Firebase)", "Flag Item (Moderation)", "Delete Item (Firebase)")
+            val options = arrayOf("Mark as RESOLVED", "Mark as LOST", "Mark as FOUND")
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("Manage Listing: $itemTitle")
+                .setTitle("Update Status: $itemTitle")
                 .setItems(options) { _, which ->
-                    when (which) {
-                        0 -> {
-                            FirebaseManager.markItemResolved(
-                                itemId = itemId,
-                                onSuccess = {
-                                    tagStatus.text = "RESOLVED"
-                                    Toast.makeText(requireContext(), "✅ Marked as RESOLVED in Firebase!", Toast.LENGTH_SHORT).show()
-                                },
-                                onError = { Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show() }
-                            )
-                        }
-                        1 -> {
-                            FirebaseManager.flagItem(
-                                itemId = itemId,
-                                isFlagged = true,
-                                onSuccess = {
-                                    Toast.makeText(requireContext(), "🚩 Flagged for moderation review", Toast.LENGTH_SHORT).show()
-                                },
-                                onError = { Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show() }
-                            )
-                        }
-                        2 -> {
-                            FirebaseManager.removeItem(
-                                itemId = itemId,
-                                onSuccess = {
-                                    Toast.makeText(requireContext(), "🗑️ Item removed from database", Toast.LENGTH_SHORT).show()
-                                    parentFragmentManager.popBackStack()
-                                },
-                                onError = { Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show() }
-                            )
-                        }
+                    val newStatus = when (which) {
+                        0 -> "RESOLVED"
+                        1 -> "LOST"
+                        else -> "FOUND"
                     }
+                    FirebaseManager.markItemResolved(
+                        itemId = currentItemId,
+                        onSuccess = {
+                            Toast.makeText(requireContext(), "Status updated to $newStatus in Firebase!", Toast.LENGTH_SHORT).show()
+                        },
+                        onError = { error ->
+                            Toast.makeText(requireContext(), "Failed to update: $error", Toast.LENGTH_SHORT).show()
+                        }
+                    )
                 }
                 .show()
         }
@@ -251,7 +268,7 @@ class DetailsFragment : Fragment() {
         }
     }
 
-    private fun showEnlargedPhotoDialog(imageRes: Int, title: String) {
+    private fun showEnlargedPhotoDialog(imageUrl: String, title: String) {
         val dialog = Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen)
         dialog.setContentView(R.layout.dialog_enlarged_photo)
         dialog.setCancelable(true)
@@ -260,29 +277,27 @@ class DetailsFragment : Fragment() {
         val btnCloseLargePhoto = dialog.findViewById<View>(R.id.btnCloseLargePhoto)
         val tvEnlargedTitle = dialog.findViewById<TextView>(R.id.tvEnlargedTitle)
 
-        imgEnlargedView.setImageResource(imageRes)
         tvEnlargedTitle.text = title
+        ImageLoader.load(imgEnlargedView, imageUrl, R.drawable.img_wallet_details, viewLifecycleOwner.lifecycleScope)
 
-        btnCloseLargePhoto.setOnClickListener {
-            dialog.dismiss()
-        }
-
-        imgEnlargedView.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnCloseLargePhoto.setOnClickListener { dialog.dismiss() }
+        imgEnlargedView.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
     }
 
     /**
-     * ViewPager2 adapter for slideable photos
+     * ViewPager2 adapter for slideable photos with Coroutine ImageLoader.
      */
     private class PhotoSliderAdapter(
         private val photos: List<String>,
+        private val scope: CoroutineScope,
         private val onPhotoClicked: (String) -> Unit
     ) : RecyclerView.Adapter<PhotoSliderAdapter.PhotoViewHolder>() {
 
-        class PhotoViewHolder(val imageView: ImageView) : RecyclerView.ViewHolder(imageView)
+        class PhotoViewHolder(val imageView: ImageView) : RecyclerView.ViewHolder(imageView) {
+            var job: Job? = null
+        }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
             val img = ImageView(parent.context).apply {
@@ -297,7 +312,9 @@ class DetailsFragment : Fragment() {
 
         override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
             val url = photos[position]
-            // Standard loading from URL using Glide or Coil should happen here
+            holder.job?.cancel()
+            holder.job = ImageLoader.load(holder.imageView, url, R.drawable.img_wallet_details, scope)
+
             holder.imageView.setOnClickListener {
                 onPhotoClicked(url)
             }
@@ -315,8 +332,8 @@ class DetailsFragment : Fragment() {
         private const val ARG_IMAGE_RES = "arg_image_res"
 
         fun newInstance(
-            title: String = "Black leather wallet",
-            desc: String = "Slim wallet with national ID and two bank cards. Small scratch near the clasp.",
+            title: String = "Item Report",
+            desc: String = "No description provided.",
             status: String = "LOST",
             location: String = "Colombo 03",
             imageResId: Int = R.drawable.img_wallet_details,
