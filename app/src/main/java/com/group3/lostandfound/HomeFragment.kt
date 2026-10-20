@@ -230,9 +230,9 @@ class HomeFragment : Fragment() {
         if (reports.isNotEmpty()) {
             val first = reports[0]
             cardWalletItem.visibility = View.VISIBLE
-            view?.findViewById<TextView>(R.id.textWalletTitle)?.text = first.title
-            view?.findViewById<TextView>(R.id.textWalletLocationDate)?.text = first.location
-            view?.findViewById<TextView>(R.id.tagWalletLost)?.text = first.status
+            cardWalletItem.findViewById<TextView>(R.id.textWalletItemTitle)?.text = first.title
+            cardWalletItem.findViewById<TextView>(R.id.textWalletLocationName)?.text = first.location
+            cardWalletItem.findViewById<TextView>(R.id.badgeWalletLostTag)?.text = first.status
             cardWalletItem.setOnClickListener {
                 openItem(first)
             }
@@ -244,9 +244,9 @@ class HomeFragment : Fragment() {
         if (reports.size > 1) {
             val second = reports[1]
             cardDogItem.visibility = View.VISIBLE
-            view?.findViewById<TextView>(R.id.textDogTitle)?.text = second.title
-            view?.findViewById<TextView>(R.id.textDogLocationDate)?.text = second.location
-            view?.findViewById<TextView>(R.id.tagDogLost)?.text = second.status
+            cardDogItem.findViewById<TextView>(R.id.textDogItemTitle)?.text = second.title
+            cardDogItem.findViewById<TextView>(R.id.textDogLocationName)?.text = second.location
+            cardDogItem.findViewById<TextView>(R.id.badgeDogFoundTag)?.text = second.status
             cardDogItem.setOnClickListener {
                 openItem(second)
             }
@@ -258,9 +258,6 @@ class HomeFragment : Fragment() {
         if (reports.size > 2) {
             val third = reports[2]
             cardLaptopHome?.visibility = View.VISIBLE
-            view?.findViewById<TextView>(R.id.textLaptopTitle)?.text = third.title
-            view?.findViewById<TextView>(R.id.textLaptopLocationDate)?.text = third.location
-            view?.findViewById<TextView>(R.id.tagLaptopFound)?.text = third.status
             cardLaptopHome?.setOnClickListener {
                 openItem(third)
             }
