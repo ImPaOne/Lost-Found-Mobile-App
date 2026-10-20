@@ -145,7 +145,7 @@ class HomeFragment : Fragment() {
         }.map { report ->
             UrgentItemData(
                 id = report.itemId,
-                badge = if (report.status.equals("LOST", ignoreCase = true)) "🚨 URGENT LOST" else "✨ FOUND REPORT",
+                badge = if (report.status.equals("LOST", ignoreCase = true)) "URGENT LOST" else "FOUND REPORT",
                 isUrgent = report.status.equals("LOST", ignoreCase = true),
                 rewardText = if (report.status.equals("LOST", ignoreCase = true)) "Active Search" else "Community Found",
                 title = report.title.ifEmpty { "Reported Item" },
@@ -297,8 +297,8 @@ class HomeFragment : Fragment() {
 
         buttonNotifications.setOnClickListener {
             val options = arrayOf(
-                "📬 View Notification Inbox",
-                "🔊 Test Push Notification (Sound & Vibration)"
+                "View Notification Inbox",
+                "Test Push Notification (Sound & Vibration)"
             )
             AlertDialog.Builder(requireContext())
                 .setTitle("Notifications")
@@ -313,15 +313,15 @@ class HomeFragment : Fragment() {
                         1 -> {
                             FCMService.triggerPushNotification(
                                 context = requireContext(),
-                                title = "🚨 Urgent Match Alert!",
+                                title = "Urgent Match Alert",
                                 body = "Live community update for your reported item.",
                                 itemId = liveReportsList.firstOrNull()?.itemId
                             )
-                            Toast.makeText(
+                            com.group3.lostandfound.util.ModernToast.show(
                                 requireContext(),
-                                "🔊 Push notification dispatched with sound & vibration!",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                                "Push notification dispatched with sound & vibration.",
+                                view
+                            )
                         }
                     }
                 }
