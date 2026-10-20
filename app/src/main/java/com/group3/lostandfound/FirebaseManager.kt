@@ -319,92 +319,10 @@ object FirebaseManager {
      * Ensure seed sample data exists in Firebase Realtime Database.
      */
     fun seedDefaultDataIfEmpty() {
-        itemsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        usersRef.child(currentUid).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (!snapshot.exists() || snapshot.childrenCount == 0L) {
-                    val sampleItems = listOf(
-                        ReportItem(
-                            itemId = "item_1",
-                            title = "Sri Lankan passport",
-                            description = "Found maroon Sri Lankan passport near ticket counter at Fort Railway Station.",
-                            category = "Documents & IDs",
-                            location = "Colombo Fort",
-                            status = "PENDING",
-                            isFlagged = true,
-                            flagReason = "Sensitive document posted publicly",
-                            userId = "user_perera",
-                            authorName = "Dilshan Perera",
-                            timestamp = System.currentTimeMillis() - 7200000
-                        ),
-                        ReportItem(
-                            itemId = "item_2",
-                            title = "iPhone 14 Pro",
-                            description = "Space black iPhone found on coffee table in Kandy cafe.",
-                            category = "Electronics",
-                            location = "Kandy City",
-                            status = "PENDING",
-                            isFlagged = true,
-                            flagReason = "Duplicate image detected",
-                            userId = "user_tharushi",
-                            authorName = "Tharushi Jayasinghe",
-                            timestamp = System.currentTimeMillis() - 14400000
-                        ),
-                        ReportItem(
-                            itemId = "item_3",
-                            title = "Gold bracelet",
-                            description = "Women's 22k gold bracelet found near jewelry lane.",
-                            category = "Jewelry & Watches",
-                            location = "Galle Fort",
-                            status = "PENDING",
-                            isFlagged = false,
-                            flagReason = "High value item requires identity check",
-                            userId = "user_kavindu",
-                            authorName = "Kavindu Silva",
-                            timestamp = System.currentTimeMillis() - 21600000
-                        ),
-                        ReportItem(
-                            itemId = "item_4",
-                            title = "Black leather wallet",
-                            description = "Slim wallet with national ID and two bank cards. Small scratch near clasp.",
-                            category = "Wallets & Bags",
-                            location = "Colombo 03",
-                            status = "PENDING",
-                            isFlagged = false,
-                            userId = currentUid, // Bound to current user so it displays under My Reports!
-                            authorName = "Me (Current User)",
-                            timestamp = System.currentTimeMillis() - 86400000
-                        ),
-                        ReportItem(
-                            itemId = "item_5",
-                            title = "AirPods Pro Case",
-                            description = "White AirPods Pro wireless charging case found on bench.",
-                            category = "Electronics",
-                            location = "Bambalapitiya",
-                            status = "RESOLVED",
-                            isFlagged = false,
-                            userId = currentUid, // Bound to current user as resolved
-                            authorName = "Me (Current User)",
-                            timestamp = System.currentTimeMillis() - 172800000
-                        ),
-                        ReportItem(
-                            itemId = "item_6",
-                            title = "Golden retriever, Milo",
-                            description = "Friendly golden retriever with blue collar and brass tag.",
-                            category = "Pets & Animals",
-                            location = "Cinnamon Gardens",
-                            status = "APPROVED",
-                            isFlagged = false,
-                            userId = "user_dog_owner",
-                            authorName = "Anura Senanayake",
-                            timestamp = System.currentTimeMillis() - 259200000
-                        )
-                    )
-
-                    sampleItems.forEach { item ->
-                        itemsRef.child(item.itemId).setValue(item)
-                    }
-
-                    // Seed Admin User
+                if (!snapshot.exists()) {
+                    // Seed Admin User credentials only
                     usersRef.child(currentUid).setValue(
                         UserData(
                             uid = currentUid,
@@ -413,28 +331,6 @@ object FirebaseManager {
                             role = "ADMIN",
                             isBanned = false,
                             trustScore = 100
-                        )
-                    )
-
-                    // Seed additional sample users
-                    usersRef.child("user_perera").setValue(
-                        UserData(
-                            uid = "user_perera",
-                            email = "dilshan@email.lk",
-                            fullName = "Dilshan Perera",
-                            role = "USER",
-                            isBanned = false,
-                            trustScore = 78
-                        )
-                    )
-                    usersRef.child("user_tharushi").setValue(
-                        UserData(
-                            uid = "user_tharushi",
-                            email = "tharushi@email.lk",
-                            fullName = "Tharushi Jayasinghe",
-                            role = "USER",
-                            isBanned = false,
-                            trustScore = 65
                         )
                     )
                 }
