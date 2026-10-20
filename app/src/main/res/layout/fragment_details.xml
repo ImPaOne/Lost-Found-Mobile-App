@@ -60,6 +60,21 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
+                    android:id="@+id/btnShare"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="6dp"
+                    android:clickable="true"
+                    android:contentDescription="Share item report"
+                    android:focusable="true"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_share"
+                    app:tint="#3D2619"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btnBookmark"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
                     android:id="@+id/btnBookmark"
                     android:layout_width="38dp"
                     android:layout_height="38dp"
