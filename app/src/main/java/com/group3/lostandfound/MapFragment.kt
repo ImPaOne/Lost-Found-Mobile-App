@@ -18,6 +18,10 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.card.MaterialCardView
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 /**
  * MapFragment displays an interactive Leaflet map of Sri Lanka / Colombo:
@@ -55,6 +59,11 @@ class MapFragment : Fragment() {
     private var currentStatus = "FOUND"
     private var currentDesc = "Padded red neoprene laptop sleeve found on park bench near walking path."
     private var currentImageRes = R.drawable.img_wallet_details
+
+    // Pinned location tracking
+    private var isLocationPinned = false
+    private var pinnedLat: Double = 6.9140
+    private var pinnedLng: Double = 79.8630
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -107,6 +116,7 @@ class MapFragment : Fragment() {
         webViewLeafletMap.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
+                loadLiveFirebaseMarkers()
             }
         }
 
@@ -114,6 +124,35 @@ class MapFragment : Fragment() {
 
         val htmlContent = buildLeafletHtml()
         webViewLeafletMap.loadDataWithBaseURL("https://leafletjs.com/", htmlContent, "text/html", "UTF-8", null)
+    }
+
+    private fun loadLiveFirebaseMarkers() {
+        val dbRef = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("items")
+        dbRef.limitToLast(25).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (child in snapshot.children) {
+                    val id = child.key ?: continue
+                    val title = child.child("title").getValue(String::class.java) ?: continue
+                    val status = child.child("status").getValue(String::class.java) ?: "LOST"
+                    val desc = child.child("description").getValue(String::class.java) ?: ""
+                    val category = child.child("category").getValue(String::class.java) ?: "General"
+                    val lat = child.child("latitude").getValue(Double::class.java) ?: 0.0
+                    val lng = child.child("longitude").getValue(Double::class.java) ?: 0.0
+
+                    if (lat != 0.0 && lng != 0.0) {
+                        val safeTitle = title.replace("'", "\\'").replace("\n", " ")
+                        val safeDesc = desc.replace("'", "\\'").replace("\n", " ")
+                        val safeLoc = "$category Area".replace("'", "\\'")
+                        val jsCode = "addMapItem('$id', '$safeTitle', '$safeLoc', '$status', $lat, $lng, '$safeDesc', 'other');"
+                        webViewLeafletMap.evaluateJavascript(jsCode, null)
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Ignore silent network failure
+            }
+        })
     }
 
     private fun setupListeners() {
@@ -159,19 +198,23 @@ class MapFragment : Fragment() {
         }
 
         cardLaptopItem.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(
-                    R.id.screenBox,
-                    DetailsFragment.newInstance(
-                        title = currentTitle,
-                        desc = currentDesc,
-                        status = currentStatus,
-                        location = currentLocation,
-                        imageResId = currentImageRes
+            if (isLocationPinned) {
+                navigateToCreateReport(pinnedLat, pinnedLng)
+            } else {
+                parentFragmentManager.beginTransaction()
+                    .replace(
+                        R.id.screenBox,
+                        DetailsFragment.newInstance(
+                            title = currentTitle,
+                            desc = currentDesc,
+                            status = currentStatus,
+                            location = currentLocation,
+                            imageResId = currentImageRes
+                        )
                     )
-                )
-                .addToBackStack(null)
-                .commit()
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
     }
 
@@ -196,6 +239,7 @@ class MapFragment : Fragment() {
         @JavascriptInterface
         fun onMarkerClicked(id: String, title: String, location: String, status: String, desc: String, imageType: String) {
             activity?.runOnUiThread {
+                isLocationPinned = false
                 currentTitle = title
                 currentLocation = location
                 currentStatus = status
@@ -235,6 +279,54 @@ class MapFragment : Fragment() {
                 }
             }
         }
+
+        @JavascriptInterface
+        fun onLocationPinned(lat: Double, lng: Double) {
+            activity?.runOnUiThread {
+                isLocationPinned = true
+                pinnedLat = lat
+                pinnedLng = lng
+                currentTitle = "📍 Pinned Location"
+                currentLocation = String.format(java.util.Locale.US, "%.4f, %.4f", lat, lng)
+                currentStatus = "PINNED"
+                currentDesc = "Location pinned at coordinates ($pinnedLat, $pinnedLng). Tap card to report item here."
+
+                textItemTitle.text = "📍 Pinned Location"
+                textItemLocation.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Tap to report", lat, lng)
+                tagFoundStatus.text = "PINNED"
+                tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
+                imgLaptopThumb.setImageResource(R.drawable.ic_location)
+
+                Toast.makeText(
+                    requireContext(),
+                    "📍 Location pinned! Tap preview card below to report item here.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+        @JavascriptInterface
+        fun onUsePinnedLocation(lat: Double, lng: Double) {
+            activity?.runOnUiThread {
+                navigateToCreateReport(lat, lng)
+            }
+        }
+    }
+
+    private fun navigateToCreateReport(lat: Double, lng: Double) {
+        val locationLabel = String.format(java.util.Locale.US, "Pinned (%.4f, %.4f)", lat, lng)
+        parentFragmentManager.beginTransaction()
+            .replace(
+                R.id.screenBox,
+                CreateReportFragment.newInstance(
+                    isLost = true,
+                    latitude = lat,
+                    longitude = lng,
+                    locationName = locationLabel
+                )
+            )
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun buildLeafletHtml(): String {
@@ -276,6 +368,17 @@ class MapFragment : Fragment() {
         }
         .pin-found {
             background: #3B7A57;
+        }
+        .pin-pinned {
+            background: #E65100;
+            border: 3px solid #ffffff;
+            box-shadow: 0 4px 14px rgba(230,81,0,0.7);
+            animation: pulse-pin 1.2s infinite;
+        }
+        @keyframes pulse-pin {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.18); }
+            100% { transform: scale(1); }
         }
         .leaflet-popup-content-wrapper {
             border-radius: 12px;
@@ -422,6 +525,63 @@ class MapFragment : Fragment() {
         }
 
         renderMarkers('all');
+
+        var pinnedMarker = null;
+
+        // Interactive Map Pinning: Tapping anywhere drops a pin and notifies Android Interface
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+
+            if (pinnedMarker) {
+                map.removeLayer(pinnedMarker);
+            }
+
+            var pinIcon = L.divIcon({
+                className: '',
+                html: '<div class="custom-pin pin-pinned">📍</div>',
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
+            });
+
+            pinnedMarker = L.marker([lat, lng], { icon: pinIcon, draggable: true }).addTo(map);
+
+            var popupHtml = '<div class="popup-box" style="text-align:center;">' +
+                '<div class="popup-badge" style="background:#FFF3E0;color:#E65100;font-weight:bold;">PINNED LOCATION</div>' +
+                '<div style="font-weight:bold;margin:4px 0;font-size:13px;">' + lat.toFixed(4) + '° N, ' + lng.toFixed(4) + '° E</div>' +
+                '<div style="font-size:11px;color:#7D6F67;margin-bottom:8px;">Location pinned. Tap below to create report.</div>' +
+                '<button onclick="window.AndroidInterface.onUsePinnedLocation(' + lat + ', ' + lng + ')" ' +
+                'style="background:#2B2625;color:#FFFFFF;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:bold;cursor:pointer;width:100%;">' +
+                '+ Report Item Here</button>' +
+                '</div>';
+
+            pinnedMarker.bindPopup(popupHtml).openPopup();
+
+            pinnedMarker.on('dragend', function(evt) {
+                var pos = evt.target.getLatLng();
+                if (window.AndroidInterface) {
+                    window.AndroidInterface.onLocationPinned(pos.lat, pos.lng);
+                }
+            });
+
+            if (window.AndroidInterface) {
+                window.AndroidInterface.onLocationPinned(lat, lng);
+            }
+        });
+
+        function addMapItem(id, title, location, status, lat, lng, desc, imageType) {
+            items.push({
+                id: id,
+                title: title,
+                location: location,
+                status: status,
+                lat: lat,
+                lng: lng,
+                desc: desc,
+                imageType: imageType
+            });
+            renderMarkers('all');
+        }
 
         function filterItems(type) {
             renderMarkers(type);
