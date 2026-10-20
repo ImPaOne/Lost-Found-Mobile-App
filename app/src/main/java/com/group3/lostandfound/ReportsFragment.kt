@@ -123,30 +123,6 @@ class ReportsFragment : Fragment() {
                     }
                 }
 
-                // If empty in user node, also fallback to sample items if needed
-                if (userReports.isEmpty()) {
-                    userReports.add(
-                        ReportItem(
-                            itemId = "item_4",
-                            title = "Black leather wallet",
-                            description = "Slim wallet with national ID and two bank cards.",
-                            location = "Colombo 03 · 12 Sep",
-                            status = "PENDING",
-                            userId = currentUid
-                        )
-                    )
-                    userReports.add(
-                        ReportItem(
-                            itemId = "item_5",
-                            title = "AirPods Pro case",
-                            description = "White AirPods Pro wireless charging case.",
-                            location = "Bambalapitiya · 01 Sep",
-                            status = "RESOLVED",
-                            userId = currentUid
-                        )
-                    )
-                }
-
                 updateReportsListUI()
             }
 
@@ -255,10 +231,10 @@ class ReportsFragment : Fragment() {
                             .child("status")
                             .setValue("RESOLVED")
                             .addOnSuccessListener {
-                                Toast.makeText(requireContext(), "✅ '${item.title}' marked as RESOLVED in Firebase!", Toast.LENGTH_SHORT).show()
+                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "'${item.title}' marked as RESOLVED.", view)
                             }
                             .addOnFailureListener {
-                                Toast.makeText(requireContext(), "Failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "Update failed: ${it.message}", view, durationLong = true)
                             }
                     }
                     2 -> {
@@ -271,7 +247,7 @@ class ReportsFragment : Fragment() {
                                     .child(item.itemId)
                                     .removeValue()
                                     .addOnSuccessListener {
-                                        Toast.makeText(requireContext(), "🗑️ '${item.title}' deleted", Toast.LENGTH_SHORT).show()
+                                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "'${item.title}' deleted.", view)
                                     }
                             }
                             .setNegativeButton("Cancel", null)
