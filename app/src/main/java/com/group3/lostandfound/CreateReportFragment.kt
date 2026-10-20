@@ -81,11 +81,14 @@ class CreateReportFragment : Fragment() {
     private lateinit var chipAreaFort: TextView
     private lateinit var inputLandmark: EditText
     private lateinit var tvSelectedLocationPreview: TextView
+    private lateinit var tvSelectedLocationCoords: TextView
+    private lateinit var cardMapPinPreview: View
 
     // Step 4 Views
     private lateinit var cardUploadDropzone: View
     private lateinit var tvPhotosCountStatus: TextView
     private lateinit var rowThumbnails: View
+    private lateinit var imgThumbnail1: ImageView
 
     // Step 5 Review Views
     private lateinit var badgeReviewStatus: TextView
@@ -123,7 +126,24 @@ class CreateReportFragment : Fragment() {
             selectedImageUri = uri
             photosCount = 1
             tvPhotosCountStatus.text = "$photosCount photo attached from gallery"
+            imgThumbnail1.setImageURI(uri)
+            rowThumbnails.visibility = View.VISIBLE
             Toast.makeText(requireContext(), "Photo selected from device gallery", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Camera Permission Launcher
+    private val requestCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            takePictureLauncher.launch(null)
+        } else {
+            Toast.makeText(
+                requireContext(),
+                "Camera permission is required to capture photos",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -135,6 +155,8 @@ class CreateReportFragment : Fragment() {
                 selectedImageUri = uri
                 photosCount = 1
                 tvPhotosCountStatus.text = "$photosCount photo captured with camera"
+                imgThumbnail1.setImageBitmap(bitmap)
+                rowThumbnails.visibility = View.VISIBLE
                 Toast.makeText(requireContext(), "Camera photo captured successfully", Toast.LENGTH_SHORT).show()
             }
         }
@@ -155,6 +177,18 @@ class CreateReportFragment : Fragment() {
 
         val initialIsLost = arguments?.getBoolean(ARG_IS_LOST, true) ?: true
         setItemType(initialIsLost)
+
+        val argLat = arguments?.getDouble(ARG_LAT, 0.0) ?: 0.0
+        val argLng = arguments?.getDouble(ARG_LNG, 0.0) ?: 0.0
+        val argLoc = arguments?.getString(ARG_LOC_NAME)
+
+        if (argLat != 0.0 && argLng != 0.0) {
+            selectedLatitude = argLat
+            selectedLongitude = argLng
+            selectedArea = argLoc ?: String.format(java.util.Locale.US, "%.4f, %.4f", argLat, argLng)
+            tvSelectedLocationPreview.text = "$selectedArea, Western Province"
+            tvSelectedLocationCoords.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Pinned on map", argLat, argLng)
+        }
 
         setupStepListeners()
         updateStepHeader()
@@ -200,11 +234,14 @@ class CreateReportFragment : Fragment() {
         chipAreaFort = view.findViewById(R.id.chipAreaFort)
         inputLandmark = view.findViewById(R.id.inputLandmark)
         tvSelectedLocationPreview = view.findViewById(R.id.tvSelectedLocationPreview)
+        tvSelectedLocationCoords = view.findViewById(R.id.tvSelectedLocationCoords)
+        cardMapPinPreview = view.findViewById(R.id.cardMapPinPreview)
 
         // Step 4
         cardUploadDropzone = view.findViewById(R.id.cardUploadDropzone)
         tvPhotosCountStatus = view.findViewById(R.id.tvPhotosCountStatus)
         rowThumbnails = view.findViewById(R.id.rowThumbnails)
+        imgThumbnail1 = view.findViewById(R.id.imgThumbnail1)
 
         // Step 5
         badgeReviewStatus = view.findViewById(R.id.badgeReviewStatus)
@@ -319,12 +356,21 @@ class CreateReportFragment : Fragment() {
                             "Fort" -> { selectedLatitude = 6.9360; selectedLongitude = 79.8450 }
                         }
                         tvSelectedLocationPreview.text = "$selectedArea, Western Province"
+                        tvSelectedLocationCoords.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Precision 15m", selectedLatitude, selectedLongitude)
                     } else {
                         c.setBackgroundResource(R.drawable.bg_chip_unselected)
                         c.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
                     }
                 }
             }
+        }
+
+        // Step 3: Map card click - open Leaflet map to pin location
+        cardMapPinPreview.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, MapFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         // Step 4: Photo dropzone - choose Camera or Gallery
@@ -346,7 +392,15 @@ class CreateReportFragment : Fragment() {
                 if (which == 0) {
                     pickImageLauncher.launch("image/*")
                 } else {
-                    takePictureLauncher.launch(null)
+                    if (ContextCompat.checkSelfPermission(
+                            requireContext(),
+                            android.Manifest.permission.CAMERA
+                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                    ) {
+                        takePictureLauncher.launch(null)
+                    } else {
+                        requestCameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+                    }
                 }
             }
             .show()
@@ -500,7 +554,7 @@ class CreateReportFragment : Fragment() {
         val landmark = inputLandmark.text.toString().trim()
         val reportTitle = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
 
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous_user"
+        val uid = FirebaseManager.currentUid
 
         val fullDescription = buildString {
             if (desc.isNotEmpty()) append(desc)
@@ -510,12 +564,15 @@ class CreateReportFragment : Fragment() {
             }
         }
 
+        val reportLocation = "$selectedArea, Western Province"
+
         val report = ItemReport(
             userId = uid,
             title = reportTitle,
             description = fullDescription,
             category = selectedCategory,
             status = if (isLostSelected) "LOST" else "FOUND",
+            location = reportLocation,
             latitude = selectedLatitude,
             longitude = selectedLongitude,
             timestamp = System.currentTimeMillis()
@@ -553,23 +610,34 @@ class CreateReportFragment : Fragment() {
             result.onSuccess { createdReport ->
                 pbUploadBar.progress = 100
                 tvUploadPercentage.text = "100%"
-                tvUploadStatusText.text = "🎉 Successfully published!"
+                tvUploadStatusText.text = "Successfully published"
 
-                Toast.makeText(requireContext(), "🎉 Report published successfully!", Toast.LENGTH_LONG).show()
+                if (isLostSelected) {
+                    com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                        requireContext(),
+                        "Lost Item Broadcasted",
+                        "Search alert active for '${createdReport.title}'. Nearby community members notified.",
+                        createdReport.itemId
+                    )
+                } else {
+                    com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                        requireContext(),
+                        "Found Item Registered",
+                        "Thank you for reporting '${createdReport.title}'. Searching for the verified owner.",
+                        createdReport.itemId
+                    )
+                }
 
-                // Navigate to Details of created report or ReportsFragment
+                com.group3.lostandfound.util.ModernToast.show(
+                    requireContext(),
+                    "Report published successfully. Redirecting to My Reports.",
+                    view
+                )
+
+                // Redirect user directly to My Reports (ReportsFragment) as requested
                 parentFragmentManager.beginTransaction()
                     .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                    .replace(
-                        R.id.screenBox,
-                        DetailsFragment.newInstance(
-                            title = createdReport.title,
-                            desc = createdReport.description,
-                            status = createdReport.status,
-                            location = "$selectedArea, Western Province",
-                            itemId = createdReport.itemId
-                        )
-                    )
+                    .replace(R.id.screenBox, ReportsFragment.newInstance())
                     .commit()
             }.onFailure { error ->
                 layoutUploadError.visibility = View.VISIBLE
@@ -590,11 +658,25 @@ class CreateReportFragment : Fragment() {
 
     companion object {
         private const val ARG_IS_LOST = "arg_is_lost"
+        private const val ARG_LAT = "arg_lat"
+        private const val ARG_LNG = "arg_lng"
+        private const val ARG_LOC_NAME = "arg_loc_name"
 
-        fun newInstance(isLost: Boolean = true): CreateReportFragment {
+        fun newInstance(
+            isLost: Boolean = true,
+            latitude: Double = 6.9042,
+            longitude: Double = 79.8530,
+            locationName: String? = null
+        ): CreateReportFragment {
             val fragment = CreateReportFragment()
-            val args = Bundle()
-            args.putBoolean(ARG_IS_LOST, isLost)
+            val args = Bundle().apply {
+                putBoolean(ARG_IS_LOST, isLost)
+                putDouble(ARG_LAT, latitude)
+                putDouble(ARG_LNG, longitude)
+                if (locationName != null) {
+                    putString(ARG_LOC_NAME, locationName)
+                }
+            }
             fragment.arguments = args
             return fragment
         }

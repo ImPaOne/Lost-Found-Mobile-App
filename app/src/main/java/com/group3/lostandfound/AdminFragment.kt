@@ -81,7 +81,59 @@ class AdminFragment : Fragment() {
         }
 
         btnAnnounce.setOnClickListener {
-            Toast.makeText(requireContext(), "Send announcement", Toast.LENGTH_SHORT).show()
+            val adminOptions = arrayOf("Post Global Announcement", "Export Reports for Law Enforcement")
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Admin Actions")
+                .setItems(adminOptions) { _, which ->
+                    if (which == 0) {
+                        val input = android.widget.EditText(requireContext()).apply {
+                            hint = "Enter global announcement..."
+                        }
+                        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                            .setTitle("Global Announcement")
+                            .setView(input)
+                            .setPositiveButton("Post to Community") { _, _ ->
+                                val text = input.text.toString().trim()
+                                if (text.isNotEmpty()) {
+                                    val announcement = mapOf(
+                                        "title" to "Foundly Official Announcement",
+                                        "message" to text,
+                                        "timestamp" to System.currentTimeMillis()
+                                    )
+                                    FirebaseManager.database.getReference("announcements").push().setValue(announcement)
+                                    com.group3.lostandfound.util.ModernToast.show(requireContext(), "Global announcement published.", view)
+                                }
+                            }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+                    } else {
+                        // Export reports for law enforcement (Requirement 3.2 #12)
+                        FirebaseManager.itemsRef.get().addOnSuccessListener { snapshot ->
+                            val exportText = buildString {
+                                appendLine("=== FOUNDLY OFFICIAL REPORTS AUDIT EXPORT ===")
+                                appendLine("Generated: ${java.util.Date()}")
+                                appendLine("Authority: Administrator")
+                                appendLine("Total Reports in Database: ${snapshot.childrenCount}")
+                                var index = 1
+                                for (child in snapshot.children) {
+                                    val title = child.child("title").getValue(String::class.java) ?: "Report"
+                                    val loc = child.child("location").getValue(String::class.java) ?: "Sri Lanka"
+                                    val status = child.child("status").getValue(String::class.java) ?: "PENDING"
+                                    appendLine("$index. $title - $loc - Status: $status")
+                                    index++
+                                }
+                                appendLine("==============================================")
+                            }
+                            val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(android.content.Intent.EXTRA_SUBJECT, "Foundly Law Enforcement Export")
+                                putExtra(android.content.Intent.EXTRA_TEXT, exportText)
+                            }
+                            startActivity(android.content.Intent.createChooser(shareIntent, "Export reports to"))
+                        }
+                    }
+                }
+                .show()
         }
 
         view.findViewById<View>(R.id.trendGraph)?.setOnClickListener {
@@ -144,13 +196,11 @@ class AdminFragment : Fragment() {
     private fun observeLiveFirebaseStats() {
         viewLifecycleOwner.lifecycleScope.launch {
             FirebaseManager.analyticsFlow.collectLatest { summary ->
-                if (summary.totalReports > 0 || summary.userCount > 0) {
-                    val activeCount = (summary.totalReports - summary.resolvedReports).coerceAtLeast(0)
-                    totalReportsNumber.text = String.format("%,d", summary.totalReports)
-                    activeCasesNumber.text = String.format("%,d", activeCount)
-                    resolvedCasesNumber.text = String.format("%,d", summary.resolvedReports)
-                    totalUsersNumber.text = String.format("%,d", summary.userCount)
-                }
+                val activeCount = (summary.totalReports - summary.resolvedReports).coerceAtLeast(0)
+                totalReportsNumber.text = String.format("%,d", summary.totalReports)
+                activeCasesNumber.text = String.format("%,d", activeCount)
+                resolvedCasesNumber.text = String.format("%,d", summary.resolvedReports)
+                totalUsersNumber.text = String.format("%,d", summary.userCount)
             }
         }
     }

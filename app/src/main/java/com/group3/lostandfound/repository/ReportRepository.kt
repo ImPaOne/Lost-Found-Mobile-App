@@ -90,23 +90,13 @@ class ReportRepository {
                 var downloadUrl = report.imageUrl
 
                 if (imageUri != null) {
-                    onProgress(5)
+                    onProgress(10)
                     val compressedBytes = compressImageUri(context, imageUri)
 
-                    // Upload to Firebase Storage path /item_images/{itemId}.jpg
-                    val imageRef = storage.child("$itemId.jpg")
-                    val uploadTask = imageRef.putBytes(compressedBytes)
-
-                    uploadTask.addOnProgressListener { snapshot ->
-                        if (snapshot.totalByteCount > 0) {
-                            val percent = (100.0 * snapshot.bytesTransferred / snapshot.totalByteCount).toInt()
-                            val mappedPercent = 5 + (percent * 0.85).toInt()
-                            onProgress(mappedPercent.coerceIn(5, 90))
-                        }
-                    }.await()
-
-                    // Retrieve download URL via await()
-                    downloadUrl = imageRef.downloadUrl.await().toString()
+                    // Upload to Cloudinary: Cloud name zudf2f0g, API Key 324692715343129
+                    downloadUrl = com.group3.lostandfound.util.CloudinaryManager.uploadImage(compressedBytes) { cloudProgress ->
+                        onProgress(cloudProgress)
+                    }
                     onProgress(95)
                 } else {
                     onProgress(50)

@@ -96,7 +96,7 @@ class AnalyticsFragment : Fragment() {
                 val resolutionPercent = if (summary.totalReports > 0) {
                     (summary.resolvedReports * 100) / summary.totalReports
                 } else {
-                    78
+                    0
                 }
 
                 // Update dynamic values

@@ -111,6 +111,10 @@ class ModerationFragment : Fragment() {
     /**
      * Realtime Database observation for moderation queue
      */
+    private var hasPassport = false
+    private var hasIPhone = false
+    private var hasBracelet = false
+
     private fun observeFirebaseModerationQueue() {
         FirebaseManager.itemsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -123,17 +127,11 @@ class ModerationFragment : Fragment() {
                 }
                 textReportsCountSummary.text = "$pendingCount reports awaiting review"
 
-                // Check visibility of item_1 (Passport)
-                val hasPassport = snapshot.hasChild("item_1")
-                cardReportPassport.visibility = if (hasPassport) View.VISIBLE else View.GONE
+                hasPassport = snapshot.hasChild("item_1")
+                hasIPhone = snapshot.hasChild("item_2")
+                hasBracelet = snapshot.hasChild("item_3")
 
-                // Check visibility of item_2 (iPhone)
-                val hasIPhone = snapshot.hasChild("item_2")
-                cardReportIPhone.visibility = if (hasIPhone) View.VISIBLE else View.GONE
-
-                // Check visibility of item_3 (Bracelet)
-                val hasBracelet = snapshot.hasChild("item_3")
-                cardReportBracelet.visibility = if (hasBracelet) View.VISIBLE else View.GONE
+                updateModerationCardsVisibility()
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -142,6 +140,26 @@ class ModerationFragment : Fragment() {
                 }
             }
         })
+    }
+
+    private fun updateModerationCardsVisibility() {
+        when (activeTabName) {
+            "PENDING" -> {
+                cardReportPassport.visibility = if (hasPassport) View.VISIBLE else View.GONE
+                cardReportIPhone.visibility = if (hasIPhone) View.VISIBLE else View.GONE
+                cardReportBracelet.visibility = if (hasBracelet) View.VISIBLE else View.GONE
+            }
+            "FLAGGED" -> {
+                cardReportPassport.visibility = if (hasPassport) View.VISIBLE else View.GONE
+                cardReportIPhone.visibility = if (hasIPhone) View.VISIBLE else View.GONE
+                cardReportBracelet.visibility = View.GONE
+            }
+            "APPROVED" -> {
+                cardReportPassport.visibility = View.GONE
+                cardReportIPhone.visibility = View.GONE
+                cardReportBracelet.visibility = if (hasBracelet) View.VISIBLE else View.GONE
+            }
+        }
     }
 
     private fun setupClickListeners() {
@@ -157,23 +175,17 @@ class ModerationFragment : Fragment() {
         tabPendingReview.setOnClickListener {
             activeTabName = "PENDING"
             selectTab(tabPendingReview)
-            cardReportPassport.visibility = View.VISIBLE
-            cardReportIPhone.visibility = View.VISIBLE
-            cardReportBracelet.visibility = View.VISIBLE
+            updateModerationCardsVisibility()
         }
         tabFlagged.setOnClickListener {
             activeTabName = "FLAGGED"
             selectTab(tabFlagged)
-            cardReportPassport.visibility = View.VISIBLE
-            cardReportIPhone.visibility = View.VISIBLE
-            cardReportBracelet.visibility = View.GONE
+            updateModerationCardsVisibility()
         }
         tabApproved.setOnClickListener {
             activeTabName = "APPROVED"
             selectTab(tabApproved)
-            cardReportPassport.visibility = View.GONE
-            cardReportIPhone.visibility = View.GONE
-            cardReportBracelet.visibility = View.VISIBLE
+            updateModerationCardsVisibility()
         }
 
         // Bulk Actions
@@ -228,7 +240,7 @@ class ModerationFragment : Fragment() {
         FirebaseManager.approveItem(
             itemId = itemId,
             onSuccess = {
-                Toast.makeText(requireContext(), "✅ Approved report: $title", Toast.LENGTH_SHORT).show()
+                com.group3.lostandfound.util.ModernToast.show(requireContext(), "Approved report: $title", view)
             },
             onError = { error ->
                 showAuthorizationAlert(error)
@@ -247,7 +259,7 @@ class ModerationFragment : Fragment() {
                 FirebaseManager.removeItem(
                     itemId = itemId,
                     onSuccess = {
-                        Toast.makeText(requireContext(), "🗑️ Removed item: $title", Toast.LENGTH_SHORT).show()
+                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "Removed item: $title", view)
                     },
                     onError = { error ->
                         showAuthorizationAlert(error)
@@ -273,7 +285,7 @@ class ModerationFragment : Fragment() {
                             itemId = itemId,
                             isFlagged = true,
                             onSuccess = {
-                                Toast.makeText(requireContext(), "🚩 '$title' marked as Flagged", Toast.LENGTH_SHORT).show()
+                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "'$title' marked as Flagged", view)
                             },
                             onError = { showAuthorizationAlert(it) }
                         )
@@ -288,7 +300,7 @@ class ModerationFragment : Fragment() {
                             itemId = itemId,
                             isFlagged = false,
                             onSuccess = {
-                                Toast.makeText(requireContext(), "🏳️ '$title' unflagged", Toast.LENGTH_SHORT).show()
+                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "'$title' unflagged", view)
                             },
                             onError = { showAuthorizationAlert(it) }
                         )
@@ -310,7 +322,7 @@ class ModerationFragment : Fragment() {
                     targetUid = targetUid,
                     isBanned = true,
                     onSuccess = {
-                        Toast.makeText(requireContext(), "🚫 User '$targetUid' has been BANNED", Toast.LENGTH_LONG).show()
+                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "User '$targetUid' has been banned", view, durationLong = true)
                     },
                     onError = { showAuthorizationAlert(it) }
                 )
@@ -326,7 +338,7 @@ class ModerationFragment : Fragment() {
         listOf("item_1", "item_2", "item_3").forEach { id ->
             FirebaseManager.approveItem(id, {}, {})
         }
-        Toast.makeText(requireContext(), "✅ All selected reports approved", Toast.LENGTH_SHORT).show()
+        com.group3.lostandfound.util.ModernToast.show(requireContext(), "All selected reports approved", view)
     }
 
     /**

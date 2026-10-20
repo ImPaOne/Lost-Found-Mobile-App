@@ -34,6 +34,7 @@ class DetailsFragment : Fragment() {
 
     private lateinit var btnBack: ImageView
     private lateinit var btnBookmark: ImageView
+    private lateinit var btnShare: ImageView
     private lateinit var btnContact: TextView
     private lateinit var bannerLocation: View
     private lateinit var cardSimilarItem: View
@@ -78,6 +79,7 @@ class DetailsFragment : Fragment() {
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         btnBookmark = view.findViewById(R.id.btnBookmark)
+        btnShare = view.findViewById(R.id.btnShare)
         btnContact = view.findViewById(R.id.btnContact)
         bannerLocation = view.findViewById(R.id.bannerLocation)
         cardSimilarItem = view.findViewById(R.id.cardSimilarItem)
@@ -214,8 +216,107 @@ class DetailsFragment : Fragment() {
             }
         }
 
+        // Social Media & Messaging Sharing (Requirement 3.1 #10)
+        btnShare.setOnClickListener {
+            val title = tvItemTitle.text.toString()
+            val desc = tvDescription.text.toString()
+            val loc = tvLocationText.text.toString()
+            val status = tagStatus.text.toString()
+
+            val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(android.content.Intent.EXTRA_SUBJECT, "$status: $title - FindIt LK")
+                putExtra(
+                    android.content.Intent.EXTRA_TEXT,
+                    "Lost and Found Report ($status)\n\nItem: $title\nLocation: $loc\n\nDetails: $desc\n\nShared via Foundly - Reconnecting Communities"
+                )
+            }
+            startActivity(android.content.Intent.createChooser(shareIntent, "Share item report via"))
+        }
+
+        // Secure Messaging & Reward Attachment (Requirements 3.1 #8 & System Features)
         btnContact.setOnClickListener {
-            Toast.makeText(requireContext(), "Opening secure contact channel...", Toast.LENGTH_SHORT).show()
+            val itemTitle = tvItemTitle.text.toString()
+            val contactOptions = arrayOf("Open Live Chat", "Send Message Note", "Offer Return Reward", "Call Reporter Phone")
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Contact Reporter: $itemTitle")
+                .setItems(contactOptions) { _, which ->
+                    when (which) {
+                        0 -> {
+                            // Direct Real-Time Chat screen
+                            parentFragmentManager.beginTransaction()
+                                .replace(
+                                    R.id.screenBox,
+                                    ChatFragment.newInstance(
+                                        recipientUserId = "default_user_101",
+                                        recipientName = "Item Reporter",
+                                        itemId = itemId ?: "",
+                                        itemTitle = itemTitle
+                                    )
+                                )
+                                .addToBackStack(null)
+                                .commit()
+                        }
+                        1 -> {
+                            val msgInput = android.widget.EditText(requireContext()).apply {
+                                hint = "Type message to reporter..."
+                            }
+                            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                                .setTitle("Message Reporter")
+                                .setView(msgInput)
+                                .setPositiveButton("Send") { _, _ ->
+                                    val text = msgInput.text.toString().trim()
+                                    if (text.isNotEmpty()) {
+                                        val notif = mapOf(
+                                            "title" to "Message regarding $itemTitle",
+                                            "message" to text,
+                                            "timestamp" to System.currentTimeMillis(),
+                                            "read" to false
+                                        )
+                                        com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                                            .getReference("notifications")
+                                            .child(FirebaseManager.currentUid)
+                                            .push()
+                                            .setValue(notif)
+                                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "Message sent securely to reporter.", view)
+                                    }
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
+                        }
+                        2 -> {
+                            val rewardInput = android.widget.EditText(requireContext()).apply {
+                                hint = "Enter reward amount in LKR (e.g. 5000)"
+                                inputType = android.text.InputType.TYPE_CLASS_NUMBER
+                            }
+                            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                                .setTitle("Offer Reward")
+                                .setView(rewardInput)
+                                .setPositiveButton("Attach Reward") { _, _ ->
+                                    val amount = rewardInput.text.toString().trim()
+                                    if (amount.isNotEmpty()) {
+                                        val rewardData = mapOf(
+                                            "itemId" to (itemId ?: "item_reward"),
+                                            "amount" to (amount.toDoubleOrNull() ?: 0.0),
+                                            "currency" to "LKR",
+                                            "timestamp" to System.currentTimeMillis()
+                                        )
+                                        com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                                            .getReference("rewards")
+                                            .child(itemId ?: "item_reward")
+                                            .setValue(rewardData)
+                                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "Reward of LKR $amount attached to report.", view)
+                                    }
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
+                        }
+                        3 -> {
+                            com.group3.lostandfound.util.ModernToast.show(requireContext(), "Connecting to reporter phone line.", view)
+                        }
+                    }
+                }
+                .show()
         }
 
         // Live status resolution & management

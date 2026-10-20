@@ -600,9 +600,13 @@
 
                 <!-- Location Map Pin Banner Preview -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardMapPinPreview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
                     app:cardBackgroundColor="#F7F5F0"
                     app:cardCornerRadius="14dp"
                     app:cardElevation="0dp"
@@ -624,9 +628,10 @@
                             app:tint="@color/text_primary" />
 
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
+                            android:layout_weight="1"
                             android:orientation="vertical">
 
                             <TextView
@@ -640,13 +645,23 @@
                                 android:textStyle="bold" />
 
                             <TextView
+                                android:id="@+id/tvSelectedLocationCoords"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif"
-                                android:text="6.9042° N, 79.8530° E · Precision 15m"
+                                android:text="6.9042° N, 79.8530° E · Tap to open map"
                                 android:textColor="#7D6F67"
                                 android:textSize="11sp" />
                         </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Pin on Map"
+                            android:textColor="@color/tag_lost_color"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
@@ -723,7 +738,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="74dp"
@@ -734,6 +750,7 @@
                         app:strokeWidth="1dp">
 
                         <ImageView
+                            android:id="@+id/imgThumbnail1"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:contentDescription="Photo 1"
