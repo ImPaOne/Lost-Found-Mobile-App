@@ -8,12 +8,23 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+
 /**
  * AdminFragment displays the operations overview, statistics, trend chart,
  * moderation queue banner, quick actions, and recent activity.
- * Built with clean human-written code.
+ * Built with clean human-written code and Firebase Realtime Database integration.
  */
 class AdminFragment : Fragment() {
+
+    private lateinit var totalReportsNumber: TextView
+    private lateinit var activeCasesNumber: TextView
+    private lateinit var resolvedCasesNumber: TextView
+    private lateinit var totalUsersNumber: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -25,6 +36,10 @@ class AdminFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        initStatViews(view)
+        observeLiveFirebaseStats()
+        verifyAdminAccess()
 
         val btnBack = view.findViewById<ImageView>(R.id.backButton)
         val btnBell = view.findViewById<ImageView>(R.id.notificationBell)
@@ -119,6 +134,42 @@ class AdminFragment : Fragment() {
         setupBottomNav(view, "admin")
     }
 
+    private fun initStatViews(view: View) {
+        totalReportsNumber = view.findViewById(R.id.totalReportsNumber)
+        activeCasesNumber = view.findViewById(R.id.activeCasesNumber)
+        resolvedCasesNumber = view.findViewById(R.id.resolvedCasesNumber)
+        totalUsersNumber = view.findViewById(R.id.totalUsersNumber)
+    }
+
+    private fun observeLiveFirebaseStats() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            FirebaseManager.analyticsFlow.collectLatest { summary ->
+                if (summary.totalReports > 0 || summary.userCount > 0) {
+                    val activeCount = (summary.totalReports - summary.resolvedReports).coerceAtLeast(0)
+                    totalReportsNumber.text = String.format("%,d", summary.totalReports)
+                    activeCasesNumber.text = String.format("%,d", activeCount)
+                    resolvedCasesNumber.text = String.format("%,d", summary.resolvedReports)
+                    totalUsersNumber.text = String.format("%,d", summary.userCount)
+                }
+            }
+        }
+    }
+
+    private fun verifyAdminAccess() {
+        FirebaseManager.verifyAdminPrivilege(
+            onAuthorized = {
+                // Access granted
+            },
+            onDenied = { errorMsg ->
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Admin Security Alert")
+                    .setMessage("$errorMsg\nPlease ensure you are logged in as admin@gmail.com.")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+        )
+    }
+
     private fun openModerationScreen() {
         parentFragmentManager.beginTransaction()
             .replace(R.id.screenBox, ModerationFragment.newInstance())
@@ -130,3 +181,4 @@ class AdminFragment : Fragment() {
         fun newInstance(): AdminFragment = AdminFragment()
     }
 }
+

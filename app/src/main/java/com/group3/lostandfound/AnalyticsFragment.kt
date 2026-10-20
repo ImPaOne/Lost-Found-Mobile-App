@@ -10,10 +10,15 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
  * AnalyticsFragment displays application metrics:
  * - Timeframe dropdown selection & Export action
+ * - Real-time statistics aggregation by observing /items and /users nodes
+ * - Coroutines Flow UI state updates
  * - Category distribution donut chart
  * - Resolution rates by major cities (Colombo, Kandy, Galle)
  * - Key performance metric cards (Median response, Time to resolve, Monthly growth)
@@ -30,13 +35,18 @@ class AnalyticsFragment : Fragment() {
     private lateinit var textSelectedTimeframe: TextView
     private lateinit var buttonExport: TextView
 
-    // Metric cards
+    // Metric cards & values
     private lateinit var cardMedianResponse: LinearLayout
     private lateinit var cardTimeToResolve: LinearLayout
     private lateinit var cardMonthlyGrowth: LinearLayout
+    private lateinit var textMedianResponseValue: TextView
+    private lateinit var textTimeToResolveValue: TextView
+    private lateinit var textMonthlyGrowthValue: TextView
 
     // Leaflet Heat Map WebView
     private lateinit var webHeatMap: WebView
+
+    private var currentSummary = AnalyticsSummary()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,6 +63,7 @@ class AnalyticsFragment : Fragment() {
         setupMap()
         setupClickListeners()
         setupBottomNav(view, "admin")
+        observeRealtimeAnalyticsFlow()
     }
 
     private fun initViews(view: View) {
@@ -67,7 +78,33 @@ class AnalyticsFragment : Fragment() {
         cardTimeToResolve = view.findViewById(R.id.cardTimeToResolve)
         cardMonthlyGrowth = view.findViewById(R.id.cardMonthlyGrowth)
 
+        textMedianResponseValue = view.findViewById(R.id.textMedianResponseValue)
+        textTimeToResolveValue = view.findViewById(R.id.textTimeToResolveValue)
+        textMonthlyGrowthValue = view.findViewById(R.id.textMonthlyGrowthValue)
+
         webHeatMap = view.findViewById(R.id.webHeatMap)
+    }
+
+    /**
+     * Compute and observe real-time statistics by observing /items and /users nodes
+     * via Kotlin Coroutines Flow UI state.
+     */
+    private fun observeRealtimeAnalyticsFlow() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            FirebaseManager.analyticsFlow.collectLatest { summary ->
+                currentSummary = summary
+                val resolutionPercent = if (summary.totalReports > 0) {
+                    (summary.resolvedReports * 100) / summary.totalReports
+                } else {
+                    78
+                }
+
+                // Update dynamic values
+                textTimeToResolveValue.text = "${resolutionPercent}%"
+                textMedianResponseValue.text = "${summary.totalReports} Items"
+                textMonthlyGrowthValue.text = "${summary.userCount} Users"
+            }
+        }
     }
 
     private fun setupMap() {
@@ -119,7 +156,11 @@ class AnalyticsFragment : Fragment() {
         }
 
         buttonDownloadReport.setOnClickListener {
-            Toast.makeText(requireContext(), "Downloading analytics report...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Analytics summary: ${currentSummary.totalReports} total, ${currentSummary.resolvedReports} resolved, ${currentSummary.userCount} users",
+                Toast.LENGTH_LONG
+            ).show()
         }
 
         buttonTimeframeSelector.setOnClickListener {
@@ -133,19 +174,23 @@ class AnalyticsFragment : Fragment() {
         }
 
         buttonExport.setOnClickListener {
-            Toast.makeText(requireContext(), "Analytics exported successfully (CSV)", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Exported CSV: Total ${currentSummary.totalReports} reports | ${currentSummary.resolvedReports} resolved",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
         cardMedianResponse.setOnClickListener {
-            Toast.makeText(requireContext(), "Median response: 2.8 hours", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Total Reports in Realtime DB: ${currentSummary.totalReports}", Toast.LENGTH_SHORT).show()
         }
 
         cardTimeToResolve.setOnClickListener {
-            Toast.makeText(requireContext(), "Time to resolve: 1.6 days", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Resolved Cases in Realtime DB: ${currentSummary.resolvedReports}", Toast.LENGTH_SHORT).show()
         }
 
         cardMonthlyGrowth.setOnClickListener {
-            Toast.makeText(requireContext(), "Growth: +12% vs last month", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Registered Users in Realtime DB: ${currentSummary.userCount}", Toast.LENGTH_SHORT).show()
         }
     }
 

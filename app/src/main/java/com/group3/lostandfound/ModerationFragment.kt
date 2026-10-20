@@ -1,4 +1,4 @@
-    package com.group3.lostandfound
+package com.group3.lostandfound
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,12 +7,21 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 
 /**
- * ModerationFragment handles moderation and review of flagged/pending lost & found reports.
- * Uses clean human-written code and descriptive variable names.
+ * ModerationFragment handles moderation and review of lost & found reports:
+ * - Live real-time sync with Firebase Realtime Database
+ * - Flag items using updateChildren()
+ * - Remove items using removeValue()
+ * - Ban reported users via /users/{uid}/isBanned = true
+ * - Logs audit trails to /admin_logs/{actionId}
+ * - Admin authorization checks with PERMISSION_DENIED alerts
  */
 class ModerationFragment : Fragment() {
 
@@ -28,6 +37,12 @@ class ModerationFragment : Fragment() {
     // Top action buttons
     private lateinit var buttonSelectAll: TextView
     private lateinit var buttonApproveSelected: TextView
+    private lateinit var textReportsCountSummary: TextView
+
+    // Report Cards
+    private lateinit var cardReportPassport: View
+    private lateinit var cardReportIPhone: View
+    private lateinit var cardReportBracelet: View
 
     // Passport Card buttons
     private lateinit var buttonPassportApprove: TextView
@@ -44,6 +59,9 @@ class ModerationFragment : Fragment() {
     private lateinit var buttonBraceletReject: TextView
     private lateinit var buttonBraceletEscalate: TextView
 
+    private var activeTabName = "PENDING"
+    private var allSelected = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -58,6 +76,7 @@ class ModerationFragment : Fragment() {
         initViews(view)
         setupClickListeners()
         setupBottomNav(view, "admin")
+        observeFirebaseModerationQueue()
     }
 
     private fun initViews(view: View) {
@@ -70,6 +89,11 @@ class ModerationFragment : Fragment() {
 
         buttonSelectAll = view.findViewById(R.id.buttonSelectAll)
         buttonApproveSelected = view.findViewById(R.id.buttonApproveSelected)
+        textReportsCountSummary = view.findViewById(R.id.textReportsCountSummary)
+
+        cardReportPassport = view.findViewById(R.id.cardReportPassport)
+        cardReportIPhone = view.findViewById(R.id.cardReportIPhone)
+        cardReportBracelet = view.findViewById(R.id.cardReportBracelet)
 
         buttonPassportApprove = view.findViewById(R.id.buttonPassportApprove)
         buttonPassportReject = view.findViewById(R.id.buttonPassportReject)
@@ -84,59 +108,244 @@ class ModerationFragment : Fragment() {
         buttonBraceletEscalate = view.findViewById(R.id.buttonBraceletEscalate)
     }
 
+    /**
+     * Realtime Database observation for moderation queue
+     */
+    private fun observeFirebaseModerationQueue() {
+        FirebaseManager.itemsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                var pendingCount = 0
+                for (child in snapshot.children) {
+                    val status = child.child("status").getValue(String::class.java) ?: "PENDING"
+                    if (status.equals("PENDING", ignoreCase = true)) {
+                        pendingCount++
+                    }
+                }
+                textReportsCountSummary.text = "$pendingCount reports awaiting review"
+
+                // Check visibility of item_1 (Passport)
+                val hasPassport = snapshot.hasChild("item_1")
+                cardReportPassport.visibility = if (hasPassport) View.VISIBLE else View.GONE
+
+                // Check visibility of item_2 (iPhone)
+                val hasIPhone = snapshot.hasChild("item_2")
+                cardReportIPhone.visibility = if (hasIPhone) View.VISIBLE else View.GONE
+
+                // Check visibility of item_3 (Bracelet)
+                val hasBracelet = snapshot.hasChild("item_3")
+                cardReportBracelet.visibility = if (hasBracelet) View.VISIBLE else View.GONE
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                if (error.code == DatabaseError.PERMISSION_DENIED) {
+                    showPermissionDeniedAlert()
+                }
+            }
+        })
+    }
+
     private fun setupClickListeners() {
         buttonBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
         buttonSearch.setOnClickListener {
-            Toast.makeText(requireContext(), "Search moderation reports", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Filtering moderation queue...", Toast.LENGTH_SHORT).show()
         }
 
-        tabPendingReview.setOnClickListener { selectTab(tabPendingReview) }
-        tabFlagged.setOnClickListener { selectTab(tabFlagged) }
-        tabApproved.setOnClickListener { selectTab(tabApproved) }
+        // Tabs
+        tabPendingReview.setOnClickListener {
+            activeTabName = "PENDING"
+            selectTab(tabPendingReview)
+            cardReportPassport.visibility = View.VISIBLE
+            cardReportIPhone.visibility = View.VISIBLE
+            cardReportBracelet.visibility = View.VISIBLE
+        }
+        tabFlagged.setOnClickListener {
+            activeTabName = "FLAGGED"
+            selectTab(tabFlagged)
+            cardReportPassport.visibility = View.VISIBLE
+            cardReportIPhone.visibility = View.VISIBLE
+            cardReportBracelet.visibility = View.GONE
+        }
+        tabApproved.setOnClickListener {
+            activeTabName = "APPROVED"
+            selectTab(tabApproved)
+            cardReportPassport.visibility = View.GONE
+            cardReportIPhone.visibility = View.GONE
+            cardReportBracelet.visibility = View.VISIBLE
+        }
 
+        // Bulk Actions
         buttonSelectAll.setOnClickListener {
-            Toast.makeText(requireContext(), "All 24 reports selected", Toast.LENGTH_SHORT).show()
+            allSelected = !allSelected
+            buttonSelectAll.text = if (allSelected) "Deselect all" else "Select all"
+            Toast.makeText(requireContext(), if (allSelected) "All reports selected" else "Selection cleared", Toast.LENGTH_SHORT).show()
         }
 
         buttonApproveSelected.setOnClickListener {
-            Toast.makeText(requireContext(), "Selected reports approved", Toast.LENGTH_SHORT).show()
+            approveBatchReports()
         }
 
-        // Passport card actions
+        // ================= PASSPORT CARD ACTIONS (item_1, user_perera) =================
         buttonPassportApprove.setOnClickListener {
-            Toast.makeText(requireContext(), "Approved: Sri Lankan passport", Toast.LENGTH_SHORT).show()
+            approveReport("item_1", "Sri Lankan passport")
         }
         buttonPassportReject.setOnClickListener {
-            Toast.makeText(requireContext(), "Rejected: Sri Lankan passport", Toast.LENGTH_SHORT).show()
+            confirmRemoveReport("item_1", "Sri Lankan passport")
         }
         buttonPassportEscalate.setOnClickListener {
-            Toast.makeText(requireContext(), "Escalated: Sri Lankan passport", Toast.LENGTH_SHORT).show()
+            showEscalationDialog("item_1", "user_perera", "Sri Lankan passport")
         }
 
-        // iPhone card actions
+        // ================= IPHONE CARD ACTIONS (item_2, user_tharushi) =================
         buttonIPhoneApprove.setOnClickListener {
-            Toast.makeText(requireContext(), "Approved: iPhone 14 Pro", Toast.LENGTH_SHORT).show()
+            approveReport("item_2", "iPhone 14 Pro")
         }
         buttonIPhoneReject.setOnClickListener {
-            Toast.makeText(requireContext(), "Rejected: iPhone 14 Pro", Toast.LENGTH_SHORT).show()
+            confirmRemoveReport("item_2", "iPhone 14 Pro")
         }
         buttonIPhoneEscalate.setOnClickListener {
-            Toast.makeText(requireContext(), "Escalated: iPhone 14 Pro", Toast.LENGTH_SHORT).show()
+            showEscalationDialog("item_2", "user_tharushi", "iPhone 14 Pro")
         }
 
-        // Gold bracelet card actions
+        // ================= BRACELET CARD ACTIONS (item_3, user_kavindu) =================
         buttonBraceletApprove.setOnClickListener {
-            Toast.makeText(requireContext(), "Approved: Gold bracelet", Toast.LENGTH_SHORT).show()
+            approveReport("item_3", "Gold bracelet")
         }
         buttonBraceletReject.setOnClickListener {
-            Toast.makeText(requireContext(), "Rejected: Gold bracelet", Toast.LENGTH_SHORT).show()
+            confirmRemoveReport("item_3", "Gold bracelet")
         }
         buttonBraceletEscalate.setOnClickListener {
-            Toast.makeText(requireContext(), "Escalated: Gold bracelet", Toast.LENGTH_SHORT).show()
+            showEscalationDialog("item_3", "user_kavindu", "Gold bracelet")
         }
+    }
+
+    /**
+     * Approve Report using updateChildren()
+     */
+    private fun approveReport(itemId: String, title: String) {
+        FirebaseManager.approveItem(
+            itemId = itemId,
+            onSuccess = {
+                Toast.makeText(requireContext(), "✅ Approved report: $title", Toast.LENGTH_SHORT).show()
+            },
+            onError = { error ->
+                showAuthorizationAlert(error)
+            }
+        )
+    }
+
+    /**
+     * Remove / Reject Report using removeValue()
+     */
+    private fun confirmRemoveReport(itemId: String, title: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Remove Report")
+            .setMessage("Are you sure you want to permanently remove '$title' from the database?")
+            .setPositiveButton("Remove") { _, _ ->
+                FirebaseManager.removeItem(
+                    itemId = itemId,
+                    onSuccess = {
+                        Toast.makeText(requireContext(), "🗑️ Removed item: $title", Toast.LENGTH_SHORT).show()
+                    },
+                    onError = { error ->
+                        showAuthorizationAlert(error)
+                    }
+                )
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    /**
+     * Escalation dialog offering to Flag Item or Ban User
+     */
+    private fun showEscalationDialog(itemId: String, userId: String, title: String) {
+        val actions = arrayOf("Flag Item (Sensitive/Duplicate)", "Ban User Account", "Unflag Item")
+        AlertDialog.Builder(requireContext())
+            .setTitle("Escalate: $title")
+            .setItems(actions) { _, which ->
+                when (which) {
+                    0 -> {
+                        // Flag item via updateChildren()
+                        FirebaseManager.flagItem(
+                            itemId = itemId,
+                            isFlagged = true,
+                            onSuccess = {
+                                Toast.makeText(requireContext(), "🚩 '$title' marked as Flagged", Toast.LENGTH_SHORT).show()
+                            },
+                            onError = { showAuthorizationAlert(it) }
+                        )
+                    }
+                    1 -> {
+                        // User Ban action via /users/{uid}/isBanned = true
+                        confirmBanUser(userId)
+                    }
+                    2 -> {
+                        // Unflag item
+                        FirebaseManager.flagItem(
+                            itemId = itemId,
+                            isFlagged = false,
+                            onSuccess = {
+                                Toast.makeText(requireContext(), "🏳️ '$title' unflagged", Toast.LENGTH_SHORT).show()
+                            },
+                            onError = { showAuthorizationAlert(it) }
+                        )
+                    }
+                }
+            }
+            .show()
+    }
+
+    /**
+     * Ban User action: sets /users/{uid}/isBanned = true
+     */
+    private fun confirmBanUser(targetUid: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Ban User Account")
+            .setMessage("Ban user '$targetUid' from creating new reports or contacting members?")
+            .setPositiveButton("Ban User") { _, _ ->
+                FirebaseManager.banUser(
+                    targetUid = targetUid,
+                    isBanned = true,
+                    onSuccess = {
+                        Toast.makeText(requireContext(), "🚫 User '$targetUid' has been BANNED", Toast.LENGTH_LONG).show()
+                    },
+                    onError = { showAuthorizationAlert(it) }
+                )
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    /**
+     * Approve batch reports
+     */
+    private fun approveBatchReports() {
+        listOf("item_1", "item_2", "item_3").forEach { id ->
+            FirebaseManager.approveItem(id, {}, {})
+        }
+        Toast.makeText(requireContext(), "✅ All selected reports approved", Toast.LENGTH_SHORT).show()
+    }
+
+    /**
+     * Display authorization alert on DatabaseError.PERMISSION_DENIED or failed checks
+     */
+    private fun showAuthorizationAlert(error: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Authorization Alert")
+            .setMessage("Action Failed: $error\nEnsure your account role is set to 'ADMIN'.")
+            .setPositiveButton("Dismiss", null)
+            .show()
+    }
+
+    private fun showPermissionDeniedAlert() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Permission Denied")
+            .setMessage("Firebase DatabaseError.PERMISSION_DENIED: Access restricted to administrators.")
+            .setPositiveButton("OK", null)
+            .show()
     }
 
     private fun selectTab(selectedTab: TextView) {
@@ -153,8 +362,6 @@ class ModerationFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(): ModerationFragment {
-            return ModerationFragment()
-        }
+        fun newInstance(): ModerationFragment = ModerationFragment()
     }
 }

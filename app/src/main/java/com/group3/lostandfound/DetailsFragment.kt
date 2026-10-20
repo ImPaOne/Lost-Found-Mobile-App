@@ -183,6 +183,50 @@ class DetailsFragment : Fragment() {
             Toast.makeText(requireContext(), "Opening secure contact channel...", Toast.LENGTH_SHORT).show()
         }
 
+        // Admin & Reporter Action: Long press Contact button or click tag to manage status
+        tagStatus.setOnClickListener {
+            val itemId = arguments?.getString(ARG_ITEM_ID) ?: "item_4"
+            val itemTitle = tvItemTitle.text.toString()
+            val options = arrayOf("Mark as RESOLVED (Firebase)", "Flag Item (Moderation)", "Delete Item (Firebase)")
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Manage Listing: $itemTitle")
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> {
+                            FirebaseManager.markItemResolved(
+                                itemId = itemId,
+                                onSuccess = {
+                                    tagStatus.text = "RESOLVED"
+                                    Toast.makeText(requireContext(), "✅ Marked as RESOLVED in Firebase!", Toast.LENGTH_SHORT).show()
+                                },
+                                onError = { Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show() }
+                            )
+                        }
+                        1 -> {
+                            FirebaseManager.flagItem(
+                                itemId = itemId,
+                                isFlagged = true,
+                                onSuccess = {
+                                    Toast.makeText(requireContext(), "🚩 Flagged for moderation review", Toast.LENGTH_SHORT).show()
+                                },
+                                onError = { Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show() }
+                            )
+                        }
+                        2 -> {
+                            FirebaseManager.removeItem(
+                                itemId = itemId,
+                                onSuccess = {
+                                    Toast.makeText(requireContext(), "🗑️ Item removed from database", Toast.LENGTH_SHORT).show()
+                                    parentFragmentManager.popBackStack()
+                                },
+                                onError = { Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show() }
+                            )
+                        }
+                    }
+                }
+                .show()
+        }
+
         bannerLocation.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.screenBox, MapFragment.newInstance())
@@ -263,6 +307,7 @@ class DetailsFragment : Fragment() {
     }
 
     companion object {
+        private const val ARG_ITEM_ID = "arg_item_id"
         private const val ARG_TITLE = "arg_title"
         private const val ARG_DESC = "arg_desc"
         private const val ARG_STATUS = "arg_status"
@@ -280,6 +325,7 @@ class DetailsFragment : Fragment() {
         ): DetailsFragment {
             val fragment = DetailsFragment()
             val args = Bundle().apply {
+                putString(ARG_ITEM_ID, itemId)
                 putString(ARG_TITLE, title)
                 putString(ARG_DESC, desc)
                 putString(ARG_STATUS, status)
