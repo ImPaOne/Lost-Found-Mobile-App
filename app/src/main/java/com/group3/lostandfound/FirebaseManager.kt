@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.asStateFlow
 object FirebaseManager {
 
     const val DATABASE_URL = "https://lost-and-found-9-10-11-15-default-rtdb.firebaseio.com"
+    const val STORAGE_BUCKET = "gs://lost-and-found-9-10-11-15.firebasestorage.app"
 
     private val auth: FirebaseAuth get() = FirebaseAuth.getInstance()
     val database: FirebaseDatabase get() = FirebaseDatabase.getInstance(DATABASE_URL)

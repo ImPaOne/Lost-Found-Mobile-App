@@ -14,6 +14,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.group3.lostandfound.FirebaseManager
 import com.group3.lostandfound.MainActivity
 import com.group3.lostandfound.R
 
@@ -56,7 +57,7 @@ class FCMService : FirebaseMessagingService() {
     private fun sendTokenToServer(token: String) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
-            val userTokenRef = FirebaseDatabase.getInstance()
+            val userTokenRef = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
                 .getReference("users")
                 .child(uid)
                 .child("fcmToken")
@@ -135,7 +136,7 @@ class FCMService : FirebaseMessagingService() {
             val cachedToken = prefs.getString(KEY_FCM_TOKEN, null)
 
             if (cachedToken != null) {
-                FirebaseDatabase.getInstance()
+                FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
                     .getReference("users")
                     .child(uid)
                     .child("fcmToken")
@@ -143,7 +144,7 @@ class FCMService : FirebaseMessagingService() {
             } else {
                 FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
                     prefs.edit().putString(KEY_FCM_TOKEN, token).apply()
-                    FirebaseDatabase.getInstance()
+                    FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
                         .getReference("users")
                         .child(uid)
                         .child("fcmToken")

@@ -12,6 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import com.group3.lostandfound.FirebaseManager
 import java.util.UUID
 
 /**
@@ -20,8 +21,8 @@ import java.util.UUID
  */
 class ReportRepository {
 
-    private val db = FirebaseDatabase.getInstance().getReference("items")
-    private val storage = FirebaseStorage.getInstance().getReference("item_images")
+    private val db = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("items")
+    private val storage = FirebaseStorage.getInstance(FirebaseManager.STORAGE_BUCKET).getReference("item_images")
 
     /**
      * Compresses the selected image URI into JPEG byte array, downscaling to prevent out-of-memory errors.
