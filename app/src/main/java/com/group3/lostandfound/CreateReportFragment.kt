@@ -1,5 +1,7 @@
 package com.group3.lostandfound
 
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,21 +11,32 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.TranslateAnimation
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ViewFlipper
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseAuth
+import com.group3.lostandfound.model.ItemReport
+import com.group3.lostandfound.repository.ReportRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 
 /**
  * CreateReportFragment allows users to report a lost or found item across 5 sliding steps:
  * - Step 1: Type & Date
  * - Step 2: Category & Details
  * - Step 3: Location Picker
- * - Step 4: Photos Upload
- * - Step 5: Review & Submit
- * Modern sliding transitions between steps with interactive progress indicator.
+ * - Step 4: Photos Upload (Camera & Gallery with image compression)
+ * - Step 5: Review & Submit (with 0-100% horizontal progress bar, retry mechanisms, and Clean Architecture)
  */
 class CreateReportFragment : Fragment() {
 
@@ -72,6 +85,7 @@ class CreateReportFragment : Fragment() {
     // Step 4 Views
     private lateinit var cardUploadDropzone: View
     private lateinit var tvPhotosCountStatus: TextView
+    private lateinit var rowThumbnails: View
 
     // Step 5 Review Views
     private lateinit var badgeReviewStatus: TextView
@@ -80,13 +94,51 @@ class CreateReportFragment : Fragment() {
     private lateinit var tvReviewLocation: TextView
     private lateinit var tvReviewDesc: TextView
 
+    // Upload Progress & Error UI Views
+    private lateinit var cardUploadProgress: View
+    private lateinit var tvUploadStatusText: TextView
+    private lateinit var tvUploadPercentage: TextView
+    private lateinit var pbUploadBar: ProgressBar
+    private lateinit var layoutUploadError: LinearLayout
+    private lateinit var tvErrorMessage: TextView
+    private lateinit var btnRetryUpload: TextView
+
     // State
     private var currentStep = 1
     private var isLostSelected = true
     private var selectedDate = "Today"
     private var selectedCategory = "Electronics"
     private var selectedArea = "Colombo 03"
-    private var photosCount = 2
+    private var selectedLatitude = 6.9042
+    private var selectedLongitude = 79.8530
+    private var photosCount = 0
+    private var selectedImageUri: Uri? = null
+
+    private val reportRepository = ReportRepository()
+    private var uploadJob: Job? = null
+
+    // Gallery Picker Launcher
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            selectedImageUri = uri
+            photosCount = 1
+            tvPhotosCountStatus.text = "$photosCount photo attached from gallery"
+            Toast.makeText(requireContext(), "Photo selected from device gallery", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Camera Capture Launcher
+    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        if (bitmap != null) {
+            val uri = saveBitmapToTempUri(bitmap)
+            if (uri != null) {
+                selectedImageUri = uri
+                photosCount = 1
+                tvPhotosCountStatus.text = "$photosCount photo captured with camera"
+                Toast.makeText(requireContext(), "Camera photo captured successfully", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -152,6 +204,7 @@ class CreateReportFragment : Fragment() {
         // Step 4
         cardUploadDropzone = view.findViewById(R.id.cardUploadDropzone)
         tvPhotosCountStatus = view.findViewById(R.id.tvPhotosCountStatus)
+        rowThumbnails = view.findViewById(R.id.rowThumbnails)
 
         // Step 5
         badgeReviewStatus = view.findViewById(R.id.badgeReviewStatus)
@@ -159,6 +212,15 @@ class CreateReportFragment : Fragment() {
         tvReviewTitle = view.findViewById(R.id.tvReviewTitle)
         tvReviewLocation = view.findViewById(R.id.tvReviewLocation)
         tvReviewDesc = view.findViewById(R.id.tvReviewDesc)
+
+        // Upload Progress UI
+        cardUploadProgress = view.findViewById(R.id.cardUploadProgress)
+        tvUploadStatusText = view.findViewById(R.id.tvUploadStatusText)
+        tvUploadPercentage = view.findViewById(R.id.tvUploadPercentage)
+        pbUploadBar = view.findViewById(R.id.pbUploadBar)
+        layoutUploadError = view.findViewById(R.id.layoutUploadError)
+        tvErrorMessage = view.findViewById(R.id.tvErrorMessage)
+        btnRetryUpload = view.findViewById(R.id.btnRetryUpload)
     }
 
     private fun setItemType(isLost: Boolean) {
@@ -179,7 +241,7 @@ class CreateReportFragment : Fragment() {
     }
 
     private fun setupStepListeners() {
-        // Back buttons
+        // Back navigation
         val onBackAction = View.OnClickListener {
             if (currentStep > 1) {
                 slideBackward()
@@ -192,19 +254,12 @@ class CreateReportFragment : Fragment() {
 
         // Continue button
         btnContinue.setOnClickListener {
-            if (currentStep < 5) {
-                slideForward()
-            } else {
-                // Submit step 5
-                val title = inputTitle.text.toString().trim()
-                val reportTitle = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
-                val itemType = if (isLostSelected) "Lost" else "Found"
-                Toast.makeText(requireContext(), "🎉 $itemType report '$reportTitle' published successfully!", Toast.LENGTH_LONG).show()
-
-                parentFragmentManager.beginTransaction()
-                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                    .replace(R.id.screenBox, ReportsFragment.newInstance())
-                    .commit()
+            if (validateCurrentStep()) {
+                if (currentStep < 5) {
+                    slideForward()
+                } else {
+                    submitReport()
+                }
             }
         }
 
@@ -248,7 +303,7 @@ class CreateReportFragment : Fragment() {
                 .show()
         }
 
-        // Step 3: Area chips
+        // Step 3: Area chips & Coordinates
         val areaChips = listOf(chipAreaColombo3, chipAreaKollupitiya, chipAreaBamba, chipAreaFort)
         for (chip in areaChips) {
             chip.setOnClickListener {
@@ -257,6 +312,12 @@ class CreateReportFragment : Fragment() {
                         c.setBackgroundResource(R.drawable.bg_chip_selected)
                         c.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                         selectedArea = c.text.toString()
+                        when (selectedArea) {
+                            "Colombo 03" -> { selectedLatitude = 6.9042; selectedLongitude = 79.8530 }
+                            "Kollupitiya" -> { selectedLatitude = 6.9128; selectedLongitude = 79.8507 }
+                            "Bambalapitiya" -> { selectedLatitude = 6.8920; selectedLongitude = 79.8550 }
+                            "Fort" -> { selectedLatitude = 6.9360; selectedLongitude = 79.8450 }
+                        }
                         tvSelectedLocationPreview.text = "$selectedArea, Western Province"
                     } else {
                         c.setBackgroundResource(R.drawable.bg_chip_unselected)
@@ -266,12 +327,55 @@ class CreateReportFragment : Fragment() {
             }
         }
 
-        // Step 4: Photo dropzone
+        // Step 4: Photo dropzone - choose Camera or Gallery
         cardUploadDropzone.setOnClickListener {
-            photosCount++
-            tvPhotosCountStatus.text = "$photosCount photos attached (Tap to add more)"
-            Toast.makeText(requireContext(), "Added photo from device gallery", Toast.LENGTH_SHORT).show()
+            showImageSourceChooser()
         }
+
+        // Retry Upload Action
+        btnRetryUpload.setOnClickListener {
+            submitReport()
+        }
+    }
+
+    private fun showImageSourceChooser() {
+        val options = arrayOf("Choose from Gallery", "Take Photo with Camera")
+        AlertDialog.Builder(requireContext())
+            .setTitle("Add Item Photo")
+            .setItems(options) { _, which ->
+                if (which == 0) {
+                    pickImageLauncher.launch("image/*")
+                } else {
+                    takePictureLauncher.launch(null)
+                }
+            }
+            .show()
+    }
+
+    private fun saveBitmapToTempUri(bitmap: Bitmap): Uri? {
+        return try {
+            val cachePath = File(requireContext().cacheDir, "images")
+            cachePath.mkdirs()
+            val file = File(cachePath, "captured_${System.currentTimeMillis()}.jpg")
+            val stream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)
+            stream.close()
+            Uri.fromFile(file)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun validateCurrentStep(): Boolean {
+        if (currentStep == 2) {
+            val title = inputTitle.text.toString().trim()
+            if (title.isEmpty()) {
+                inputTitle.error = "Please enter an item title"
+                inputTitle.requestFocus()
+                return false
+            }
+        }
+        return true
     }
 
     private fun slideForward() {
@@ -377,10 +481,109 @@ class CreateReportFragment : Fragment() {
 
                 tvReviewTitle.text = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
                 badgeReviewStatus.text = if (isLostSelected) "LOST ITEM" else "FOUND ITEM"
-                badgeReviewStatus.setTextColor(ContextCompat.getColor(requireContext(), if (isLostSelected) R.color.tag_lost_color else R.color.tag_found_color))
+                badgeReviewStatus.setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        if (isLostSelected) R.color.tag_lost_color else R.color.tag_found_color
+                    )
+                )
                 tvReviewCategory.text = selectedCategory
                 tvReviewLocation.text = "$selectedArea ${if (landmark.isNotEmpty()) "· $landmark" else ""} · Reported $selectedDate"
                 tvReviewDesc.text = if (desc.isNotEmpty()) desc else "No additional description provided."
+            }
+        }
+    }
+
+    private fun submitReport() {
+        val title = inputTitle.text.toString().trim()
+        val desc = inputDescription.text.toString().trim()
+        val landmark = inputLandmark.text.toString().trim()
+        val reportTitle = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
+
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous_user"
+
+        val fullDescription = buildString {
+            if (desc.isNotEmpty()) append(desc)
+            if (landmark.isNotEmpty()) {
+                if (isNotEmpty()) append("\nLandmark: ")
+                append(landmark)
+            }
+        }
+
+        val report = ItemReport(
+            userId = uid,
+            title = reportTitle,
+            description = fullDescription,
+            category = selectedCategory,
+            status = if (isLostSelected) "LOST" else "FOUND",
+            latitude = selectedLatitude,
+            longitude = selectedLongitude,
+            timestamp = System.currentTimeMillis()
+        )
+
+        // Show Progress Bar (0-100%)
+        cardUploadProgress.visibility = View.VISIBLE
+        layoutUploadError.visibility = View.GONE
+        pbUploadBar.progress = 0
+        tvUploadPercentage.text = "0%"
+        tvUploadStatusText.text = "Compressing photo & preparing upload..."
+
+        btnContinue.isEnabled = false
+        btnContinue.text = "Publishing..."
+
+        uploadJob?.cancel()
+        uploadJob = viewLifecycleOwner.lifecycleScope.launch {
+            val result = reportRepository.uploadImageAndCreateReport(
+                context = requireContext(),
+                imageUri = selectedImageUri,
+                report = report,
+                maxRetries = 3
+            ) { progress ->
+                pbUploadBar.progress = progress
+                tvUploadPercentage.text = "$progress%"
+                tvUploadStatusText.text = when {
+                    progress < 25 -> "Compressing image..."
+                    progress < 90 -> "Uploading photo to Storage ($progress%)..."
+                    progress < 100 -> "Saving report to Realtime Database..."
+                    else -> "Done! Finalizing report..."
+                }
+                btnContinue.text = "Publishing $progress%"
+            }
+
+            result.onSuccess { createdReport ->
+                pbUploadBar.progress = 100
+                tvUploadPercentage.text = "100%"
+                tvUploadStatusText.text = "🎉 Successfully published!"
+
+                Toast.makeText(requireContext(), "🎉 Report published successfully!", Toast.LENGTH_LONG).show()
+
+                // Navigate to Details of created report or ReportsFragment
+                parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                    .replace(
+                        R.id.screenBox,
+                        DetailsFragment.newInstance(
+                            title = createdReport.title,
+                            desc = createdReport.description,
+                            status = createdReport.status,
+                            location = "$selectedArea, Western Province",
+                            itemId = createdReport.itemId
+                        )
+                    )
+                    .commit()
+            }.onFailure { error ->
+                layoutUploadError.visibility = View.VISIBLE
+                tvErrorMessage.text = "Upload error: ${error.localizedMessage ?: "Network error"}. Check connection and retry."
+                tvUploadStatusText.text = "Upload interrupted."
+
+                btnContinue.isEnabled = true
+                btnContinue.text = "Publish Report"
+
+                Toast.makeText(
+                    requireContext(),
+                    "Upload failed: ${error.message}. You can retry.",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }

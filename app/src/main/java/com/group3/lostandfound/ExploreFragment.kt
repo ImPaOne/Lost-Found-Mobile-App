@@ -1,11 +1,8 @@
 package com.group3.lostandfound
 
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
-import android.text.style.StyleSpan
-import android.graphics.Typeface
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,14 +13,25 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.group3.lostandfound.adapter.ExploreAdapter
+import com.group3.lostandfound.model.ItemReport
+import com.group3.lostandfound.repository.ExploreRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
- * ExploreFragment displays the Explore screen with:
- * - Search bar with filter options
- * - Category filter chips (All, Lost, Found, Pets)
- * - Result count with toggle for Grid & List view
- * - 2-column grid of lost and found item cards
- * - Bottom navigation bar
+ * ExploreFragment displays the Explore Search Screen:
+ * - Realtime search with client-side Flow filtering on title & description
+ * - Status & Category filter chips (All, Lost, Found, Pets)
+ * - Grid (2 cols) and List (1 col) layout toggles
+ * - Live Firebase Realtime Database item stream with null-safe parsing
+ * - Navigation to live DetailsFragment passing itemId
  */
 class ExploreFragment : Fragment() {
 
@@ -41,17 +49,16 @@ class ExploreFragment : Fragment() {
     private lateinit var btnGridView: ImageView
     private lateinit var btnListView: ImageView
 
-    private lateinit var cardPhone: View
-    private lateinit var cardPassport: View
-    private lateinit var cardCat: View
-    private lateinit var cardAirpods: View
+    private lateinit var rvItems: RecyclerView
+    private lateinit var exploreAdapter: ExploreAdapter
+    private val exploreRepository = ExploreRepository()
 
-    private lateinit var tvPhoneStatus: TextView
-    private lateinit var tvPassportStatus: TextView
-    private lateinit var tvCatStatus: TextView
-    private lateinit var tvAirpodsStatus: TextView
+    private var currentFilterStatus = "ALL"
+    private var currentSearchQuery = ""
+    private var searchJob: Job? = null
+    private var fetchJob: Job? = null
 
-        override fun onCreateView(
+    override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -63,11 +70,12 @@ class ExploreFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initViews(view)
-        setupStatusBadges()
         setupListeners()
         setupBottomNav(view, "explore")
+        fetchItems()
     }
-        private fun initViews(view: View) {
+
+    private fun initViews(view: View) {
         btnClose = view.findViewById(R.id.btnClose)
         btnMapView = view.findViewById(R.id.btnMapView)
 
@@ -82,36 +90,29 @@ class ExploreFragment : Fragment() {
         btnGridView = view.findViewById(R.id.btnGridView)
         btnListView = view.findViewById(R.id.btnListView)
 
-        cardPhone = view.findViewById(R.id.cardPhone)
-        cardPassport = view.findViewById(R.id.cardPassport)
-        cardCat = view.findViewById(R.id.cardCat)
-        cardAirpods = view.findViewById(R.id.cardAirpods)
+        rvItems = view.findViewById(R.id.rvItems)
 
-        tvPhoneStatus = view.findViewById(R.id.tvPhoneStatus)
-        tvPassportStatus = view.findViewById(R.id.tvPassportStatus)
-        tvCatStatus = view.findViewById(R.id.tvCatStatus)
-        tvAirpodsStatus = view.findViewById(R.id.tvAirpodsStatus)
-    }
-        private fun setupStatusBadges() {
-        // Formats "LOST · 2h" and "FOUND · 2h" with two-tone colors
-        val lostColor = ContextCompat.getColor(requireContext(), R.color.tag_lost_color)
-        val foundColor = ContextCompat.getColor(requireContext(), R.color.text_primary)
-        val mutedColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+        exploreAdapter = ExploreAdapter(emptyList(), viewLifecycleOwner.lifecycleScope) { item ->
+            openDetails(item)
+        }
 
-        formatBadge(tvPhoneStatus, "LOST", " · 2h", lostColor, mutedColor)
-        formatBadge(tvPassportStatus, "FOUND", " · 2h", foundColor, mutedColor)
-        formatBadge(tvCatStatus, "LOST", " · 2h", lostColor, mutedColor)
-        formatBadge(tvAirpodsStatus, "FOUND", " · 2h", foundColor, mutedColor)
+        rvItems.layoutManager = GridLayoutManager(requireContext(), 2)
+        rvItems.adapter = exploreAdapter
     }
 
-    private fun formatBadge(textView: TextView, status: String, time: String, statusColor: Int, timeColor: Int) {
-        val span = SpannableString("$status$time")
-        span.setSpan(ForegroundColorSpan(statusColor), 0, status.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        span.setSpan(StyleSpan(Typeface.BOLD), 0, status.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        span.setSpan(ForegroundColorSpan(timeColor), status.length, span.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        textView.text = span
+    private fun fetchItems() {
+        fetchJob?.cancel()
+        fetchJob = viewLifecycleOwner.lifecycleScope.launch {
+            exploreRepository.getItemsFiltered(
+                query = currentSearchQuery,
+                status = currentFilterStatus
+            ).collectLatest { items ->
+                exploreAdapter.updateItems(items)
+            }
+        }
     }
-        private fun setupListeners() {
+
+    private fun setupListeners() {
         btnClose.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
@@ -124,57 +125,56 @@ class ExploreFragment : Fragment() {
         }
 
         btnFilter.setOnClickListener {
-            Toast.makeText(requireContext(), "Filter items", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Showing filter options", Toast.LENGTH_SHORT).show()
         }
 
-        chipAll.setOnClickListener { selectChip(chipAll) }
-        chipLost.setOnClickListener { selectChip(chipLost) }
-        chipFound.setOnClickListener { selectChip(chipFound) }
-        chipPets.setOnClickListener { selectChip(chipPets) }
+        // Live search with debounce
+        inputSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                searchJob?.cancel()
+                searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                    delay(250) // Debounce rapid user input
+                    currentSearchQuery = s?.toString().orEmpty()
+                    fetchItems()
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
 
+        // Chip Filters
+        chipAll.setOnClickListener {
+            currentFilterStatus = "ALL"
+            selectChip(chipAll)
+            fetchItems()
+        }
+        chipLost.setOnClickListener {
+            currentFilterStatus = "LOST"
+            selectChip(chipLost)
+            fetchItems()
+        }
+        chipFound.setOnClickListener {
+            currentFilterStatus = "FOUND"
+            selectChip(chipFound)
+            fetchItems()
+        }
+        chipPets.setOnClickListener {
+            currentFilterStatus = "PETS"
+            selectChip(chipPets)
+            fetchItems()
+        }
+
+        // Grid / List Toggle
         btnGridView.setOnClickListener {
-            Toast.makeText(requireContext(), "Grid view active", Toast.LENGTH_SHORT).show()
+            rvItems.layoutManager = GridLayoutManager(requireContext(), 2)
+            btnGridView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            btnListView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_secondary))
         }
 
         btnListView.setOnClickListener {
-            Toast.makeText(requireContext(), "Switching to list view", Toast.LENGTH_SHORT).show()
-        }
-
-        cardPhone.setOnClickListener {
-            openDetails(
-                title = "Blue Samsung phone",
-                desc = "Blue Samsung Galaxy with transparent protective case. Lost on bus route 138.",
-                status = "LOST",
-                location = "Bambalapitiya",
-                imageResId = R.drawable.img_samsung_phone
-            )
-        }
-        cardPassport.setOnClickListener {
-            openDetails(
-                title = "Sri Lankan passport",
-                desc = "Found maroon Sri Lankan passport near ticket counter at Fort Railway Station.",
-                status = "FOUND",
-                location = "Fort Railway Station",
-                imageResId = R.drawable.img_passport
-            )
-        }
-        cardCat.setOnClickListener {
-            openDetails(
-                title = "Brown tabby cat",
-                desc = "Lost domestic tabby cat, friendly, answers to 'Ginger'. Wearing green collar.",
-                status = "LOST",
-                location = "Dehiwala",
-                imageResId = R.drawable.img_tabby_cat
-            )
-        }
-        cardAirpods.setOnClickListener {
-            openDetails(
-                title = "AirPods Pro Case",
-                desc = "White AirPods Pro case found on coffee table. Please describe engraving to claim.",
-                status = "FOUND",
-                location = "Kollupitiya",
-                imageResId = R.drawable.img_wallet_details
-            )
+            rvItems.layoutManager = LinearLayoutManager(requireContext())
+            btnListView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            btnGridView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_secondary))
         }
     }
 
@@ -191,22 +191,16 @@ class ExploreFragment : Fragment() {
         }
     }
 
-    private fun openDetails(
-        title: String,
-        desc: String,
-        status: String,
-        location: String,
-        imageResId: Int
-    ) {
+    private fun openDetails(item: ItemReport) {
         parentFragmentManager.beginTransaction()
             .replace(
                 R.id.screenBox,
                 DetailsFragment.newInstance(
-                    title = title,
-                    desc = desc,
-                    status = status,
-                    location = location,
-                    imageResId = imageResId
+                    title = item.title,
+                    desc = item.description,
+                    status = item.status,
+                    location = if (item.latitude != 0.0 || item.longitude != 0.0) "${item.latitude}, ${item.longitude}" else "Colombo 03",
+                    itemId = item.itemId
                 )
             )
             .addToBackStack(null)
