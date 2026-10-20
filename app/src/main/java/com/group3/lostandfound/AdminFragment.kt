@@ -186,11 +186,47 @@ class AdminFragment : Fragment() {
         setupBottomNav(view, "admin")
     }
 
+    private lateinit var dateSubtitle: TextView
+    private lateinit var awaitingReviewText: TextView
+    private lateinit var todayBadge: TextView
+
+    private lateinit var activityItemApproved: View
+    private lateinit var activityApprovedText: TextView
+    private lateinit var activityApprovedTime: TextView
+
+    private lateinit var activityItemVerification: View
+    private lateinit var activityVerificationText: TextView
+    private lateinit var activityVerificationTime: TextView
+
+    private lateinit var activityItemEscalated: View
+    private lateinit var activityEscalatedText: TextView
+    private lateinit var activityEscalatedTime: TextView
+
     private fun initStatViews(view: View) {
         totalReportsNumber = view.findViewById(R.id.totalReportsNumber)
         activeCasesNumber = view.findViewById(R.id.activeCasesNumber)
         resolvedCasesNumber = view.findViewById(R.id.resolvedCasesNumber)
         totalUsersNumber = view.findViewById(R.id.totalUsersNumber)
+
+        dateSubtitle = view.findViewById(R.id.dateSubtitle)
+        awaitingReviewText = view.findViewById(R.id.awaitingReviewText)
+        todayBadge = view.findViewById(R.id.todayBadge)
+
+        activityItemApproved = view.findViewById(R.id.activityItemApproved)
+        activityApprovedText = view.findViewById(R.id.activityApprovedText)
+        activityApprovedTime = view.findViewById(R.id.activityApprovedTime)
+
+        activityItemVerification = view.findViewById(R.id.activityItemVerification)
+        activityVerificationText = view.findViewById(R.id.activityVerificationText)
+        activityVerificationTime = view.findViewById(R.id.activityVerificationTime)
+
+        activityItemEscalated = view.findViewById(R.id.activityItemEscalated)
+        activityEscalatedText = view.findViewById(R.id.activityEscalatedText)
+        activityEscalatedTime = view.findViewById(R.id.activityEscalatedTime)
+
+        // Set real dynamic today date
+        val sdf = java.text.SimpleDateFormat("EEEE, dd MMMM", java.util.Locale.US)
+        dateSubtitle.text = sdf.format(java.util.Date()).uppercase()
     }
 
     private fun observeLiveFirebaseStats() {
@@ -201,7 +237,69 @@ class AdminFragment : Fragment() {
                 activeCasesNumber.text = String.format("%,d", activeCount)
                 resolvedCasesNumber.text = String.format("%,d", summary.resolvedReports)
                 totalUsersNumber.text = String.format("%,d", summary.userCount)
+
+                // Real moderation queue banner metrics
+                awaitingReviewText.text = "${summary.pendingReviewCount} awaiting review"
+                todayBadge.text = "+${summary.todayReportsCount} today"
+
+                // Real Recent Activities from Firebase /admin_logs
+                bindRecentActivityLogs(summary.recentLogs)
             }
+        }
+    }
+
+    private fun bindRecentActivityLogs(logs: List<AdminAction>) {
+        if (logs.isNotEmpty()) {
+            val log1 = logs[0]
+            activityItemApproved.visibility = View.VISIBLE
+            activityApprovedText.text = "${formatActionName(log1.actionType)} · ${log1.targetId}"
+            activityApprovedTime.text = formatRelativeTime(log1.timestamp)
+        } else {
+            activityApprovedText.text = "System initialized · Database active"
+            activityApprovedTime.text = "now"
+        }
+
+        if (logs.size > 1) {
+            val log2 = logs[1]
+            activityItemVerification.visibility = View.VISIBLE
+            activityVerificationText.text = "${formatActionName(log2.actionType)} · ${log2.targetId}"
+            activityVerificationTime.text = formatRelativeTime(log2.timestamp)
+        } else {
+            activityItemVerification.visibility = View.GONE
+        }
+
+        if (logs.size > 2) {
+            val log3 = logs[2]
+            activityItemEscalated.visibility = View.VISIBLE
+            activityEscalatedText.text = "${formatActionName(log3.actionType)} · ${log3.targetId}"
+            activityEscalatedTime.text = formatRelativeTime(log3.timestamp)
+        } else {
+            activityItemEscalated.visibility = View.GONE
+        }
+    }
+
+    private fun formatActionName(actionType: String): String {
+        return when (actionType) {
+            "APPROVE_ITEM" -> "Report approved"
+            "REMOVE_ITEM" -> "Report removed"
+            "FLAG_ITEM" -> "Item flagged"
+            "UNFLAG_ITEM" -> "Item unflagged"
+            "BAN_USER" -> "User account banned"
+            "UNBAN_USER" -> "User account unbanned"
+            else -> actionType.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }
+        }
+    }
+
+    private fun formatRelativeTime(timestamp: Long): String {
+        val diffMs = System.currentTimeMillis() - timestamp
+        val mins = diffMs / 60000
+        val hours = mins / 60
+        val days = hours / 24
+        return when {
+            mins < 1 -> "now"
+            mins < 60 -> "${mins}m"
+            hours < 24 -> "${hours}h"
+            else -> "${days}d"
         }
     }
 

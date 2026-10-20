@@ -111,26 +111,23 @@ class ModerationFragment : Fragment() {
     /**
      * Realtime Database observation for moderation queue
      */
-    private var hasPassport = false
-    private var hasIPhone = false
-    private var hasBracelet = false
+    private val allModerationReports = mutableListOf<ReportItem>()
 
     private fun observeFirebaseModerationQueue() {
         FirebaseManager.itemsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                allModerationReports.clear()
                 var pendingCount = 0
                 for (child in snapshot.children) {
-                    val status = child.child("status").getValue(String::class.java) ?: "PENDING"
-                    if (status.equals("PENDING", ignoreCase = true)) {
-                        pendingCount++
+                    val report = child.getValue(ReportItem::class.java)
+                    if (report != null && (report.itemId.isNotEmpty() || report.title.isNotEmpty())) {
+                        allModerationReports.add(report)
+                        if (report.status.equals("PENDING", ignoreCase = true)) {
+                            pendingCount++
+                        }
                     }
                 }
                 textReportsCountSummary.text = "$pendingCount reports awaiting review"
-
-                hasPassport = snapshot.hasChild("item_1")
-                hasIPhone = snapshot.hasChild("item_2")
-                hasBracelet = snapshot.hasChild("item_3")
-
                 updateModerationCardsVisibility()
             }
 
@@ -143,22 +140,66 @@ class ModerationFragment : Fragment() {
     }
 
     private fun updateModerationCardsVisibility() {
-        when (activeTabName) {
-            "PENDING" -> {
-                cardReportPassport.visibility = if (hasPassport) View.VISIBLE else View.GONE
-                cardReportIPhone.visibility = if (hasIPhone) View.VISIBLE else View.GONE
-                cardReportBracelet.visibility = if (hasBracelet) View.VISIBLE else View.GONE
+        val filtered = when (activeTabName) {
+            "PENDING" -> allModerationReports.filter {
+                it.status.equals("PENDING", ignoreCase = true) || it.status.equals("LOST", ignoreCase = true) || it.status.equals("FOUND", ignoreCase = true)
             }
-            "FLAGGED" -> {
-                cardReportPassport.visibility = if (hasPassport) View.VISIBLE else View.GONE
-                cardReportIPhone.visibility = if (hasIPhone) View.VISIBLE else View.GONE
-                cardReportBracelet.visibility = View.GONE
+            "FLAGGED" -> allModerationReports.filter { it.isFlagged }
+            "APPROVED" -> allModerationReports.filter {
+                it.status.equals("APPROVED", ignoreCase = true) || it.status.equals("RESOLVED", ignoreCase = true)
             }
-            "APPROVED" -> {
-                cardReportPassport.visibility = View.GONE
-                cardReportIPhone.visibility = View.GONE
-                cardReportBracelet.visibility = if (hasBracelet) View.VISIBLE else View.GONE
-            }
+            else -> allModerationReports
+        }
+
+        // Card 1
+        if (filtered.isNotEmpty()) {
+            val item1 = filtered[0]
+            cardReportPassport.visibility = View.VISIBLE
+            cardReportPassport.findViewById<TextView>(R.id.textPassportTitle)?.text = item1.title
+            cardReportPassport.findViewById<TextView>(R.id.textPassportAuthorLocation)?.text =
+                "${item1.authorName.ifEmpty { "Community Member" }} · ${item1.location.ifEmpty { "Colombo" }}"
+            cardReportPassport.findViewById<TextView>(R.id.textPassportWarningNote)?.text =
+                if (item1.isFlagged) item1.flagReason.ifEmpty { "Flagged for administrative review" } else "Community report awaiting moderation"
+
+            buttonPassportApprove.setOnClickListener { approveReport(item1.itemId, item1.title) }
+            buttonPassportReject.setOnClickListener { confirmRemoveReport(item1.itemId, item1.title) }
+            buttonPassportEscalate.setOnClickListener { showEscalationDialog(item1.itemId, item1.userId, item1.title) }
+        } else {
+            cardReportPassport.visibility = View.GONE
+        }
+
+        // Card 2
+        if (filtered.size > 1) {
+            val item2 = filtered[1]
+            cardReportIPhone.visibility = View.VISIBLE
+            cardReportIPhone.findViewById<TextView>(R.id.textIPhoneTitle)?.text = item2.title
+            cardReportIPhone.findViewById<TextView>(R.id.textIPhoneAuthorLocation)?.text =
+                "${item2.authorName.ifEmpty { "Community Member" }} · ${item2.location.ifEmpty { "Colombo" }}"
+            cardReportIPhone.findViewById<TextView>(R.id.textIPhoneWarningNote)?.text =
+                if (item2.isFlagged) item2.flagReason.ifEmpty { "Flagged for administrative review" } else "Community report awaiting moderation"
+
+            buttonIPhoneApprove.setOnClickListener { approveReport(item2.itemId, item2.title) }
+            buttonIPhoneReject.setOnClickListener { confirmRemoveReport(item2.itemId, item2.title) }
+            buttonIPhoneEscalate.setOnClickListener { showEscalationDialog(item2.itemId, item2.userId, item2.title) }
+        } else {
+            cardReportIPhone.visibility = View.GONE
+        }
+
+        // Card 3
+        if (filtered.size > 2) {
+            val item3 = filtered[2]
+            cardReportBracelet.visibility = View.VISIBLE
+            cardReportBracelet.findViewById<TextView>(R.id.textBraceletTitle)?.text = item3.title
+            cardReportBracelet.findViewById<TextView>(R.id.textBraceletAuthorLocation)?.text =
+                "${item3.authorName.ifEmpty { "Community Member" }} · ${item3.location.ifEmpty { "Colombo" }}"
+            cardReportBracelet.findViewById<TextView>(R.id.textBraceletWarningNote)?.text =
+                if (item3.isFlagged) item3.flagReason.ifEmpty { "Flagged for administrative review" } else "Community report awaiting moderation"
+
+            buttonBraceletApprove.setOnClickListener { approveReport(item3.itemId, item3.title) }
+            buttonBraceletReject.setOnClickListener { confirmRemoveReport(item3.itemId, item3.title) }
+            buttonBraceletEscalate.setOnClickListener { showEscalationDialog(item3.itemId, item3.userId, item3.title) }
+        } else {
+            cardReportBracelet.visibility = View.GONE
         }
     }
 
@@ -168,7 +209,7 @@ class ModerationFragment : Fragment() {
         }
 
         buttonSearch.setOnClickListener {
-            Toast.makeText(requireContext(), "Filtering moderation queue...", Toast.LENGTH_SHORT).show()
+            com.group3.lostandfound.util.ModernToast.show(requireContext(), "Filtering moderation queue...", view)
         }
 
         // Tabs
@@ -192,44 +233,11 @@ class ModerationFragment : Fragment() {
         buttonSelectAll.setOnClickListener {
             allSelected = !allSelected
             buttonSelectAll.text = if (allSelected) "Deselect all" else "Select all"
-            Toast.makeText(requireContext(), if (allSelected) "All reports selected" else "Selection cleared", Toast.LENGTH_SHORT).show()
+            com.group3.lostandfound.util.ModernToast.show(requireContext(), if (allSelected) "All reports selected" else "Selection cleared", view)
         }
 
         buttonApproveSelected.setOnClickListener {
             approveBatchReports()
-        }
-
-        // ================= PASSPORT CARD ACTIONS (item_1, user_perera) =================
-        buttonPassportApprove.setOnClickListener {
-            approveReport("item_1", "Sri Lankan passport")
-        }
-        buttonPassportReject.setOnClickListener {
-            confirmRemoveReport("item_1", "Sri Lankan passport")
-        }
-        buttonPassportEscalate.setOnClickListener {
-            showEscalationDialog("item_1", "user_perera", "Sri Lankan passport")
-        }
-
-        // ================= IPHONE CARD ACTIONS (item_2, user_tharushi) =================
-        buttonIPhoneApprove.setOnClickListener {
-            approveReport("item_2", "iPhone 14 Pro")
-        }
-        buttonIPhoneReject.setOnClickListener {
-            confirmRemoveReport("item_2", "iPhone 14 Pro")
-        }
-        buttonIPhoneEscalate.setOnClickListener {
-            showEscalationDialog("item_2", "user_tharushi", "iPhone 14 Pro")
-        }
-
-        // ================= BRACELET CARD ACTIONS (item_3, user_kavindu) =================
-        buttonBraceletApprove.setOnClickListener {
-            approveReport("item_3", "Gold bracelet")
-        }
-        buttonBraceletReject.setOnClickListener {
-            confirmRemoveReport("item_3", "Gold bracelet")
-        }
-        buttonBraceletEscalate.setOnClickListener {
-            showEscalationDialog("item_3", "user_kavindu", "Gold bracelet")
         }
     }
 
@@ -335,10 +343,12 @@ class ModerationFragment : Fragment() {
      * Approve batch reports
      */
     private fun approveBatchReports() {
-        listOf("item_1", "item_2", "item_3").forEach { id ->
-            FirebaseManager.approveItem(id, {}, {})
+        allModerationReports.forEach { report ->
+            if (report.itemId.isNotEmpty()) {
+                FirebaseManager.approveItem(report.itemId, {}, {})
+            }
         }
-        com.group3.lostandfound.util.ModernToast.show(requireContext(), "All selected reports approved", view)
+        com.group3.lostandfound.util.ModernToast.show(requireContext(), "All active reports approved", view)
     }
 
     /**

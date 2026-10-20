@@ -184,6 +184,7 @@
                         android:backgroundTint="#A48374" />
 
                     <TextView
+                        android:id="@+id/tvCategoryElectronics"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -208,6 +209,7 @@
                         android:backgroundTint="#D1C7BD" />
 
                     <TextView
+                        android:id="@+id/tvCategoryDocuments"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -232,6 +234,7 @@
                         android:backgroundTint="#CBAD8D" />
 
                     <TextView
+                        android:id="@+id/tvCategoryPets"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -256,6 +259,7 @@
                         android:backgroundTint="#3A2D28" />
 
                     <TextView
+                        android:id="@+id/tvCategoryOther"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -305,6 +309,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
+                    android:id="@+id/tvPercentColombo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-bold"
@@ -363,6 +368,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
+                    android:id="@+id/tvPercentKandy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-bold"
@@ -420,6 +426,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
+                    android:id="@+id/tvPercentGalle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-bold"

@@ -43,6 +43,17 @@ class AnalyticsFragment : Fragment() {
     private lateinit var textTimeToResolveValue: TextView
     private lateinit var textMonthlyGrowthValue: TextView
 
+    // Category Legend TextViews
+    private lateinit var tvCategoryElectronics: TextView
+    private lateinit var tvCategoryDocuments: TextView
+    private lateinit var tvCategoryPets: TextView
+    private lateinit var tvCategoryOther: TextView
+
+    // City Resolution TextViews
+    private lateinit var tvPercentColombo: TextView
+    private lateinit var tvPercentKandy: TextView
+    private lateinit var tvPercentGalle: TextView
+
     // Leaflet Heat Map WebView
     private lateinit var webHeatMap: WebView
 
@@ -82,6 +93,15 @@ class AnalyticsFragment : Fragment() {
         textTimeToResolveValue = view.findViewById(R.id.textTimeToResolveValue)
         textMonthlyGrowthValue = view.findViewById(R.id.textMonthlyGrowthValue)
 
+        tvCategoryElectronics = view.findViewById(R.id.tvCategoryElectronics)
+        tvCategoryDocuments = view.findViewById(R.id.tvCategoryDocuments)
+        tvCategoryPets = view.findViewById(R.id.tvCategoryPets)
+        tvCategoryOther = view.findViewById(R.id.tvCategoryOther)
+
+        tvPercentColombo = view.findViewById(R.id.tvPercentColombo)
+        tvPercentKandy = view.findViewById(R.id.tvPercentKandy)
+        tvPercentGalle = view.findViewById(R.id.tvPercentGalle)
+
         webHeatMap = view.findViewById(R.id.webHeatMap)
     }
 
@@ -103,7 +123,63 @@ class AnalyticsFragment : Fragment() {
                 textTimeToResolveValue.text = "${resolutionPercent}%"
                 textMedianResponseValue.text = "${summary.totalReports} Items"
                 textMonthlyGrowthValue.text = "${summary.userCount} Users"
+
+                // Dynamic Category Distribution
+                val total = summary.totalReports
+                if (total > 0) {
+                    val elec = summary.categoryDistribution["Electronics"] ?: 0
+                    val doc = summary.categoryDistribution["Documents"] ?: 0
+                    val pets = summary.categoryDistribution["Pets"] ?: 0
+
+                    val elecPct = (elec * 100) / total
+                    val docPct = (doc * 100) / total
+                    val petsPct = (pets * 100) / total
+                    val otherPct = (100 - elecPct - docPct - petsPct).coerceAtLeast(0)
+
+                    tvCategoryElectronics.text = "Electronics $elecPct%"
+                    tvCategoryDocuments.text = "Documents $docPct%"
+                    tvCategoryPets.text = "Pets $petsPct%"
+                    tvCategoryOther.text = "Other $otherPct%"
+                } else {
+                    tvCategoryElectronics.text = "Electronics 0%"
+                    tvCategoryDocuments.text = "Documents 0%"
+                    tvCategoryPets.text = "Pets 0%"
+                    tvCategoryOther.text = "Other 0%"
+                }
+
+                // Dynamic City Resolution Rates
+                val colTotal = summary.colomboStats.first
+                val colRes = summary.colomboStats.second
+                tvPercentColombo.text = if (colTotal > 0) "${(colRes * 100) / colTotal}%" else "100%"
+
+                val kanTotal = summary.kandyStats.first
+                val kanRes = summary.kandyStats.second
+                tvPercentKandy.text = if (kanTotal > 0) "${(kanRes * 100) / kanTotal}%" else "100%"
+
+                val galTotal = summary.galleStats.first
+                val galRes = summary.galleStats.second
+                tvPercentGalle.text = if (galTotal > 0) "${(galRes * 100) / galTotal}%" else "100%"
+
+                // Push real points to Leaflet Heat Map
+                loadRealPointsToMap(summary.heatMapPoints)
             }
+        }
+    }
+
+    private fun loadRealPointsToMap(points: List<MapMarkerItem>) {
+        if (!::webHeatMap.isInitialized) return
+        val jsPoints = points.joinToString(",") { point ->
+            val safeTitle = point.title.replace("'", "\\'").ifEmpty { "Reported Item" }
+            val color = if (point.status.equals("LOST", true)) "#C25946" else "#4A7C59"
+            """{ lat: ${point.latitude}, lng: ${point.longitude}, title: '$safeTitle (${point.status})', color: '$color' }"""
+        }
+        val script = """
+            if (typeof updateMapPoints === 'function') {
+                updateMapPoints([$jsPoints]);
+            }
+        """.trimIndent()
+        webHeatMap.post {
+            webHeatMap.evaluateJavascript(script, null)
         }
     }
 
@@ -129,20 +205,36 @@ class AnalyticsFragment : Fragment() {
                     var map = L.map('map', { zoomControl: false, attributionControl: false }).setView([7.8731, 80.7718], 7);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-                    var spots = [
-                        { lat: 6.9271, lng: 79.8612, city: 'Colombo: 84% resolved', color: '#3A2D28', r: 24000 },
-                        { lat: 7.2906, lng: 80.6337, city: 'Kandy: 76% resolved', color: '#A48374', r: 18000 },
-                        { lat: 6.0535, lng: 80.2210, city: 'Galle: 68% resolved', color: '#CBAD8D', r: 15000 }
-                    ];
+                    var dynamicLayerGroup = L.layerGroup().addTo(map);
 
-                    spots.forEach(function(s) {
-                        L.circle([s.lat, s.lng], {
-                            color: s.color,
-                            fillColor: s.color,
-                            fillOpacity: 0.5,
-                            radius: s.r
-                        }).addTo(map).bindPopup(s.city);
-                    });
+                    function updateMapPoints(items) {
+                        dynamicLayerGroup.clearLayers();
+                        if (items && items.length > 0) {
+                            items.forEach(function(item) {
+                                L.circle([item.lat, item.lng], {
+                                    color: item.color,
+                                    fillColor: item.color,
+                                    fillOpacity: 0.6,
+                                    radius: 12000
+                                }).addTo(dynamicLayerGroup).bindPopup(item.title);
+                            });
+                        } else {
+                            var defaults = [
+                                { lat: 6.9271, lng: 79.8612, city: 'Colombo Region', color: '#3A2D28', r: 18000 },
+                                { lat: 7.2906, lng: 80.6337, city: 'Kandy Region', color: '#A48374', r: 14000 },
+                                { lat: 6.0535, lng: 80.2210, city: 'Galle Region', color: '#CBAD8D', r: 12000 }
+                            ];
+                            defaults.forEach(function(s) {
+                                L.circle([s.lat, s.lng], {
+                                    color: s.color,
+                                    fillColor: s.color,
+                                    fillOpacity: 0.5,
+                                    radius: s.r
+                                }).addTo(dynamicLayerGroup).bindPopup(s.city);
+                            });
+                        }
+                    }
+                    updateMapPoints([]);
                 </script>
             </body>
             </html>
@@ -156,42 +248,68 @@ class AnalyticsFragment : Fragment() {
         }
 
         buttonDownloadReport.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "Analytics summary: ${currentSummary.totalReports} total, ${currentSummary.resolvedReports} resolved, ${currentSummary.userCount} users",
-                Toast.LENGTH_LONG
-            ).show()
+            exportAnalyticsReport()
         }
 
         buttonTimeframeSelector.setOnClickListener {
-            val options = arrayOf("Last 7 days", "Last 30 days", "Last 90 days", "This Year")
+            val options = arrayOf("Last 7 days", "Last 30 days", "Last 90 days", "All Time")
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Select Timeframe")
                 .setItems(options) { _, which ->
                     textSelectedTimeframe.text = options[which]
+                    com.group3.lostandfound.util.ModernToast.show(requireContext(), "Filtering for ${options[which]}", view)
                 }
                 .show()
         }
 
         buttonExport.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "Exported CSV: Total ${currentSummary.totalReports} reports | ${currentSummary.resolvedReports} resolved",
-                Toast.LENGTH_SHORT
-            ).show()
+            exportAnalyticsReport()
         }
 
         cardMedianResponse.setOnClickListener {
-            Toast.makeText(requireContext(), "Total Reports in Realtime DB: ${currentSummary.totalReports}", Toast.LENGTH_SHORT).show()
+            com.group3.lostandfound.util.ModernToast.show(requireContext(), "Total Reports in Database: ${currentSummary.totalReports}", view)
         }
 
         cardTimeToResolve.setOnClickListener {
-            Toast.makeText(requireContext(), "Resolved Cases in Realtime DB: ${currentSummary.resolvedReports}", Toast.LENGTH_SHORT).show()
+            com.group3.lostandfound.util.ModernToast.show(requireContext(), "Resolved Cases in Database: ${currentSummary.resolvedReports}", view)
         }
 
         cardMonthlyGrowth.setOnClickListener {
-            Toast.makeText(requireContext(), "Registered Users in Realtime DB: ${currentSummary.userCount}", Toast.LENGTH_SHORT).show()
+            com.group3.lostandfound.util.ModernToast.show(requireContext(), "Registered Users in Database: ${currentSummary.userCount}", view)
         }
+    }
+
+    private fun exportAnalyticsReport() {
+        val resolutionPercent = if (currentSummary.totalReports > 0) {
+            (currentSummary.resolvedReports * 100) / currentSummary.totalReports
+        } else {
+            0
+        }
+
+        val exportText = buildString {
+            appendLine("=== FOUNDLY ANALYTICS SUMMARY REPORT ===")
+            appendLine("Generated: ${java.util.Date()}")
+            appendLine("Timeframe: ${textSelectedTimeframe.text}")
+            appendLine("----------------------------------------")
+            appendLine("Total Community Reports: ${currentSummary.totalReports}")
+            appendLine("Resolved Cases: ${currentSummary.resolvedReports} ($resolutionPercent% Resolution Rate)")
+            appendLine("Active Searches: ${currentSummary.totalReports - currentSummary.resolvedReports}")
+            appendLine("Flagged Moderation Items: ${currentSummary.flaggedItemsCount}")
+            appendLine("Registered Community Users: ${currentSummary.userCount}")
+            appendLine("----------------------------------------")
+            appendLine("Reports by Category:")
+            currentSummary.categoryDistribution.forEach { (cat, count) ->
+                appendLine("- $cat: $count")
+            }
+            appendLine("========================================")
+        }
+
+        val sendIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(android.content.Intent.EXTRA_SUBJECT, "Foundly Analytics Report")
+            putExtra(android.content.Intent.EXTRA_TEXT, exportText)
+        }
+        startActivity(android.content.Intent.createChooser(sendIntent, "Share Analytics Summary via"))
     }
 
     companion object {

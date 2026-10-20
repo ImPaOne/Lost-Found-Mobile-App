@@ -28,7 +28,15 @@ data class AnalyticsSummary(
     val totalReports: Int = 0,
     val resolvedReports: Int = 0,
     val userCount: Int = 0,
-    val flaggedItemsCount: Int = 0
+    val flaggedItemsCount: Int = 0,
+    val pendingReviewCount: Int = 0,
+    val todayReportsCount: Int = 0,
+    val categoryDistribution: Map<String, Int> = emptyMap(),
+    val colomboStats: Pair<Int, Int> = Pair(0, 0), // (total, resolved)
+    val kandyStats: Pair<Int, Int> = Pair(0, 0),
+    val galleStats: Pair<Int, Int> = Pair(0, 0),
+    val heatMapPoints: List<MapMarkerItem> = emptyList(),
+    val recentLogs: List<AdminAction> = emptyList()
 )
 
 data class AdminAction(
