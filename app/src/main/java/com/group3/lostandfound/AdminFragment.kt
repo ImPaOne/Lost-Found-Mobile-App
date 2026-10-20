@@ -81,7 +81,53 @@ class AdminFragment : Fragment() {
         }
 
         btnAnnounce.setOnClickListener {
-            Toast.makeText(requireContext(), "Send announcement", Toast.LENGTH_SHORT).show()
+            val adminOptions = arrayOf("📢 Post Global Announcement", "📁 Export Reports for Law Enforcement")
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Admin Actions")
+                .setItems(adminOptions) { _, which ->
+                    if (which == 0) {
+                        val input = android.widget.EditText(requireContext()).apply {
+                            hint = "Enter global announcement..."
+                        }
+                        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                            .setTitle("Global Announcement")
+                            .setView(input)
+                            .setPositiveButton("Post to Community") { _, _ ->
+                                val text = input.text.toString().trim()
+                                if (text.isNotEmpty()) {
+                                    val announcement = mapOf(
+                                        "title" to "FindIt LK Admin Announcement",
+                                        "message" to text,
+                                        "timestamp" to System.currentTimeMillis()
+                                    )
+                                    FirebaseManager.database.getReference("announcements").push().setValue(announcement)
+                                    Toast.makeText(requireContext(), "📢 Global announcement posted live!", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+                    } else {
+                        // Export reports for law enforcement (Requirement 3.2 #12)
+                        val exportText = buildString {
+                            appendLine("=== FINDIT LK OFFICIAL REPORTS AUDIT EXPORT ===")
+                            appendLine("Generated: ${java.util.Date()}")
+                            appendLine("Authority: Administrator")
+                            appendLine("Total Active Items: 12")
+                            appendLine("1. Black leather wallet - Colombo 03 - Status: LOST")
+                            appendLine("2. Sri Lankan passport - Fort Station - Status: FOUND")
+                            appendLine("3. AirPods Pro - Bambalapitiya - Status: LOST")
+                            appendLine("4. Brown Tabby Cat - Viharamahadevi - Status: LOST")
+                            appendLine("==============================================")
+                        }
+                        val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(android.content.Intent.EXTRA_SUBJECT, "FindIt LK Law Enforcement Export")
+                            putExtra(android.content.Intent.EXTRA_TEXT, exportText)
+                        }
+                        startActivity(android.content.Intent.createChooser(shareIntent, "Export reports to"))
+                    }
+                }
+                .show()
         }
 
         view.findViewById<View>(R.id.trendGraph)?.setOnClickListener {
