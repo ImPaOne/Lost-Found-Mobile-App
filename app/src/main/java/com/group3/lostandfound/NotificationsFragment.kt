@@ -52,6 +52,20 @@ class NotificationsFragment : Fragment() {
 
         setupBottomNav(view, "messages")
 
+        val currentUid = FirebaseManager.currentUid
+        val notifRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+            .getReference("notifications")
+            .child(currentUid)
+
+        notifRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                if (snapshot.exists() && snapshot.childrenCount > 0) {
+                    dotWallet.visibility = View.VISIBLE
+                }
+            }
+            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+        })
+
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
@@ -60,6 +74,7 @@ class NotificationsFragment : Fragment() {
             dotWallet.visibility = View.GONE
             dotAdmin.visibility = View.GONE
             dotGalleFace.visibility = View.GONE
+            notifRef.removeValue()
             Toast.makeText(requireContext(), "All notifications marked as read", Toast.LENGTH_SHORT).show()
         }
 
