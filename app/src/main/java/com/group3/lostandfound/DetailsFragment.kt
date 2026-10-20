@@ -228,7 +228,7 @@ class DetailsFragment : Fragment() {
                 putExtra(android.content.Intent.EXTRA_SUBJECT, "$status: $title - FindIt LK")
                 putExtra(
                     android.content.Intent.EXTRA_TEXT,
-                    "📢 Lost & Found Report ($status)\n\n📌 Item: $title\n📍 Location: $loc\n\n📝 Details: $desc\n\nShared via FindIt LK Lost & Found App - Reconnecting Communities"
+                    "Lost and Found Report ($status)\n\nItem: $title\nLocation: $loc\n\nDetails: $desc\n\nShared via Foundly - Reconnecting Communities"
                 )
             }
             startActivity(android.content.Intent.createChooser(shareIntent, "Share item report via"))
@@ -237,7 +237,7 @@ class DetailsFragment : Fragment() {
         // Secure Messaging & Reward Attachment (Requirements 3.1 #8 & System Features)
         btnContact.setOnClickListener {
             val itemTitle = tvItemTitle.text.toString()
-            val contactOptions = arrayOf("💬 Open Live Real-Time Chat", "📝 Send Quick Note", "🎁 Offer Reward for Return", "📞 Call Contact")
+            val contactOptions = arrayOf("Open Live Chat", "Send Message Note", "Offer Return Reward", "Call Reporter Phone")
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Contact Reporter: $itemTitle")
                 .setItems(contactOptions) { _, which ->
@@ -248,7 +248,7 @@ class DetailsFragment : Fragment() {
                                 .replace(
                                     R.id.screenBox,
                                     ChatFragment.newInstance(
-                                        recipientUserId = "user_perera",
+                                        recipientUserId = "default_user_101",
                                         recipientName = "Item Reporter",
                                         itemId = itemId ?: "",
                                         itemTitle = itemTitle
@@ -278,7 +278,7 @@ class DetailsFragment : Fragment() {
                                             .child(FirebaseManager.currentUid)
                                             .push()
                                             .setValue(notif)
-                                        Toast.makeText(requireContext(), "💬 Message sent securely to reporter!", Toast.LENGTH_SHORT).show()
+                                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "Message sent securely to reporter.", view)
                                     }
                                 }
                                 .setNegativeButton("Cancel", null)
@@ -305,14 +305,14 @@ class DetailsFragment : Fragment() {
                                             .getReference("rewards")
                                             .child(itemId ?: "item_reward")
                                             .setValue(rewardData)
-                                        Toast.makeText(requireContext(), "🎉 Reward of LKR $amount attached to report!", Toast.LENGTH_LONG).show()
+                                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "Reward of LKR $amount attached to report.", view)
                                     }
                                 }
                                 .setNegativeButton("Cancel", null)
                                 .show()
                         }
                         3 -> {
-                            Toast.makeText(requireContext(), "📞 Connecting to reporter phone...", Toast.LENGTH_SHORT).show()
+                            com.group3.lostandfound.util.ModernToast.show(requireContext(), "Connecting to reporter phone line.", view)
                         }
                     }
                 }
