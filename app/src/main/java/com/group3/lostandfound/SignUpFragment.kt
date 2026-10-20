@@ -53,8 +53,7 @@ class SignUpFragment : Fragment() {
         view.animate().alpha(1f).setDuration(400).start()
 
         initViews(view)
-        setupListeners()
-        setupBottomNav(view)
+        setupListeners(view)
     }
 
     private fun initViews(view: View) {
@@ -72,7 +71,11 @@ class SignUpFragment : Fragment() {
         rowLogin = view.findViewById(R.id.rowLogin)
     }
 
-    private fun setupListeners() {
+    private fun setupListeners(rootView: View) {
+        val textTerms = rootView.findViewById<TextView>(R.id.textTerms)
+        textTerms?.setOnClickListener {
+            checkTerms.isChecked = !checkTerms.isChecked
+        }
         btnTogglePassword.setOnClickListener {
             isPasswordVisible = !isPasswordVisible
             val cursorPosition = inputPassword.selectionStart
@@ -124,6 +127,11 @@ class SignUpFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            if (!checkTerms.isChecked) {
+                Toast.makeText(requireContext(), "Please agree to the Terms of Service to create an account", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             // Register with FirebaseAuth
             val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
             auth.createUserWithEmailAndPassword(email, password)
@@ -144,6 +152,12 @@ class SignUpFragment : Fragment() {
                     // Store initial user document at /users/{uid} via setValue()
                     FirebaseManager.usersRef.child(uid).setValue(userDoc)
 
+                    requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("is_logged_in", true)
+                        .putBoolean("onboarding_completed", true)
+                        .apply()
+
                     com.group3.lostandfound.service.FCMService.triggerPushNotification(
                         requireContext(),
                         "Account Registered",
@@ -153,7 +167,7 @@ class SignUpFragment : Fragment() {
                     com.group3.lostandfound.util.ModernToast.show(
                         requireContext(),
                         "Account created successfully. Welcome to Foundly.",
-                        view
+                        rootView
                     )
 
                     parentFragmentManager.beginTransaction()
@@ -178,6 +192,12 @@ class SignUpFragment : Fragment() {
                     )
                     FirebaseManager.usersRef.child(uid).setValue(userDoc)
 
+                    requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("is_logged_in", true)
+                        .putBoolean("onboarding_completed", true)
+                        .apply()
+
                     com.group3.lostandfound.service.FCMService.triggerPushNotification(
                         requireContext(),
                         "Registration Complete",
@@ -187,7 +207,7 @@ class SignUpFragment : Fragment() {
                     com.group3.lostandfound.util.ModernToast.show(
                         requireContext(),
                         "Profile configured successfully for $name.",
-                        view
+                        rootView
                     )
 
                     parentFragmentManager.beginTransaction()
