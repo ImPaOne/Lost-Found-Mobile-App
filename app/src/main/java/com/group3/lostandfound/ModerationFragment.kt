@@ -111,6 +111,10 @@ class ModerationFragment : Fragment() {
     /**
      * Realtime Database observation for moderation queue
      */
+    private var hasPassport = false
+    private var hasIPhone = false
+    private var hasBracelet = false
+
     private fun observeFirebaseModerationQueue() {
         FirebaseManager.itemsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -123,17 +127,11 @@ class ModerationFragment : Fragment() {
                 }
                 textReportsCountSummary.text = "$pendingCount reports awaiting review"
 
-                // Check visibility of item_1 (Passport)
-                val hasPassport = snapshot.hasChild("item_1")
-                cardReportPassport.visibility = if (hasPassport) View.VISIBLE else View.GONE
+                hasPassport = snapshot.hasChild("item_1")
+                hasIPhone = snapshot.hasChild("item_2")
+                hasBracelet = snapshot.hasChild("item_3")
 
-                // Check visibility of item_2 (iPhone)
-                val hasIPhone = snapshot.hasChild("item_2")
-                cardReportIPhone.visibility = if (hasIPhone) View.VISIBLE else View.GONE
-
-                // Check visibility of item_3 (Bracelet)
-                val hasBracelet = snapshot.hasChild("item_3")
-                cardReportBracelet.visibility = if (hasBracelet) View.VISIBLE else View.GONE
+                updateModerationCardsVisibility()
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -142,6 +140,26 @@ class ModerationFragment : Fragment() {
                 }
             }
         })
+    }
+
+    private fun updateModerationCardsVisibility() {
+        when (activeTabName) {
+            "PENDING" -> {
+                cardReportPassport.visibility = if (hasPassport) View.VISIBLE else View.GONE
+                cardReportIPhone.visibility = if (hasIPhone) View.VISIBLE else View.GONE
+                cardReportBracelet.visibility = if (hasBracelet) View.VISIBLE else View.GONE
+            }
+            "FLAGGED" -> {
+                cardReportPassport.visibility = if (hasPassport) View.VISIBLE else View.GONE
+                cardReportIPhone.visibility = if (hasIPhone) View.VISIBLE else View.GONE
+                cardReportBracelet.visibility = View.GONE
+            }
+            "APPROVED" -> {
+                cardReportPassport.visibility = View.GONE
+                cardReportIPhone.visibility = View.GONE
+                cardReportBracelet.visibility = if (hasBracelet) View.VISIBLE else View.GONE
+            }
+        }
     }
 
     private fun setupClickListeners() {
@@ -157,23 +175,17 @@ class ModerationFragment : Fragment() {
         tabPendingReview.setOnClickListener {
             activeTabName = "PENDING"
             selectTab(tabPendingReview)
-            cardReportPassport.visibility = View.VISIBLE
-            cardReportIPhone.visibility = View.VISIBLE
-            cardReportBracelet.visibility = View.VISIBLE
+            updateModerationCardsVisibility()
         }
         tabFlagged.setOnClickListener {
             activeTabName = "FLAGGED"
             selectTab(tabFlagged)
-            cardReportPassport.visibility = View.VISIBLE
-            cardReportIPhone.visibility = View.VISIBLE
-            cardReportBracelet.visibility = View.GONE
+            updateModerationCardsVisibility()
         }
         tabApproved.setOnClickListener {
             activeTabName = "APPROVED"
             selectTab(tabApproved)
-            cardReportPassport.visibility = View.GONE
-            cardReportIPhone.visibility = View.GONE
-            cardReportBracelet.visibility = View.VISIBLE
+            updateModerationCardsVisibility()
         }
 
         // Bulk Actions
