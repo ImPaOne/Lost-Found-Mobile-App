@@ -13,6 +13,7 @@ data class ItemReport(
     val category: String = "",
     val status: String = "LOST",
     val imageUrl: String = "",
+    val location: String = "",
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
     val timestamp: Long = 0L
@@ -29,6 +30,7 @@ data class ItemReport(
             "category" to category,
             "status" to status,
             "imageUrl" to imageUrl,
+            "location" to if (location.isNotEmpty()) location else "$category, Western Province",
             "latitude" to latitude,
             "longitude" to longitude,
             "timestamp" to timestamp
