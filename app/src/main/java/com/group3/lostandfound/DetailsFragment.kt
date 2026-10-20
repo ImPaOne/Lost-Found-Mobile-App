@@ -311,7 +311,7 @@ class DetailsFragment : Fragment() {
                                 .setNegativeButton("Cancel", null)
                                 .show()
                         }
-                        2 -> {
+                        3 -> {
                             Toast.makeText(requireContext(), "📞 Connecting to reporter phone...", Toast.LENGTH_SHORT).show()
                         }
                     }
