@@ -1,18 +1,19 @@
 package com.group3.lostandfound
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-
-import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentManager
+import com.group3.lostandfound.service.FCMService
 
 /**
  * MainActivity serves as the main activity container hosting the app screen fragments.
- * Built with clean human-written code.
+ * Handles FCM token sync and push notification routing to DetailsFragment.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +27,9 @@ class MainActivity : AppCompatActivity() {
         applyWindowInsets()
         setupDoubleTapBackToHome()
 
+        // Sync FCM device token to /users/{uid}/fcmToken
+        FCMService.syncUserToken(this)
+
         if (savedInstanceState == null) {
             // Start on LoginFragment for immediate access to Admin login and Dashboard
             supportFragmentManager.beginTransaction()
@@ -37,7 +41,6 @@ class MainActivity : AppCompatActivity() {
     private fun applyWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainBox)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // Apply bottom system bar padding so the bottom navigation bar is NEVER hidden on phones with UI navigation bars
             view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
@@ -50,13 +53,10 @@ class MainActivity : AppCompatActivity() {
                 val currentFrag = supportFragmentManager.findFragmentById(R.id.screenBox)
 
                 if (currentTime - lastBackPressTime < 2000L) {
-                    // Double tap back detected!
                     lastBackPressTime = 0L
                     if (currentFrag is HomeFragment) {
-                        // Already on home -> exit app
                         finish()
                     } else {
-                        // Jump directly to Homepage from any screen
                         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                         supportFragmentManager.beginTransaction()
                             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
@@ -71,7 +71,6 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         if (supportFragmentManager.backStackEntryCount > 0) {
                             supportFragmentManager.popBackStack()
-                            Toast.makeText(this@MainActivity, "Double tap back to go to Homepage", Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(this@MainActivity, "Double tap back to go to Homepage", Toast.LENGTH_SHORT).show()
                         }
