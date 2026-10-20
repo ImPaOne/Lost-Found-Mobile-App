@@ -237,12 +237,27 @@ class DetailsFragment : Fragment() {
         // Secure Messaging & Reward Attachment (Requirements 3.1 #8 & System Features)
         btnContact.setOnClickListener {
             val itemTitle = tvItemTitle.text.toString()
-            val contactOptions = arrayOf("💬 Send Direct Message", "🎁 Offer Reward for Return", "📞 Call Contact")
+            val contactOptions = arrayOf("💬 Open Live Real-Time Chat", "📝 Send Quick Note", "🎁 Offer Reward for Return", "📞 Call Contact")
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Contact Reporter: $itemTitle")
                 .setItems(contactOptions) { _, which ->
                     when (which) {
                         0 -> {
+                            // Direct Real-Time Chat screen
+                            parentFragmentManager.beginTransaction()
+                                .replace(
+                                    R.id.screenBox,
+                                    ChatFragment.newInstance(
+                                        recipientUserId = "user_perera",
+                                        recipientName = "Item Reporter",
+                                        itemId = itemId ?: "",
+                                        itemTitle = itemTitle
+                                    )
+                                )
+                                .addToBackStack(null)
+                                .commit()
+                        }
+                        1 -> {
                             val msgInput = android.widget.EditText(requireContext()).apply {
                                 hint = "Type message to reporter..."
                             }
@@ -269,7 +284,7 @@ class DetailsFragment : Fragment() {
                                 .setNegativeButton("Cancel", null)
                                 .show()
                         }
-                        1 -> {
+                        2 -> {
                             val rewardInput = android.widget.EditText(requireContext()).apply {
                                 hint = "Enter reward amount in LKR (e.g. 5000)"
                                 inputType = android.text.InputType.TYPE_CLASS_NUMBER
