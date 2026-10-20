@@ -81,7 +81,7 @@ class AdminFragment : Fragment() {
         }
 
         btnAnnounce.setOnClickListener {
-            val adminOptions = arrayOf("📢 Post Global Announcement", "📁 Export Reports for Law Enforcement")
+            val adminOptions = arrayOf("Post Global Announcement", "Export Reports for Law Enforcement")
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Admin Actions")
                 .setItems(adminOptions) { _, which ->
@@ -96,12 +96,12 @@ class AdminFragment : Fragment() {
                                 val text = input.text.toString().trim()
                                 if (text.isNotEmpty()) {
                                     val announcement = mapOf(
-                                        "title" to "FindIt LK Admin Announcement",
+                                        "title" to "Foundly Official Announcement",
                                         "message" to text,
                                         "timestamp" to System.currentTimeMillis()
                                     )
                                     FirebaseManager.database.getReference("announcements").push().setValue(announcement)
-                                    Toast.makeText(requireContext(), "📢 Global announcement posted live!", Toast.LENGTH_SHORT).show()
+                                    com.group3.lostandfound.util.ModernToast.show(requireContext(), "Global announcement published.", view)
                                 }
                             }
                             .setNegativeButton("Cancel", null)
