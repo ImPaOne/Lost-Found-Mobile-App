@@ -108,7 +108,8 @@ class ReportsFragment : Fragment() {
      */
     private fun loadMyReportsFromFirebase() {
         val currentUid = FirebaseManager.currentUid
-        val query = FirebaseDatabase.getInstance().getReference("items")
+        val query = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+            .getReference("items")
             .orderByChild("userId")
             .equalTo(currentUid)
 
@@ -249,7 +250,7 @@ class ReportsFragment : Fragment() {
                     0 -> openItemDetails(item)
                     1 -> {
                         // Mark status as "RESOLVED" in Firebase Realtime DB
-                        FirebaseDatabase.getInstance().getReference("items")
+                        FirebaseManager.itemsRef
                             .child(item.itemId)
                             .child("status")
                             .setValue("RESOLVED")
@@ -266,7 +267,7 @@ class ReportsFragment : Fragment() {
                             .setTitle("Delete Listing")
                             .setMessage("Remove '${item.title}' from database?")
                             .setPositiveButton("Delete") { _, _ ->
-                                FirebaseDatabase.getInstance().getReference("items")
+                                FirebaseManager.itemsRef
                                     .child(item.itemId)
                                     .removeValue()
                                     .addOnSuccessListener {
