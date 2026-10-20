@@ -108,23 +108,29 @@ class AdminFragment : Fragment() {
                             .show()
                     } else {
                         // Export reports for law enforcement (Requirement 3.2 #12)
-                        val exportText = buildString {
-                            appendLine("=== FINDIT LK OFFICIAL REPORTS AUDIT EXPORT ===")
-                            appendLine("Generated: ${java.util.Date()}")
-                            appendLine("Authority: Administrator")
-                            appendLine("Total Active Items: 12")
-                            appendLine("1. Black leather wallet - Colombo 03 - Status: LOST")
-                            appendLine("2. Sri Lankan passport - Fort Station - Status: FOUND")
-                            appendLine("3. AirPods Pro - Bambalapitiya - Status: LOST")
-                            appendLine("4. Brown Tabby Cat - Viharamahadevi - Status: LOST")
-                            appendLine("==============================================")
+                        FirebaseManager.itemsRef.get().addOnSuccessListener { snapshot ->
+                            val exportText = buildString {
+                                appendLine("=== FOUNDLY OFFICIAL REPORTS AUDIT EXPORT ===")
+                                appendLine("Generated: ${java.util.Date()}")
+                                appendLine("Authority: Administrator")
+                                appendLine("Total Reports in Database: ${snapshot.childrenCount}")
+                                var index = 1
+                                for (child in snapshot.children) {
+                                    val title = child.child("title").getValue(String::class.java) ?: "Report"
+                                    val loc = child.child("location").getValue(String::class.java) ?: "Sri Lanka"
+                                    val status = child.child("status").getValue(String::class.java) ?: "PENDING"
+                                    appendLine("$index. $title - $loc - Status: $status")
+                                    index++
+                                }
+                                appendLine("==============================================")
+                            }
+                            val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(android.content.Intent.EXTRA_SUBJECT, "Foundly Law Enforcement Export")
+                                putExtra(android.content.Intent.EXTRA_TEXT, exportText)
+                            }
+                            startActivity(android.content.Intent.createChooser(shareIntent, "Export reports to"))
                         }
-                        val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(android.content.Intent.EXTRA_SUBJECT, "FindIt LK Law Enforcement Export")
-                            putExtra(android.content.Intent.EXTRA_TEXT, exportText)
-                        }
-                        startActivity(android.content.Intent.createChooser(shareIntent, "Export reports to"))
                     }
                 }
                 .show()
@@ -190,13 +196,11 @@ class AdminFragment : Fragment() {
     private fun observeLiveFirebaseStats() {
         viewLifecycleOwner.lifecycleScope.launch {
             FirebaseManager.analyticsFlow.collectLatest { summary ->
-                if (summary.totalReports > 0 || summary.userCount > 0) {
-                    val activeCount = (summary.totalReports - summary.resolvedReports).coerceAtLeast(0)
-                    totalReportsNumber.text = String.format("%,d", summary.totalReports)
-                    activeCasesNumber.text = String.format("%,d", activeCount)
-                    resolvedCasesNumber.text = String.format("%,d", summary.resolvedReports)
-                    totalUsersNumber.text = String.format("%,d", summary.userCount)
-                }
+                val activeCount = (summary.totalReports - summary.resolvedReports).coerceAtLeast(0)
+                totalReportsNumber.text = String.format("%,d", summary.totalReports)
+                activeCasesNumber.text = String.format("%,d", activeCount)
+                resolvedCasesNumber.text = String.format("%,d", summary.resolvedReports)
+                totalUsersNumber.text = String.format("%,d", summary.userCount)
             }
         }
     }
