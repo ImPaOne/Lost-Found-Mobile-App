@@ -286,22 +286,22 @@ class MapFragment : Fragment() {
                 isLocationPinned = true
                 pinnedLat = lat
                 pinnedLng = lng
-                currentTitle = "📍 Pinned Location"
+                currentTitle = "Pinned Location"
                 currentLocation = String.format(java.util.Locale.US, "%.4f, %.4f", lat, lng)
                 currentStatus = "PINNED"
                 currentDesc = "Location pinned at coordinates ($pinnedLat, $pinnedLng). Tap card to report item here."
 
-                textItemTitle.text = "📍 Pinned Location"
+                textItemTitle.text = "Pinned Location"
                 textItemLocation.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Tap to report", lat, lng)
                 tagFoundStatus.text = "PINNED"
                 tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
                 imgLaptopThumb.setImageResource(R.drawable.ic_location)
 
-                Toast.makeText(
+                com.group3.lostandfound.util.ModernToast.show(
                     requireContext(),
-                    "📍 Location pinned! Tap preview card below to report item here.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                    "Location pinned. Tap preview card below to report item here.",
+                    view
+                )
             }
         }
 
@@ -539,7 +539,7 @@ class MapFragment : Fragment() {
 
             var pinIcon = L.divIcon({
                 className: '',
-                html: '<div class="custom-pin pin-pinned">📍</div>',
+                html: '<div class="custom-pin pin-pinned">&bull;</div>',
                 iconSize: [40, 40],
                 iconAnchor: [20, 20]
             });
