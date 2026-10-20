@@ -48,10 +48,24 @@ class MainActivity : AppCompatActivity() {
         // Sync FCM device token to /users/{uid}/fcmToken
         FCMService.syncUserToken(this)
 
+        // Seed default live Firebase items and admin credentials if empty
+        FirebaseManager.seedDefaultDataIfEmpty()
+
         if (savedInstanceState == null) {
-            // Start on LoginFragment for immediate access to Admin login and Dashboard
+            val prefs = getSharedPreferences("findit_prefs", MODE_PRIVATE)
+            val isLoggedIn = prefs.getBoolean("is_logged_in", false)
+            val onboardingCompleted = prefs.getBoolean("onboarding_completed", false)
+            val isAdmin = prefs.getBoolean("is_admin", false)
+
+            val initialFragment = when {
+                isLoggedIn && isAdmin -> AdminFragment.newInstance()
+                isLoggedIn -> HomeFragment.newInstance()
+                !onboardingCompleted -> OnboardingFragment.newInstance()
+                else -> LoginFragment.newInstance()
+            }
+
             supportFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, LoginFragment.newInstance())
+                .replace(R.id.screenBox, initialFragment)
                 .commit()
         }
     }
