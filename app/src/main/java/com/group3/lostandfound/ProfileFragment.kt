@@ -121,7 +121,7 @@ class ProfileFragment : Fragment() {
                     val isTrusted = snapshot.child("isTrustedFinder").getValue(Boolean::class.java) ?: false
 
                     userName.text = currentDisplayName
-                    userSubtitle.text = "Language: ${currentLanguage.uppercase()} · ${if (isTrusted) "⭐ Trusted Finder" else "Community Member"}"
+                    userSubtitle.text = "Language: ${currentLanguage.uppercase()} · ${if (isTrusted) "Trusted Finder" else "Community Member"}"
                 }
             }
 
