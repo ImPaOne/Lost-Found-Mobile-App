@@ -1,5 +1,18 @@
 <resources>
     <string name="app_name">Foundly</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_reports">My Reports</string>
+    <string name="nav_post">Post</string>
+    <string name="nav_map">Map</string>
+    <string name="nav_profile">Profile</string>
+    <string name="settings_title">Settings</string>
+    <string name="saved_items">Saved Items</string>
+    <string name="trust_score">Trust &amp; Achievements</string>
+    <string name="language">Language</string>
+    <string name="theme">Theme</string>
+    <string name="status_lost">LOST</string>
+    <string name="status_found">FOUND</string>
+    <string name="status_resolved">RESOLVED</string>
     <string name="admin_dashboard">Admin Dashboard</string>
     <string name="plus_six_today">+6 today</string>
     <string name="send_announcement">Send\nAnnouncement</string>
