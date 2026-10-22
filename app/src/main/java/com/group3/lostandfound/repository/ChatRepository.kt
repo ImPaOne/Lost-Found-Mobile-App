@@ -138,10 +138,16 @@ class ChatRepository {
                 .child(recipientUserId)
                 .child(chatConversationId)
 
+            val senderDisplayName = FirebaseManager.currentUserEmail
+                .takeIf { it.isNotEmpty() }
+                ?.substringBefore("@")
+                ?.replaceFirstChar { it.uppercase() }
+                ?: "Community Member"
+
             val recipientConversationMetadata = ConversationMetadata(
                 chatConversationId = chatConversationId,
                 otherUserId = senderUserId,
-                otherUserName = "Sender",
+                otherUserName = senderDisplayName,
                 lastMessageTextContent = chatMessageTextContent,
                 lastUpdatedTimestamp = System.currentTimeMillis(),
                 relatedItemId = relatedItemId
