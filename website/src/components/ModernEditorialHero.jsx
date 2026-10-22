@@ -1,11 +1,11 @@
 import React from 'react';
-import { Smartphone, Download, QrCode, ArrowDown, ShieldCheck, Sparkles } from 'lucide-react';
+import { Download, QrCode, Shield, CheckCircle2, Smartphone } from 'lucide-react';
 import { playClickSound } from '../utils/audio';
 
 export default function ModernEditorialHero({ onDownloadApk, onOpenQR }) {
-  const scrollToSimulator = () => {
+  const scrollToPillars = () => {
     playClickSound();
-    const el = document.getElementById('interactive-app');
+    const el = document.getElementById('pillars');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -15,78 +15,108 @@ export default function ModernEditorialHero({ onDownloadApk, onOpenQR }) {
         {/* Top Micro Header */}
         <div className="hero-editorial-meta-row">
           <div className="hero-status-pill">
-            <span className="pulsing-emerald-dot"></span>
-            <span>FOUNDIT MOBILE ECOSYSTEM · ANDROID NATIVE RELEASE</span>
+            <span className="pulsing-warm-dot"></span>
+            <span>FOUNDIT MOBILE · ANDROID NATIVE v2.4.2</span>
           </div>
 
           <div className="hero-meta-stat">
-            28,490+ ITEMS REUNITED THIS SEMESTER
+            28,490+ VERIFIED ITEMS REUNITED
           </div>
         </div>
 
-        {/* Giant Editorial Title Inspired by Reference Image 1 & 4 */}
+        {/* Giant Editorial Headline */}
         <div className="editorial-title-box">
           <h1 className="editorial-hero-title">
             RECONNECT WHAT'S LOST.
           </h1>
         </div>
 
-        {/* Editorial Subtitle Columns (Matching Reference Image 1) */}
+        {/* Editorial Subtitle Columns */}
         <div className="editorial-hero-split-text">
           <div className="hero-split-col">
-            <span className="col-num-label">01 / ARCHITECTURE</span>
+            <span className="col-num-label">01 / PHILOSOPHY</span>
             <p className="col-paragraph">
-              A modern, decentralized mobile recovery network designed to turn frantic loss into quiet relief. Built with low-energy Bluetooth beacon triangulation and on-device neural vision.
+              A minimalist, community-centered recovery network built exclusively for Android. Designed to turn stressful misplacement into swift, quiet relief without friction.
             </p>
           </div>
 
           <div className="hero-split-col">
             <span className="col-num-label">02 / PROTOCOL</span>
             <p className="col-paragraph">
-              Zero phone numbers or private emails disclosed. Claimants and finders connect through single-use cryptographic tokens and verified 24/7 campus safe-drop lockers.
+              Zero contact disclosure. Finders and owners connect via single-use verification tokens and secure safe-drop points without exposing phone numbers or private emails.
             </p>
           </div>
 
           <div className="hero-split-col hero-col-actions">
-            <span className="col-num-label">03 / GET STARTED</span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
+            <span className="col-num-label">03 / INSTALLATION</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
               <button 
                 onClick={onDownloadApk}
                 className="btn-apple-primary"
                 id="hero-apk-download"
-                style={{ width: '100%', padding: '13px 20px', fontSize: '0.86rem' }}
+                style={{ width: '100%', padding: '12px 18px', fontSize: '0.84rem' }}
               >
-                <Download size={16} />
+                <Download size={15} />
                 <span>Download APK (v2.4.2)</span>
               </button>
 
               <button 
-                onClick={scrollToSimulator}
+                onClick={onOpenQR}
                 className="btn-apple-secondary"
-                id="hero-test-simulator"
-                style={{ width: '100%', padding: '12px 20px', fontSize: '0.86rem' }}
+                id="hero-scan-qr-btn"
+                style={{ width: '100%', padding: '11px 18px', fontSize: '0.84rem' }}
               >
-                <Smartphone size={16} />
-                <span>Try In-Browser App Simulator ↓</span>
+                <QrCode size={15} />
+                <span>Scan QR for Mobile</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Visual Banner Preview Image with Scroll Prompt */}
-        <div className="hero-visual-banner" onClick={scrollToSimulator}>
-          <img 
-            src="/assets/hero_sky.jpg" 
-            alt="Freedom of recovering lost items"
-            className="hero-banner-photo" 
-          />
-          <div className="hero-banner-scrim"></div>
-          
-          <div className="hero-banner-inner-badge">
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-              SCROLL DOWN TO TEST LIVE ANDROID APP
-            </span>
-            <ArrowDown size={14} />
+        {/* High-End Editorial Showcase (Warm Minimalist Aesthetic) */}
+        <div className="hero-editorial-showcase">
+          <div className="showcase-image-wrapper">
+            <img 
+              src="/assets/app_showcase_warm.jpg" 
+              alt="FOUNDIT Android Application on Flagship Device"
+              className="showcase-hero-img" 
+            />
+          </div>
+
+          <div className="showcase-info-side">
+            <div className="showcase-badge-row">
+              <span className="badge-warm-pill">
+                <Smartphone size={13} />
+                <span>Android 8.0 - 15</span>
+              </span>
+              <span className="badge-warm-pill">
+                <Shield size={13} />
+                <span>Zero Trackers</span>
+              </span>
+            </div>
+
+            <h2 className="showcase-headline">
+              Minimalist by intention. Effortless in practice.
+            </h2>
+
+            <p className="showcase-subtext">
+              Built using native Android components and a warm editorial design language. No clutter, no repetitive feeds, and no invasive permissions. Point your camera, log what you found, or verify ownership in seconds.
+            </p>
+
+            <div className="showcase-spec-list">
+              <div className="showcase-spec-row">
+                <span className="spec-row-label">Application Package</span>
+                <span className="spec-row-val">com.foundit.lostfound.android</span>
+              </div>
+              <div className="showcase-spec-row">
+                <span className="spec-row-label">Target Architecture</span>
+                <span className="spec-row-val">Universal ARM64-v8a</span>
+              </div>
+              <div className="showcase-spec-row">
+                <span className="spec-row-label">Academic Scope</span>
+                <span className="spec-row-val">HDSE 26.1 MAD Project</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
