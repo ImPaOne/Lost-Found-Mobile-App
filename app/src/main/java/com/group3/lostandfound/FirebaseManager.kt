@@ -39,11 +39,14 @@ object FirebaseManager {
     val analyticsFlow: StateFlow<AnalyticsSummary> = _analyticsFlow.asStateFlow()
 
     // Current User ID
+    var customUid: String = ""
+    var customEmail: String = ""
+
     val currentUid: String
-        get() = auth.currentUser?.uid ?: ""
+        get() = auth.currentUser?.uid?.takeIf { it.isNotEmpty() } ?: customUid
 
     val currentUserEmail: String
-        get() = auth.currentUser?.email ?: ""
+        get() = auth.currentUser?.email?.takeIf { it.isNotEmpty() } ?: customEmail
 
     init {
         // Start real-time observation of /items and /users for Analytics
