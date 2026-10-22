@@ -31,7 +31,7 @@ object ImageLoader {
     fun load(
         imageView: ImageView,
         url: String?,
-        placeholderRes: Int = R.drawable.img_wallet_details,
+        placeholderRes: Int = R.drawable.ic_item_placeholder,
         scope: CoroutineScope
     ): Job? {
         if (url.isNullOrBlank()) {
