@@ -23,6 +23,8 @@ import com.google.firebase.database.ValueEventListener
  */
 class ProfileFragment : Fragment() {
 
+    private lateinit var userAvatar: ImageView
+    private lateinit var boxAvatarContainer: View
     private lateinit var userName: TextView
     private lateinit var userSubtitle: TextView
     private lateinit var countItemsFound: TextView
@@ -35,6 +37,15 @@ class ProfileFragment : Fragment() {
     private var profileListener: ValueEventListener? = null
     private var currentDisplayName = "Community Member"
     private var currentLanguage = "en"
+    private var currentPhone = ""
+    private var currentPhotoUrl = ""
+    private var activeDialogAvatarPreview: ImageView? = null
+
+    private val pickProfileAvatarLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            uploadProfileImage(uri)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,6 +60,8 @@ class ProfileFragment : Fragment() {
 
         val btnClose = view.findViewById<ImageView>(R.id.btnClose)
         val btnMenu = view.findViewById<ImageView>(R.id.btnMenu)
+        userAvatar = view.findViewById(R.id.userAvatar)
+        boxAvatarContainer = view.findViewById(R.id.boxAvatarContainer)
         userName = view.findViewById(R.id.userName)
         userSubtitle = view.findViewById(R.id.userSubtitle)
         countItemsFound = view.findViewById(R.id.countItemsFound)
@@ -63,7 +76,10 @@ class ProfileFragment : Fragment() {
         // Real-time observation of /users/{uid}
         observeUserProfile()
 
-        // UI control: Tap name to update displayName & preferredLanguage via updateChildren()
+        // Tap avatar or name to open modern profile editor & photo upload
+        boxAvatarContainer.setOnClickListener {
+            showEditProfileDialog()
+        }
         userName.setOnClickListener {
             showEditProfileDialog()
         }
@@ -91,11 +107,7 @@ class ProfileFragment : Fragment() {
         }
 
         rowSavedItems.setOnClickListener {
-            try {
-                showSavedItemsDialog()
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Saved items error: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+            navigateTo(SavedItemsFragment.newInstance())
         }
 
         rowTrustScore.setOnClickListener {
