@@ -16,6 +16,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ViewFlipper
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -117,6 +118,11 @@ class CreateReportFragment : Fragment() {
     private var photosCount = 0
     private var selectedImageUri: Uri? = null
 
+    // Persisted form inputs across fragment backstack/step navigation
+    private var savedTitle: String = ""
+    private var savedDescription: String = ""
+    private var savedLandmark: String = ""
+
     private val reportRepository = ReportRepository()
     private var uploadJob: Job? = null
 
@@ -162,6 +168,33 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        parentFragmentManager.setFragmentResultListener(
+            MapFragment.REQUEST_KEY_LOCATION,
+            this
+        ) { _, bundle ->
+            val lat = bundle.getDouble(MapFragment.KEY_LATITUDE, 0.0)
+            val lng = bundle.getDouble(MapFragment.KEY_LONGITUDE, 0.0)
+            val locName = bundle.getString(MapFragment.KEY_LOCATION_NAME)
+            if (lat != 0.0 && lng != 0.0) {
+                selectedLatitude = lat
+                selectedLongitude = lng
+                selectedArea = locName ?: String.format(java.util.Locale.US, "%.4f, %.4f", lat, lng)
+
+                if (view != null) {
+                    tvSelectedLocationPreview.text = "$selectedArea, Western Province"
+                    tvSelectedLocationCoords.text = String.format(
+                        java.util.Locale.US,
+                        "%.4f° N, %.4f° E · Selected from map",
+                        selectedLatitude,
+                        selectedLongitude
+                    )
+                }
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -175,24 +208,75 @@ class CreateReportFragment : Fragment() {
 
         initViews(view)
 
-        val initialIsLost = arguments?.getBoolean(ARG_IS_LOST, true) ?: true
-        setItemType(initialIsLost)
+        // Only parse initial navigation arguments if starting fresh at Step 1 with empty inputs
+        if (savedInstanceState == null && currentStep == 1 && savedTitle.isEmpty() && savedDescription.isEmpty()) {
+            val initialIsLost = arguments?.getBoolean(ARG_IS_LOST, true) ?: true
+            isLostSelected = initialIsLost
 
-        val argLat = arguments?.getDouble(ARG_LAT, 0.0) ?: 0.0
-        val argLng = arguments?.getDouble(ARG_LNG, 0.0) ?: 0.0
-        val argLoc = arguments?.getString(ARG_LOC_NAME)
+            val argLat = arguments?.getDouble(ARG_LAT, 0.0) ?: 0.0
+            val argLng = arguments?.getDouble(ARG_LNG, 0.0) ?: 0.0
+            val argLoc = arguments?.getString(ARG_LOC_NAME)
 
-        if (argLat != 0.0 && argLng != 0.0) {
-            selectedLatitude = argLat
-            selectedLongitude = argLng
-            selectedArea = argLoc ?: String.format(java.util.Locale.US, "%.4f, %.4f", argLat, argLng)
-            tvSelectedLocationPreview.text = "$selectedArea, Western Province"
-            tvSelectedLocationCoords.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Pinned on map", argLat, argLng)
+            if (argLat != 0.0 && argLng != 0.0) {
+                selectedLatitude = argLat
+                selectedLongitude = argLng
+                selectedArea = argLoc ?: String.format(java.util.Locale.US, "%.4f, %.4f", argLat, argLng)
+            }
         }
+
+        // Apply state to views
+        setItemType(isLostSelected)
+        tvCategoryValue.text = selectedCategory
+        tvSelectedLocationPreview.text = "$selectedArea, Western Province"
+        tvSelectedLocationCoords.text = String.format(
+            java.util.Locale.US,
+            "%.4f° N, %.4f° E · Selected on map",
+            selectedLatitude,
+            selectedLongitude
+        )
+
+        // Restore input texts if previously entered
+        if (savedTitle.isNotEmpty()) inputTitle.setText(savedTitle)
+        if (savedDescription.isNotEmpty()) inputDescription.setText(savedDescription)
+        if (savedLandmark.isNotEmpty()) inputLandmark.setText(savedLandmark)
+
+        // Restore photo thumbnail if selected
+        if (selectedImageUri != null) {
+            imgThumbnail1.setImageURI(selectedImageUri)
+            rowThumbnails.visibility = View.VISIBLE
+            tvPhotosCountStatus.text = "$photosCount photo attached"
+        }
+
+        // Restore date chips
+        val dateChips = listOf(chipDateToday, chipDateYesterday, chipDateEarlier)
+        for (c in dateChips) {
+            if (c.text.toString().equals(selectedDate, ignoreCase = true)) {
+                c.setBackgroundResource(R.drawable.bg_chip_selected)
+                c.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            } else {
+                c.setBackgroundResource(R.drawable.bg_chip_unselected)
+                c.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            }
+        }
+
+        // Restore ViewFlipper step without animation
+        flipperSteps.displayedChild = (currentStep - 1).coerceIn(0, 4)
 
         setupStepListeners()
         updateStepHeader()
         setupBottomNav(view, "post")
+
+        // Handle Back button to step backward if within flow
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (currentStep > 1) {
+                    slideBackward()
+                } else {
+                    isEnabled = false
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
     }
 
     private fun initViews(view: View) {
@@ -365,10 +449,14 @@ class CreateReportFragment : Fragment() {
             }
         }
 
-        // Step 3: Map card click - open Leaflet map to pin location
+        // Step 3: Map card click - open Leaflet map in picker mode
         cardMapPinPreview.setOnClickListener {
+            if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
+            if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString()
+            if (::inputLandmark.isInitialized) savedLandmark = inputLandmark.text.toString()
+
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, MapFragment.newInstance())
+                .replace(R.id.screenBox, MapFragment.newInstance(isPickerMode = true))
                 .addToBackStack(null)
                 .commit()
         }
@@ -433,6 +521,13 @@ class CreateReportFragment : Fragment() {
     }
 
     private fun slideForward() {
+        if (currentStep == 2) {
+            if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
+            if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString()
+        } else if (currentStep == 3) {
+            if (::inputLandmark.isInitialized) savedLandmark = inputLandmark.text.toString()
+        }
+
         val slideInRight = TranslateAnimation(
             Animation.RELATIVE_TO_PARENT, 1.0f,
             Animation.RELATIVE_TO_PARENT, 0.0f,
@@ -462,6 +557,13 @@ class CreateReportFragment : Fragment() {
     }
 
     private fun slideBackward() {
+        if (currentStep == 2) {
+            if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
+            if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString()
+        } else if (currentStep == 3) {
+            if (::inputLandmark.isInitialized) savedLandmark = inputLandmark.text.toString()
+        }
+
         val slideInLeft = TranslateAnimation(
             Animation.RELATIVE_TO_PARENT, -1.0f,
             Animation.RELATIVE_TO_PARENT, 0.0f,
@@ -654,6 +756,19 @@ class CreateReportFragment : Fragment() {
                 ).show()
             }
         }
+    }
+
+    override fun onDestroyView() {
+        if (::inputTitle.isInitialized) {
+            savedTitle = inputTitle.text.toString()
+        }
+        if (::inputDescription.isInitialized) {
+            savedDescription = inputDescription.text.toString()
+        }
+        if (::inputLandmark.isInitialized) {
+            savedLandmark = inputLandmark.text.toString()
+        }
+        super.onDestroyView()
     }
 
     companion object {
