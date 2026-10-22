@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Mode Semantics for Foundly -->
+    <color name="black">#FFFFFFFF</color>
+    <color name="white">#FF1A1A1A</color>
+    <color name="primary">#FFF5EFEB</color>
+
+    <!-- Nude Palette - Dark Mode Inversions -->
+    <color name="nude_dark">#FFF0EAE3</color>
+    <color name="nude_taupe">#FFCBAD8D</color>
+    <color name="nude_sand">#FFA48374</color>
+    <color name="nude_light_taupe">#FF3A332E</color>
+    <color name="nude_cream">#FF26221F</color>
+    <color name="nude_soft_white">#FF1E1A17</color>
+
+    <!-- Surfaces & Text -->
+    <color name="background_screen">#FF121212</color>
+    <color name="text_primary">#FFF5EFEB</color>
+    <color name="text_secondary">#FFB0A49C</color>
+    <color name="text_hint">#FF6E635B</color>
+    <color name="component_stroke">#FF2A2522</color>
+    <color name="component_stroke_border">#FF38312C</color>
+    <color name="stroke_light">#FF2E2824</color>
+    <color name="beige_card_bg">#FF1E1A17</color>
+    <color name="see_all_color">#FFCBAD8D</color>
+
+    <color name="tag_lost_color">#FFFF6B6B</color>
+    <color name="tag_found_color">#FF4EBA7E</color>
+    <color name="notification_badge_red">#FFFF5252</color>
+
+    <!-- Moderation Specific Action & Status Colors -->
+    <color name="btn_approve">#FF8C7063</color>
+    <color name="btn_reject">#FFFF5252</color>
+    <color name="badge_flagged_bg">#FF331818</color>
+    <color name="badge_flagged_text">#FFFF7070</color>
+    <color name="badge_pending_bg">#FF332A15</color>
+    <color name="badge_pending_text">#FFFFD166</color>
+</resources>
