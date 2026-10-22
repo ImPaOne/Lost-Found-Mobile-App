@@ -288,9 +288,119 @@ class UserManagementFragment : Fragment() {
         }
         actionsRow.addView(btnRole)
 
+        // Verify & Assign Badge button (Admin Functional Requirement 3.2 #5)
+        val btnBadge = TextView(requireContext()).apply {
+            text = "Verify & Badge"
+            textSize = 13f
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            setBackgroundResource(R.drawable.bg_btn_outline)
+            val hPad = (10 * resources.displayMetrics.density).toInt()
+            val vPad = (6 * resources.displayMetrics.density).toInt()
+            setPadding(hPad, vPad, hPad, vPad)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginStart = (8 * resources.displayMetrics.density).toInt()
+            }
+            setOnClickListener {
+                showVerifyAndBadgeDialog(user)
+            }
+        }
+        actionsRow.addView(btnBadge)
+
         contentLayout.addView(actionsRow)
         card.addView(contentLayout)
         return card
+    }
+
+    /**
+     * Verify trusted users and assign badges (Admin Functional Requirement 3.2 #5)
+     */
+    private fun showVerifyAndBadgeDialog(user: UserData) {
+        val badges = arrayOf(
+            "Trusted Finder (Gold)",
+            "Verified Citizen (Blue)",
+            "Community Guardian (Purple)",
+            "Eagle Eye Finder (Bronze)",
+            "Law Enforcement Partner (Silver)"
+        )
+
+        val layout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = (16 * resources.displayMetrics.density).toInt()
+            setPadding(pad, pad, pad, pad)
+        }
+
+        val tvInfo = TextView(requireContext()).apply {
+            text = "Verify user credentials and assign verified badges to ${user.fullName}."
+            textSize = 13f
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+            setPadding(0, 0, 0, (10 * resources.displayMetrics.density).toInt())
+        }
+        layout.addView(tvInfo)
+
+        val cbTrusted = android.widget.CheckBox(requireContext()).apply {
+            text = "Mark as Verified Trusted Finder"
+            isChecked = true
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+        }
+        layout.addView(cbTrusted)
+
+        val tvScoreLabel = TextView(requireContext()).apply {
+            text = "Trust Score (0 - 100):"
+            textSize = 13f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            setPadding(0, (8 * resources.displayMetrics.density).toInt(), 0, (4 * resources.displayMetrics.density).toInt())
+        }
+        layout.addView(tvScoreLabel)
+
+        val etScore = EditText(requireContext()).apply {
+            hint = "Trust Score"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+            setText(user.trustScore.toString())
+        }
+        layout.addView(etScore)
+
+        val tvBadgeLabel = TextView(requireContext()).apply {
+            text = "Select Badge to Award:"
+            textSize = 13f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            setPadding(0, (8 * resources.displayMetrics.density).toInt(), 0, (4 * resources.displayMetrics.density).toInt())
+        }
+        layout.addView(tvBadgeLabel)
+
+        val spinnerBadges = android.widget.Spinner(requireContext()).apply {
+            adapter = android.widget.ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, badges)
+        }
+        layout.addView(spinnerBadges)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Verify & Badge User")
+            .setView(layout)
+            .setPositiveButton("Verify & Assign") { _, _ ->
+                val isTrusted = cbTrusted.isChecked
+                val chosenBadge = badges[spinnerBadges.selectedItemPosition].substringBefore(" (")
+                val newScore = etScore.text.toString().toIntOrNull()?.coerceIn(0, 100) ?: 95
+
+                FirebaseManager.verifyAndBadgeUser(
+                    targetUid = user.uid,
+                    isTrusted = isTrusted,
+                    badgeName = chosenBadge,
+                    trustScore = newScore,
+                    onSuccess = {
+                        Toast.makeText(requireContext(), "Verified & awarded '$chosenBadge' to ${user.fullName}", Toast.LENGTH_LONG).show()
+                    },
+                    onError = { err ->
+                        Toast.makeText(requireContext(), "Action failed: $err", Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun toggleBanStatus(user: UserData) {
