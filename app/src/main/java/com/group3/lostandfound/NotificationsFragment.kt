@@ -58,6 +58,8 @@ class NotificationsFragment : Fragment() {
         val tvNotifTitle2 = view.findViewById<TextView>(R.id.tvNotifTitle2)
         val tvNotifDesc2 = view.findViewById<TextView>(R.id.tvNotifDesc2)
 
+    private var currentNotifs: List<com.group3.lostandfound.NotificationItem> = emptyList()
+
         val currentUid = FirebaseManager.currentUid
         val notifRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
             .getReference("notifications")
@@ -82,6 +84,7 @@ class NotificationsFragment : Fragment() {
                     }
                 }
 
+                currentNotifs = notifList
                 val hasNotifs = notifList.isNotEmpty()
                 itemWallet.visibility = if (hasNotifs) View.VISIBLE else View.GONE
                 itemKasun.visibility = if (notifList.size > 1) View.VISIBLE else View.GONE
@@ -125,25 +128,33 @@ class NotificationsFragment : Fragment() {
 
         itemWallet.setOnClickListener {
             dotWallet.visibility = View.GONE
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, ReportsFragment.newInstance())
-                .addToBackStack(null)
-                .commit()
+            if (currentNotifs.isNotEmpty()) {
+                handleNotificationClick(currentNotifs[0])
+            } else {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.screenBox, ReportsFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
 
         itemKasun.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(
-                    R.id.screenBox,
-                    ChatFragment.newInstance(
-                        recipientUserId = "support_admin",
-                        recipientName = "Community Contact",
-                        itemId = "",
-                        itemTitle = "Inquiry"
+            if (currentNotifs.size > 1) {
+                handleNotificationClick(currentNotifs[1])
+            } else {
+                parentFragmentManager.beginTransaction()
+                    .replace(
+                        R.id.screenBox,
+                        ChatFragment.newInstance(
+                            recipientUserId = "support_admin",
+                            recipientName = "Community Contact",
+                            itemId = "",
+                            itemTitle = "Inquiry"
+                        )
                     )
-                )
-                .addToBackStack(null)
-                .commit()
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
 
         itemPassport.setOnClickListener {
