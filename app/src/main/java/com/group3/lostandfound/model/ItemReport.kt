@@ -16,7 +16,8 @@ data class ItemReport(
     val location: String = "",
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
-    val timestamp: Long = 0L
+    val timestamp: Long = 0L,
+    val authorName: String = "Community Member"
 ) {
     /**
      * Converts ItemReport to a map representation for Firebase Realtime Database updates.
@@ -36,7 +37,7 @@ data class ItemReport(
             "timestamp" to timestamp,
             "isFlagged" to false,
             "flagReason" to "",
-            "authorName" to "Community Member"
+            "authorName" to if (authorName.isNotBlank()) authorName else "Community Member"
         )
     }
 
@@ -48,13 +49,21 @@ data class ItemReport(
         fun fromSnapshot(snapshot: DataSnapshot): ItemReport {
             val key = snapshot.key.orEmpty()
             val itemId = snapshot.child("itemId").getValue(String::class.java)?.takeIf { it.isNotEmpty() } ?: key
-            val userId = snapshot.child("userId").getValue(String::class.java).orEmpty()
+            val userId = snapshot.child("userId").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                ?: snapshot.child("user_id").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                ?: snapshot.child("reporterId").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                ?: snapshot.child("authorId").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                ?: ""
             val title = snapshot.child("title").getValue(String::class.java).orEmpty()
             val description = snapshot.child("description").getValue(String::class.java).orEmpty()
             val category = snapshot.child("category").getValue(String::class.java).orEmpty()
             val status = snapshot.child("status").getValue(String::class.java)?.takeIf { it.isNotEmpty() } ?: "LOST"
             val imageUrl = snapshot.child("imageUrl").getValue(String::class.java).orEmpty()
             val location = snapshot.child("location").getValue(String::class.java).orEmpty()
+            val authorName = snapshot.child("authorName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                ?: snapshot.child("reporterName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                ?: snapshot.child("userName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                ?: "Community Member"
 
             val rawLat = snapshot.child("latitude").value
             val latitude = when (rawLat) {
@@ -88,7 +97,8 @@ data class ItemReport(
                 location = location,
                 latitude = latitude,
                 longitude = longitude,
-                timestamp = timestamp
+                timestamp = timestamp,
+                authorName = authorName
             )
         }
     }
