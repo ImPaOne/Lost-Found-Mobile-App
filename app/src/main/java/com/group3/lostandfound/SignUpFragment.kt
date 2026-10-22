@@ -11,13 +11,17 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.group3.lostandfound.model.AuthUiState
+import com.group3.lostandfound.service.FCMService
+import com.group3.lostandfound.util.ModernToast
+import com.group3.lostandfound.viewmodel.AuthViewModel
+import kotlinx.coroutines.launch
 
 /**
- * SignUpFragment handles user registration for FindIt LK:
- * - Collects full name, email, phone number, NIC, and password
- * - Supports toggling password and confirm password visibility
- * - Validates terms acceptance and form inputs
- * - Links to Login and Home navigation
+ * SignUpFragment handles user registration for Foundly in MVVM architecture.
+ * Delegating authentication operations and state to AuthViewModel.
  */
 class SignUpFragment : Fragment() {
 
@@ -36,6 +40,7 @@ class SignUpFragment : Fragment() {
 
     private var isPasswordVisible = false
     private var isConfirmPasswordVisible = false
+    private lateinit var authViewModel: AuthViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,12 +53,15 @@ class SignUpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
+
         // Smooth entry animation
         view.alpha = 0f
         view.animate().alpha(1f).setDuration(400).start()
 
         initViews(view)
         setupListeners(view)
+        observeViewModel()
     }
 
     private fun initViews(view: View) {
@@ -71,31 +79,33 @@ class SignUpFragment : Fragment() {
         rowLogin = view.findViewById(R.id.rowLogin)
     }
 
-    private fun setupListeners(rootView: View) {
-        val textTerms = rootView.findViewById<TextView>(R.id.textTerms)
-        textTerms?.setOnClickListener {
-            checkTerms.isChecked = !checkTerms.isChecked
-        }
+    private fun setupListeners(view: View) {
         btnTogglePassword.setOnClickListener {
             isPasswordVisible = !isPasswordVisible
-            val cursorPosition = inputPassword.selectionStart
             if (isPasswordVisible) {
-                inputPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                inputPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                btnTogglePassword.alpha = 1.0f
             } else {
                 inputPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                btnTogglePassword.alpha = 0.5f
             }
-            inputPassword.setSelection(cursorPosition)
+            inputPassword.setSelection(inputPassword.text.length)
         }
 
         btnToggleConfirmPassword.setOnClickListener {
             isConfirmPasswordVisible = !isConfirmPasswordVisible
-            val cursorPosition = inputConfirmPassword.selectionStart
             if (isConfirmPasswordVisible) {
-                inputConfirmPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                inputConfirmPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                btnToggleConfirmPassword.alpha = 1.0f
             } else {
                 inputConfirmPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                btnToggleConfirmPassword.alpha = 0.5f
             }
-            inputConfirmPassword.setSelection(cursorPosition)
+            inputConfirmPassword.setSelection(inputConfirmPassword.text.length)
+        }
+
+        rowLogin.setOnClickListener {
+            parentFragmentManager.popBackStack()
         }
 
         btnCreateAccount.setOnClickListener {
@@ -132,103 +142,68 @@ class SignUpFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // Register with FirebaseAuth
-            val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnSuccessListener { result ->
-                    val safeCtx = context ?: return@addOnSuccessListener
-                    val uid = result.user?.uid ?: FirebaseManager.currentUid
-                    val userDoc = mapOf(
-                        "uid" to uid,
-                        "email" to email,
-                        "fullName" to name,
-                        "displayName" to name,
-                        "phone" to phone,
-                        "nic" to nic,
-                        "role" to "USER",
-                        "isTrustedFinder" to false,
-                        "preferredLanguage" to "en",
-                        "createdAt" to System.currentTimeMillis()
-                    )
-                    // Store initial user document at /users/{uid} via setValue()
-                    FirebaseManager.usersRef.child(uid).setValue(userDoc)
-
-                    safeCtx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
-                        .edit()
-                        .putBoolean("is_logged_in", true)
-                        .putBoolean("is_admin", false)
-                        .putBoolean("onboarding_completed", true)
-                        .apply()
-
-                    com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                        safeCtx,
-                        "Account Registered",
-                        "Welcome to Foundly, $name. Your account has been created successfully."
-                    )
-
-                    com.group3.lostandfound.util.ModernToast.show(
-                        safeCtx,
-                        "Account created successfully. Welcome to Foundly."
-                    )
-
-                    if (isAdded) {
-                        parentFragmentManager.beginTransaction()
-                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                            .replace(R.id.screenBox, HomeFragment.newInstance())
-                            .commit()
-                    }
-                }
-                .addOnFailureListener { error ->
-                    // Fallback for offline / demo testing
-                    val safeCtx = context ?: return@addOnFailureListener
-                    val uid = FirebaseManager.currentUid
-                    val userDoc = mapOf(
-                        "uid" to uid,
-                        "email" to email,
-                        "fullName" to name,
-                        "displayName" to name,
-                        "phone" to phone,
-                        "nic" to nic,
-                        "role" to "USER",
-                        "isTrustedFinder" to false,
-                        "preferredLanguage" to "en",
-                        "createdAt" to System.currentTimeMillis()
-                    )
-                    FirebaseManager.usersRef.child(uid).setValue(userDoc)
-
-                    safeCtx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
-                        .edit()
-                        .putBoolean("is_logged_in", true)
-                        .putBoolean("is_admin", false)
-                        .putBoolean("onboarding_completed", true)
-                        .apply()
-
-                    com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                        safeCtx,
-                        "Registration Complete",
-                        "Welcome $name to the Foundly community."
-                    )
-
-                    com.group3.lostandfound.util.ModernToast.show(
-                        safeCtx,
-                        "Profile configured successfully for $name."
-                    )
-
-                    if (isAdded) {
-                        parentFragmentManager.beginTransaction()
-                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                            .replace(R.id.screenBox, HomeFragment.newInstance())
-                            .commit()
-                    }
-                }
+            btnCreateAccount.isEnabled = false
+            btnCreateAccount.text = "Creating account..."
+            authViewModel.signUp(name, email, phone, nic, password)
         }
+    }
 
-        rowLogin.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                .replace(R.id.screenBox, LoginFragment.newInstance())
-                .addToBackStack(null)
-                .commit()
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            authViewModel.signUpState.collect { state ->
+                when (state) {
+                    is AuthUiState.Loading -> {
+                        btnCreateAccount.isEnabled = false
+                        btnCreateAccount.text = "Creating account..."
+                    }
+                    is AuthUiState.Success -> {
+                        btnCreateAccount.isEnabled = true
+                        btnCreateAccount.text = "Create Account"
+
+                        val safeCtx = context ?: return@collect
+                        val name = inputFullName.text.toString().trim()
+
+                        safeCtx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                            .edit()
+                            .putBoolean("is_logged_in", true)
+                            .putBoolean("is_admin", false)
+                            .putBoolean("onboarding_completed", true)
+                            .apply()
+
+                        FCMService.triggerPushNotification(
+                            safeCtx,
+                            "Account Registered",
+                            "Welcome to Foundly, $name. Your account has been created successfully."
+                        )
+
+                        ModernToast.show(
+                            safeCtx,
+                            "Account created successfully. Welcome to Foundly."
+                        )
+
+                        if (isAdded) {
+                            parentFragmentManager.beginTransaction()
+                                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                                .replace(R.id.screenBox, HomeFragment.newInstance())
+                                .commit()
+                        }
+                        authViewModel.resetSignUpState()
+                    }
+                    is AuthUiState.Error -> {
+                        btnCreateAccount.isEnabled = true
+                        btnCreateAccount.text = "Create Account"
+
+                        val safeCtx = context ?: return@collect
+                        ModernToast.show(safeCtx, state.message, view)
+                        Toast.makeText(safeCtx, state.message, Toast.LENGTH_LONG).show()
+                        authViewModel.resetSignUpState()
+                    }
+                    is AuthUiState.Idle -> {
+                        btnCreateAccount.isEnabled = true
+                        btnCreateAccount.text = "Create Account"
+                    }
+                }
+            }
         }
     }
 
