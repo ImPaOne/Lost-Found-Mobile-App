@@ -856,6 +856,25 @@
                             android:textColor="#7D6F67"
                             android:textSize="13sp" />
 
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardReviewThumbnail"
+                            android:layout_width="match_parent"
+                            android:layout_height="140dp"
+                            android:layout_marginTop="10dp"
+                            android:visibility="gone"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:strokeColor="@color/stroke_light"
+                            app:strokeWidth="1dp">
+
+                            <ImageView
+                                android:id="@+id/imgReviewThumbnail"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:contentDescription="Review Image" />
+                        </com.google.android.material.card.MaterialCardView>
+
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
