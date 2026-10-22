@@ -167,6 +167,8 @@ class SignUpFragment : Fragment() {
                             .edit()
                             .putBoolean("is_logged_in", true)
                             .putBoolean("is_admin", false)
+                            .putString("user_uid", authViewModel.currentUid)
+                            .putString("saved_email", inputEmail.text.toString().trim())
                             .putBoolean("onboarding_completed", true)
                             .apply()
 
