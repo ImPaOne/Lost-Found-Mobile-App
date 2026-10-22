@@ -49,7 +49,45 @@ class TrustFragment : Fragment() {
 
         initViews(view)
         setupListeners()
+        loadLiveTrustData()
         setupBottomNav(view, "profile")
+    }
+
+    private fun loadLiveTrustData() {
+        val uid = FirebaseManager.currentUid
+        if (uid.isEmpty()) return
+
+        val userRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+            .getReference("users")
+            .child(uid)
+
+        userRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                if (!isAdded) return
+                val rawScore = snapshot.child("trustScore").value
+                val trustScore = when (rawScore) {
+                    is Number -> rawScore.toInt()
+                    is String -> rawScore.toIntOrNull() ?: 92
+                    else -> 92
+                }
+
+                val isTrusted = snapshot.child("isTrustedFinder").getValue(Boolean::class.java) ?: false
+
+                textScore.text = trustScore.toString()
+
+                val (levelText, rankText, xpVal) = when {
+                    trustScore >= 90 -> Triple("Level 8 · Guardian", "Top 5% in Western Province", (trustScore % 10) * 10)
+                    trustScore >= 75 -> Triple("Level 5 · Senior Tracker", "Top 20% in Western Province", (trustScore % 10) * 10)
+                    else -> Triple("Level 2 · Community Finder", "Active Community Member", (trustScore % 10) * 10)
+                }
+
+                textLevel.text = levelText
+                textRank.text = rankText
+                progressXp.progress = xpVal.coerceIn(15, 95)
+            }
+
+            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+        })
     }
 
     private fun initViews(view: View) {
@@ -83,27 +121,52 @@ class TrustFragment : Fragment() {
         }
 
         badgeId.setOnClickListener {
-            Toast.makeText(requireContext(), "ID verification verified", Toast.LENGTH_SHORT).show()
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("National ID Verification")
+                .setMessage("Status: VERIFIED\nVerified with Sri Lanka National Identity Database. Your finder reports receive priority visibility and verified badges.")
+                .setPositiveButton("OK", null)
+                .show()
         }
 
         badgePhone.setOnClickListener {
-            Toast.makeText(requireContext(), "Phone number verified", Toast.LENGTH_SHORT).show()
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Phone Number Verification")
+                .setMessage("Status: ACTIVE\nTwo-step phone authentication active for secure item handover communication.")
+                .setPositiveButton("OK", null)
+                .show()
         }
 
         badgeEmail.setOnClickListener {
-            Toast.makeText(requireContext(), "Email address verified", Toast.LENGTH_SHORT).show()
+            val email = FirebaseManager.currentUserEmail.ifEmpty { "user@foundly.lk" }
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Email Verification")
+                .setMessage("Status: VERIFIED\nEmail: $email\nOfficial notifications and item status updates are routed to this account.")
+                .setPositiveButton("OK", null)
+                .show()
         }
 
         itemFirstFind.setOnClickListener {
-            Toast.makeText(requireContext(), "First Find: Earned", Toast.LENGTH_SHORT).show()
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Achievement: First Find")
+                .setMessage("✓ EARNED\nYou completed your first item report on Foundly and helped connect community members.")
+                .setPositiveButton("Awesome", null)
+                .show()
         }
 
         itemCommunityHelper.setOnClickListener {
-            Toast.makeText(requireContext(), "Community Helper: 10 neighbours helped", Toast.LENGTH_SHORT).show()
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Achievement: Community Helper")
+                .setMessage("✓ EARNED (+50 Trust XP)\nAssisted 10 neighbors in recovering missing items across the Colombo metropolitan zone.")
+                .setPositiveButton("Great", null)
+                .show()
         }
 
         itemTrustedReporter.setOnClickListener {
-            Toast.makeText(requireContext(), "Trusted Reporter: 18/20 reports verified", Toast.LENGTH_SHORT).show()
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Achievement: Trusted Reporter")
+                .setMessage("Status: IN PROGRESS (18 / 20 reports verified)\nMaintain 90%+ accuracy across 20 reports to earn the permanent Community Gold Shield badge.")
+                .setPositiveButton("Keep Going", null)
+                .show()
         }
     }
 
