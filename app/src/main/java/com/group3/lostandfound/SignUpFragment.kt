@@ -178,6 +178,8 @@ class SignUpFragment : Fragment() {
                             "Welcome to Foundly, $name. Your account has been created successfully."
                         )
 
+                        (activity as? MainActivity)?.setupIncomingMessageNotifications()
+
                         ModernToast.show(
                             safeCtx,
                             "Account created successfully. Welcome to Foundly."
