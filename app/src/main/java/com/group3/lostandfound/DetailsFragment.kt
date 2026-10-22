@@ -282,8 +282,8 @@ class DetailsFragment : Fragment() {
             showContactOptions()
         }
         btnContact.setOnClickListener(openContactAction)
-        view.findViewById<View>(R.id.rowReporter)?.setOnClickListener(openContactAction)
-        view.findViewById<View>(R.id.imgAvatar)?.setOnClickListener(openContactAction)
+        view?.findViewById<View>(R.id.rowReporter)?.setOnClickListener(openContactAction)
+        view?.findViewById<View>(R.id.imgAvatar)?.setOnClickListener(openContactAction)
 
         // Live status resolution & management
         tagStatus.setOnClickListener {
