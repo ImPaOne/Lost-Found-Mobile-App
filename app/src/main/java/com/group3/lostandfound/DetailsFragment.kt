@@ -238,18 +238,22 @@ class DetailsFragment : Fragment() {
             "LOST" -> {
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
                 tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
+                btnContact.text = "Contact Owner"
             }
             "FOUND" -> {
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
                 tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
+                btnContact.text = "Contact Finder"
             }
             "RESOLVED" -> {
                 tagStatus.setTextColor(Color.parseColor("#4A7C59"))
                 tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
+                btnContact.text = "Item Claimed"
             }
             else -> {
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
                 tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
+                btnContact.text = "Contact & Connect"
             }
         }
     }
