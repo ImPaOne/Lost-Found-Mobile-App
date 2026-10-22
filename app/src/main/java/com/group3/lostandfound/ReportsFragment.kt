@@ -222,6 +222,17 @@ class ReportsFragment : Fragment() {
                     1 -> {
                         reportsViewModel.markItemResolved(item.itemId) { success ->
                             if (success) {
+                                val idx = userReports.indexOfFirst { it.itemId == item.itemId }
+                                if (idx != -1) {
+                                    userReports[idx] = userReports[idx].copy(status = "RESOLVED")
+                                    updateReportsListUI()
+                                }
+                                com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                                    requireContext(),
+                                    "Item Resolved & Reunited!",
+                                    "'${item.title}' has been marked as resolved and safely reunited.",
+                                    item.itemId
+                                )
                                 ModernToast.show(requireContext(), "'${item.title}' marked as RESOLVED.", view)
                             } else {
                                 ModernToast.show(requireContext(), "Update failed.", view, durationLong = true)
