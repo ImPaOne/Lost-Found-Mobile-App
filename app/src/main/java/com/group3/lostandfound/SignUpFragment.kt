@@ -136,6 +136,7 @@ class SignUpFragment : Fragment() {
             val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener { result ->
+                    val safeCtx = context ?: return@addOnSuccessListener
                     val uid = result.user?.uid ?: FirebaseManager.currentUid
                     val userDoc = mapOf(
                         "uid" to uid,
@@ -152,7 +153,7 @@ class SignUpFragment : Fragment() {
                     // Store initial user document at /users/{uid} via setValue()
                     FirebaseManager.usersRef.child(uid).setValue(userDoc)
 
-                    requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                    safeCtx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
                         .edit()
                         .putBoolean("is_logged_in", true)
                         .putBoolean("is_admin", false)
@@ -160,24 +161,26 @@ class SignUpFragment : Fragment() {
                         .apply()
 
                     com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                        requireContext(),
+                        safeCtx,
                         "Account Registered",
                         "Welcome to Foundly, $name. Your account has been created successfully."
                     )
 
                     com.group3.lostandfound.util.ModernToast.show(
-                        requireContext(),
-                        "Account created successfully. Welcome to Foundly.",
-                        rootView
+                        safeCtx,
+                        "Account created successfully. Welcome to Foundly."
                     )
 
-                    parentFragmentManager.beginTransaction()
-                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                        .replace(R.id.screenBox, HomeFragment.newInstance())
-                        .commit()
+                    if (isAdded) {
+                        parentFragmentManager.beginTransaction()
+                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                            .replace(R.id.screenBox, HomeFragment.newInstance())
+                            .commit()
+                    }
                 }
                 .addOnFailureListener { error ->
                     // Fallback for offline / demo testing
+                    val safeCtx = context ?: return@addOnFailureListener
                     val uid = FirebaseManager.currentUid
                     val userDoc = mapOf(
                         "uid" to uid,
@@ -193,7 +196,7 @@ class SignUpFragment : Fragment() {
                     )
                     FirebaseManager.usersRef.child(uid).setValue(userDoc)
 
-                    requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                    safeCtx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
                         .edit()
                         .putBoolean("is_logged_in", true)
                         .putBoolean("is_admin", false)
@@ -201,21 +204,22 @@ class SignUpFragment : Fragment() {
                         .apply()
 
                     com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                        requireContext(),
+                        safeCtx,
                         "Registration Complete",
                         "Welcome $name to the Foundly community."
                     )
 
                     com.group3.lostandfound.util.ModernToast.show(
-                        requireContext(),
-                        "Profile configured successfully for $name.",
-                        rootView
+                        safeCtx,
+                        "Profile configured successfully for $name."
                     )
 
-                    parentFragmentManager.beginTransaction()
-                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                        .replace(R.id.screenBox, HomeFragment.newInstance())
-                        .commit()
+                    if (isAdded) {
+                        parentFragmentManager.beginTransaction()
+                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                            .replace(R.id.screenBox, HomeFragment.newInstance())
+                            .commit()
+                    }
                 }
         }
 
