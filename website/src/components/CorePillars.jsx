@@ -1,49 +1,48 @@
 import React from 'react';
 import { Camera, ShieldCheck, MapPin, ArrowUpRight } from 'lucide-react';
-import { playClickSound } from '../utils/audio';
 
-export default function CorePillars({ onDownloadApk }) {
+export default function CorePillars({ onDownloadAndroid }) {
   const pillars = [
     {
       num: '01',
       icon: <Camera size={22} />,
-      title: 'On-Device AI Vision',
-      desc: 'Point your camera at any stray wallet, keychain, or device. Lightweight neural classification identifies brands, leather grains, and serial prefixes in 180ms without sending photos to cloud servers.',
-      tag: 'Local Neural Classification'
+      title: 'Snap a Photo',
+      desc: 'Take a quick photo of what you found. Foundly spots key details like color, type, and brand to find the rightful owner fast.',
+      tag: 'Instant photo search'
     },
     {
       num: '02',
       icon: <ShieldCheck size={22} />,
-      title: 'Zero-Knowledge Privacy',
-      desc: 'Owners confirm ownership through blind verification questions (card initials, distinctive markings, or lockscreen clues). Personal phone numbers and home addresses stay 100% private.',
-      tag: 'Cryptographic Claim Verification'
+      title: 'Keep Your Privacy',
+      desc: 'You never have to share your phone number or home address. Simply answer a quick detail only the true owner would know.',
+      tag: 'No phone number shared'
     },
     {
       num: '03',
       icon: <MapPin size={22} />,
-      title: 'Safe Campus Drop Hubs',
-      desc: 'No awkward public meetups with strangers. Finders deposit verified items at university security desks and 24/7 automated lockers for secure, contactless collection.',
-      tag: '350+ Verified Return Points'
+      title: 'Safe Drop Spots',
+      desc: 'Drop off or pick up items safely at campus security desks and 24/7 lockers. No meeting strangers in awkward places.',
+      tag: 'Verified drop locations'
     }
   ];
 
   return (
-    <section className="section-core-pillars" id="pillars">
+    <section className="section-core-pillars" id="features">
       <div className="container-fullscreen">
         <div className="pillars-header">
           <div>
-            <div className="pillars-overline">SYSTEM ARCHITECTURE</div>
+            <div className="pillars-overline">HOW IT WORKS</div>
             <h2 className="pillars-heading">
-              Thoughtful design.<br />
-              Zero unnecessary noise.
+              Three simple steps to<br />
+              get your items back.
             </h2>
           </div>
           <button 
-            onClick={onDownloadApk}
+            onClick={onDownloadAndroid}
             className="btn-apple-secondary"
             style={{ fontSize: '0.8rem', padding: '9px 18px' }}
           >
-            <span>Get Android Client</span>
+            <span>Download for Android</span>
             <ArrowUpRight size={14} />
           </button>
         </div>
