@@ -216,15 +216,26 @@ class DetailsFragment : Fragment() {
             showEnlargedPhotoDialog(activeImageUrl, tvItemTitle.text.toString())
         }
 
+        // Bookmarks persistence
+        val prefs = requireContext().getSharedPreferences("findit_bookmarks", android.content.Context.MODE_PRIVATE)
+        val currentSet = prefs.getStringSet("bookmarked_ids", emptySet()) ?: emptySet()
+        isBookmarked = itemId != null && currentSet.contains(itemId)
+        btnBookmark.setImageResource(if (isBookmarked) R.drawable.ic_nav_my_reports else R.drawable.ic_bookmark_outline)
+
         btnBookmark.setOnClickListener {
+            val curId = itemId ?: return@setOnClickListener
+            val bookmarkedSet = prefs.getStringSet("bookmarked_ids", emptySet())?.toMutableSet() ?: mutableSetOf()
             isBookmarked = !isBookmarked
             if (isBookmarked) {
+                bookmarkedSet.add(curId)
                 btnBookmark.setImageResource(R.drawable.ic_nav_my_reports)
                 Toast.makeText(requireContext(), "Item saved to bookmarks", Toast.LENGTH_SHORT).show()
             } else {
+                bookmarkedSet.remove(curId)
                 btnBookmark.setImageResource(R.drawable.ic_bookmark_outline)
                 Toast.makeText(requireContext(), "Removed from bookmarks", Toast.LENGTH_SHORT).show()
             }
+            prefs.edit().putStringSet("bookmarked_ids", bookmarkedSet).apply()
         }
 
         // Social Media & Messaging Sharing (Requirement 3.1 #10)
@@ -339,7 +350,7 @@ class DetailsFragment : Fragment() {
         tagStatus.setOnClickListener {
             val currentItemId = itemId ?: return@setOnClickListener
             val itemTitle = tvItemTitle.text.toString()
-            val options = arrayOf("Mark as RESOLVED", "Mark as LOST", "Mark as FOUND")
+            val options = arrayOf("Mark as RESOLVED / RETURNED", "Mark as LOST", "Mark as FOUND")
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Update Status: $itemTitle")
                 .setItems(options) { _, which ->
@@ -348,9 +359,17 @@ class DetailsFragment : Fragment() {
                         1 -> "LOST"
                         else -> "FOUND"
                     }
-                    FirebaseManager.markItemResolved(
+                    FirebaseManager.updateItemStatus(
                         itemId = currentItemId,
+                        newStatus = newStatus,
                         onSuccess = {
+                            updateStatusTag(newStatus)
+                            com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                                requireContext(),
+                                "Status Updated: $newStatus",
+                                "'$itemTitle' is now marked as $newStatus in Foundly community.",
+                                currentItemId
+                            )
                             Toast.makeText(requireContext(), "Status updated to $newStatus in Firebase!", Toast.LENGTH_SHORT).show()
                         },
                         onError = { error ->
@@ -451,6 +470,28 @@ class DetailsFragment : Fragment() {
                 putString(ARG_STATUS, status)
                 putString(ARG_LOCATION, location)
                 putInt(ARG_IMAGE_RES, imageResId)
+            }
+            fragment.arguments = args
+            return fragment
+        }
+
+        fun newInstance(
+            itemId: String,
+            title: String,
+            desc: String,
+            status: String,
+            location: String,
+            imageUrl: String = ""
+        ): DetailsFragment {
+            val fragment = DetailsFragment()
+            val args = Bundle().apply {
+                putString(ARG_ITEM_ID, itemId)
+                putString(ARG_TITLE, title)
+                putString(ARG_DESC, desc)
+                putString(ARG_STATUS, status)
+                putString(ARG_LOCATION, location)
+                putString("arg_image_url", imageUrl)
+                putInt(ARG_IMAGE_RES, R.drawable.ic_item_placeholder)
             }
             fragment.arguments = args
             return fragment
