@@ -671,6 +671,114 @@ class DetailsFragment : Fragment() {
         })
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun setupEmbeddedMap() {
+        val webView = webViewItemMap ?: return
+        val settings = webView.settings
+        settings.javaScriptEnabled = true
+        settings.domStorageEnabled = true
+        settings.loadWithOverviewMode = true
+        settings.useWideViewPort = true
+        webView.webChromeClient = WebChromeClient()
+        webView.webViewClient = WebViewClient()
+        loadEmbeddedMap(itemLatitude, itemLongitude, tagStatus.text.toString(), tvItemTitle.text.toString())
+    }
+
+    private fun loadEmbeddedMap(lat: Double, lng: Double, status: String, title: String) {
+        val html = buildEmbeddedMapHtml(lat, lng, status, title)
+        webViewItemMap?.loadDataWithBaseURL("https://leafletjs.com/", html, "text/html", "UTF-8", null)
+        tvMapCoordinates?.text = String.format(java.util.Locale.US, "📍 %.4f° N, %.4f° E · Tap to explore", lat, lng)
+    }
+
+    private fun resolveFallbackCoordinates(location: String): Pair<Double, Double> {
+        val lower = location.lowercase(java.util.Locale.US)
+        return when {
+            lower.contains("vihara") || lower.contains("park") -> Pair(6.9140, 79.8630)
+            lower.contains("independence") || lower.contains("colombo 07") -> Pair(6.9044, 79.8679)
+            lower.contains("duplication") || lower.contains("colombo 03") || lower.contains("kollupitiya") -> Pair(6.8974, 79.8562)
+            lower.contains("bambalapitiya") || lower.contains("colombo 04") -> Pair(6.8884, 79.8587)
+            lower.contains("fort") || lower.contains("colombo 01") || lower.contains("galle face") -> Pair(6.9344, 79.8428)
+            lower.contains("kandy") -> Pair(7.2906, 80.6337)
+            lower.contains("galle") -> Pair(6.0535, 80.2210)
+            else -> Pair(6.9271, 79.8612)
+        }
+    }
+
+    private fun buildEmbeddedMapHtml(lat: Double, lng: Double, status: String, title: String): String {
+        val pinColor = if (status.equals("LOST", ignoreCase = true)) "#D43838" else "#3B7A57"
+        val cleanTitle = title.replace("'", "\\'").replace("\"", "\\\"").replace("\n", " ").take(40)
+        return """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #F7F5F0;
+        }
+        .pin-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: $pinColor;
+            border: 2px solid #ffffff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .leaflet-control-attribution {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        var map = L.map('map', {
+            zoomControl: false,
+            dragging: false,
+            touchZoom: false,
+            doubleClickZoom: false,
+            scrollWheelZoom: false,
+            boxZoom: false
+        }).setView([$lat, $lng], 15);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        var pinIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<div class='pin-marker'>📍</div>",
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        L.marker([$lat, $lng], { icon: pinIcon }).addTo(map)
+            .bindPopup("<b>$cleanTitle</b><br/>$status Location").openPopup();
+    </script>
+</body>
+</html>
+        """.trimIndent()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        detailsJob?.cancel()
+        webViewItemMap?.destroy()
+    }
+
     companion object {
         private const val ARG_ITEM_ID = "arg_item_id"
         private const val ARG_TITLE = "arg_title"
