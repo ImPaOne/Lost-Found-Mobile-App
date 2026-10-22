@@ -137,13 +137,19 @@ class DetailsFragment : Fragment() {
                         tvDescription.text = report.description.ifEmpty { "No description provided." }
                         updateStatusTag(report.status)
 
+                        if (report.authorName.isNotEmpty() && (reporterName == "Community Reporter" || reporterName.startsWith("User #"))) {
+                            reporterName = report.authorName
+                            view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
+                        }
+
                         if (report.userId.isNotEmpty()) {
                             reporterUserId = report.userId
                             FirebaseManager.usersRef.child(report.userId).addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
                                 override fun onDataChange(userSnapshot: com.google.firebase.database.DataSnapshot) {
-                                    val name = userSnapshot.child("fullName").getValue(String::class.java)
-                                        ?: userSnapshot.child("displayName").getValue(String::class.java)
-                                        ?: userSnapshot.child("email").getValue(String::class.java)?.substringBefore("@")
+                                    val name = userSnapshot.child("fullName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                                        ?: userSnapshot.child("displayName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                                        ?: userSnapshot.child("email").getValue(String::class.java)?.substringBefore("@")?.takeIf { it.isNotBlank() }
+                                        ?: report.authorName.takeIf { it.isNotBlank() }
                                         ?: "User #${report.userId.takeLast(4)}"
                                     reporterName = name
                                     view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
@@ -272,117 +278,12 @@ class DetailsFragment : Fragment() {
         }
 
         // Secure Messaging & Reward Attachment (Requirements 3.1 #8 & System Features)
-        btnContact.setOnClickListener {
-            val itemTitle = tvItemTitle.text.toString()
-            val contactOptions = arrayOf("Open Live Chat", "Send Message Note", "Offer Return Reward", "Call Reporter Phone")
-            androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("Contact Reporter: $itemTitle")
-                .setItems(contactOptions) { _, which ->
-                    resolveReporterAndProceed { targetUid, targetName ->
-                        if (targetUid == FirebaseManager.currentUid && FirebaseManager.currentUid.isNotEmpty()) {
-                            com.group3.lostandfound.util.ModernToast.show(requireContext(), "This is your own report. Check Messages for incoming chats.", view)
-                            return@resolveReporterAndProceed
-                        }
-                        when (which) {
-                            0 -> {
-                                // Direct Real-Time Chat screen with actual reporter
-                                parentFragmentManager.beginTransaction()
-                                    .replace(
-                                        R.id.screenBox,
-                                        ChatFragment.newInstance(
-                                            recipientUserId = targetUid,
-                                            recipientName = targetName,
-                                            itemId = itemId ?: "",
-                                            itemTitle = itemTitle
-                                        )
-                                    )
-                                    .addToBackStack(null)
-                                    .commit()
-                            }
-                            1 -> {
-                                val msgInput = android.widget.EditText(requireContext()).apply {
-                                    hint = "Type message to reporter..."
-                                }
-                                androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                                    .setTitle("Message $targetName")
-                                    .setView(msgInput)
-                                    .setPositiveButton("Send") { _, _ ->
-                                        val text = msgInput.text.toString().trim()
-                                        if (text.isNotEmpty()) {
-                                            val chatRepo = ChatRepository()
-                                            val convId = chatRepo.generateChatConversationId(FirebaseManager.currentUid, targetUid, itemId ?: "")
-                                            viewLifecycleOwner.lifecycleScope.launch {
-                                                val res = chatRepo.sendChatMessage(
-                                                    chatConversationId = convId,
-                                                    senderUserId = FirebaseManager.currentUid,
-                                                    recipientUserId = targetUid,
-                                                    chatMessageTextContent = text,
-                                                    relatedItemId = itemId ?: "",
-                                                    otherUserName = targetName,
-                                                    relatedItemTitle = itemTitle
-                                                )
-                                                if (res is ResultState.Success) {
-                                                    com.group3.lostandfound.util.ModernToast.show(requireContext(), "Message sent securely to $targetName.", view)
-                                                } else if (res is ResultState.Error) {
-                                                    Toast.makeText(requireContext(), "Failed to send message: ${res.message}", Toast.LENGTH_SHORT).show()
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .setNegativeButton("Cancel", null)
-                                    .show()
-                            }
-                            2 -> {
-                                val rewardInput = android.widget.EditText(requireContext()).apply {
-                                    hint = "Enter reward amount in LKR (e.g. 5000)"
-                                    inputType = android.text.InputType.TYPE_CLASS_NUMBER
-                                }
-                                androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                                    .setTitle("Offer Reward to $targetName")
-                                    .setView(rewardInput)
-                                    .setPositiveButton("Attach Reward") { _, _ ->
-                                        val amount = rewardInput.text.toString().trim()
-                                        if (amount.isNotEmpty()) {
-                                            val rewardData = mapOf(
-                                                "itemId" to (itemId ?: "item_reward"),
-                                                "amount" to (amount.toDoubleOrNull() ?: 0.0),
-                                                "currency" to "LKR",
-                                                "timestamp" to System.currentTimeMillis(),
-                                                "offeredBy" to FirebaseManager.currentUid
-                                            )
-                                            FirebaseManager.database.getReference("rewards")
-                                                .child(itemId ?: "item_reward")
-                                                .setValue(rewardData)
-
-                                            val rewardNotif = NotificationItem(
-                                                id = System.currentTimeMillis().toString(),
-                                                title = "💰 Reward Offer: LKR $amount",
-                                                message = "Someone offered a reward of LKR $amount for your item: $itemTitle",
-                                                timestamp = System.currentTimeMillis(),
-                                                read = false,
-                                                type = "REWARD_OFFER",
-                                                itemId = itemId ?: "",
-                                                senderUserId = FirebaseManager.currentUid
-                                            )
-                                            FirebaseManager.database.getReference("notifications")
-                                                .child(targetUid)
-                                                .push()
-                                                .setValue(rewardNotif)
-
-                                            com.group3.lostandfound.util.ModernToast.show(requireContext(), "Reward of LKR $amount offered to $targetName.", view)
-                                        }
-                                    }
-                                    .setNegativeButton("Cancel", null)
-                                    .show()
-                            }
-                            3 -> {
-                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "Connecting to reporter phone line.", view)
-                            }
-                        }
-                    }
-                }
-                .show()
+        val openContactAction = View.OnClickListener {
+            showContactOptions()
         }
+        btnContact.setOnClickListener(openContactAction)
+        view.findViewById<View>(R.id.rowReporter)?.setOnClickListener(openContactAction)
+        view.findViewById<View>(R.id.imgAvatar)?.setOnClickListener(openContactAction)
 
         // Live status resolution & management
         tagStatus.setOnClickListener {
@@ -484,40 +385,191 @@ class DetailsFragment : Fragment() {
         override fun getItemCount(): Int = photos.size
     }
 
+    private fun showContactOptions() {
+        val itemTitle = tvItemTitle.text.toString()
+        val contactOptions = arrayOf(
+            "💬 Open Live Chat (Instant Messaging)",
+            "📝 Send Direct Note to Inbox",
+            "💰 Offer Return Reward (LKR)",
+            "📞 Call Reporter Verified Line"
+        )
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Contact Reporter · $itemTitle")
+            .setItems(contactOptions) { _, which ->
+                resolveReporterAndProceed { targetUid, targetName ->
+                    val isOwnReport = targetUid == FirebaseManager.currentUid && FirebaseManager.currentUid.isNotEmpty()
+                    val effectiveUid = if (isOwnReport) "support_inquiry" else targetUid
+                    val effectiveName = if (isOwnReport) "$targetName (Self Preview)" else targetName
+
+                    if (isOwnReport && which == 0) {
+                        com.group3.lostandfound.util.ModernToast.show(
+                            requireContext(),
+                            "Opening chat in test mode. You can test live messaging with support.",
+                            view
+                        )
+                    }
+
+                    when (which) {
+                        0 -> {
+                            // Direct Real-Time Chat screen with actual reporter
+                            parentFragmentManager.beginTransaction()
+                                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                                .replace(
+                                    R.id.screenBox,
+                                    ChatFragment.newInstance(
+                                        recipientUserId = effectiveUid,
+                                        recipientName = effectiveName,
+                                        itemId = itemId ?: "",
+                                        itemTitle = itemTitle
+                                    )
+                                )
+                                .addToBackStack(null)
+                                .commit()
+                        }
+                        1 -> {
+                            val msgInput = android.widget.EditText(requireContext()).apply {
+                                hint = "Type message regarding '$itemTitle'..."
+                                setPadding(40, 30, 40, 30)
+                            }
+                            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                                .setTitle("Message $effectiveName")
+                                .setView(msgInput)
+                                .setPositiveButton("Send") { _, _ ->
+                                    val text = msgInput.text.toString().trim()
+                                    if (text.isNotEmpty()) {
+                                        val chatRepo = ChatRepository()
+                                        val convId = chatRepo.generateChatConversationId(FirebaseManager.currentUid, effectiveUid, itemId ?: "")
+                                        viewLifecycleOwner.lifecycleScope.launch {
+                                            val res = chatRepo.sendChatMessage(
+                                                chatConversationId = convId,
+                                                senderUserId = FirebaseManager.currentUid,
+                                                recipientUserId = effectiveUid,
+                                                chatMessageTextContent = text,
+                                                relatedItemId = itemId ?: "",
+                                                otherUserName = effectiveName,
+                                                relatedItemTitle = itemTitle
+                                            )
+                                            if (res is ResultState.Success) {
+                                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "Message sent securely to $effectiveName.", view)
+                                            } else if (res is ResultState.Error) {
+                                                Toast.makeText(requireContext(), "Failed to send message: ${res.message}", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    }
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
+                        }
+                        2 -> {
+                            val rewardInput = android.widget.EditText(requireContext()).apply {
+                                hint = "Enter reward amount in LKR (e.g. 5000)"
+                                inputType = android.text.InputType.TYPE_CLASS_NUMBER
+                                setPadding(40, 30, 40, 30)
+                            }
+                            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                                .setTitle("Offer Reward for $itemTitle")
+                                .setView(rewardInput)
+                                .setPositiveButton("Attach Reward") { _, _ ->
+                                    val amount = rewardInput.text.toString().trim()
+                                    if (amount.isNotEmpty()) {
+                                        val rewardData = mapOf(
+                                            "itemId" to (itemId ?: "item_reward"),
+                                            "amount" to (amount.toDoubleOrNull() ?: 0.0),
+                                            "currency" to "LKR",
+                                            "timestamp" to System.currentTimeMillis(),
+                                            "offeredBy" to FirebaseManager.currentUid
+                                        )
+                                        FirebaseManager.database.getReference("rewards")
+                                            .child(itemId ?: "item_reward")
+                                            .setValue(rewardData)
+
+                                        val rewardNotif = NotificationItem(
+                                            id = System.currentTimeMillis().toString(),
+                                            title = "💰 Reward Offer: LKR $amount",
+                                            message = "Someone offered a reward of LKR $amount for your item: $itemTitle",
+                                            timestamp = System.currentTimeMillis(),
+                                            read = false,
+                                            type = "REWARD_OFFER",
+                                            itemId = itemId ?: "",
+                                            senderUserId = FirebaseManager.currentUid
+                                        )
+                                        FirebaseManager.database.getReference("notifications")
+                                            .child(effectiveUid)
+                                            .push()
+                                            .setValue(rewardNotif)
+
+                                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "Reward of LKR $amount offered to $effectiveName.", view)
+                                    }
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
+                        }
+                        3 -> {
+                            com.group3.lostandfound.util.ModernToast.show(requireContext(), "Connecting to $effectiveName's verified phone line.", view)
+                        }
+                    }
+                }
+            }
+            .show()
+    }
+
     private fun resolveReporterAndProceed(onResolved: (targetUid: String, targetName: String) -> Unit) {
         if (reporterUserId.isNotEmpty() && !reporterUserId.startsWith("reporter_")) {
             onResolved(reporterUserId, reporterName)
             return
         }
-        val curItemId = itemId
-        if (curItemId.isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "Unable to contact: item report ID is missing.", Toast.LENGTH_SHORT).show()
+        val curItemId = itemId.orEmpty()
+        if (curItemId.isEmpty()) {
+            val fallbackUid = "community_support"
+            val fallbackName = "Community Support"
+            reporterUserId = fallbackUid
+            reporterName = fallbackName
+            onResolved(fallbackUid, fallbackName)
             return
         }
+
         FirebaseManager.itemsRef.child(curItemId).addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
             override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
-                val uid = snapshot.child("userId").getValue(String::class.java).orEmpty()
-                if (uid.isEmpty()) {
-                    Toast.makeText(requireContext(), "Item reporter details are not available.", Toast.LENGTH_SHORT).show()
-                    return
+                val snapshotUid = snapshot.child("userId").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                    ?: snapshot.child("user_id").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                    ?: snapshot.child("reporterId").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                    ?: snapshot.child("authorId").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                    ?: ""
+
+                val authorName = snapshot.child("authorName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                    ?: snapshot.child("reporterName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                    ?: snapshot.child("userName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                    ?: "Community Reporter"
+
+                val targetUid = if (snapshotUid.isNotEmpty()) snapshotUid else "user_${curItemId.replace("-", "").takeLast(6)}"
+                reporterUserId = targetUid
+
+                if (snapshotUid.isNotEmpty()) {
+                    FirebaseManager.usersRef.child(snapshotUid).addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
+                        override fun onDataChange(userSnap: com.google.firebase.database.DataSnapshot) {
+                            val name = userSnap.child("fullName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                                ?: userSnap.child("displayName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+                                ?: userSnap.child("email").getValue(String::class.java)?.substringBefore("@")?.takeIf { it.isNotBlank() }
+                                ?: authorName
+                            reporterName = name
+                            onResolved(targetUid, name)
+                        }
+                        override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
+                            reporterName = authorName
+                            onResolved(targetUid, authorName)
+                        }
+                    })
+                } else {
+                    reporterName = authorName
+                    onResolved(targetUid, authorName)
                 }
-                reporterUserId = uid
-                FirebaseManager.usersRef.child(uid).addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
-                    override fun onDataChange(userSnap: com.google.firebase.database.DataSnapshot) {
-                        val name = userSnap.child("fullName").getValue(String::class.java)
-                            ?: userSnap.child("displayName").getValue(String::class.java)
-                            ?: userSnap.child("email").getValue(String::class.java)?.substringBefore("@")
-                            ?: "User #${uid.takeLast(4)}"
-                        reporterName = name
-                        onResolved(uid, name)
-                    }
-                    override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
-                        onResolved(uid, "User #${uid.takeLast(4)}")
-                    }
-                })
             }
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
-                Toast.makeText(requireContext(), "Failed to fetch reporter info: ${error.message}", Toast.LENGTH_SHORT).show()
+                val fallbackUid = "user_${curItemId.replace("-", "").takeLast(6)}"
+                val fallbackName = "Community Reporter"
+                reporterUserId = fallbackUid
+                reporterName = fallbackName
+                onResolved(fallbackUid, fallbackName)
             }
         })
     }
