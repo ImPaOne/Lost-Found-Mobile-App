@@ -11,10 +11,15 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.group3.lostandfound.util.ImageLoader
+import com.group3.lostandfound.util.ModernToast
+import kotlinx.coroutines.launch
 
 /**
  * ProfileFragment displays user profile information, activity statistics,
@@ -158,10 +163,20 @@ class ProfileFragment : Fragment() {
                         ?: snapshot.child("fullName").getValue(String::class.java)
                         ?: "Community Member"
                     currentLanguage = snapshot.child("preferredLanguage").getValue(String::class.java) ?: "en"
+                    currentPhone = snapshot.child("phone").getValue(String::class.java)
+                        ?: snapshot.child("phoneNumber").getValue(String::class.java)
+                        ?: ""
+                    currentPhotoUrl = snapshot.child("photoUrl").getValue(String::class.java)
+                        ?: snapshot.child("avatarUrl").getValue(String::class.java)
+                        ?: ""
                     val isTrusted = snapshot.child("isTrustedFinder").getValue(Boolean::class.java) ?: false
 
                     userName.text = currentDisplayName
                     userSubtitle.text = "Language: ${currentLanguage.uppercase()} · ${if (isTrusted) "Trusted Finder" else "Community Member"}"
+
+                    if (currentPhotoUrl.isNotEmpty()) {
+                        ImageLoader.load(userAvatar, currentPhotoUrl, R.drawable.ic_user_avatar, viewLifecycleOwner.lifecycleScope)
+                    }
                 }
             }
 
@@ -172,47 +187,100 @@ class ProfileFragment : Fragment() {
         profileListener?.let { userRef.addValueEventListener(it) }
     }
 
-    private fun showEditProfileDialog() {
-        val input = EditText(requireContext()).apply {
-            setText(currentDisplayName)
-            setSelection(text.length)
-            hint = "Enter display name"
-        }
-
-        val languages = arrayOf("English (en)", "Sinhala (si)", "Tamil (ta)")
-        var selectedLangIndex = when (currentLanguage) {
-            "si" -> 1
-            "ta" -> 2
-            else -> 0
-        }
-
-        AlertDialog.Builder(requireContext())
-            .setTitle("Edit Profile")
-            .setView(input)
-            .setSingleChoiceItems(languages, selectedLangIndex) { _, which ->
-                selectedLangIndex = which
-            }
-            .setPositiveButton("Save") { _, _ ->
-                val newName = input.text.toString().trim().ifEmpty { currentDisplayName }
-                val newLang = when (selectedLangIndex) {
-                    1 -> "si"
-                    2 -> "ta"
-                    else -> "en"
-                }
-
-                // Update /users/{uid} using updateChildren()
-                val updates = mapOf(
-                    "displayName" to newName,
-                    "preferredLanguage" to newLang
+    private fun uploadProfileImage(uri: android.net.Uri) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                ModernToast.show(requireContext(), "Uploading profile photo...", view)
+                val compressedBytes = com.group3.lostandfound.repository.ReportRepository().compressImageUri(
+                    requireContext(),
+                    uri,
+                    maxWidth = 500,
+                    maxHeight = 500,
+                    quality = 80
                 )
-                userRef.updateChildren(updates).addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Profile updated in Firebase!", Toast.LENGTH_SHORT).show()
-                }.addOnFailureListener {
-                    Toast.makeText(requireContext(), "Failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                var uploadedUrl = ""
+                try {
+                    uploadedUrl = com.group3.lostandfound.util.CloudinaryManager.uploadImage(compressedBytes) {}
+                } catch (_: Exception) {}
+
+                if (!uploadedUrl.startsWith("http://") && !uploadedUrl.startsWith("https://")) {
+                    val b64 = android.util.Base64.encodeToString(compressedBytes, android.util.Base64.NO_WRAP)
+                    uploadedUrl = "data:image/jpeg;base64,$b64"
                 }
+
+                val updates = mapOf<String, Any>(
+                    "photoUrl" to uploadedUrl,
+                    "avatarUrl" to uploadedUrl
+                )
+                userRef.updateChildren(updates)
+                currentPhotoUrl = uploadedUrl
+                ImageLoader.load(userAvatar, uploadedUrl, R.drawable.ic_user_avatar, viewLifecycleOwner.lifecycleScope)
+                activeDialogAvatarPreview?.let {
+                    ImageLoader.load(it, uploadedUrl, R.drawable.ic_user_avatar, viewLifecycleOwner.lifecycleScope)
+                }
+                ModernToast.show(requireContext(), "Profile photo updated successfully!", view)
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Photo upload error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+    }
+
+    private fun showEditProfileDialog() {
+        val bottomSheet = BottomSheetDialog(requireContext())
+        val sheetView = layoutInflater.inflate(R.layout.dialog_edit_profile, null)
+        bottomSheet.setContentView(sheetView)
+
+        val dialogAvatarPreview = sheetView.findViewById<ImageView>(R.id.dialogAvatarPreview)
+        val rowChangeAvatar = sheetView.findViewById<View>(R.id.rowChangeAvatar)
+        val etProfileName = sheetView.findViewById<EditText>(R.id.etProfileName)
+        val etProfilePhone = sheetView.findViewById<EditText>(R.id.etProfilePhone)
+        val btnCancelEdit = sheetView.findViewById<View>(R.id.btnCancelEdit)
+        val btnSaveProfile = sheetView.findViewById<View>(R.id.btnSaveProfile)
+
+        activeDialogAvatarPreview = dialogAvatarPreview
+        if (currentPhotoUrl.isNotEmpty()) {
+            ImageLoader.load(dialogAvatarPreview, currentPhotoUrl, R.drawable.ic_user_avatar, viewLifecycleOwner.lifecycleScope)
+        }
+
+        etProfileName.setText(currentDisplayName)
+        etProfilePhone.setText(currentPhone)
+
+        rowChangeAvatar.setOnClickListener {
+            pickProfileAvatarLauncher.launch("image/*")
+        }
+
+        btnCancelEdit.setOnClickListener {
+            bottomSheet.dismiss()
+        }
+
+        btnSaveProfile.setOnClickListener {
+            val newName = etProfileName.text.toString().trim().ifEmpty { currentDisplayName }
+            val newPhone = etProfilePhone.text.toString().trim()
+
+            val updates = mutableMapOf<String, Any>(
+                "displayName" to newName,
+                "fullName" to newName
+            )
+            if (newPhone.isNotEmpty()) {
+                updates["phone"] = newPhone
+                updates["phoneNumber"] = newPhone
+            }
+
+            userRef.updateChildren(updates).addOnSuccessListener {
+                currentDisplayName = newName
+                currentPhone = newPhone
+                userName.text = newName
+                ModernToast.show(requireContext(), "Profile updated in Firebase!", view)
+                bottomSheet.dismiss()
+            }.addOnFailureListener {
+                Toast.makeText(requireContext(), "Update failed: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        bottomSheet.setOnDismissListener {
+            activeDialogAvatarPreview = null
+        }
+        bottomSheet.show()
     }
 
     private fun showSavedItemsDialog() {
