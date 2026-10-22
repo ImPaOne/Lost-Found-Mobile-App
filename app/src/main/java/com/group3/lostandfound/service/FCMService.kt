@@ -120,17 +120,21 @@ class FCMService : FirebaseMessagingService() {
         fun createNotificationChannel(context: Context) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 try {
-                    val name = "Foundly Urgent Alerts & Matches"
-                    val descriptionText = "Push notifications with sounds for urgent lost and found items and messages"
+                    val name = "Foundly Urgent Alerts & Messages"
+                    val descriptionText = "Push notifications with modern sounds for urgent items and incoming messages"
                     val importance = NotificationManager.IMPORTANCE_HIGH
                     val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                         description = descriptionText
                         enableVibration(true)
-                        vibrationPattern = longArrayOf(0, 300, 200, 300)
+                        vibrationPattern = longArrayOf(0, 200, 100, 200, 100, 250)
+                        enableLights(true)
+                        lightColor = android.graphics.Color.rgb(255, 112, 67)
+                        lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+                        setShowBadge(true)
                         val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
                         val audioAttributes = android.media.AudioAttributes.Builder()
                             .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                            .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                            .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
                             .build()
                         setSound(soundUri, audioAttributes)
                     }
@@ -150,6 +154,12 @@ class FCMService : FirebaseMessagingService() {
             try {
                 createNotificationChannel(context)
                 val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
+
+                // Audible sound feedback for modern alerts
+                try {
+                    val ringtone = android.media.RingtoneManager.getRingtone(context.applicationContext, soundUri)
+                    ringtone?.play()
+                } catch (_: Exception) {}
 
                 val intent = Intent(context, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -171,8 +181,10 @@ class FCMService : FirebaseMessagingService() {
                     .setContentText(body)
                     .setStyle(NotificationCompat.BigTextStyle().bigText(body))
                     .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setSound(soundUri)
-                    .setVibrate(longArrayOf(0, 300, 200, 300))
+                    .setVibrate(longArrayOf(0, 200, 100, 200, 100, 250))
                     .setDefaults(NotificationCompat.DEFAULT_ALL)
                     .setAutoCancel(true)
                     .setContentIntent(pendingIntent)
