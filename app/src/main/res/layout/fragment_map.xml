@@ -239,6 +239,7 @@
         android:layout_marginStart="18dp"
         android:layout_marginEnd="18dp"
         android:layout_marginBottom="12dp"
+        android:visibility="gone"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="18dp"
         app:cardElevation="6dp"
@@ -267,7 +268,7 @@
                     android:layout_height="match_parent"
                     android:contentDescription="Item image"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/img_wallet_details" />
+                    android:src="@drawable/ic_item_placeholder" />
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Item Information -->
