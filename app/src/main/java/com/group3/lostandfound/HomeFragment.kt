@@ -15,25 +15,25 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.card.MaterialCardView
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.group3.lostandfound.model.ItemReport
 import com.group3.lostandfound.service.FCMService
 import com.group3.lostandfound.util.ImageLoader
+import com.group3.lostandfound.viewmodel.HomeViewModel
+import kotlinx.coroutines.launch
 
 /**
- * HomeFragment displays the main dashboard of the Foundly app:
- * - Realtime Live Data from Firebase /items (ZERO DUMMY DATA)
- * - Dynamic Urgent Item Highlights Carousel Slider from Firebase /items
+ * HomeFragment displays the main dashboard of the Foundly app following MVVM architecture:
+ * - Realtime Live Data from HomeViewModel (ZERO DUMMY DATA)
+ * - Dynamic Urgent Item Highlights Carousel Slider from HomeViewModel
  * - Quick action cards: "Report Lost" & "Report Found"
  * - Live Community statistics
  * - Category filter chips ("All", "Electronics", "Documents")
- * - Dynamic recent items from Firebase
+ * - Dynamic recent items from ViewModel
  * - Push notifications with sound triggers
  */
 class HomeFragment : Fragment() {
@@ -46,7 +46,7 @@ class HomeFragment : Fragment() {
     private lateinit var inputSearchField: EditText
     private lateinit var buttonFilterSettings: ImageView
 
-    // Urgent Highlights Slider
+    // Urgent banner slider views
     private lateinit var urgentSliderContainer: LinearLayout
     private lateinit var vpUrgentAlertSlider: ViewPager2
     private lateinit var dotSlider1: View
@@ -70,8 +70,10 @@ class HomeFragment : Fragment() {
     private lateinit var cardDogItem: MaterialCardView
     private var cardLaptopHome: View? = null
 
-    // Real reports from Firebase
-    private val liveReportsList = mutableListOf<ReportItem>()
+    // MVVM ViewModel & active reports
+    private lateinit var homeViewModel: HomeViewModel
+    private var currentReportsList: List<ItemReport> = emptyList()
+    private var pageChangeCallback: ViewPager2.OnPageChangeCallback? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -84,9 +86,11 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
+
         initViews(view)
         setupClickListeners()
-        observeLiveFirebaseItems()
+        observeHomeViewModel()
         NavigationHelper.setup(this, view, NavigationHelper.Tab.HOME)
     }
 
@@ -116,49 +120,29 @@ class HomeFragment : Fragment() {
         cardLaptopHome = view.findViewById(R.id.cardLaptopHome)
     }
 
-    private var itemsListener: ValueEventListener? = null
-    private var pageChangeCallback: ViewPager2.OnPageChangeCallback? = null
+    private fun observeHomeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            homeViewModel.uiState.collect { state ->
+                if (!isAdded || view == null) return@collect
 
-    /**
-     * Reads real-time data from /items node in Firebase.
-     * ZERO dummy data: only actual user created posts are bound and shown.
-     */
-    private fun observeLiveFirebaseItems() {
-        val listener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (!isAdded || view == null) return
+                view?.findViewById<TextView>(R.id.textGreetingMessage)?.text = "Good day, ${state.userGreetingName}"
 
-                liveReportsList.clear()
-                for (child in snapshot.children) {
-                    val report = ReportItem.fromSnapshot(child)
-                    if (report.itemId.isNotEmpty() || report.title.isNotEmpty()) {
-                        liveReportsList.add(report)
-                    }
-                }
-
-                updateUrgentSliderFromLive(liveReportsList)
-                updateRecentCardsFromLive(liveReportsList)
+                currentReportsList = state.recentItems
+                updateUrgentSliderFromLive(state.urgentItems)
+                updateRecentCardsFromLive(state.recentItems)
 
                 view?.findViewById<TextView>(R.id.textReunitedStatistics)?.let { tvStat ->
-                    val countDisplay = liveReportsList.size
+                    val countDisplay = state.recentItems.size
                     tvStat.text = "$countDisplay community reports active"
                 }
             }
-
-            override fun onCancelled(error: DatabaseError) {}
         }
-        itemsListener = listener
-        FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
-            .getReference("items")
-            .addValueEventListener(listener)
     }
 
-    private fun updateUrgentSliderFromLive(reports: List<ReportItem>) {
+    private fun updateUrgentSliderFromLive(reports: List<ItemReport>) {
         if (!isAdded || view == null) return
 
-        val urgentItems = reports.filter {
-            it.status.equals("LOST", ignoreCase = true) || it.isFlagged
-        }.map { report ->
+        val urgentItems = reports.map { report ->
             UrgentItemData(
                 id = report.itemId,
                 badge = if (report.status.equals("LOST", ignoreCase = true)) "URGENT LOST" else "FOUND REPORT",
@@ -204,28 +188,32 @@ class HomeFragment : Fragment() {
             }
             pageChangeCallback = newCallback
             vpUrgentAlertSlider.registerOnPageChangeCallback(newCallback)
-            updateSliderDots(vpUrgentAlertSlider.currentItem, urgentItems.size)
 
-            sliderRunnable?.let { sliderHandler.removeCallbacks(it) }
-            if (urgentItems.size > 1) {
-                sliderRunnable = object : Runnable {
-                    override fun run() {
-                        if (!isAdded || view == null) return
-                        val currentPos = vpUrgentAlertSlider.currentItem
-                        val nextPos = (currentPos + 1) % urgentItems.size
-                        vpUrgentAlertSlider.setCurrentItem(nextPos, true)
-                        sliderHandler.postDelayed(this, 4000)
-                    }
-                }
-                sliderHandler.postDelayed(sliderRunnable!!, 4000)
-            }
+            updateSliderDots(0, urgentItems.size)
+            startAutoScrollSlider(urgentItems.size)
         }
     }
 
+    private fun startAutoScrollSlider(itemCount: Int) {
+        sliderRunnable?.let { sliderHandler.removeCallbacks(it) }
+        if (itemCount <= 1) return
+
+        val runnable = object : Runnable {
+            override fun run() {
+                if (!isAdded || view == null) return
+                val current = vpUrgentAlertSlider.currentItem
+                val next = (current + 1) % itemCount
+                vpUrgentAlertSlider.setCurrentItem(next, true)
+                sliderHandler.postDelayed(this, 4000)
+            }
+        }
+        sliderRunnable = runnable
+        sliderHandler.postDelayed(runnable, 4000)
+    }
+
     private fun updateSliderDots(position: Int, totalItems: Int) {
-        val ctx = context ?: return
-        val density = ctx.resources.displayMetrics.density
-        val activeWidth = (16 * density).toInt()
+        val density = resources.displayMetrics.density
+        val activeWidth = (22 * density).toInt()
         val inactiveWidth = (6 * density).toInt()
 
         val dots = listOf(dotSlider1, dotSlider2, dotSlider3)
@@ -248,7 +236,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun updateRecentCardsFromLive(reports: List<ReportItem>) {
+    private fun updateRecentCardsFromLive(reports: List<ItemReport>) {
         view?.findViewById<TextView>(R.id.tvEmptyRecent)?.visibility = if (reports.isEmpty()) View.VISIBLE else View.GONE
 
         // Item 1
@@ -303,7 +291,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun openItem(report: ReportItem) {
+    private fun openItem(report: ItemReport) {
         parentFragmentManager.beginTransaction()
             .replace(
                 R.id.screenBox,
@@ -352,7 +340,7 @@ class HomeFragment : Fragment() {
                                 context = requireContext(),
                                 title = "Urgent Match Alert",
                                 body = "Live community update for your reported item.",
-                                itemId = liveReportsList.firstOrNull()?.itemId
+                                itemId = currentReportsList.firstOrNull()?.itemId
                             )
                             com.group3.lostandfound.util.ModernToast.show(
                                 requireContext(),
@@ -369,70 +357,80 @@ class HomeFragment : Fragment() {
             Toast.makeText(requireContext(), "Filtering: All recent items", Toast.LENGTH_SHORT).show()
         }
 
-        cardReportLostItem.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, CreateReportFragment.newInstance(isLost = true))
-                .addToBackStack(null)
-                .commit()
-        }
-
-        cardReportFoundItem.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, CreateReportFragment.newInstance(isLost = false))
-                .addToBackStack(null)
-                .commit()
-        }
-
-        chipCategoryAll.setOnClickListener {
-            selectCategoryChip(chipCategoryAll)
-            updateRecentCardsFromLive(liveReportsList)
-        }
-        chipCategoryElectronics.setOnClickListener {
-            selectCategoryChip(chipCategoryElectronics)
-            updateRecentCardsFromLive(liveReportsList.filter { it.category.contains("Electronic", ignoreCase = true) })
-        }
-        chipCategoryDocuments.setOnClickListener {
-            selectCategoryChip(chipCategoryDocuments)
-            updateRecentCardsFromLive(liveReportsList.filter { it.category.contains("Document", ignoreCase = true) })
-        }
-
         buttonSeeAllRecent.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.screenBox, ExploreFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
         }
+
+        cardReportLostItem.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, CreateReportFragment.newInstance(true))
+                .addToBackStack(null)
+                .commit()
+        }
+
+        cardReportFoundItem.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, CreateReportFragment.newInstance(false))
+                .addToBackStack(null)
+                .commit()
+        }
+
+        chipCategoryAll.setOnClickListener {
+            highlightChip(chipCategoryAll)
+            filterByCategory("All")
+        }
+
+        chipCategoryElectronics.setOnClickListener {
+            highlightChip(chipCategoryElectronics)
+            filterByCategory("Electronics")
+        }
+
+        chipCategoryDocuments.setOnClickListener {
+            highlightChip(chipCategoryDocuments)
+            filterByCategory("Documents")
+        }
     }
 
-    private fun selectCategoryChip(selectedChip: TextView) {
-        val ctx = context ?: return
-        val allChips = listOf(chipCategoryAll, chipCategoryElectronics, chipCategoryDocuments)
-        for (chip in allChips) {
+    private fun highlightChip(selectedChip: TextView) {
+        val chips = listOf(chipCategoryAll, chipCategoryElectronics, chipCategoryDocuments)
+        val selectedBg = ContextCompat.getDrawable(requireContext(), R.drawable.bg_chip_selected)
+        val unselectedBg = ContextCompat.getDrawable(requireContext(), R.drawable.bg_chip_unselected)
+        val selectedColor = ContextCompat.getColor(requireContext(), R.color.white)
+        val unselectedColor = ContextCompat.getColor(requireContext(), R.color.text_primary)
+
+        chips.forEach { chip ->
             if (chip == selectedChip) {
-                chip.setBackgroundResource(R.drawable.bg_chip_selected)
-                chip.setTextColor(ContextCompat.getColor(ctx, R.color.white))
+                chip.background = selectedBg
+                chip.setTextColor(selectedColor)
             } else {
-                chip.setBackgroundResource(R.drawable.bg_chip_unselected)
-                chip.setTextColor(ContextCompat.getColor(ctx, R.color.text_primary))
+                chip.background = unselectedBg
+                chip.setTextColor(unselectedColor)
             }
+        }
+    }
+
+    private fun filterByCategory(category: String) {
+        if (category.equals("All", ignoreCase = true)) {
+            updateRecentCardsFromLive(currentReportsList)
+        } else {
+            val filtered = currentReportsList.filter {
+                it.category.contains(category, ignoreCase = true)
+            }
+            updateRecentCardsFromLive(filtered)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        pageChangeCallback?.let { vpUrgentAlertSlider.unregisterOnPageChangeCallback(it) }
-        itemsListener?.let {
-            FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
-                .getReference("items")
-                .removeEventListener(it)
-        }
         sliderRunnable?.let { sliderHandler.removeCallbacks(it) }
+        pageChangeCallback?.let { vpUrgentAlertSlider.unregisterOnPageChangeCallback(it) }
     }
 
     companion object {
-        fun newInstance(): HomeFragment {
-            return HomeFragment()
-        }
+        fun newInstance(): HomeFragment = HomeFragment()
     }
 
     data class UrgentItemData(
@@ -444,12 +442,13 @@ class HomeFragment : Fragment() {
         val subtitle: String,
         val location: String,
         val status: String,
-        val imageResId: Int,
+        val imageUrl: String,
         val description: String
     )
 
-    private class UrgentSliderAdapter(
+    class UrgentSliderAdapter(
         private val items: List<UrgentItemData>,
+        private val scope: kotlinx.coroutines.CoroutineScope,
         private val onClick: (UrgentItemData) -> Unit
     ) : RecyclerView.Adapter<UrgentSliderAdapter.SliderViewHolder>() {
 
@@ -485,7 +484,7 @@ class HomeFragment : Fragment() {
                 tvSliderReward.text = item.rewardText
                 tvSliderTitle.text = item.title
                 tvSliderSubtitle.text = item.subtitle
-                imgSliderThumbnail.setImageResource(item.imageResId)
+                ImageLoader.load(imgSliderThumbnail, item.imageUrl, R.drawable.ic_item_placeholder, scope)
 
                 itemView.setOnClickListener { onClick(item) }
             }
