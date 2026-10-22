@@ -17,12 +17,14 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.card.MaterialCardView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.group3.lostandfound.service.FCMService
+import com.group3.lostandfound.util.ImageLoader
 
 /**
  * HomeFragment displays the main dashboard of the Foundly app:
@@ -166,7 +168,7 @@ class HomeFragment : Fragment() {
                 subtitle = "${report.location.ifEmpty { "Colombo" }} · Live Post",
                 location = report.location.ifEmpty { "Colombo" },
                 status = report.status.ifEmpty { "LOST" },
-                imageResId = R.drawable.img_wallet_details,
+                imageUrl = report.imageUrl,
                 description = report.description.ifEmpty { "No description provided." }
             )
         }
@@ -176,7 +178,7 @@ class HomeFragment : Fragment() {
             sliderRunnable?.let { sliderHandler.removeCallbacks(it) }
         } else {
             urgentSliderContainer.visibility = View.VISIBLE
-            vpUrgentAlertSlider.adapter = UrgentSliderAdapter(urgentItems) { item ->
+            vpUrgentAlertSlider.adapter = UrgentSliderAdapter(urgentItems, viewLifecycleOwner.lifecycleScope) { item ->
                 parentFragmentManager.beginTransaction()
                     .replace(
                         R.id.screenBox,
@@ -185,7 +187,7 @@ class HomeFragment : Fragment() {
                             desc = item.description,
                             status = item.status,
                             location = item.location,
-                            imageResId = item.imageResId,
+                            imageResId = R.drawable.ic_item_placeholder,
                             itemId = item.id
                         )
                     )
