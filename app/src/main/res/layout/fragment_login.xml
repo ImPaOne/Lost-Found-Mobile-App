@@ -96,7 +96,7 @@
                 android:layout_marginTop="2dp"
                 android:background="@null"
                 android:fontFamily="sans-serif"
-                android:hint="nadeesha@email.com"
+                android:hint="user@example.com"
                 android:importantForAutofill="no"
                 android:inputType="textEmailAddress"
                 android:paddingTop="6dp"
