@@ -64,6 +64,7 @@ class MapFragment : Fragment() {
     private var isLocationPinned = false
     private var pinnedLat: Double = 6.9140
     private var pinnedLng: Double = 79.8630
+    private var isPickerMode = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -76,10 +77,22 @@ class MapFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        isPickerMode = arguments?.getBoolean(ARG_IS_PICKER_MODE, false) ?: false
+
         initViews(view)
         setupLeafletWebView()
         setupListeners()
-        setupBottomNav(view, "explore")
+
+        if (isPickerMode) {
+            view.findViewById<View>(R.id.bottomNav)?.visibility = View.GONE
+            textItemTitle.text = "Tap on map to select location"
+            textItemLocation.text = "Tap here once pinned to confirm location"
+            tagFoundStatus.text = "SELECT"
+            tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            imgLaptopThumb.setImageResource(R.drawable.ic_location)
+        } else {
+            setupBottomNav(view, "explore")
+        }
     }
 
     private fun initViews(view: View) {
@@ -198,22 +211,30 @@ class MapFragment : Fragment() {
         }
 
         cardLaptopItem.setOnClickListener {
-            if (isLocationPinned) {
-                navigateToCreateReport(pinnedLat, pinnedLng)
+            if (isPickerMode) {
+                if (isLocationPinned) {
+                    confirmPickedLocation(pinnedLat, pinnedLng)
+                } else {
+                    Toast.makeText(requireContext(), "Tap on the map first to pin your location", Toast.LENGTH_SHORT).show()
+                }
             } else {
-                parentFragmentManager.beginTransaction()
-                    .replace(
-                        R.id.screenBox,
-                        DetailsFragment.newInstance(
-                            title = currentTitle,
-                            desc = currentDesc,
-                            status = currentStatus,
-                            location = currentLocation,
-                            imageResId = currentImageRes
+                if (isLocationPinned) {
+                    navigateToCreateReport(pinnedLat, pinnedLng)
+                } else {
+                    parentFragmentManager.beginTransaction()
+                        .replace(
+                            R.id.screenBox,
+                            DetailsFragment.newInstance(
+                                title = currentTitle,
+                                desc = currentDesc,
+                                status = currentStatus,
+                                location = currentLocation,
+                                imageResId = currentImageRes
+                            )
                         )
-                    )
-                    .addToBackStack(null)
-                    .commit()
+                        .addToBackStack(null)
+                        .commit()
+                }
             }
         }
     }
@@ -286,20 +307,20 @@ class MapFragment : Fragment() {
                 isLocationPinned = true
                 pinnedLat = lat
                 pinnedLng = lng
-                currentTitle = "Pinned Location"
+                currentTitle = if (isPickerMode) "Location Selected" else "Pinned Location"
                 currentLocation = String.format(java.util.Locale.US, "%.4f, %.4f", lat, lng)
-                currentStatus = "PINNED"
-                currentDesc = "Location pinned at coordinates ($pinnedLat, $pinnedLng). Tap card to report item here."
+                currentStatus = if (isPickerMode) "SELECTED" else "PINNED"
+                currentDesc = "Location pinned at coordinates ($pinnedLat, $pinnedLng)."
 
-                textItemTitle.text = "Pinned Location"
-                textItemLocation.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Tap to report", lat, lng)
-                tagFoundStatus.text = "PINNED"
-                tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
+                textItemTitle.text = if (isPickerMode) "Location Selected" else "Pinned Location"
+                textItemLocation.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Tap to confirm", lat, lng)
+                tagFoundStatus.text = if (isPickerMode) "USE THIS" else "PINNED"
+                tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), if (isPickerMode) R.color.tag_found_color else R.color.tag_lost_color))
                 imgLaptopThumb.setImageResource(R.drawable.ic_location)
 
                 com.group3.lostandfound.util.ModernToast.show(
                     requireContext(),
-                    "Location pinned. Tap preview card below to report item here.",
+                    if (isPickerMode) "Location pinned! Tap card or popup to confirm." else "Location pinned. Tap preview card below to report item here.",
                     view
                 )
             }
@@ -308,9 +329,26 @@ class MapFragment : Fragment() {
         @JavascriptInterface
         fun onUsePinnedLocation(lat: Double, lng: Double) {
             activity?.runOnUiThread {
-                navigateToCreateReport(lat, lng)
+                if (isPickerMode) {
+                    confirmPickedLocation(lat, lng)
+                } else {
+                    navigateToCreateReport(lat, lng)
+                }
             }
         }
+    }
+
+    private fun confirmPickedLocation(lat: Double, lng: Double) {
+        val locationLabel = String.format(java.util.Locale.US, "Pinned Location (%.4f, %.4f)", lat, lng)
+        parentFragmentManager.setFragmentResult(
+            REQUEST_KEY_LOCATION,
+            Bundle().apply {
+                putDouble(KEY_LATITUDE, lat)
+                putDouble(KEY_LONGITUDE, lng)
+                putString(KEY_LOCATION_NAME, locationLabel)
+            }
+        )
+        parentFragmentManager.popBackStack()
     }
 
     private fun navigateToCreateReport(lat: Double, lng: Double) {
@@ -546,13 +584,17 @@ class MapFragment : Fragment() {
 
             pinnedMarker = L.marker([lat, lng], { icon: pinIcon, draggable: true }).addTo(map);
 
+            var popupBtnText = "${if (isPickerMode) "✓ Use This Location" else "+ Report Item Here"}";
+            var popupSubtext = "${if (isPickerMode) "Location pinned. Tap below to confirm location." else "Location pinned. Tap below to create report."}";
+            var popupBadge = "${if (isPickerMode) "SELECTED LOCATION" else "PINNED LOCATION"}";
+
             var popupHtml = '<div class="popup-box" style="text-align:center;">' +
-                '<div class="popup-badge" style="background:#FFF3E0;color:#E65100;font-weight:bold;">PINNED LOCATION</div>' +
+                '<div class="popup-badge" style="background:#FFF3E0;color:#E65100;font-weight:bold;">' + popupBadge + '</div>' +
                 '<div style="font-weight:bold;margin:4px 0;font-size:13px;">' + lat.toFixed(4) + '° N, ' + lng.toFixed(4) + '° E</div>' +
-                '<div style="font-size:11px;color:#7D6F67;margin-bottom:8px;">Location pinned. Tap below to create report.</div>' +
+                '<div style="font-size:11px;color:#7D6F67;margin-bottom:8px;">' + popupSubtext + '</div>' +
                 '<button onclick="window.AndroidInterface.onUsePinnedLocation(' + lat + ', ' + lng + ')" ' +
                 'style="background:#2B2625;color:#FFFFFF;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:bold;cursor:pointer;width:100%;">' +
-                '+ Report Item Here</button>' +
+                popupBtnText + '</button>' +
                 '</div>';
 
             pinnedMarker.bindPopup(popupHtml).openPopup();
@@ -602,6 +644,19 @@ class MapFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(): MapFragment = MapFragment()
+        const val ARG_IS_PICKER_MODE = "arg_is_picker_mode"
+        const val REQUEST_KEY_LOCATION = "request_key_location"
+        const val KEY_LATITUDE = "key_latitude"
+        const val KEY_LONGITUDE = "key_longitude"
+        const val KEY_LOCATION_NAME = "key_location_name"
+
+        fun newInstance(isPickerMode: Boolean = false): MapFragment {
+            val fragment = MapFragment()
+            val args = Bundle().apply {
+                putBoolean(ARG_IS_PICKER_MODE, isPickerMode)
+            }
+            fragment.arguments = args
+            return fragment
+        }
     }
 }
