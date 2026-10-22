@@ -309,19 +309,24 @@ class DetailsFragment : Fragment() {
                                     .setPositiveButton("Send") { _, _ ->
                                         val text = msgInput.text.toString().trim()
                                         if (text.isNotEmpty()) {
-                                            ChatRepository().sendChatMessage(
-                                                recipientUserId = targetUid,
-                                                recipientName = targetName,
-                                                messageText = text,
-                                                itemId = itemId ?: "",
-                                                relatedItemTitle = itemTitle,
-                                                onSuccess = {
+                                            val chatRepo = ChatRepository()
+                                            val convId = chatRepo.generateChatConversationId(FirebaseManager.currentUid, targetUid, itemId ?: "")
+                                            viewLifecycleOwner.lifecycleScope.launch {
+                                                val res = chatRepo.sendChatMessage(
+                                                    chatConversationId = convId,
+                                                    senderUserId = FirebaseManager.currentUid,
+                                                    recipientUserId = targetUid,
+                                                    chatMessageTextContent = text,
+                                                    relatedItemId = itemId ?: "",
+                                                    otherUserName = targetName,
+                                                    relatedItemTitle = itemTitle
+                                                )
+                                                if (res is ResultState.Success) {
                                                     com.group3.lostandfound.util.ModernToast.show(requireContext(), "Message sent securely to $targetName.", view)
-                                                },
-                                                onError = { err ->
-                                                    Toast.makeText(requireContext(), "Failed to send message: $err", Toast.LENGTH_SHORT).show()
+                                                } else if (res is ResultState.Error) {
+                                                    Toast.makeText(requireContext(), "Failed to send message: ${res.message}", Toast.LENGTH_SHORT).show()
                                                 }
-                                            )
+                                            }
                                         }
                                     }
                                     .setNegativeButton("Cancel", null)
