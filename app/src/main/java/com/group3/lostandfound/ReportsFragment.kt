@@ -282,7 +282,8 @@ class ReportsFragment : Fragment() {
                     desc = item.description,
                     status = item.status,
                     location = item.location,
-                    imageResId = R.drawable.img_wallet_details
+                    imageResId = R.drawable.ic_item_placeholder,
+                    itemId = item.itemId
                 )
             )
             .addToBackStack(null)
