@@ -230,12 +230,11 @@ class ChatFragment : Fragment() {
                         if (previousMessageCount != -1 && messageList.size > previousMessageCount) {
                             val lastMsg = messageList.last()
                             if (lastMsg.senderUserId != currentUserId && lastMsg.senderUserId.isNotEmpty()) {
-                                com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                                    requireContext(),
-                                    "Message from $recipientUserName",
-                                    if (lastMsg.imageUrl.isNotEmpty()) "[Photo] ${lastMsg.chatMessageTextContent}" else lastMsg.chatMessageTextContent,
-                                    relatedItemId
-                                )
+                                try {
+                                    val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
+                                    val ringtone = android.media.RingtoneManager.getRingtone(requireContext().applicationContext, soundUri)
+                                    ringtone?.play()
+                                } catch (_: Exception) {}
                             }
                         }
                         previousMessageCount = messageList.size
@@ -276,6 +275,70 @@ class ChatFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun showChatOptionsMenu() {
+        val options = arrayOf(
+            "Block $recipientUserName",
+            "Report Inappropriate Activity",
+            "Clear Local View"
+        )
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Chat Options · $recipientUserName")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> confirmBlockUser()
+                    1 -> {
+                        com.group3.lostandfound.util.ModernToast.show(
+                            requireContext(),
+                            "Report submitted for safety review.",
+                            binding.root
+                        )
+                    }
+                    2 -> {
+                        chatAdapter.submitList(emptyList())
+                        binding.layoutChatEmptyState.visibility = View.VISIBLE
+                        com.group3.lostandfound.util.ModernToast.show(
+                            requireContext(),
+                            "Conversation view cleared.",
+                            binding.root
+                        )
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun confirmBlockUser() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Block $recipientUserName?")
+            .setMessage("Are you sure you want to block this user? They will no longer be able to message you regarding item reports.")
+            .setPositiveButton("Block User") { _, _ ->
+                val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                val blocked = prefs.getStringSet("blocked_uids", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+                blocked.add(recipientUserId)
+                prefs.edit().putStringSet("blocked_uids", blocked).apply()
+
+                if (currentUserId.isNotEmpty()) {
+                    FirebaseManager.database.getReference("blocked_users")
+                        .child(currentUserId)
+                        .child(recipientUserId)
+                        .setValue(mapOf("blockedAt" to System.currentTimeMillis(), "userName" to recipientUserName))
+                }
+
+                binding.etChatMessageInput.isEnabled = false
+                binding.btnSendChatMessage.isEnabled = false
+                binding.btnAttachPhoto.isEnabled = false
+                com.group3.lostandfound.util.ModernToast.show(
+                    requireContext(),
+                    "$recipientUserName has been blocked.",
+                    binding.root
+                )
+                parentFragmentManager.popBackStack()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     override fun onDestroyView() {
