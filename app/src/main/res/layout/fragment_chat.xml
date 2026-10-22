@@ -57,6 +57,15 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnChatMenu"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Chat Options"
+            android:src="@drawable/ic_more_vertical"
+            app:tint="@color/nude_dark" />
     </LinearLayout>
 
     <!-- Empty State -->
