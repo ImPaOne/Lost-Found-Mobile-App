@@ -172,7 +172,8 @@ class ChatRepository {
                 lastMessageTextContent = previewText,
                 lastUpdatedTimestamp = System.currentTimeMillis(),
                 relatedItemId = relatedItemId,
-                relatedItemTitle = relatedItemTitle
+                relatedItemTitle = relatedItemTitle,
+                lastSenderId = senderUserId
             )
             senderMetadataReference.setValue(senderConversationMetadata).await()
 
@@ -195,7 +196,8 @@ class ChatRepository {
                 lastMessageTextContent = previewText,
                 lastUpdatedTimestamp = System.currentTimeMillis(),
                 relatedItemId = relatedItemId,
-                relatedItemTitle = relatedItemTitle
+                relatedItemTitle = relatedItemTitle,
+                lastSenderId = senderUserId
             )
             recipientMetadataReference.setValue(recipientConversationMetadata).await()
 
