@@ -90,6 +90,8 @@ class LoginFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            val ctx = context ?: return@setOnClickListener
+
             // 1. Check if admin credentials match admin@gmail.com / admin@123
             val isAdmin = email.equals("admin@gmail.com", ignoreCase = true) && password == "admin@123"
 
@@ -103,12 +105,12 @@ class LoginFragment : Fragment() {
                 FirebaseManager.usersRef.child(adminUid).child("email").setValue("admin@gmail.com")
 
                 com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                    requireContext(),
+                    ctx,
                     "Admin Session Active",
                     "Authenticated successfully with Administrator privileges."
                 )
 
-                requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                ctx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
                     .edit()
                     .putBoolean("is_logged_in", true)
                     .putBoolean("is_admin", true)
@@ -116,22 +118,24 @@ class LoginFragment : Fragment() {
                     .apply()
 
                 com.group3.lostandfound.util.ModernToast.show(
-                    requireContext(),
-                    "Admin session verified. Directing to Administrator Dashboard.",
-                    view
+                    ctx,
+                    "Admin session verified. Directing to Administrator Dashboard."
                 )
 
-                parentFragmentManager.beginTransaction()
-                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                    .replace(R.id.screenBox, AdminFragment.newInstance())
-                    .commit()
+                if (isAdded) {
+                    parentFragmentManager.beginTransaction()
+                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                        .replace(R.id.screenBox, AdminFragment.newInstance())
+                        .commit()
+                }
             } else {
 
                 // Attempt FirebaseAuth.signInWithEmailAndPassword
                 val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnSuccessListener {
-                        requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                        val safeCtx = context ?: return@addOnSuccessListener
+                        safeCtx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
                             .edit()
                             .putBoolean("is_logged_in", true)
                             .putBoolean("is_admin", false)
@@ -139,28 +143,30 @@ class LoginFragment : Fragment() {
                             .apply()
 
                         com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                            requireContext(),
+                            safeCtx,
                             "Account Login Successful",
                             "Welcome back to Foundly. Signed in as $email."
                         )
 
                         com.group3.lostandfound.util.ModernToast.show(
-                            requireContext(),
-                            "Welcome back. Navigating to Homepage.",
-                            view
+                            safeCtx,
+                            "Welcome back. Navigating to Homepage."
                         )
 
-                        parentFragmentManager.beginTransaction()
-                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                            .replace(R.id.screenBox, HomeFragment.newInstance())
-                            .commit()
+                        if (isAdded) {
+                            parentFragmentManager.beginTransaction()
+                                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                                .replace(R.id.screenBox, HomeFragment.newInstance())
+                                .commit()
+                        }
                     }
                     .addOnFailureListener { exc ->
                         // Fallback graceful sign-in for course work evaluation / mock user credentials
+                        val safeCtx = context ?: return@addOnFailureListener
                         val currentUid = FirebaseManager.currentUid
                         FirebaseManager.usersRef.child(currentUid).child("email").setValue(email)
 
-                        requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                        safeCtx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
                             .edit()
                             .putBoolean("is_logged_in", true)
                             .putBoolean("is_admin", false)
@@ -168,21 +174,22 @@ class LoginFragment : Fragment() {
                             .apply()
 
                         com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                            requireContext(),
+                            safeCtx,
                             "Account Login",
                             "Signed in to Foundly community profile ($email)."
                         )
 
                         com.group3.lostandfound.util.ModernToast.show(
-                            requireContext(),
-                            "Signed in as $email",
-                            view
+                            safeCtx,
+                            "Signed in as $email"
                         )
 
-                        parentFragmentManager.beginTransaction()
-                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                            .replace(R.id.screenBox, HomeFragment.newInstance())
-                            .commit()
+                        if (isAdded) {
+                            parentFragmentManager.beginTransaction()
+                                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                                .replace(R.id.screenBox, HomeFragment.newInstance())
+                                .commit()
+                        }
                     }
             }
         }
