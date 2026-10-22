@@ -445,7 +445,7 @@
                         android:focusable="true"
                         android:fontFamily="sans-serif-bold"
                         android:gravity="center"
-                        android:text="Message Reporter"
+                        android:text="Chat &amp; Connect"
                         android:textColor="@color/white"
                         android:textSize="15sp"
                         android:textStyle="bold"
