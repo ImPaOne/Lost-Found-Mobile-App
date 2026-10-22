@@ -367,6 +367,156 @@ object FirebaseManager {
     }
 
     /**
+     * Moderation: Edit inappropriate or fake post (Admin Functional Requirement 3.2 #3).
+     */
+    fun editItem(
+        itemId: String,
+        title: String,
+        category: String,
+        location: String,
+        description: String,
+        status: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        verifyAdminPrivilege(
+            onAuthorized = {
+                val updates = hashMapOf<String, Any>(
+                    "title" to title,
+                    "category" to category,
+                    "location" to location,
+                    "description" to description,
+                    "status" to status
+                )
+                itemsRef.child(itemId).updateChildren(updates)
+                    .addOnSuccessListener {
+                        logAdminAction(itemId, "EDIT_POST")
+                        onSuccess()
+                    }
+                    .addOnFailureListener {
+                        onError(it.localizedMessage ?: "Failed to update item.")
+                    }
+            },
+            onDenied = { onError(it) }
+        )
+    }
+
+    /**
+     * User Management: Verify trusted users and assign badges (Admin Functional Requirement 3.2 #5).
+     */
+    fun verifyAndBadgeUser(
+        targetUid: String,
+        isTrusted: Boolean,
+        badgeName: String,
+        trustScore: Int,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        verifyAdminPrivilege(
+            onAuthorized = {
+                val updates = hashMapOf<String, Any>(
+                    "isTrustedFinder" to isTrusted,
+                    "isVerified" to true,
+                    "badge" to badgeName,
+                    "trustScore" to trustScore,
+                    "badges/${badgeName.replace(" ", "_")}" to true
+                )
+                usersRef.child(targetUid).updateChildren(updates)
+                    .addOnSuccessListener {
+                        logAdminAction(targetUid, "VERIFY_AND_BADGE")
+                        onSuccess()
+                    }
+                    .addOnFailureListener {
+                        onError(it.localizedMessage ?: "Failed to verify and assign badge.")
+                    }
+            },
+            onDenied = { onError(it) }
+        )
+    }
+
+    /**
+     * System Maintenance: Backup Database as JSON (Admin Functional Requirement 3.2 #10).
+     */
+    fun backupDatabase(onSuccess: (String) -> Unit, onError: (String) -> Unit) {
+        verifyAdminPrivilege(
+            onAuthorized = {
+                database.reference.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        try {
+                            val backupObj = org.json.JSONObject()
+                            backupObj.put("backupTimestamp", System.currentTimeMillis())
+                            backupObj.put("exportedBy", currentUserEmail)
+
+                            val itemsObj = org.json.JSONObject()
+                            snapshot.child("items").children.forEach { child ->
+                                val map = child.value
+                                if (map is Map<*, *>) {
+                                    itemsObj.put(child.key.orEmpty(), org.json.JSONObject(map))
+                                }
+                            }
+                            backupObj.put("items", itemsObj)
+
+                            val usersObj = org.json.JSONObject()
+                            snapshot.child("users").children.forEach { child ->
+                                val map = child.value
+                                if (map is Map<*, *>) {
+                                    usersObj.put(child.key.orEmpty(), org.json.JSONObject(map))
+                                }
+                            }
+                            backupObj.put("users", usersObj)
+
+                            logAdminAction("DATABASE", "BACKUP_DATA")
+                            onSuccess(backupObj.toString(2))
+                        } catch (e: Exception) {
+                            onError("Backup generation failed: ${e.message}")
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        onError(error.message)
+                    }
+                })
+            },
+            onDenied = { onError(it) }
+        )
+    }
+
+    /**
+     * System Maintenance: Restore Database from JSON (Admin Functional Requirement 3.2 #10).
+     */
+    fun restoreDatabase(jsonString: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        verifyAdminPrivilege(
+            onAuthorized = {
+                try {
+                    val json = org.json.JSONObject(jsonString)
+                    val itemsObj = json.optJSONObject("items")
+                    if (itemsObj != null) {
+                        val iter = itemsObj.keys()
+                        while (iter.hasNext()) {
+                            val key = iter.next()
+                            val itemJson = itemsObj.getJSONObject(key)
+                            val map = mutableMapOf<String, Any>()
+                            val fieldKeys = itemJson.keys()
+                            while (fieldKeys.hasNext()) {
+                                val f = fieldKeys.next()
+                                map[f] = itemJson.get(f)
+                            }
+                            itemsRef.child(key).updateChildren(map)
+                        }
+                        logAdminAction("DATABASE", "RESTORE_DATA")
+                        onSuccess()
+                    } else {
+                        onError("Invalid backup format: 'items' node not found.")
+                    }
+                } catch (e: Exception) {
+                    onError("Failed to restore backup: ${e.message}")
+                }
+            },
+            onDenied = { onError(it) }
+        )
+    }
+
+    /**
      * My Reports: Execute query `FirebaseDatabase.getInstance().getReference("items").orderByChild("userId").equalTo(currentUid)`
      * to retrieve user's own listings.
      */
@@ -398,9 +548,25 @@ object FirebaseManager {
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        itemsRef.child(itemId).child("status").setValue("RESOLVED")
+        updateItemStatus(itemId, "RESOLVED", onSuccess, onError)
+    }
+
+    /**
+     * Updates an item's status (e.g. "RESOLVED", "RETURNED", "LOST", "FOUND").
+     */
+    fun updateItemStatus(
+        itemId: String,
+        newStatus: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val updates = mapOf<String, Any>(
+            "status" to newStatus,
+            "resolvedTimestamp" to if (newStatus.equals("RESOLVED", ignoreCase = true) || newStatus.equals("RETURNED", ignoreCase = true)) System.currentTimeMillis() else 0L
+        )
+        itemsRef.child(itemId).updateChildren(updates)
             .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { onError(it.localizedMessage ?: "Failed to mark as resolved.") }
+            .addOnFailureListener { onError(it.localizedMessage ?: "Failed to update status.") }
     }
 
     /**
