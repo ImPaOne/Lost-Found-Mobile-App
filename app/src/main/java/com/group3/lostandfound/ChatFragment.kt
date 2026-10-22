@@ -133,6 +133,24 @@ class ChatFragment : Fragment() {
             binding.layoutAttachmentPreview.visibility = View.GONE
         }
 
+        binding.btnQuickReply1.setOnClickListener {
+            binding.etChatMessageInput.setText("Hi, is this item still available?")
+            binding.etChatMessageInput.setSelection(binding.etChatMessageInput.text.length)
+            binding.etChatMessageInput.requestFocus()
+        }
+
+        binding.btnQuickReply2.setOnClickListener {
+            binding.etChatMessageInput.setText("Can we arrange a safe handover for this item?")
+            binding.etChatMessageInput.setSelection(binding.etChatMessageInput.text.length)
+            binding.etChatMessageInput.requestFocus()
+        }
+
+        binding.btnQuickReply3.setOnClickListener {
+            binding.etChatMessageInput.setText("I have verification proof and details for this item.")
+            binding.etChatMessageInput.setSelection(binding.etChatMessageInput.text.length)
+            binding.etChatMessageInput.requestFocus()
+        }
+
         binding.btnSendChatMessage.setOnClickListener {
             val chatMessageTextContent = binding.etChatMessageInput.text.toString().trim()
             val uriToSend = attachedImageUri
