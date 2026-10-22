@@ -19,7 +19,18 @@ class MainActivity : AppCompatActivity() {
 
     private var lastBackPressTime = 0L
 
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(com.group3.lostandfound.util.LocaleHelper.applyLocale(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        val themePrefs = getSharedPreferences("findit_prefs", MODE_PRIVATE)
+        when (themePrefs.getString("selected_theme_label", "System Default")) {
+            "Dark Mode" -> androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES)
+            "Light Mode" -> androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO)
+            else -> androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        }
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
