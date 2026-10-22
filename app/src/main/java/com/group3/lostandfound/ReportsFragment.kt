@@ -260,6 +260,7 @@ class ReportsFragment : Fragment() {
 
     private fun openItemDetails(item: ItemReport) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(
                 R.id.screenBox,
                 DetailsFragment.newInstance(
@@ -269,7 +270,8 @@ class ReportsFragment : Fragment() {
                     location = item.location,
                     imageResId = R.drawable.ic_item_placeholder,
                     itemId = item.itemId,
-                    reporterUserId = item.userId
+                    reporterUserId = item.userId,
+                    authorName = item.authorName
                 )
             )
             .addToBackStack(null)

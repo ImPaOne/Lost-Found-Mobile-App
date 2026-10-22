@@ -248,6 +248,7 @@ class MapFragment : Fragment() {
                     navigateToCreateReport(pinnedLat, pinnedLng)
                 } else if (currentId.isNotEmpty() || currentTitle.isNotEmpty()) {
                     parentFragmentManager.beginTransaction()
+                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                         .replace(
                             R.id.screenBox,
                             DetailsFragment.newInstance(

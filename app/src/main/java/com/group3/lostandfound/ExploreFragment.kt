@@ -182,6 +182,7 @@ class ExploreFragment : Fragment() {
 
     private fun openDetails(item: ItemReport) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(
                 R.id.screenBox,
                 DetailsFragment.newInstance(
@@ -190,7 +191,8 @@ class ExploreFragment : Fragment() {
                     status = item.status,
                     location = if (item.latitude != 0.0 || item.longitude != 0.0) "${item.latitude}, ${item.longitude}" else "Colombo 03",
                     itemId = item.itemId,
-                    reporterUserId = item.userId
+                    reporterUserId = item.userId,
+                    authorName = item.authorName
                 )
             )
             .addToBackStack(null)

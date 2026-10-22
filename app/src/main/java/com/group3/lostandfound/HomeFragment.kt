@@ -165,6 +165,7 @@ class HomeFragment : Fragment() {
             urgentSliderContainer.visibility = View.VISIBLE
             vpUrgentAlertSlider.adapter = UrgentSliderAdapter(urgentItems, viewLifecycleOwner.lifecycleScope) { item ->
                 parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                     .replace(
                         R.id.screenBox,
                         DetailsFragment.newInstance(
@@ -295,6 +296,7 @@ class HomeFragment : Fragment() {
 
     private fun openItem(report: ItemReport) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(
                 R.id.screenBox,
                 DetailsFragment.newInstance(
@@ -304,7 +306,8 @@ class HomeFragment : Fragment() {
                     location = report.location,
                     imageResId = R.drawable.ic_item_placeholder,
                     itemId = report.itemId,
-                    reporterUserId = report.userId
+                    reporterUserId = report.userId,
+                    authorName = report.authorName
                 )
             )
             .addToBackStack(null)

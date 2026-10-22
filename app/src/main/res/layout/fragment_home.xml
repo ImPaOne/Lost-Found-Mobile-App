@@ -18,15 +18,15 @@
         android:paddingEnd="18dp"
         android:paddingBottom="6dp">
 
-        <!-- Rounded Clay Squircle Close/Dismiss Button -->
+        <!-- Rounded Clay Squircle Profile Button -->
         <ImageView
             android:id="@+id/buttonHeaderClose"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:clickable="true"
-            android:contentDescription="Close or dismiss"
+            android:contentDescription="Profile navigation"
             android:focusable="true"
-            android:src="@drawable/ic_close"
+            android:src="@drawable/ic_user_avatar"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -46,11 +46,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Bell Notification Button -->
+        <!-- Bell Notification Button with Indicator Dot -->
         <FrameLayout
             android:id="@+id/buttonNotifications"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             android:clickable="true"
             android:focusable="true"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -64,6 +64,14 @@
                 android:layout_gravity="center"
                 android:contentDescription="Notifications"
                 android:src="@drawable/ic_bell" />
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="5dp"
+                android:background="@drawable/bg_red_dot" />
         </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -114,9 +122,10 @@
         <LinearLayout
             android:id="@+id/searchContainerLayout"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/bg_search_box"
+            android:elevation="1dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="14dp"
@@ -433,13 +442,13 @@
                 android:id="@+id/cardWalletItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="14dp"
                 android:clickable="true"
                 android:focusable="true"
                 app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/stroke_light"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp"
+                app:strokeColor="#EDE7E1"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -541,13 +550,13 @@
                 android:id="@+id/cardDogItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="14dp"
                 android:clickable="true"
                 android:focusable="true"
                 app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/stroke_light"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp"
+                app:strokeColor="#EDE7E1"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -649,13 +658,13 @@
                 android:id="@+id/cardLaptopHome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="14dp"
                 android:clickable="true"
                 android:focusable="true"
                 app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/stroke_light"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp"
+                app:strokeColor="#EDE7E1"
                 app:strokeWidth="1dp">
 
                 <LinearLayout

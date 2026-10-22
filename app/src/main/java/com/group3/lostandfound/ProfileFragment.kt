@@ -243,7 +243,7 @@ class ProfileFragment : Fragment() {
                     .setTitle("Saved Items (${matchingItems.size})")
                     .setItems(itemTitles) { _, which ->
                         val selected = matchingItems[which]
-                        navigateTo(DetailsFragment.newInstance(selected.itemId, selected.title, selected.description, selected.status, selected.location, selected.imageUrl, selected.userId))
+                        navigateTo(DetailsFragment.newInstance(selected.itemId, selected.title, selected.description, selected.status, selected.location, selected.imageUrl, selected.userId, selected.authorName))
                     }
                     .setNeutralButton("Clear All") { _, _ ->
                         prefs.edit().remove("bookmarked_ids").apply()
