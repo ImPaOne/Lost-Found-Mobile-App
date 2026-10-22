@@ -60,12 +60,19 @@ class MapFragment : Fragment() {
     private var currentLocation = ""
     private var currentStatus = ""
     private var currentDesc = ""
+    private var currentUserId = ""
 
     // Pinned location tracking
     private var isLocationPinned = false
     private var pinnedLat: Double = 6.9140
     private var pinnedLng: Double = 79.8630
     private var isPickerMode = false
+
+    private var targetLat: Double = 0.0
+    private var targetLng: Double = 0.0
+    private var targetItemId: String = ""
+
+    private val markerReportsMap = java.util.concurrent.ConcurrentHashMap<String, com.group3.lostandfound.model.ItemReport>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,6 +86,9 @@ class MapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         isPickerMode = arguments?.getBoolean(ARG_IS_PICKER_MODE, false) ?: false
+        targetLat = arguments?.getDouble("arg_target_lat", 0.0) ?: 0.0
+        targetLng = arguments?.getDouble("arg_target_lng", 0.0) ?: 0.0
+        targetItemId = arguments?.getString("arg_target_item_id", "") ?: ""
 
         initViews(view)
         setupLeafletWebView()
@@ -147,8 +157,8 @@ class MapFragment : Fragment() {
         dbRef.limitToLast(50).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!isAdded || view == null) return
-                val jsClear = "items = []; renderMarkers('all');"
-                webViewLeafletMap.evaluateJavascript(jsClear, null)
+                markerReportsMap.clear()
+                val jsBuilder = StringBuilder("items = [];\n")
 
                 for (child in snapshot.children) {
                     val id = child.key ?: continue
@@ -156,19 +166,36 @@ class MapFragment : Fragment() {
                     val status = child.child("status").getValue(String::class.java) ?: "LOST"
                     val desc = child.child("description").getValue(String::class.java) ?: ""
                     val category = child.child("category").getValue(String::class.java) ?: "General"
+                    val location = child.child("location").getValue(String::class.java) ?: "$category Area"
                     val lat = child.child("latitude").getValue(Double::class.java) ?: 0.0
                     val lng = child.child("longitude").getValue(Double::class.java) ?: 0.0
                     val imageUrl = child.child("imageUrl").getValue(String::class.java) ?: ""
 
                     if (lat != 0.0 && lng != 0.0) {
-                        val safeTitle = title.replace("'", "\\'").replace("\n", " ")
-                        val safeDesc = desc.replace("'", "\\'").replace("\n", " ")
-                        val safeLoc = "$category Area".replace("'", "\\'")
-                        val safeImage = imageUrl.replace("'", "\\'")
-                        val jsCode = "addMapItem('$id', '$safeTitle', '$safeLoc', '$status', $lat, $lng, '$safeDesc', '$safeImage');"
-                        webViewLeafletMap.evaluateJavascript(jsCode, null)
+                        val report = com.group3.lostandfound.model.ItemReport(
+                            itemId = id,
+                            title = title,
+                            description = desc,
+                            category = category,
+                            status = status,
+                            location = location,
+                            latitude = lat,
+                            longitude = lng,
+                            imageUrl = imageUrl
+                        )
+                        markerReportsMap[id] = report
+
+                        val safeTitle = title.replace("'", "\\'").replace("\n", " ").take(40)
+                        val safeLoc = location.replace("'", "\\'").replace("\n", " ").take(30)
+                        jsBuilder.append("items.push({id:'$id',title:'$safeTitle',location:'$safeLoc',status:'$status',lat:$lat,lng:$lng});\n")
                     }
                 }
+
+                jsBuilder.append("renderMarkers('all');\n")
+                if (targetLat != 0.0 && targetLng != 0.0) {
+                    jsBuilder.append("map.flyTo([$targetLat, $targetLng], 16, { duration: 1.2 });\n")
+                }
+                webViewLeafletMap.evaluateJavascript(jsBuilder.toString(), null)
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -231,6 +258,7 @@ class MapFragment : Fragment() {
                     navigateToCreateReport(pinnedLat, pinnedLng)
                 } else if (currentId.isNotEmpty() || currentTitle.isNotEmpty()) {
                     parentFragmentManager.beginTransaction()
+                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                         .replace(
                             R.id.screenBox,
                             DetailsFragment.newInstance(
@@ -239,7 +267,8 @@ class MapFragment : Fragment() {
                                 status = currentStatus,
                                 location = currentLocation,
                                 imageResId = R.drawable.ic_item_placeholder,
-                                itemId = currentId
+                                itemId = currentId,
+                                reporterUserId = currentUserId
                             )
                         )
                         .addToBackStack(null)
@@ -268,30 +297,33 @@ class MapFragment : Fragment() {
 
     inner class LeafletBridge {
         @JavascriptInterface
-        fun onMarkerClicked(id: String, title: String, location: String, status: String, desc: String, imageUrl: String) {
+        fun onMarkerClicked(id: String) {
             activity?.runOnUiThread {
+                val report = markerReportsMap[id]
                 isLocationPinned = false
                 currentId = id
-                currentTitle = title
-                currentLocation = location
-                currentStatus = status
-                currentDesc = desc
+                currentTitle = report?.title ?: "Reported Item"
+                currentLocation = report?.location ?: "Location"
+                currentStatus = report?.status ?: "LOST"
+                currentDesc = report?.description ?: ""
+                currentUserId = report?.userId ?: ""
 
                 cardLaptopItem.visibility = View.VISIBLE
-                textItemTitle.text = title
-                textItemLocation.text = location
-                tagFoundStatus.text = status
+                textItemTitle.text = currentTitle
+                textItemLocation.text = currentLocation
+                tagFoundStatus.text = currentStatus
 
-                if (status.equals("LOST", ignoreCase = true)) {
+                if (currentStatus.equals("LOST", ignoreCase = true)) {
                     tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
                 } else {
                     tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
                 }
 
-                if (imageUrl.isNotEmpty()) {
+                val imgSource = report?.imageUrl ?: ""
+                if (imgSource.isNotEmpty()) {
                     com.group3.lostandfound.util.ImageLoader.load(
                         imgLaptopThumb,
-                        imageUrl,
+                        imgSource,
                         R.drawable.ic_item_placeholder,
                         viewLifecycleOwner.lifecycleScope
                     )
@@ -299,6 +331,11 @@ class MapFragment : Fragment() {
                     imgLaptopThumb.setImageResource(R.drawable.ic_item_placeholder)
                 }
             }
+        }
+
+        @JavascriptInterface
+        fun onMarkerClicked(id: String, title: String, location: String, status: String, desc: String, imageUrl: String) {
+            onMarkerClicked(id)
         }
 
         @JavascriptInterface
@@ -471,15 +508,18 @@ class MapFragment : Fragment() {
             markersGroup.clearLayers();
             items.forEach(function(item) {
                 if (filter === 'all' || item.status === filter) {
-                    var pinClass = item.status === 'LOST' ? 'pin-lost' : 'pin-found';
-                    var iconHtml = '<div class="custom-pin ' + pinClass + '">' +
-                        (item.status === 'LOST' ? '!' : '✓') +
-                        '</div>';
+                    var pinColor = item.status === 'LOST' ? '#E53935' : '#2E7D32';
+                    var iconSvg = '<svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35)); cursor: pointer;">' +
+                        '<path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0Z" fill="' + pinColor + '"/>' +
+                        '<circle cx="15" cy="15" r="5.5" fill="#FFFFFF"/>' +
+                        '</svg>';
+
                     var customIcon = L.divIcon({
                         className: '',
-                        html: iconHtml,
-                        iconSize: [36, 36],
-                        iconAnchor: [18, 18]
+                        html: iconSvg,
+                        iconSize: [30, 42],
+                        iconAnchor: [15, 42],
+                        popupAnchor: [0, -38]
                     });
 
                     var marker = L.marker([item.lat, item.lng], { icon: customIcon });
@@ -494,14 +534,7 @@ class MapFragment : Fragment() {
 
                     marker.on('click', function() {
                         if (window.AndroidInterface) {
-                            window.AndroidInterface.onMarkerClicked(
-                                item.id,
-                                item.title,
-                                item.location,
-                                item.status,
-                                item.desc,
-                                item.imageUrl || ''
-                            );
+                            window.AndroidInterface.onMarkerClicked(item.id);
                         }
                     });
 
@@ -523,11 +556,17 @@ class MapFragment : Fragment() {
                 map.removeLayer(pinnedMarker);
             }
 
+            var pinnedSvg = '<svg width="32" height="44" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.45)); cursor: pointer;">' +
+                '<path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0Z" fill="#1E88E5"/>' +
+                '<circle cx="15" cy="15" r="5.5" fill="#FFFFFF"/>' +
+                '</svg>';
+
             var pinIcon = L.divIcon({
                 className: '',
-                html: '<div class="custom-pin pin-pinned">&bull;</div>',
-                iconSize: [40, 40],
-                iconAnchor: [20, 20]
+                html: pinnedSvg,
+                iconSize: [32, 44],
+                iconAnchor: [16, 44],
+                popupAnchor: [0, -40]
             });
 
             pinnedMarker = L.marker([lat, lng], { icon: pinIcon, draggable: true }).addTo(map);
@@ -598,10 +637,18 @@ class MapFragment : Fragment() {
         const val KEY_LONGITUDE = "key_longitude"
         const val KEY_LOCATION_NAME = "key_location_name"
 
-        fun newInstance(isPickerMode: Boolean = false): MapFragment {
+        fun newInstance(
+            isPickerMode: Boolean = false,
+            targetLat: Double = 0.0,
+            targetLng: Double = 0.0,
+            targetItemId: String = ""
+        ): MapFragment {
             val fragment = MapFragment()
             val args = Bundle().apply {
                 putBoolean(ARG_IS_PICKER_MODE, isPickerMode)
+                putDouble("arg_target_lat", targetLat)
+                putDouble("arg_target_lng", targetLng)
+                putString("arg_target_item_id", targetItemId)
             }
             fragment.arguments = args
             return fragment

@@ -26,6 +26,8 @@ class NotificationsFragment : Fragment() {
     private lateinit var dotAdmin: View
     private lateinit var dotGalleFace: View
 
+    private var currentNotifs: List<com.group3.lostandfound.NotificationItem> = emptyList()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -82,6 +84,7 @@ class NotificationsFragment : Fragment() {
                     }
                 }
 
+                currentNotifs = notifList
                 val hasNotifs = notifList.isNotEmpty()
                 itemWallet.visibility = if (hasNotifs) View.VISIBLE else View.GONE
                 itemKasun.visibility = if (notifList.size > 1) View.VISIBLE else View.GONE
@@ -125,25 +128,33 @@ class NotificationsFragment : Fragment() {
 
         itemWallet.setOnClickListener {
             dotWallet.visibility = View.GONE
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, ReportsFragment.newInstance())
-                .addToBackStack(null)
-                .commit()
+            if (currentNotifs.isNotEmpty()) {
+                handleNotificationClick(currentNotifs[0])
+            } else {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.screenBox, ReportsFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
 
         itemKasun.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(
-                    R.id.screenBox,
-                    ChatFragment.newInstance(
-                        recipientUserId = "support_admin",
-                        recipientName = "Community Contact",
-                        itemId = "",
-                        itemTitle = "Inquiry"
+            if (currentNotifs.size > 1) {
+                handleNotificationClick(currentNotifs[1])
+            } else {
+                parentFragmentManager.beginTransaction()
+                    .replace(
+                        R.id.screenBox,
+                        ChatFragment.newInstance(
+                            recipientUserId = "support_admin",
+                            recipientName = "Community Contact",
+                            itemId = "",
+                            itemTitle = "Inquiry"
+                        )
                     )
-                )
-                .addToBackStack(null)
-                .commit()
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
 
         itemPassport.setOnClickListener {
@@ -190,6 +201,46 @@ class NotificationsFragment : Fragment() {
             dotGalleFace.visibility = View.GONE
             parentFragmentManager.beginTransaction()
                 .replace(R.id.screenBox, MapFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
+        }
+    }
+
+    private fun handleNotificationClick(notif: com.group3.lostandfound.NotificationItem) {
+        if (notif.type == "CHAT_MESSAGE" || notif.conversationId.isNotEmpty()) {
+            val targetUid = notif.senderUserId.ifEmpty { "support_admin" }
+            val targetName = notif.senderName.ifEmpty { "Community Member" }
+            val itemTitle = notif.title.removePrefix("💬 Message regarding ").trim('\'', '"', ' ')
+            parentFragmentManager.beginTransaction()
+                .replace(
+                    R.id.screenBox,
+                    ChatFragment.newInstance(
+                        recipientUserId = targetUid,
+                        recipientName = targetName,
+                        itemId = notif.itemId,
+                        itemTitle = itemTitle.ifEmpty { "Item Discussion" }
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
+        } else if (notif.itemId.isNotEmpty()) {
+            parentFragmentManager.beginTransaction()
+                .replace(
+                    R.id.screenBox,
+                    DetailsFragment.newInstance(
+                        itemId = notif.itemId,
+                        title = notif.title,
+                        desc = notif.message,
+                        status = "LOST",
+                        location = "Sri Lanka",
+                        reporterUserId = notif.senderUserId
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
+        } else {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, ReportsFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
         }

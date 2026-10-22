@@ -34,9 +34,9 @@ class ReportsFragment : Fragment() {
     private lateinit var tvCount: TextView
     private lateinit var tvEmptyReports: TextView
 
-    private lateinit var card1: MaterialCardView
-    private lateinit var card2: MaterialCardView
-    private lateinit var card3: MaterialCardView
+    private lateinit var card1: View
+    private lateinit var card2: View
+    private lateinit var card3: View
 
     private lateinit var img1: ImageView
     private lateinit var img2: ImageView
@@ -222,6 +222,17 @@ class ReportsFragment : Fragment() {
                     1 -> {
                         reportsViewModel.markItemResolved(item.itemId) { success ->
                             if (success) {
+                                val idx = userReports.indexOfFirst { it.itemId == item.itemId }
+                                if (idx != -1) {
+                                    userReports[idx] = userReports[idx].copy(status = "RESOLVED")
+                                    updateReportsListUI()
+                                }
+                                com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                                    requireContext(),
+                                    "Item Resolved & Reunited!",
+                                    "'${item.title}' has been marked as resolved and safely reunited.",
+                                    item.itemId
+                                )
                                 ModernToast.show(requireContext(), "'${item.title}' marked as RESOLVED.", view)
                             } else {
                                 ModernToast.show(requireContext(), "Update failed.", view, durationLong = true)
@@ -249,6 +260,7 @@ class ReportsFragment : Fragment() {
 
     private fun openItemDetails(item: ItemReport) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(
                 R.id.screenBox,
                 DetailsFragment.newInstance(
@@ -257,7 +269,9 @@ class ReportsFragment : Fragment() {
                     status = item.status,
                     location = item.location,
                     imageResId = R.drawable.ic_item_placeholder,
-                    itemId = item.itemId
+                    itemId = item.itemId,
+                    reporterUserId = item.userId,
+                    authorName = item.authorName
                 )
             )
             .addToBackStack(null)

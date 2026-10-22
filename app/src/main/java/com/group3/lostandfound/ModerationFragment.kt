@@ -163,7 +163,8 @@ class ModerationFragment : Fragment() {
 
             buttonPassportApprove.setOnClickListener { approveReport(item1.itemId, item1.title) }
             buttonPassportReject.setOnClickListener { confirmRemoveReport(item1.itemId, item1.title) }
-            buttonPassportEscalate.setOnClickListener { showEscalationDialog(item1.itemId, item1.userId, item1.title) }
+            buttonPassportEscalate.setOnClickListener { showEscalationDialog(item1) }
+            cardReportPassport.setOnClickListener { showEscalationDialog(item1) }
         } else {
             cardReportPassport.visibility = View.GONE
         }
@@ -180,7 +181,8 @@ class ModerationFragment : Fragment() {
 
             buttonIPhoneApprove.setOnClickListener { approveReport(item2.itemId, item2.title) }
             buttonIPhoneReject.setOnClickListener { confirmRemoveReport(item2.itemId, item2.title) }
-            buttonIPhoneEscalate.setOnClickListener { showEscalationDialog(item2.itemId, item2.userId, item2.title) }
+            buttonIPhoneEscalate.setOnClickListener { showEscalationDialog(item2) }
+            cardReportIPhone.setOnClickListener { showEscalationDialog(item2) }
         } else {
             cardReportIPhone.visibility = View.GONE
         }
@@ -197,7 +199,8 @@ class ModerationFragment : Fragment() {
 
             buttonBraceletApprove.setOnClickListener { approveReport(item3.itemId, item3.title) }
             buttonBraceletReject.setOnClickListener { confirmRemoveReport(item3.itemId, item3.title) }
-            buttonBraceletEscalate.setOnClickListener { showEscalationDialog(item3.itemId, item3.userId, item3.title) }
+            buttonBraceletEscalate.setOnClickListener { showEscalationDialog(item3) }
+            cardReportBracelet.setOnClickListener { showEscalationDialog(item3) }
         } else {
             cardReportBracelet.visibility = View.GONE
         }
@@ -279,42 +282,135 @@ class ModerationFragment : Fragment() {
     }
 
     /**
-     * Escalation dialog offering to Flag Item or Ban User
+     * Escalation dialog offering to Edit Post, Flag Item, Delete Post, or Ban User
+     * (Admin Functional Requirements 3.2 #3 and #4)
      */
-    private fun showEscalationDialog(itemId: String, userId: String, title: String) {
-        val actions = arrayOf("Flag Item (Sensitive/Duplicate)", "Ban User Account", "Unflag Item")
+    private fun showEscalationDialog(report: ReportItem) {
+        val actions = arrayOf(
+            "Edit Post Details (Fake/Inappropriate)",
+            "Flag Item for Review",
+            "Unflag Item",
+            "Permanently Delete Post",
+            "Ban User Account"
+        )
         AlertDialog.Builder(requireContext())
-            .setTitle("Escalate: $title")
+            .setTitle("Manage Report: ${report.title.take(24)}")
             .setItems(actions) { _, which ->
                 when (which) {
                     0 -> {
+                        // Admin Requirement 3.2 #3: Edit post
+                        showEditPostDialog(report)
+                    }
+                    1 -> {
                         // Flag item via updateChildren()
                         FirebaseManager.flagItem(
-                            itemId = itemId,
+                            itemId = report.itemId,
                             isFlagged = true,
                             onSuccess = {
-                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "'$title' marked as Flagged", view)
+                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "'${report.title}' marked as Flagged", view)
                             },
                             onError = { showAuthorizationAlert(it) }
                         )
-                    }
-                    1 -> {
-                        // User Ban action via /users/{uid}/isBanned = true
-                        confirmBanUser(userId)
                     }
                     2 -> {
                         // Unflag item
                         FirebaseManager.flagItem(
-                            itemId = itemId,
+                            itemId = report.itemId,
                             isFlagged = false,
                             onSuccess = {
-                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "'$title' unflagged", view)
+                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "'${report.title}' unflagged", view)
                             },
                             onError = { showAuthorizationAlert(it) }
                         )
                     }
+                    3 -> {
+                        // Admin Requirement 3.2 #3: Delete post
+                        confirmRemoveReport(report.itemId, report.title)
+                    }
+                    4 -> {
+                        // Admin Requirement 3.2 #4: Ban user
+                        confirmBanUser(report.userId)
+                    }
                 }
             }
+            .setNegativeButton("Close", null)
+            .show()
+    }
+
+    /**
+     * Edit Post Dialog allowing admin to modify title, category, location, description, or status
+     * (Admin Functional Requirement 3.2 #3)
+     */
+    private fun showEditPostDialog(report: ReportItem) {
+        val layout = android.widget.LinearLayout(requireContext()).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            val pad = (16 * resources.displayMetrics.density).toInt()
+            setPadding(pad, pad, pad, pad)
+        }
+
+        val editTitle = android.widget.EditText(requireContext()).apply {
+            hint = "Report Title"
+            setText(report.title)
+        }
+        val editCategory = android.widget.EditText(requireContext()).apply {
+            hint = "Category (e.g. Electronics, Bags)"
+            setText(report.category)
+        }
+        val editLocation = android.widget.EditText(requireContext()).apply {
+            hint = "Location"
+            setText(report.location)
+        }
+        val editDescription = android.widget.EditText(requireContext()).apply {
+            hint = "Description"
+            setText(report.description)
+            minLines = 2
+        }
+        val editStatus = android.widget.EditText(requireContext()).apply {
+            hint = "Status (PENDING, APPROVED, RESOLVED, LOST, FOUND)"
+            setText(report.status)
+        }
+
+        val tvHeader = android.widget.TextView(requireContext()).apply {
+            text = "Edit Post Details (Administrator Mode)"
+            textSize = 14f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            setPadding(0, 0, 0, (8 * resources.displayMetrics.density).toInt())
+        }
+
+        layout.addView(tvHeader)
+        layout.addView(editTitle)
+        layout.addView(editCategory)
+        layout.addView(editLocation)
+        layout.addView(editDescription)
+        layout.addView(editStatus)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Edit Post: ${report.itemId}")
+            .setView(layout)
+            .setPositiveButton("Save Changes") { _, _ ->
+                val newTitle = editTitle.text.toString().trim()
+                val newCat = editCategory.text.toString().trim()
+                val newLoc = editLocation.text.toString().trim()
+                val newDesc = editDescription.text.toString().trim()
+                val newStat = editStatus.text.toString().trim().uppercase()
+
+                if (newTitle.isNotEmpty()) {
+                    FirebaseManager.editItem(
+                        itemId = report.itemId,
+                        title = newTitle,
+                        category = newCat,
+                        location = newLoc,
+                        description = newDesc,
+                        status = newStat,
+                        onSuccess = {
+                            com.group3.lostandfound.util.ModernToast.show(requireContext(), "Report updated successfully", view)
+                        },
+                        onError = { showAuthorizationAlert(it) }
+                    )
+                }
+            }
+            .setNegativeButton("Cancel", null)
             .show()
     }
 

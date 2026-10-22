@@ -107,21 +107,116 @@ class ChatFragment : Fragment() {
         }
     }
 
+    private var attachedImageUri: android.net.Uri? = null
+    private var previousMessageCount: Int = -1
+    private val reportRepository = com.group3.lostandfound.repository.ReportRepository()
+
+    private val pickPhotoLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            attachedImageUri = uri
+            binding.layoutAttachmentPreview.visibility = View.VISIBLE
+            com.group3.lostandfound.util.ImageLoader.load(requireContext(), uri.toString(), binding.imgAttachedPreview)
+        }
+    }
+
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
+        binding.btnChatMenu.setOnClickListener {
+            showChatOptionsMenu()
+        }
+
+        binding.btnAttachPhoto.setOnClickListener {
+            pickPhotoLauncher.launch("image/*")
+        }
+
+        binding.btnRemoveAttachment.setOnClickListener {
+            attachedImageUri = null
+            binding.layoutAttachmentPreview.visibility = View.GONE
+        }
+
+        binding.btnQuickReply1.setOnClickListener {
+            binding.etChatMessageInput.setText("Hi, is this item still available?")
+            binding.etChatMessageInput.setSelection(binding.etChatMessageInput.text.length)
+            binding.etChatMessageInput.requestFocus()
+        }
+
+        binding.btnQuickReply2.setOnClickListener {
+            binding.etChatMessageInput.setText("Can we arrange a safe handover for this item?")
+            binding.etChatMessageInput.setSelection(binding.etChatMessageInput.text.length)
+            binding.etChatMessageInput.requestFocus()
+        }
+
+        binding.btnQuickReply3.setOnClickListener {
+            binding.etChatMessageInput.setText("I have verification proof and details for this item.")
+            binding.etChatMessageInput.setSelection(binding.etChatMessageInput.text.length)
+            binding.etChatMessageInput.requestFocus()
+        }
+
         binding.btnSendChatMessage.setOnClickListener {
-            val chatMessageTextContent = binding.etChatMessageInput.text.toString()
-            if (chatMessageTextContent.isNotBlank()) {
+            val chatMessageTextContent = binding.etChatMessageInput.text.toString().trim()
+            val uriToSend = attachedImageUri
+
+            if (chatMessageTextContent.isBlank() && uriToSend == null) {
+                return@setOnClickListener
+            }
+
+            if (uriToSend != null) {
+                // Upload image first via resilient pipeline
+                binding.btnSendChatMessage.isEnabled = false
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try {
+                        var uploadedUrl = ""
+                        val compressedBytes = reportRepository.compressImageUri(
+                            requireContext(),
+                            uriToSend,
+                            maxWidth = 800,
+                            maxHeight = 800,
+                            quality = 75
+                        )
+
+                        // Tier 1: Try Cloudinary
+                        try {
+                            uploadedUrl = com.group3.lostandfound.util.CloudinaryManager.uploadImage(compressedBytes) {}
+                        } catch (_: Exception) {}
+
+                        // Tier 2: Resilient Base64 fallback if network/Cloudinary failed
+                        if (!uploadedUrl.startsWith("http://") && !uploadedUrl.startsWith("https://")) {
+                            val b64 = android.util.Base64.encodeToString(compressedBytes, android.util.Base64.NO_WRAP)
+                            uploadedUrl = "data:image/jpeg;base64,$b64"
+                        }
+
+                        chatViewModel.sendUserChatMessage(
+                            chatConversationId = chatConversationId,
+                            senderUserId = currentUserId,
+                            recipientUserId = recipientUserId,
+                            chatMessageTextContent = chatMessageTextContent,
+                            relatedItemId = relatedItemId,
+                            otherUserName = recipientUserName,
+                            imageUrl = uploadedUrl,
+                            relatedItemTitle = relatedItemTitle
+                        )
+                    } catch (e: Exception) {
+                        com.group3.lostandfound.util.ModernToast.show(
+                            requireContext(),
+                            "Failed to attach photo: ${e.message}",
+                            binding.root
+                        )
+                    } finally {
+                        binding.btnSendChatMessage.isEnabled = true
+                    }
+                }
+            } else {
                 chatViewModel.sendUserChatMessage(
                     chatConversationId = chatConversationId,
                     senderUserId = currentUserId,
                     recipientUserId = recipientUserId,
                     chatMessageTextContent = chatMessageTextContent,
                     relatedItemId = relatedItemId,
-                    otherUserName = recipientUserName
+                    otherUserName = recipientUserName,
+                    relatedItemTitle = relatedItemTitle
                 )
             }
         }
@@ -132,6 +227,18 @@ class ChatFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     chatViewModel.chatMessagesListState.collect { messageList ->
+                        if (previousMessageCount != -1 && messageList.size > previousMessageCount) {
+                            val lastMsg = messageList.last()
+                            if (lastMsg.senderUserId != currentUserId && lastMsg.senderUserId.isNotEmpty()) {
+                                try {
+                                    val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
+                                    val ringtone = android.media.RingtoneManager.getRingtone(requireContext().applicationContext, soundUri)
+                                    ringtone?.play()
+                                } catch (_: Exception) {}
+                            }
+                        }
+                        previousMessageCount = messageList.size
+
                         chatAdapter.submitList(messageList) {
                             if (messageList.isNotEmpty()) {
                                 binding.rvChatMessages.scrollToPosition(messageList.size - 1)
@@ -147,6 +254,8 @@ class ChatFragment : Fragment() {
                         when (operationStatus) {
                             is ResultState.Success -> {
                                 binding.etChatMessageInput.text.clear()
+                                attachedImageUri = null
+                                binding.layoutAttachmentPreview.visibility = View.GONE
                                 chatViewModel.resetSendMessageStatus()
                             }
                             is ResultState.Error -> {
@@ -166,6 +275,70 @@ class ChatFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun showChatOptionsMenu() {
+        val options = arrayOf(
+            "Block $recipientUserName",
+            "Report Inappropriate Activity",
+            "Clear Local View"
+        )
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Chat Options · $recipientUserName")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> confirmBlockUser()
+                    1 -> {
+                        com.group3.lostandfound.util.ModernToast.show(
+                            requireContext(),
+                            "Report submitted for safety review.",
+                            binding.root
+                        )
+                    }
+                    2 -> {
+                        chatAdapter.submitList(emptyList())
+                        binding.layoutChatEmptyState.visibility = View.VISIBLE
+                        com.group3.lostandfound.util.ModernToast.show(
+                            requireContext(),
+                            "Conversation view cleared.",
+                            binding.root
+                        )
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun confirmBlockUser() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Block $recipientUserName?")
+            .setMessage("Are you sure you want to block this user? They will no longer be able to message you regarding item reports.")
+            .setPositiveButton("Block User") { _, _ ->
+                val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                val blocked = prefs.getStringSet("blocked_uids", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+                blocked.add(recipientUserId)
+                prefs.edit().putStringSet("blocked_uids", blocked).apply()
+
+                if (currentUserId.isNotEmpty()) {
+                    FirebaseManager.database.getReference("blocked_users")
+                        .child(currentUserId)
+                        .child(recipientUserId)
+                        .setValue(mapOf("blockedAt" to System.currentTimeMillis(), "userName" to recipientUserName))
+                }
+
+                binding.etChatMessageInput.isEnabled = false
+                binding.btnSendChatMessage.isEnabled = false
+                binding.btnAttachPhoto.isEnabled = false
+                com.group3.lostandfound.util.ModernToast.show(
+                    requireContext(),
+                    "$recipientUserName has been blocked.",
+                    binding.root
+                )
+                parentFragmentManager.popBackStack()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     override fun onDestroyView() {

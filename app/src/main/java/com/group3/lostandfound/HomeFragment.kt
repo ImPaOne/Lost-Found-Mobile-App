@@ -153,7 +153,8 @@ class HomeFragment : Fragment() {
                 location = report.location.ifEmpty { "Colombo" },
                 status = report.status.ifEmpty { "LOST" },
                 imageUrl = report.imageUrl,
-                description = report.description.ifEmpty { "No description provided." }
+                description = report.description.ifEmpty { "No description provided." },
+                userId = report.userId
             )
         }
 
@@ -164,6 +165,7 @@ class HomeFragment : Fragment() {
             urgentSliderContainer.visibility = View.VISIBLE
             vpUrgentAlertSlider.adapter = UrgentSliderAdapter(urgentItems, viewLifecycleOwner.lifecycleScope) { item ->
                 parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                     .replace(
                         R.id.screenBox,
                         DetailsFragment.newInstance(
@@ -172,7 +174,8 @@ class HomeFragment : Fragment() {
                             status = item.status,
                             location = item.location,
                             imageResId = R.drawable.ic_item_placeholder,
-                            itemId = item.id
+                            itemId = item.id,
+                            reporterUserId = item.userId
                         )
                     )
                     .addToBackStack(null)
@@ -293,6 +296,7 @@ class HomeFragment : Fragment() {
 
     private fun openItem(report: ItemReport) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(
                 R.id.screenBox,
                 DetailsFragment.newInstance(
@@ -301,7 +305,9 @@ class HomeFragment : Fragment() {
                     status = report.status,
                     location = report.location,
                     imageResId = R.drawable.ic_item_placeholder,
-                    itemId = report.itemId
+                    itemId = report.itemId,
+                    reporterUserId = report.userId,
+                    authorName = report.authorName
                 )
             )
             .addToBackStack(null)
@@ -321,36 +327,38 @@ class HomeFragment : Fragment() {
         }
 
         buttonNotifications.setOnClickListener {
-            val options = arrayOf(
-                "View Notification Inbox",
-                "Test Push Notification (Sound & Vibration)"
-            )
-            AlertDialog.Builder(requireContext())
-                .setTitle("Notifications")
-                .setItems(options) { _, which ->
-                    when (which) {
-                        0 -> {
-                            parentFragmentManager.beginTransaction()
-                                .replace(R.id.screenBox, NotificationsFragment.newInstance())
-                                .addToBackStack(null)
-                                .commit()
-                        }
-                        1 -> {
-                            FCMService.triggerPushNotification(
-                                context = requireContext(),
-                                title = "Urgent Match Alert",
-                                body = "Live community update for your reported item.",
-                                itemId = currentReportsList.firstOrNull()?.itemId
-                            )
-                            com.group3.lostandfound.util.ModernToast.show(
-                                requireContext(),
-                                "Push notification dispatched with sound & vibration.",
-                                view
-                            )
-                        }
-                    }
-                }
-                .show()
+            val bottomSheet = com.google.android.material.bottomsheet.BottomSheetDialog(requireContext())
+            val sheetView = layoutInflater.inflate(R.layout.dialog_notification_options, null)
+            bottomSheet.setContentView(sheetView)
+
+            sheetView.findViewById<View>(R.id.btnViewInbox).setOnClickListener {
+                bottomSheet.dismiss()
+                parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                    .replace(R.id.screenBox, NotificationsFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit()
+            }
+
+            sheetView.findViewById<View>(R.id.btnTestSound).setOnClickListener {
+                FCMService.triggerPushNotification(
+                    context = requireContext(),
+                    title = "Urgent Match Alert",
+                    body = "Live community update for your reported item with audible chime.",
+                    itemId = currentReportsList.firstOrNull()?.itemId
+                )
+                com.group3.lostandfound.util.ModernToast.show(
+                    requireContext(),
+                    "Sound & vibration alert triggered successfully.",
+                    view
+                )
+            }
+
+            sheetView.findViewById<View>(R.id.btnDismissNotifDialog).setOnClickListener {
+                bottomSheet.dismiss()
+            }
+
+            bottomSheet.show()
         }
 
         buttonFilterSettings.setOnClickListener {
@@ -443,7 +451,8 @@ class HomeFragment : Fragment() {
         val location: String,
         val status: String,
         val imageUrl: String,
-        val description: String
+        val description: String,
+        val userId: String = ""
     )
 
     class UrgentSliderAdapter(

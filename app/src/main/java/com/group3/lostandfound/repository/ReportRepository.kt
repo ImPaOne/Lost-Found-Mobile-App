@@ -147,14 +147,44 @@ class ReportRepository {
                 if (imageUri != null) {
                     onProgress(10)
                     try {
-                        val compressedBytes = compressImageUri(context, imageUri)
-                        // Upload to Cloudinary: Cloud name zudf2f0g, API Key 324692715343129
-                        downloadUrl = com.group3.lostandfound.util.CloudinaryManager.uploadImage(compressedBytes) { cloudProgress ->
-                            onProgress(cloudProgress)
+                        val compressedBytes = compressImageUri(context, imageUri, maxWidth = 800, maxHeight = 800, quality = 70)
+                        var uploaded = false
+
+                        // Tier 1: Try Cloudinary direct upload
+                        try {
+                            downloadUrl = com.group3.lostandfound.util.CloudinaryManager.uploadImage(compressedBytes) { cloudProgress ->
+                                onProgress(cloudProgress)
+                            }
+                            if (downloadUrl.startsWith("http://") || downloadUrl.startsWith("https://")) {
+                                uploaded = true
+                            }
+                        } catch (cEx: Exception) {
+                            android.util.Log.w("ReportRepository", "Tier 1 Cloudinary upload failed: ${cEx.message}")
+                        }
+
+                        // Tier 2: Try Firebase Storage if Cloudinary didn't complete
+                        if (!uploaded) {
+                            try {
+                                onProgress(60)
+                                val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance()
+                                    .getReference("reports")
+                                    .child("${itemId}_${System.currentTimeMillis()}.jpg")
+                                storageRef.putBytes(compressedBytes).await()
+                                downloadUrl = storageRef.downloadUrl.await().toString()
+                                uploaded = true
+                            } catch (sEx: Exception) {
+                                android.util.Log.w("ReportRepository", "Tier 2 Firebase Storage upload failed: ${sEx.message}")
+                            }
+                        }
+
+                        // Tier 3: Guaranteed 100% resilient Base64 data URI fallback
+                        if (!uploaded) {
+                            android.util.Log.i("ReportRepository", "Using Tier 3 Base64 storage fallback")
+                            val base64Str = android.util.Base64.encodeToString(compressedBytes, android.util.Base64.NO_WRAP)
+                            downloadUrl = "data:image/jpeg;base64,$base64Str"
                         }
                     } catch (imgEx: Exception) {
-                        android.util.Log.e("ReportRepository", "Image compression/upload failed, using fallback URL: ${imgEx.message}", imgEx)
-                        downloadUrl = "https://res.cloudinary.com/${com.group3.lostandfound.util.CloudinaryManager.CLOUD_NAME}/image/upload/v1/item_${System.currentTimeMillis()}.jpg"
+                        android.util.Log.e("ReportRepository", "Image compression failed: ${imgEx.message}", imgEx)
                     }
                     onProgress(95)
                 } else {

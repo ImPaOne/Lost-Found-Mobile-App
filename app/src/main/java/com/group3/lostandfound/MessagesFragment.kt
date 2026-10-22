@@ -31,6 +31,9 @@ class MessagesFragment : Fragment() {
     private lateinit var conversationAdapter: ConversationAdapter
     private lateinit var messagesViewModel: MessagesViewModel
 
+    private var allConversations = listOf<ConversationMetadata>()
+    private var currentSearchQuery: String = ""
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,6 +50,7 @@ class MessagesFragment : Fragment() {
         initViews(view)
         setupRecyclerView()
         setupListeners()
+        setupSearch(view)
         NavigationHelper.setup(this, view, NavigationHelper.Tab.MESSAGES)
         observeViewModel()
     }
@@ -58,6 +62,38 @@ class MessagesFragment : Fragment() {
         layoutEmptyMessages = view.findViewById(R.id.layoutEmptyMessages)
     }
 
+    private fun setupSearch(view: View) {
+        val inputSearch = view.findViewById<android.widget.EditText>(R.id.inputSearchConversations)
+        inputSearch?.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                currentSearchQuery = s?.toString()?.trim().orEmpty()
+                filterConversations()
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+    }
+
+    private fun filterConversations() {
+        val filtered = if (currentSearchQuery.isEmpty()) {
+            allConversations
+        } else {
+            allConversations.filter {
+                it.otherUserName.contains(currentSearchQuery, ignoreCase = true) ||
+                it.relatedItemTitle.contains(currentSearchQuery, ignoreCase = true) ||
+                it.lastMessageTextContent.contains(currentSearchQuery, ignoreCase = true)
+            }
+        }
+        conversationsList.clear()
+        conversationsList.addAll(filtered)
+        conversationAdapter.notifyDataSetChanged()
+
+        val count = conversationsList.size
+        tvConversationCount.text = "$count Active"
+        layoutEmptyMessages.visibility = if (count == 0) View.VISIBLE else View.GONE
+        rvConversations.visibility = if (count > 0) View.VISIBLE else View.GONE
+    }
+
     private fun setupRecyclerView() {
         conversationAdapter = ConversationAdapter(conversationsList) { conversation ->
             val chatFrag = ChatFragment().apply {
@@ -66,10 +102,11 @@ class MessagesFragment : Fragment() {
                     putString(ChatFragment.ARG_RECIPIENT_USER_ID, conversation.otherUserId)
                     putString(ChatFragment.ARG_RECIPIENT_NAME, conversation.otherUserName.ifEmpty { "User #${conversation.otherUserId.takeLast(4)}" })
                     putString(ChatFragment.ARG_ITEM_ID, conversation.relatedItemId)
-                    putString(ChatFragment.ARG_ITEM_TITLE, "Discussion")
+                    putString(ChatFragment.ARG_ITEM_TITLE, conversation.relatedItemTitle.ifEmpty { "Item Discussion" })
                 }
             }
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.screenBox, chatFrag)
                 .addToBackStack(null)
                 .commit()
@@ -87,14 +124,8 @@ class MessagesFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             messagesViewModel.uiState.collect { state ->
-                conversationsList.clear()
-                conversationsList.addAll(state.conversations)
-                conversationAdapter.notifyDataSetChanged()
-
-                val count = conversationsList.size
-                tvConversationCount.text = "$count Active"
-                layoutEmptyMessages.visibility = if (count == 0) View.VISIBLE else View.GONE
-                rvConversations.visibility = if (count > 0) View.VISIBLE else View.GONE
+                allConversations = state.conversations
+                filterConversations()
             }
         }
     }
@@ -143,9 +174,12 @@ class MessagesFragment : Fragment() {
                 holder.tvTime.text = "Recent"
             }
 
-            if (item.relatedItemId.isNotEmpty()) {
+            if (item.relatedItemTitle.isNotEmpty()) {
                 holder.tvItem.visibility = View.VISIBLE
-                holder.tvItem.text = "Item Discussion"
+                holder.tvItem.text = "Re: ${item.relatedItemTitle}"
+            } else if (item.relatedItemId.isNotEmpty()) {
+                holder.tvItem.visibility = View.VISIBLE
+                holder.tvItem.text = "Re: Item Discussion"
             } else {
                 holder.tvItem.visibility = View.GONE
             }

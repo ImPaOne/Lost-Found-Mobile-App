@@ -165,6 +165,8 @@ class LoginFragment : Fragment() {
                             .edit()
                             .putBoolean("is_logged_in", true)
                             .putBoolean("is_admin", state.isAdmin)
+                            .putString("user_uid", authViewModel.currentUid)
+                            .putString("saved_email", email)
                             .putBoolean("onboarding_completed", true)
                             .apply()
 
@@ -173,6 +175,8 @@ class LoginFragment : Fragment() {
                             if (state.isAdmin) "Admin Session Active" else "Account Login Successful",
                             "Welcome back to Foundly. Signed in as $email."
                         )
+
+                        (activity as? MainActivity)?.setupIncomingMessageNotifications()
 
                         ModernToast.show(
                             safeCtx,

@@ -167,6 +167,8 @@ class SignUpFragment : Fragment() {
                             .edit()
                             .putBoolean("is_logged_in", true)
                             .putBoolean("is_admin", false)
+                            .putString("user_uid", authViewModel.currentUid)
+                            .putString("saved_email", inputEmail.text.toString().trim())
                             .putBoolean("onboarding_completed", true)
                             .apply()
 
@@ -175,6 +177,8 @@ class SignUpFragment : Fragment() {
                             "Account Registered",
                             "Welcome to Foundly, $name. Your account has been created successfully."
                         )
+
+                        (activity as? MainActivity)?.setupIncomingMessageNotifications()
 
                         ModernToast.show(
                             safeCtx,
