@@ -249,6 +249,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateRecentCardsFromLive(reports: List<ReportItem>) {
+        view?.findViewById<TextView>(R.id.tvEmptyRecent)?.visibility = if (reports.isEmpty()) View.VISIBLE else View.GONE
+
         // Item 1
         if (reports.isNotEmpty()) {
             val first = reports[0]
@@ -256,6 +258,9 @@ class HomeFragment : Fragment() {
             cardWalletItem.findViewById<TextView>(R.id.textWalletItemTitle)?.text = first.title
             cardWalletItem.findViewById<TextView>(R.id.textWalletLocationName)?.text = first.location
             cardWalletItem.findViewById<TextView>(R.id.badgeWalletLostTag)?.text = first.status
+            cardWalletItem.findViewById<ImageView>(R.id.imageWalletPhoto)?.let { img ->
+                ImageLoader.load(img, first.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
+            }
             cardWalletItem.setOnClickListener {
                 openItem(first)
             }
@@ -270,6 +275,9 @@ class HomeFragment : Fragment() {
             cardDogItem.findViewById<TextView>(R.id.textDogItemTitle)?.text = second.title
             cardDogItem.findViewById<TextView>(R.id.textDogLocationName)?.text = second.location
             cardDogItem.findViewById<TextView>(R.id.badgeDogFoundTag)?.text = second.status
+            cardDogItem.findViewById<ImageView>(R.id.imageDogPhoto)?.let { img ->
+                ImageLoader.load(img, second.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
+            }
             cardDogItem.setOnClickListener {
                 openItem(second)
             }
@@ -281,6 +289,12 @@ class HomeFragment : Fragment() {
         if (reports.size > 2) {
             val third = reports[2]
             cardLaptopHome?.visibility = View.VISIBLE
+            cardLaptopHome?.findViewById<TextView>(R.id.textLaptopItemTitle)?.text = third.title
+            cardLaptopHome?.findViewById<TextView>(R.id.textLaptopLocationName)?.text = third.location
+            cardLaptopHome?.findViewById<TextView>(R.id.badgeLaptopTag)?.text = third.status
+            cardLaptopHome?.findViewById<ImageView>(R.id.imageLaptopPhoto)?.let { img ->
+                ImageLoader.load(img, third.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
+            }
             cardLaptopHome?.setOnClickListener {
                 openItem(third)
             }
@@ -298,7 +312,7 @@ class HomeFragment : Fragment() {
                     desc = report.description,
                     status = report.status,
                     location = report.location,
-                    imageResId = R.drawable.img_wallet_details,
+                    imageResId = R.drawable.ic_item_placeholder,
                     itemId = report.itemId
                 )
             )
