@@ -11,10 +11,17 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.group3.lostandfound.model.AuthUiState
+import com.group3.lostandfound.service.FCMService
+import com.group3.lostandfound.util.ModernToast
+import com.group3.lostandfound.viewmodel.AuthViewModel
+import kotlinx.coroutines.launch
 
 /**
- * LoginFragment handles user authentication for FindIt LK.
- * Written with clean, human-readable code and meaningful variable names.
+ * LoginFragment handles user authentication for Foundly following MVVM architecture.
+ * Delegating authentication operations and state to AuthViewModel.
  */
 class LoginFragment : Fragment() {
 
@@ -27,6 +34,7 @@ class LoginFragment : Fragment() {
     private lateinit var signUpRow: View
 
     private var isPasswordVisible = false
+    private lateinit var authViewModel: AuthViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,12 +47,15 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
+
         // Smooth entry animation
         view.alpha = 0f
         view.animate().alpha(1f).setDuration(400).start()
 
         initViews(view)
         setupListeners()
+        observeViewModel()
     }
 
     private fun initViews(view: View) {
@@ -55,21 +66,38 @@ class LoginFragment : Fragment() {
         forgotPasswordBtn = view.findViewById(R.id.btnForgotPassword)
         loginBtn = view.findViewById(R.id.btnLogin)
         signUpRow = view.findViewById(R.id.rowSignUp)
+
+        // Restore saved preference
+        val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+        val remembered = prefs.getBoolean("remember_me", false)
+        rememberMeCheck.isChecked = remembered
+        if (remembered) {
+            val savedEmail = prefs.getString("saved_email", "") ?: ""
+            emailInput.setText(savedEmail)
+        }
     }
 
     private fun setupListeners() {
         togglePasswordBtn.setOnClickListener {
             isPasswordVisible = !isPasswordVisible
-            val cursorPosition = passwordInput.selectionStart
             if (isPasswordVisible) {
-                passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                passwordInput.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                togglePasswordBtn.alpha = 1.0f
             } else {
                 passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                togglePasswordBtn.alpha = 0.5f
             }
-            passwordInput.setSelection(cursorPosition)
+            passwordInput.setSelection(passwordInput.text.length)
         }
 
-        // Login button with FirebaseAuth validation & Admin credentials verification
+        rememberMeCheck.setOnCheckedChangeListener { _, isChecked ->
+            val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+            prefs.edit().putBoolean("remember_me", isChecked).apply()
+            if (!isChecked) {
+                prefs.edit().remove("saved_email").apply()
+            }
+        }
+
         loginBtn.setOnClickListener {
             val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
@@ -90,103 +118,22 @@ class LoginFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            val ctx = context ?: return@setOnClickListener
-
-            // 1. Check if admin credentials match admin@gmail.com / admin@123
-            val isAdmin = email.equals("admin@gmail.com", ignoreCase = true) && password == "admin@123"
-
-            if (isAdmin) {
-                // Ensure Firebase seed data is initialized
-                FirebaseManager.seedDefaultDataIfEmpty()
-
-                // Sync admin user role in Firebase Realtime DB
-                val adminUid = FirebaseManager.currentUid
-                FirebaseManager.usersRef.child(adminUid).child("role").setValue("ADMIN")
-                FirebaseManager.usersRef.child(adminUid).child("email").setValue("admin@gmail.com")
-
-                com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                    ctx,
-                    "Admin Session Active",
-                    "Authenticated successfully with Administrator privileges."
-                )
-
-                ctx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
-                    .edit()
-                    .putBoolean("is_logged_in", true)
-                    .putBoolean("is_admin", true)
-                    .putBoolean("onboarding_completed", true)
-                    .apply()
-
-                com.group3.lostandfound.util.ModernToast.show(
-                    ctx,
-                    "Admin session verified. Directing to Administrator Dashboard."
-                )
-
-                if (isAdded) {
-                    parentFragmentManager.beginTransaction()
-                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                        .replace(R.id.screenBox, AdminFragment.newInstance())
-                        .commit()
-                }
-            } else {
-
-                // Attempt FirebaseAuth.signInWithEmailAndPassword
-                val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnSuccessListener {
-                        val safeCtx = context ?: return@addOnSuccessListener
-                        safeCtx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
-                            .edit()
-                            .putBoolean("is_logged_in", true)
-                            .putBoolean("is_admin", false)
-                            .putBoolean("onboarding_completed", true)
-                            .apply()
-
-                        com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                            safeCtx,
-                            "Account Login Successful",
-                            "Welcome back to Foundly. Signed in as $email."
-                        )
-
-                        com.group3.lostandfound.util.ModernToast.show(
-                            safeCtx,
-                            "Welcome back. Navigating to Homepage."
-                        )
-
-                        if (isAdded) {
-                            parentFragmentManager.beginTransaction()
-                                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                                .replace(R.id.screenBox, HomeFragment.newInstance())
-                                .commit()
-                        }
-                    }
-                    .addOnFailureListener { exc ->
-                        val safeCtx = context ?: return@addOnFailureListener
-                        val errorMessage = when {
-                            exc.message?.contains("password", ignoreCase = true) == true ||
-                            exc.message?.contains("wrong", ignoreCase = true) == true ||
-                            exc.message?.contains("credential", ignoreCase = true) == true -> "Incorrect password. Please try again."
-                            exc.message?.contains("no user", ignoreCase = true) == true ||
-                            exc.message?.contains("user-not-found", ignoreCase = true) == true -> "No account found for $email. Please sign up first."
-                            exc.message?.contains("network", ignoreCase = true) == true -> "Network connection error. Check your internet connection."
-                            else -> exc.localizedMessage ?: "Invalid credentials. Please verify your email and password."
-                        }
-                        com.group3.lostandfound.util.ModernToast.show(safeCtx, errorMessage, view)
-                        Toast.makeText(safeCtx, errorMessage, Toast.LENGTH_LONG).show()
-                    }
+            if (rememberMeCheck.isChecked) {
+                val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                prefs.edit().putString("saved_email", email).apply()
             }
+
+            loginBtn.isEnabled = false
+            loginBtn.text = "Signing in..."
+            authViewModel.login(email, password)
         }
 
         forgotPasswordBtn.setOnClickListener {
             val email = emailInput.text.toString().trim()
             if (email.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                com.google.firebase.auth.FirebaseAuth.getInstance().sendPasswordResetEmail(email)
-                    .addOnCompleteListener {
-                        Toast.makeText(requireContext(), "Password reset link sent to $email", Toast.LENGTH_LONG).show()
-                    }
+                authViewModel.sendPasswordReset(email)
             } else {
-                Toast.makeText(requireContext(), "Please enter your email address to reset password", Toast.LENGTH_SHORT).show()
-                emailInput.requestFocus()
+                Toast.makeText(requireContext(), "Enter your email to receive a password reset link", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -196,6 +143,83 @@ class LoginFragment : Fragment() {
                 .replace(R.id.screenBox, SignUpFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
+        }
+    }
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            authViewModel.loginState.collect { state ->
+                when (state) {
+                    is AuthUiState.Loading -> {
+                        loginBtn.isEnabled = false
+                        loginBtn.text = "Signing in..."
+                    }
+                    is AuthUiState.Success -> {
+                        loginBtn.isEnabled = true
+                        loginBtn.text = "Sign in"
+
+                        val safeCtx = context ?: return@collect
+                        val email = emailInput.text.toString().trim()
+
+                        safeCtx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                            .edit()
+                            .putBoolean("is_logged_in", true)
+                            .putBoolean("is_admin", state.isAdmin)
+                            .putBoolean("onboarding_completed", true)
+                            .apply()
+
+                        FCMService.triggerPushNotification(
+                            safeCtx,
+                            if (state.isAdmin) "Admin Session Active" else "Account Login Successful",
+                            "Welcome back to Foundly. Signed in as $email."
+                        )
+
+                        ModernToast.show(
+                            safeCtx,
+                            if (state.isAdmin) "Admin session verified. Directing to Administrator Dashboard."
+                            else "Welcome back. Navigating to Homepage."
+                        )
+
+                        if (isAdded) {
+                            val destination = if (state.isAdmin) AdminFragment.newInstance() else HomeFragment.newInstance()
+                            parentFragmentManager.beginTransaction()
+                                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                                .replace(R.id.screenBox, destination)
+                                .commit()
+                        }
+                        authViewModel.resetLoginState()
+                    }
+                    is AuthUiState.Error -> {
+                        loginBtn.isEnabled = true
+                        loginBtn.text = "Sign in"
+
+                        val safeCtx = context ?: return@collect
+                        ModernToast.show(safeCtx, state.message, view)
+                        Toast.makeText(safeCtx, state.message, Toast.LENGTH_LONG).show()
+                        authViewModel.resetLoginState()
+                    }
+                    is AuthUiState.Idle -> {
+                        loginBtn.isEnabled = true
+                        loginBtn.text = "Sign in"
+                    }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            authViewModel.resetPasswordState.collect { state ->
+                when (state) {
+                    is AuthUiState.Success -> {
+                        Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+                        authViewModel.resetPasswordResetState()
+                    }
+                    is AuthUiState.Error -> {
+                        Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+                        authViewModel.resetPasswordResetState()
+                    }
+                    else -> {}
+                }
+            }
         }
     }
 
