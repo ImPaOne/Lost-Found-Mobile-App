@@ -155,10 +155,29 @@ class FCMService : FirebaseMessagingService() {
                 createNotificationChannel(context)
                 val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
 
-                // Audible sound feedback for modern alerts
+                // Guaranteed audible sound feedback for modern alerts
                 try {
                     val ringtone = android.media.RingtoneManager.getRingtone(context.applicationContext, soundUri)
                     ringtone?.play()
+                } catch (_: Exception) {}
+
+                try {
+                    val toneGen = android.media.ToneGenerator(android.media.AudioManager.STREAM_NOTIFICATION, 100)
+                    toneGen.startTone(android.media.ToneGenerator.TONE_PROP_BEEP2, 350)
+                } catch (_: Exception) {
+                    try {
+                        val toneGen = android.media.ToneGenerator(android.media.AudioManager.STREAM_MUSIC, 100)
+                        toneGen.startTone(android.media.ToneGenerator.TONE_PROP_BEEP, 300)
+                    } catch (_: Exception) {}
+                }
+
+                try {
+                    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        vibrator?.vibrate(android.os.VibrationEffect.createOneShot(200, android.os.VibrationEffect.DEFAULT_AMPLITUDE))
+                    } else {
+                        vibrator?.vibrate(200)
+                    }
                 } catch (_: Exception) {}
 
                 val intent = Intent(context, MainActivity::class.java).apply {
