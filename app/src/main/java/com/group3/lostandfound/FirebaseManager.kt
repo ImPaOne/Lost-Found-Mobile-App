@@ -40,10 +40,10 @@ object FirebaseManager {
 
     // Current User ID
     val currentUid: String
-        get() = auth.currentUser?.uid ?: "default_user_101"
+        get() = auth.currentUser?.uid ?: ""
 
     val currentUserEmail: String
-        get() = auth.currentUser?.email ?: "admin@gmail.com"
+        get() = auth.currentUser?.email ?: ""
 
     init {
         // Start real-time observation of /items and /users for Analytics
@@ -405,16 +405,19 @@ object FirebaseManager {
      * Seeds admin credentials and live items if database is empty.
      */
     fun seedDefaultDataIfEmpty() {
-        // 1. Seed Admin User credentials if missing
-        usersRef.child(currentUid).addListenerForSingleValueEvent(object : ValueEventListener {
+        val uid = currentUid
+        if (uid.isEmpty()) return
+        usersRef.child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!snapshot.exists()) {
-                    usersRef.child(currentUid).setValue(
+                    val email = currentUserEmail
+                    val defaultName = if (email.isNotEmpty()) email.substringBefore("@").replaceFirstChar { it.uppercase() } else "User"
+                    usersRef.child(uid).setValue(
                         UserData(
-                            uid = currentUid,
-                            email = currentUserEmail.ifEmpty { "admin@gmail.com" },
-                            fullName = "System Administrator",
-                            role = "ADMIN",
+                            uid = uid,
+                            email = email,
+                            fullName = defaultName,
+                            role = if (email.contains("admin", ignoreCase = true)) "ADMIN" else "USER",
                             isBanned = false,
                             trustScore = 100
                         )
