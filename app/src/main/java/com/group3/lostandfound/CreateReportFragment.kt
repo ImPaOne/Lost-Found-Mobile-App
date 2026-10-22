@@ -731,7 +731,12 @@ class CreateReportFragment : Fragment() {
         val landmark = inputLandmark.text.toString().trim()
         val reportTitle = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
 
-        val uid = FirebaseManager.currentUid
+        val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+        val localUid = prefs.getString("user_uid", "") ?: ""
+        val uid = FirebaseManager.currentUid.ifEmpty { localUid }.ifEmpty { "user_${System.currentTimeMillis()}" }
+        val authorName = prefs.getString("user_name", "")?.takeIf { it.isNotBlank() }
+            ?: FirebaseManager.currentUserEmail.substringBefore("@").replaceFirstChar { it.uppercase() }.takeIf { it.isNotBlank() }
+            ?: "Community Reporter"
 
         val fullDescription = buildString {
             if (desc.isNotEmpty()) append(desc)
@@ -752,7 +757,8 @@ class CreateReportFragment : Fragment() {
             location = reportLocation,
             latitude = selectedLatitude,
             longitude = selectedLongitude,
-            timestamp = System.currentTimeMillis()
+            timestamp = System.currentTimeMillis(),
+            authorName = authorName
         )
 
         createReportViewModel.submitReport(requireContext(), selectedImageUri, report)
