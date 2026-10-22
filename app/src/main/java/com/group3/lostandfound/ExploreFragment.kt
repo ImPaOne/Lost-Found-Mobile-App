@@ -13,21 +13,19 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.group3.lostandfound.adapter.ExploreAdapter
 import com.group3.lostandfound.model.ItemReport
-import com.group3.lostandfound.repository.ExploreRepository
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
+import com.group3.lostandfound.viewmodel.ExploreViewModel
 import kotlinx.coroutines.launch
 
 /**
- * ExploreFragment displays the Explore Search Screen:
- * - Realtime search with client-side Flow filtering on title & description
+ * ExploreFragment displays the Explore Search Screen in MVVM architecture:
+ * - Realtime search with client-side Flow filtering on title & description via ExploreViewModel
  * - Status & Category filter chips (All, Lost, Found, Pets)
  * - Grid (2 cols) and List (1 col) layout toggles
  * - Live Firebase Realtime Database item stream with null-safe parsing
@@ -51,12 +49,7 @@ class ExploreFragment : Fragment() {
 
     private lateinit var rvItems: RecyclerView
     private lateinit var exploreAdapter: ExploreAdapter
-    private val exploreRepository = ExploreRepository()
-
-    private var currentFilterStatus = "ALL"
-    private var currentSearchQuery = ""
-    private var searchJob: Job? = null
-    private var fetchJob: Job? = null
+    private lateinit var exploreViewModel: ExploreViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,10 +62,12 @@ class ExploreFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        exploreViewModel = ViewModelProvider(this)[ExploreViewModel::class.java]
+
         initViews(view)
         setupListeners()
         setupBottomNav(view, "explore")
-        fetchItems()
+        observeViewModel()
     }
 
     private fun initViews(view: View) {
@@ -100,14 +95,24 @@ class ExploreFragment : Fragment() {
         rvItems.adapter = exploreAdapter
     }
 
-    private fun fetchItems() {
-        fetchJob?.cancel()
-        fetchJob = viewLifecycleOwner.lifecycleScope.launch {
-            exploreRepository.getItemsFiltered(
-                query = currentSearchQuery,
-                status = currentFilterStatus
-            ).collectLatest { items ->
-                exploreAdapter.updateItems(items)
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            exploreViewModel.uiState.collect { state ->
+                exploreAdapter.updateItems(state.items)
+
+                if (state.isGridMode) {
+                    if (rvItems.layoutManager !is GridLayoutManager) {
+                        rvItems.layoutManager = GridLayoutManager(requireContext(), 2)
+                    }
+                    btnGridView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                    btnListView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                } else {
+                    if (rvItems.layoutManager !is LinearLayoutManager || rvItems.layoutManager is GridLayoutManager) {
+                        rvItems.layoutManager = LinearLayoutManager(requireContext())
+                    }
+                    btnListView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                    btnGridView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                }
             }
         }
     }
@@ -128,53 +133,37 @@ class ExploreFragment : Fragment() {
             Toast.makeText(requireContext(), "Showing filter options", Toast.LENGTH_SHORT).show()
         }
 
-        // Live search with debounce
         inputSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                searchJob?.cancel()
-                searchJob = viewLifecycleOwner.lifecycleScope.launch {
-                    delay(250) // Debounce rapid user input
-                    currentSearchQuery = s?.toString().orEmpty()
-                    fetchItems()
-                }
+                exploreViewModel.setSearchQuery(s?.toString().orEmpty())
             }
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        // Chip Filters
         chipAll.setOnClickListener {
-            currentFilterStatus = "ALL"
             selectChip(chipAll)
-            fetchItems()
+            exploreViewModel.setFilterStatus("ALL")
         }
         chipLost.setOnClickListener {
-            currentFilterStatus = "LOST"
             selectChip(chipLost)
-            fetchItems()
+            exploreViewModel.setFilterStatus("LOST")
         }
         chipFound.setOnClickListener {
-            currentFilterStatus = "FOUND"
             selectChip(chipFound)
-            fetchItems()
+            exploreViewModel.setFilterStatus("FOUND")
         }
         chipPets.setOnClickListener {
-            currentFilterStatus = "PETS"
             selectChip(chipPets)
-            fetchItems()
+            exploreViewModel.setFilterStatus("PETS")
         }
 
-        // Grid / List Toggle
         btnGridView.setOnClickListener {
-            rvItems.layoutManager = GridLayoutManager(requireContext(), 2)
-            btnGridView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
-            btnListView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+            exploreViewModel.setViewMode(true)
         }
 
         btnListView.setOnClickListener {
-            rvItems.layoutManager = LinearLayoutManager(requireContext())
-            btnListView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
-            btnGridView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+            exploreViewModel.setViewMode(false)
         }
     }
 
