@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.group3.lostandfound.repository.ChatRepository
 import com.group3.lostandfound.util.ImageLoader
 import com.group3.lostandfound.viewmodel.DetailsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -106,6 +107,11 @@ class DetailsFragment : Fragment() {
         val initialStatus = arguments?.getString(ARG_STATUS) ?: "LOST"
         val initialLocation = arguments?.getString(ARG_LOCATION) ?: "Colombo 03"
         itemId = arguments?.getString(ARG_ITEM_ID)
+        val initialReporter = arguments?.getString(ARG_REPORTER_UID).orEmpty()
+        if (initialReporter.isNotEmpty()) {
+            reporterUserId = initialReporter
+            reporterName = "User #${initialReporter.takeLast(4)}"
+        }
         detailsViewModel.loadItem(itemId.orEmpty())
 
         // Set initial bundle data
@@ -133,8 +139,17 @@ class DetailsFragment : Fragment() {
 
                         if (report.userId.isNotEmpty()) {
                             reporterUserId = report.userId
-                            reporterName = "User #${report.userId.takeLast(4)}"
-                            view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
+                            FirebaseManager.usersRef.child(report.userId).addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
+                                override fun onDataChange(userSnapshot: com.google.firebase.database.DataSnapshot) {
+                                    val name = userSnapshot.child("fullName").getValue(String::class.java)
+                                        ?: userSnapshot.child("displayName").getValue(String::class.java)
+                                        ?: userSnapshot.child("email").getValue(String::class.java)?.substringBefore("@")
+                                        ?: "User #${report.userId.takeLast(4)}"
+                                    reporterName = name
+                                    view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
+                                }
+                                override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+                            })
                         }
 
                         val loc = if (report.latitude != 0.0 || report.longitude != 0.0) {
