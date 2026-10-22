@@ -149,14 +149,53 @@ data class NotificationItem(
     val read: Boolean = false
 )
 
-// 5. Real-Time Messaging Models (Finder & Owner Chat)
 data class ChatMessage(
     val chatMessageId: String = "",
     val senderUserId: String = "",
     val recipientUserId: String = "",
     val chatMessageTextContent: String = "",
-    val messageSentTimestamp: Long = 0L
-)
+    val messageSentTimestamp: Long = 0L,
+    val imageUrl: String = ""
+) {
+    companion object {
+        fun fromSnapshot(child: DataSnapshot): ChatMessage {
+            return try {
+                val key = child.key.orEmpty()
+                val id = child.child("chatMessageId").getValue(String::class.java)?.takeIf { it.isNotEmpty() } ?: key
+                val sender = child.child("senderUserId").getValue(String::class.java)
+                    ?: child.child("senderId").getValue(String::class.java)
+                    ?: ""
+                val recipient = child.child("recipientUserId").getValue(String::class.java)
+                    ?: child.child("recipientId").getValue(String::class.java)
+                    ?: ""
+                val text = child.child("chatMessageTextContent").getValue(String::class.java)
+                    ?: child.child("message").getValue(String::class.java)
+                    ?: child.child("text").getValue(String::class.java)
+                    ?: ""
+                val imgUrl = child.child("imageUrl").getValue(String::class.java)
+                    ?: child.child("image").getValue(String::class.java)
+                    ?: ""
+                val rawTime = child.child("messageSentTimestamp").value
+                    ?: child.child("timestamp").value
+                val time = when (rawTime) {
+                    is Number -> rawTime.toLong()
+                    is String -> rawTime.toLongOrNull() ?: System.currentTimeMillis()
+                    else -> System.currentTimeMillis()
+                }
+                ChatMessage(
+                    chatMessageId = id,
+                    senderUserId = sender,
+                    recipientUserId = recipient,
+                    chatMessageTextContent = text,
+                    messageSentTimestamp = time,
+                    imageUrl = imgUrl
+                )
+            } catch (e: Exception) {
+                ChatMessage()
+            }
+        }
+    }
+}
 
 data class ConversationMetadata(
     val chatConversationId: String = "",
