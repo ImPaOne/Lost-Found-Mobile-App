@@ -51,21 +51,22 @@ class MainActivity : AppCompatActivity() {
         // Seed default live Firebase items and admin credentials if empty
         FirebaseManager.seedDefaultDataIfEmpty()
 
-        // Set up real-time incoming message notification listener
+        val prefs = getSharedPreferences("findit_prefs", MODE_PRIVATE)
+        val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        val localUid = prefs.getString("user_uid", "") ?: ""
+        val savedEmail = prefs.getString("saved_email", "") ?: ""
+        val isLoggedIn = prefs.getBoolean("is_logged_in", false) && (firebaseUser != null || localUid.isNotEmpty())
+        if (localUid.isNotEmpty()) {
+            FirebaseManager.customUid = localUid
+            FirebaseManager.customEmail = savedEmail
+        } else if (firebaseUser == null && prefs.getBoolean("is_logged_in", false)) {
+            prefs.edit().putBoolean("is_logged_in", false).apply()
+        }
+
+        // Set up real-time incoming message notification listener AFTER user credentials are restored
         setupIncomingMessageNotifications()
 
         if (savedInstanceState == null) {
-            val prefs = getSharedPreferences("findit_prefs", MODE_PRIVATE)
-            val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-            val localUid = prefs.getString("user_uid", "") ?: ""
-            val savedEmail = prefs.getString("saved_email", "") ?: ""
-            val isLoggedIn = prefs.getBoolean("is_logged_in", false) && (firebaseUser != null || localUid.isNotEmpty())
-            if (localUid.isNotEmpty()) {
-                FirebaseManager.customUid = localUid
-                FirebaseManager.customEmail = savedEmail
-            } else if (firebaseUser == null && prefs.getBoolean("is_logged_in", false)) {
-                prefs.edit().putBoolean("is_logged_in", false).apply()
-            }
             val onboardingCompleted = prefs.getBoolean("onboarding_completed", false)
             val isExplicitAdmin = savedEmail.equals("admin@gmail.com", ignoreCase = true) && prefs.getBoolean("is_admin", false)
 
@@ -86,9 +87,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupIncomingMessageNotifications() {
+    private var isMessageListenerAttached = false
+
+    fun setupIncomingMessageNotifications() {
         val uid = FirebaseManager.currentUid
-        if (uid.isEmpty()) return
+        if (uid.isEmpty() || isMessageListenerAttached) return
+        isMessageListenerAttached = true
 
         val appStartTime = System.currentTimeMillis()
         val convRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
@@ -111,9 +115,14 @@ class MainActivity : AppCompatActivity() {
                     val notifEnabled = prefs.getBoolean("push_notifications_enabled", true)
                     if (notifEnabled) {
                         val senderTitle = if (metadata.otherUserName.isNotEmpty()) metadata.otherUserName else "Foundly Community"
+                        val notifTitle = if (metadata.relatedItemTitle.isNotBlank()) {
+                            "💬 $senderTitle: '${metadata.relatedItemTitle}'"
+                        } else {
+                            "💬 Message from $senderTitle"
+                        }
                         FCMService.triggerPushNotification(
                             this@MainActivity,
-                            "💬 Message from $senderTitle",
+                            notifTitle,
                             metadata.lastMessageTextContent.ifEmpty { "New message regarding item." },
                             metadata.relatedItemId
                         )
@@ -121,6 +130,39 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+            override fun onChildRemoved(snapshot: com.google.firebase.database.DataSnapshot) {}
+            override fun onChildMoved(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {}
+            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+        })
+
+        // Also listen to /notifications/{uid} for other incoming alerts (reward offers, status changes)
+        val notifRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+            .getReference("notifications")
+            .child(uid)
+
+        notifRef.addChildEventListener(object : com.google.firebase.database.ChildEventListener {
+            override fun onChildAdded(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {
+                val notif = try {
+                    snapshot.getValue(NotificationItem::class.java)
+                } catch (e: Exception) {
+                    null
+                } ?: return
+
+                if (notif.timestamp > appStartTime && notif.senderUserId != FirebaseManager.currentUid && notif.type != "CHAT_MESSAGE") {
+                    val prefs = getSharedPreferences("findit_prefs", MODE_PRIVATE)
+                    val notifEnabled = prefs.getBoolean("push_notifications_enabled", true)
+                    if (notifEnabled) {
+                        FCMService.triggerPushNotification(
+                            this@MainActivity,
+                            notif.title,
+                            notif.message,
+                            notif.itemId
+                        )
+                    }
+                }
+            }
+
+            override fun onChildChanged(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {}
             override fun onChildRemoved(snapshot: com.google.firebase.database.DataSnapshot) {}
             override fun onChildMoved(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {}
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
