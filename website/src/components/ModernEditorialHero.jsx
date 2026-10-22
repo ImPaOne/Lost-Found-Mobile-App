@@ -1,14 +1,7 @@
 import React from 'react';
-import { Download, QrCode, Shield, CheckCircle2, Smartphone } from 'lucide-react';
-import { playClickSound } from '../utils/audio';
+import { Download, QrCode, ShieldCheck, Smartphone, Check } from 'lucide-react';
 
-export default function ModernEditorialHero({ onDownloadApk, onOpenQR }) {
-  const scrollToPillars = () => {
-    playClickSound();
-    const el = document.getElementById('pillars');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
-
+export default function ModernEditorialHero({ onDownloadAndroid, onOpenQR }) {
   return (
     <section className="editorial-hero-fullscreen">
       <div className="container-fullscreen">
@@ -16,48 +9,48 @@ export default function ModernEditorialHero({ onDownloadApk, onOpenQR }) {
         <div className="hero-editorial-meta-row">
           <div className="hero-status-pill">
             <span className="pulsing-warm-dot"></span>
-            <span>FOUNDIT MOBILE · ANDROID NATIVE v2.4.2</span>
+            <span>FOUNDLY FOR ANDROID</span>
           </div>
 
           <div className="hero-meta-stat">
-            28,490+ VERIFIED ITEMS REUNITED
+            OVER 28,000 ITEMS REUNITED
           </div>
         </div>
 
-        {/* Giant Editorial Headline */}
+        {/* Headline in simple, clean wording */}
         <div className="editorial-title-box">
           <h1 className="editorial-hero-title">
-            RECONNECT WHAT'S LOST.
+            LOST SOMETHING?<br />FIND IT WITH FOUNDLY.
           </h1>
         </div>
 
-        {/* Editorial Subtitle Columns */}
+        {/* 3 Simple Columns in Plain English */}
         <div className="editorial-hero-split-text">
           <div className="hero-split-col">
-            <span className="col-num-label">01 / PHILOSOPHY</span>
+            <span className="col-num-label">01 / QUICK PHOTO</span>
             <p className="col-paragraph">
-              A minimalist, community-centered recovery network built exclusively for Android. Designed to turn stressful misplacement into swift, quiet relief without friction.
+              Found a wallet, keys, or a pet? Just snap a photo. Foundly matches it instantly with lost reports nearby.
             </p>
           </div>
 
           <div className="hero-split-col">
-            <span className="col-num-label">02 / PROTOCOL</span>
+            <span className="col-num-label">02 / STAY PRIVATE</span>
             <p className="col-paragraph">
-              Zero contact disclosure. Finders and owners connect via single-use verification tokens and secure safe-drop points without exposing phone numbers or private emails.
+              Connect safely without giving away your personal phone number, email, or home address.
             </p>
           </div>
 
           <div className="hero-split-col hero-col-actions">
-            <span className="col-num-label">03 / INSTALLATION</span>
+            <span className="col-num-label">03 / GET STARTED</span>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
               <button 
-                onClick={onDownloadApk}
+                onClick={onDownloadAndroid}
                 className="btn-apple-primary"
-                id="hero-apk-download"
+                id="hero-download-btn"
                 style={{ width: '100%', padding: '12px 18px', fontSize: '0.84rem' }}
               >
                 <Download size={15} />
-                <span>Download APK (v2.4.2)</span>
+                <span>Download for Android</span>
               </button>
 
               <button 
@@ -67,18 +60,18 @@ export default function ModernEditorialHero({ onDownloadApk, onOpenQR }) {
                 style={{ width: '100%', padding: '11px 18px', fontSize: '0.84rem' }}
               >
                 <QrCode size={15} />
-                <span>Scan QR for Mobile</span>
+                <span>Scan QR Code</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* High-End Editorial Showcase (Warm Minimalist Aesthetic) */}
+        {/* Showcase Frame with Simple, Human Details */}
         <div className="hero-editorial-showcase">
           <div className="showcase-image-wrapper">
             <img 
               src="/assets/app_showcase_warm.jpg" 
-              alt="FOUNDIT Android Application on Flagship Device"
+              alt="Foundly App on Android Smartphone"
               className="showcase-hero-img" 
             />
           </div>
@@ -87,34 +80,34 @@ export default function ModernEditorialHero({ onDownloadApk, onOpenQR }) {
             <div className="showcase-badge-row">
               <span className="badge-warm-pill">
                 <Smartphone size={13} />
-                <span>Android 8.0 - 15</span>
+                <span>Android App</span>
               </span>
               <span className="badge-warm-pill">
-                <Shield size={13} />
-                <span>Zero Trackers</span>
+                <ShieldCheck size={13} />
+                <span>100% Private</span>
               </span>
             </div>
 
             <h2 className="showcase-headline">
-              Minimalist by intention. Effortless in practice.
+              Calm, fast recovery when it matters most.
             </h2>
 
             <p className="showcase-subtext">
-              Built using native Android components and a warm editorial design language. No clutter, no repetitive feeds, and no invasive permissions. Point your camera, log what you found, or verify ownership in seconds.
+              Foundly turns the stress of losing something into quick relief. No complicated menus, no ads, and no personal data sharing.
             </p>
 
             <div className="showcase-spec-list">
               <div className="showcase-spec-row">
-                <span className="spec-row-label">Application Package</span>
-                <span className="spec-row-val">com.foundit.lostfound.android</span>
+                <span className="spec-row-label">Works on</span>
+                <span className="spec-row-val">Samsung, Pixel, Xiaomi &amp; all Android phones</span>
               </div>
               <div className="showcase-spec-row">
-                <span className="spec-row-label">Target Architecture</span>
-                <span className="spec-row-val">Universal ARM64-v8a</span>
+                <span className="spec-row-label">System</span>
+                <span className="spec-row-val">Android 8.0 or newer</span>
               </div>
               <div className="showcase-spec-row">
-                <span className="spec-row-label">Academic Scope</span>
-                <span className="spec-row-val">HDSE 26.1 MAD Project</span>
+                <span className="spec-row-label">Cost</span>
+                <span className="spec-row-val">Free to use</span>
               </div>
             </div>
           </div>
