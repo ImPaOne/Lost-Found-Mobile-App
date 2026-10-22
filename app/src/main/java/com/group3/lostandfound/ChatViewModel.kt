@@ -53,7 +53,8 @@ class ChatViewModel(
         chatMessageTextContent: String,
         relatedItemId: String = "",
         otherUserName: String = "",
-        imageUrl: String = ""
+        imageUrl: String = "",
+        relatedItemTitle: String = ""
     ) {
         if (chatMessageTextContent.isBlank() && imageUrl.isBlank()) return
 
@@ -66,7 +67,8 @@ class ChatViewModel(
                 chatMessageTextContent = chatMessageTextContent.trim(),
                 relatedItemId = relatedItemId,
                 otherUserName = otherUserName,
-                imageUrl = imageUrl
+                imageUrl = imageUrl,
+                relatedItemTitle = relatedItemTitle
             )
             _sendMessageOperationStatus.value = operationResult
         }
