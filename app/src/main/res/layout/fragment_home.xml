@@ -453,9 +453,9 @@
                         android:id="@+id/imageWalletPhoto"
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:contentDescription="Wallet item image"
+                        android:contentDescription="Item image"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/img_wallet"
+                        android:src="@drawable/ic_item_placeholder"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
                     <LinearLayout
@@ -561,9 +561,9 @@
                         android:id="@+id/imageDogPhoto"
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:contentDescription="Dog item image"
+                        android:contentDescription="Item image"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/img_dog_milo"
+                        android:src="@drawable/ic_item_placeholder"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
                     <LinearLayout
@@ -666,11 +666,12 @@
                     android:padding="12dp">
 
                     <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/imageLaptopPhoto"
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:contentDescription="Laptop item image"
+                        android:contentDescription="Item image"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/img_wallet_details"
+                        android:src="@drawable/ic_item_placeholder"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
                     <LinearLayout
@@ -745,6 +746,19 @@
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/tvEmptyRecent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:gravity="center"
+                android:text="No recent reports yet.\nUse Report Lost / Found above to post an item."
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:lineSpacingExtra="4dp"
+                android:visibility="gone" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
