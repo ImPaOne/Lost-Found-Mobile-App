@@ -45,16 +45,45 @@ class ChatAdapter(
                 ""
             }
 
+            val hasImage = chatMessage.imageUrl.isNotBlank()
+            val hasText = chatMessage.chatMessageTextContent.isNotBlank()
+
             if (chatMessage.senderUserId == currentUserId) {
                 // Outgoing message
                 binding.layoutOutgoingMessage.visibility = View.VISIBLE
                 binding.layoutIncomingMessage.visibility = View.GONE
+
+                if (hasImage) {
+                    binding.cardOutgoingImage.visibility = View.VISIBLE
+                    com.group3.lostandfound.util.ImageLoader.load(
+                        binding.root.context,
+                        chatMessage.imageUrl,
+                        binding.imgOutgoingPhoto
+                    )
+                } else {
+                    binding.cardOutgoingImage.visibility = View.GONE
+                }
+
+                binding.tvOutgoingText.visibility = if (hasText) View.VISIBLE else View.GONE
                 binding.tvOutgoingText.text = chatMessage.chatMessageTextContent
                 binding.tvOutgoingTime.text = formattedTime
             } else {
                 // Incoming message
                 binding.layoutOutgoingMessage.visibility = View.GONE
                 binding.layoutIncomingMessage.visibility = View.VISIBLE
+
+                if (hasImage) {
+                    binding.cardIncomingImage.visibility = View.VISIBLE
+                    com.group3.lostandfound.util.ImageLoader.load(
+                        binding.root.context,
+                        chatMessage.imageUrl,
+                        binding.imgIncomingPhoto
+                    )
+                } else {
+                    binding.cardIncomingImage.visibility = View.GONE
+                }
+
+                binding.tvIncomingText.visibility = if (hasText) View.VISIBLE else View.GONE
                 binding.tvIncomingText.text = chatMessage.chatMessageTextContent
                 binding.tvIncomingTime.text = formattedTime
             }

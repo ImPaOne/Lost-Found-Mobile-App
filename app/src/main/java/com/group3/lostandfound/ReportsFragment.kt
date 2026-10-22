@@ -6,19 +6,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.card.MaterialCardView
+import com.group3.lostandfound.model.ItemReport
+import com.group3.lostandfound.util.ImageLoader
+import com.group3.lostandfound.util.ModernToast
+import com.group3.lostandfound.viewmodel.ReportsViewModel
+import kotlinx.coroutines.launch
 
 /**
- * ReportsFragment displays user's lost & found reports.
- * Executes: FirebaseDatabase.getInstance().getReference("items").orderByChild("userId").equalTo(currentUid)
- * Allows user to manage listings and mark them as RESOLVED in real time.
+ * ReportsFragment ("My Reports") in MVVM architecture.
+ * Delegating state management, stream observation, resolution, and deletion to ReportsViewModel.
  */
 class ReportsFragment : Fragment() {
 
@@ -30,10 +32,15 @@ class ReportsFragment : Fragment() {
     private lateinit var tabAll: TextView
 
     private lateinit var tvCount: TextView
+    private lateinit var tvEmptyReports: TextView
 
     private lateinit var card1: View
     private lateinit var card2: View
     private lateinit var card3: View
+
+    private lateinit var img1: ImageView
+    private lateinit var img2: ImageView
+    private lateinit var img3: ImageView
 
     private lateinit var name1: TextView
     private lateinit var name2: TextView
@@ -51,8 +58,9 @@ class ReportsFragment : Fragment() {
     private lateinit var opt2: ImageView
     private lateinit var opt3: ImageView
 
-    private val userReports = mutableListOf<ReportItem>()
     private var currentFilter = "ACTIVE"
+    private val userReports = mutableListOf<ItemReport>()
+    private lateinit var reportsViewModel: ReportsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,10 +73,12 @@ class ReportsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        reportsViewModel = ViewModelProvider(this)[ReportsViewModel::class.java]
+
         initViews(view)
         setupListeners()
         setupBottomNav(view, "profile")
-        loadMyReportsFromFirebase()
+        observeViewModel()
     }
 
     private fun initViews(view: View) {
@@ -80,10 +90,15 @@ class ReportsFragment : Fragment() {
         tabAll = view.findViewById(R.id.tabAll)
 
         tvCount = view.findViewById(R.id.tvCount)
+        tvEmptyReports = view.findViewById(R.id.tvEmptyReports)
 
         card1 = view.findViewById(R.id.card1)
         card2 = view.findViewById(R.id.card2)
         card3 = view.findViewById(R.id.card3)
+
+        img1 = view.findViewById(R.id.img1)
+        img2 = view.findViewById(R.id.img2)
+        img3 = view.findViewById(R.id.img3)
 
         name1 = view.findViewById(R.id.name1)
         name2 = view.findViewById(R.id.name2)
@@ -102,54 +117,14 @@ class ReportsFragment : Fragment() {
         opt3 = view.findViewById(R.id.opt3)
     }
 
-    /**
-     * Executes required Firebase query:
-     * FirebaseDatabase.getInstance().getReference("items").orderByChild("userId").equalTo(currentUid)
-     */
-    private fun loadMyReportsFromFirebase() {
-        val currentUid = FirebaseManager.currentUid
-        val query = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
-            .getReference("items")
-            .orderByChild("userId")
-            .equalTo(currentUid)
-
-        query.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            reportsViewModel.uiState.collect { state ->
                 userReports.clear()
-                for (child in snapshot.children) {
-                    val item = ReportItem.fromSnapshot(child)
-                    if (item.itemId.isNotEmpty() || item.title.isNotEmpty()) {
-                        userReports.add(item)
-                    }
-                }
-
-                if (userReports.isEmpty()) {
-                    FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
-                        .getReference("items")
-                        .limitToLast(5)
-                        .addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(allSnap: DataSnapshot) {
-                                for (c in allSnap.children) {
-                                    val it = ReportItem.fromSnapshot(c)
-                                    if (it.itemId.isNotEmpty() || it.title.isNotEmpty()) {
-                                        userReports.add(it)
-                                    }
-                                }
-                                updateReportsListUI()
-                            }
-                            override fun onCancelled(e: DatabaseError) {
-                                updateReportsListUI()
-                            }
-                        })
-                } else {
-                    updateReportsListUI()
-                }
+                userReports.addAll(state.reports)
+                updateReportsListUI()
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(requireContext(), "Failed to load reports: ${error.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+        }
     }
 
     private fun updateReportsListUI() {
@@ -160,16 +135,19 @@ class ReportsFragment : Fragment() {
         }
 
         tvCount.text = "${filtered.size} reports · updated live"
+        tvEmptyReports.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
 
         // Item 1
         if (filtered.isNotEmpty()) {
             val item1 = filtered[0]
             card1.visibility = View.VISIBLE
             name1.text = item1.title
-            sub1.text = item1.location
+            sub1.text = "${item1.location} · Live Post"
             tag1.text = item1.status
+            tag1.setTextColor(ContextCompat.getColor(requireContext(), if (item1.status.equals("RESOLVED", ignoreCase = true)) R.color.tag_found_color else R.color.tag_lost_color))
+            ImageLoader.load(img1, item1.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             card1.setOnClickListener { openItemDetails(item1) }
-            opt1.setOnClickListener { showOptionsMenu(item1) }
+            opt1.setOnClickListener { showItemMenu(item1) }
         } else {
             card1.visibility = View.GONE
         }
@@ -179,10 +157,12 @@ class ReportsFragment : Fragment() {
             val item2 = filtered[1]
             card2.visibility = View.VISIBLE
             name2.text = item2.title
-            sub2.text = item2.location
+            sub2.text = "${item2.location} · Live Post"
             tag2.text = item2.status
+            tag2.setTextColor(ContextCompat.getColor(requireContext(), if (item2.status.equals("RESOLVED", ignoreCase = true)) R.color.tag_found_color else R.color.tag_lost_color))
+            ImageLoader.load(img2, item2.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             card2.setOnClickListener { openItemDetails(item2) }
-            opt2.setOnClickListener { showOptionsMenu(item2) }
+            opt2.setOnClickListener { showItemMenu(item2) }
         } else {
             card2.visibility = View.GONE
         }
@@ -192,19 +172,19 @@ class ReportsFragment : Fragment() {
             val item3 = filtered[2]
             card3.visibility = View.VISIBLE
             name3.text = item3.title
-            sub3.text = item3.location
+            sub3.text = "${item3.location} · Live Post"
             tag3.text = item3.status
+            tag3.setTextColor(ContextCompat.getColor(requireContext(), if (item3.status.equals("RESOLVED", ignoreCase = true)) R.color.tag_found_color else R.color.tag_lost_color))
+            ImageLoader.load(img3, item3.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             card3.setOnClickListener { openItemDetails(item3) }
-            opt3.setOnClickListener { showOptionsMenu(item3) }
+            opt3.setOnClickListener { showItemMenu(item3) }
         } else {
             card3.visibility = View.GONE
         }
     }
 
     private fun setupListeners() {
-        btnBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
+        btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
 
         btnAdd.setOnClickListener {
             parentFragmentManager.beginTransaction()
@@ -232,43 +212,43 @@ class ReportsFragment : Fragment() {
         }
     }
 
-    private fun showOptionsMenu(item: ReportItem) {
-        val options = arrayOf(
-            "View report details",
-            "Mark as resolved (Firebase)",
-            "Delete report (Firebase)"
-        )
-
+    private fun showItemMenu(item: ItemReport) {
+        val options = arrayOf("View Live Details", "Mark as Resolved", "Delete Report")
         AlertDialog.Builder(requireContext())
             .setTitle(item.title)
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> openItemDetails(item)
                     1 -> {
-                        // Mark status as "RESOLVED" in Firebase Realtime DB
-                        FirebaseManager.itemsRef
-                            .child(item.itemId)
-                            .child("status")
-                            .setValue("RESOLVED")
-                            .addOnSuccessListener {
-                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "'${item.title}' marked as RESOLVED.", view)
+                        reportsViewModel.markItemResolved(item.itemId) { success ->
+                            if (success) {
+                                val idx = userReports.indexOfFirst { it.itemId == item.itemId }
+                                if (idx != -1) {
+                                    userReports[idx] = userReports[idx].copy(status = "RESOLVED")
+                                    updateReportsListUI()
+                                }
+                                com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                                    requireContext(),
+                                    "Item Resolved & Reunited!",
+                                    "'${item.title}' has been marked as resolved and safely reunited.",
+                                    item.itemId
+                                )
+                                ModernToast.show(requireContext(), "'${item.title}' marked as RESOLVED.", view)
+                            } else {
+                                ModernToast.show(requireContext(), "Update failed.", view, durationLong = true)
                             }
-                            .addOnFailureListener {
-                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "Update failed: ${it.message}", view, durationLong = true)
-                            }
+                        }
                     }
                     2 -> {
-                        // Delete report using removeValue()
                         AlertDialog.Builder(requireContext())
                             .setTitle("Delete Listing")
                             .setMessage("Remove '${item.title}' from database?")
                             .setPositiveButton("Delete") { _, _ ->
-                                FirebaseManager.itemsRef
-                                    .child(item.itemId)
-                                    .removeValue()
-                                    .addOnSuccessListener {
-                                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "'${item.title}' deleted.", view)
+                                reportsViewModel.deleteItem(item.itemId) { success ->
+                                    if (success) {
+                                        ModernToast.show(requireContext(), "'${item.title}' deleted.", view)
                                     }
+                                }
                             }
                             .setNegativeButton("Cancel", null)
                             .show()
@@ -278,8 +258,9 @@ class ReportsFragment : Fragment() {
             .show()
     }
 
-    private fun openItemDetails(item: ReportItem) {
+    private fun openItemDetails(item: ItemReport) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(
                 R.id.screenBox,
                 DetailsFragment.newInstance(
@@ -287,7 +268,10 @@ class ReportsFragment : Fragment() {
                     desc = item.description,
                     status = item.status,
                     location = item.location,
-                    imageResId = R.drawable.img_wallet_details
+                    imageResId = R.drawable.ic_item_placeholder,
+                    itemId = item.itemId,
+                    reporterUserId = item.userId,
+                    authorName = item.authorName
                 )
             )
             .addToBackStack(null)

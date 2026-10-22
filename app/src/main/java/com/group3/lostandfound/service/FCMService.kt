@@ -106,8 +106,8 @@ class FCMService : FirebaseMessagingService() {
 
         try {
             NotificationManagerCompat.from(this).notify(System.currentTimeMillis().toInt(), notification)
-        } catch (e: SecurityException) {
-            Log.e(TAG, "Notification permission missing: ${e.message}")
+        } catch (e: Throwable) {
+            Log.e(TAG, "Notification dispatch failed: ${e.message}")
         }
     }
 
@@ -119,23 +119,31 @@ class FCMService : FirebaseMessagingService() {
 
         fun createNotificationChannel(context: Context) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val name = "Foundly Urgent Alerts & Matches"
-                val descriptionText = "Push notifications with sounds for urgent lost and found items and messages"
-                val importance = NotificationManager.IMPORTANCE_HIGH
-                val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-                    description = descriptionText
-                    enableVibration(true)
-                    vibrationPattern = longArrayOf(0, 300, 200, 300)
-                    val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
-                    val audioAttributes = android.media.AudioAttributes.Builder()
-                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                        .build()
-                    setSound(soundUri, audioAttributes)
+                try {
+                    val name = "Foundly Urgent Alerts & Messages"
+                    val descriptionText = "Push notifications with modern sounds for urgent items and incoming messages"
+                    val importance = NotificationManager.IMPORTANCE_HIGH
+                    val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                        description = descriptionText
+                        enableVibration(true)
+                        vibrationPattern = longArrayOf(0, 200, 100, 200, 100, 250)
+                        enableLights(true)
+                        lightColor = android.graphics.Color.rgb(255, 112, 67)
+                        lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+                        setShowBadge(true)
+                        val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
+                        val audioAttributes = android.media.AudioAttributes.Builder()
+                            .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
+                            .build()
+                        setSound(soundUri, audioAttributes)
+                    }
+                    val notificationManager: NotificationManager =
+                        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    notificationManager.createNotificationChannel(channel)
+                } catch (e: Throwable) {
+                    Log.e(TAG, "Failed to create notification channel: ${e.message}")
                 }
-                val notificationManager: NotificationManager =
-                    context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.createNotificationChannel(channel)
             }
         }
 
@@ -143,40 +151,67 @@ class FCMService : FirebaseMessagingService() {
          * Triggers a push notification with sound and vibration immediately.
          */
         fun triggerPushNotification(context: Context, title: String, body: String, itemId: String? = null) {
-            createNotificationChannel(context)
-            val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
-
-            val intent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                if (itemId != null) {
-                    putExtra("extra_item_id", itemId)
-                }
-            }
-
-            val pendingIntent = PendingIntent.getActivity(
-                context,
-                System.currentTimeMillis().toInt(),
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_nav_my_reports)
-                .setContentTitle(title)
-                .setContentText(body)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(body))
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setSound(soundUri)
-                .setVibrate(longArrayOf(0, 300, 200, 300))
-                .setDefaults(NotificationCompat.DEFAULT_ALL)
-                .setAutoCancel(true)
-                .setContentIntent(pendingIntent)
-                .build()
-
             try {
+                createNotificationChannel(context)
+                val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
+
+                // Guaranteed audible sound feedback for modern alerts
+                try {
+                    val ringtone = android.media.RingtoneManager.getRingtone(context.applicationContext, soundUri)
+                    ringtone?.play()
+                } catch (_: Exception) {}
+
+                try {
+                    val toneGen = android.media.ToneGenerator(android.media.AudioManager.STREAM_NOTIFICATION, 100)
+                    toneGen.startTone(android.media.ToneGenerator.TONE_PROP_BEEP2, 350)
+                } catch (_: Exception) {
+                    try {
+                        val toneGen = android.media.ToneGenerator(android.media.AudioManager.STREAM_MUSIC, 100)
+                        toneGen.startTone(android.media.ToneGenerator.TONE_PROP_BEEP, 300)
+                    } catch (_: Exception) {}
+                }
+
+                try {
+                    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        vibrator?.vibrate(android.os.VibrationEffect.createOneShot(200, android.os.VibrationEffect.DEFAULT_AMPLITUDE))
+                    } else {
+                        vibrator?.vibrate(200)
+                    }
+                } catch (_: Exception) {}
+
+                val intent = Intent(context, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    if (itemId != null) {
+                        putExtra("extra_item_id", itemId)
+                    }
+                }
+
+                val pendingIntent = PendingIntent.getActivity(
+                    context,
+                    System.currentTimeMillis().toInt(),
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+
+                val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_nav_my_reports)
+                    .setContentTitle(title)
+                    .setContentText(body)
+                    .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setSound(soundUri)
+                    .setVibrate(longArrayOf(0, 200, 100, 200, 100, 250))
+                    .setDefaults(NotificationCompat.DEFAULT_ALL)
+                    .setAutoCancel(true)
+                    .setContentIntent(pendingIntent)
+                    .build()
+
                 NotificationManagerCompat.from(context).notify(System.currentTimeMillis().toInt(), notification)
-            } catch (e: SecurityException) {
-                Log.e(TAG, "Notification permission missing: ${e.message}")
+            } catch (e: Throwable) {
+                Log.e(TAG, "triggerPushNotification failed gracefully: ${e.message}")
             }
         }
 

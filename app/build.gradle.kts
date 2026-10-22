@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.material)
     implementation("androidx.viewpager2:viewpager2:1.1.0")
+    implementation("com.google.zxing:core:3.5.3")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)

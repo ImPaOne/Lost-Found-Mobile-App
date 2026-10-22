@@ -72,14 +72,36 @@
             android:paddingEnd="20dp"
             android:paddingBottom="24dp">
 
-            <!-- Profile Avatar -->
-            <ImageView
-                android:id="@+id/userAvatar"
-                android:layout_width="86dp"
-                android:layout_height="86dp"
+            <!-- Profile Avatar with Upload Camera Badge -->
+            <FrameLayout
+                android:id="@+id/boxAvatarContainer"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
                 android:layout_gravity="center_horizontal"
-                android:contentDescription="Profile avatar"
-                android:src="@drawable/ic_user_avatar" />
+                android:clickable="true"
+                android:focusable="true">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/userAvatar"
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Profile avatar"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_user_avatar"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Circle" />
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="bottom|end"
+                    android:background="@drawable/bg_squircle_dark"
+                    android:contentDescription="Upload Photo"
+                    android:elevation="3dp"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_camera"
+                    app:tint="@color/white" />
+            </FrameLayout>
 
             <!-- User Name with Verified Badge -->
             <LinearLayout
@@ -95,7 +117,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-bold"
-                    android:text="Nadeesha Silva"
+                    android:text="My Profile"
                     android:textColor="#5C4638"
                     android:textSize="21sp"
                     android:textStyle="bold" />

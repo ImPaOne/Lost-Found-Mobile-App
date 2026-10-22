@@ -3,6 +3,7 @@
     <!-- Base -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="primary">#FF3A2D28</color>
 
     <!-- DAVIS HUMPHRIES DESIGN - NUDE PALETTE (EXACT) -->
     <color name="nude_dark">#FF3A2D28</color>       <!-- #3A2D28: Main dark text, headers, primary buttons -->

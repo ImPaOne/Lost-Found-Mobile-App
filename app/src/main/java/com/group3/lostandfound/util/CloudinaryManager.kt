@@ -99,18 +99,10 @@ object CloudinaryManager {
                 }
             }
 
-            // Fallback: If unsigned preset on Cloudinary needs activation, construct a delivery URL
-            // using the cloud name so the UI and database always receive a valid Cloudinary image URL
-            val fallbackPublicId = "report_${System.currentTimeMillis()}"
-            val fallbackUrl = "https://res.cloudinary.com/$CLOUD_NAME/image/upload/v1/$fallbackPublicId.jpg"
-            Log.w(TAG, "Using Cloudinary format fallback URL: $fallbackUrl")
-            onProgress(90)
-            return@withContext fallbackUrl
-
+            throw java.io.IOException("Cloudinary upload failed (HTTP $responseCode): $responseText")
         } catch (e: Exception) {
             Log.e(TAG, "Cloudinary upload error: ${e.message}", e)
-            val fallbackUrl = "https://res.cloudinary.com/$CLOUD_NAME/image/upload/v1/item_${System.currentTimeMillis()}.jpg"
-            return@withContext fallbackUrl
+            throw e
         }
     }
 }

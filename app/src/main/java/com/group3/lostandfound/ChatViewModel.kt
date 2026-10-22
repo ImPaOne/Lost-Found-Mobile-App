@@ -36,18 +36,9 @@ class ChatViewModel(
         _chatMessagesListState.value = emptyList()
 
         viewModelScope.launch {
-            chatRepository.streamChatMessages(chatConversationId)
-                .collect { incomingChatMessage ->
-                    val currentMessageList = _chatMessagesListState.value.toMutableList()
-                    val isMessageAlreadyPresent = currentMessageList.any { existingMessage ->
-                        existingMessage.chatMessageId == incomingChatMessage.chatMessageId
-                    }
-                    if (!isMessageAlreadyPresent) {
-                        currentMessageList.add(incomingChatMessage)
-                        // Order messages chronologically
-                        currentMessageList.sortBy { it.messageSentTimestamp }
-                        _chatMessagesListState.value = currentMessageList
-                    }
+            chatRepository.streamAllChatMessages(chatConversationId)
+                .collect { messageList ->
+                    _chatMessagesListState.value = messageList
                 }
         }
     }
@@ -61,9 +52,11 @@ class ChatViewModel(
         recipientUserId: String,
         chatMessageTextContent: String,
         relatedItemId: String = "",
-        otherUserName: String = ""
+        otherUserName: String = "",
+        imageUrl: String = "",
+        relatedItemTitle: String = ""
     ) {
-        if (chatMessageTextContent.isBlank()) return
+        if (chatMessageTextContent.isBlank() && imageUrl.isBlank()) return
 
         viewModelScope.launch {
             _sendMessageOperationStatus.value = ResultState.Loading
@@ -73,7 +66,9 @@ class ChatViewModel(
                 recipientUserId = recipientUserId,
                 chatMessageTextContent = chatMessageTextContent.trim(),
                 relatedItemId = relatedItemId,
-                otherUserName = otherUserName
+                otherUserName = otherUserName,
+                imageUrl = imageUrl,
+                relatedItemTitle = relatedItemTitle
             )
             _sendMessageOperationStatus.value = operationResult
         }
