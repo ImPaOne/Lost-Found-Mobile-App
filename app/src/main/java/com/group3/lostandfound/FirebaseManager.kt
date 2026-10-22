@@ -420,7 +420,7 @@ object FirebaseManager {
                             uid = uid,
                             email = email,
                             fullName = defaultName,
-                            role = if (email.contains("admin", ignoreCase = true)) "ADMIN" else "USER",
+                            role = if (email.equals("admin@gmail.com", ignoreCase = true)) "ADMIN" else "USER",
                             isBanned = false,
                             trustScore = 100
                         )
