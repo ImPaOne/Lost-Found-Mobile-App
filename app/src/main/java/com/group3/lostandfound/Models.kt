@@ -146,7 +146,12 @@ data class NotificationItem(
     val title: String = "",
     val message: String = "",
     val timestamp: Long = System.currentTimeMillis(),
-    val read: Boolean = false
+    val read: Boolean = false,
+    val type: String = "",
+    val itemId: String = "",
+    val conversationId: String = "",
+    val senderUserId: String = "",
+    val senderName: String = ""
 )
 
 data class ChatMessage(
@@ -203,6 +208,7 @@ data class ConversationMetadata(
     val otherUserName: String = "",
     val lastMessageTextContent: String = "",
     val lastUpdatedTimestamp: Long = 0L,
-    val relatedItemId: String = ""
+    val relatedItemId: String = "",
+    val relatedItemTitle: String = ""
 )
 
