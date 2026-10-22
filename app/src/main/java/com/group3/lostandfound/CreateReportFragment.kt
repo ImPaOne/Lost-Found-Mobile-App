@@ -499,9 +499,10 @@ class CreateReportFragment : Fragment() {
             val cachePath = File(requireContext().cacheDir, "images")
             cachePath.mkdirs()
             val file = File(cachePath, "captured_${System.currentTimeMillis()}.jpg")
-            val stream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)
-            stream.close()
+            FileOutputStream(file).use { stream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)
+                stream.flush()
+            }
             Uri.fromFile(file)
         } catch (e: Exception) {
             null
