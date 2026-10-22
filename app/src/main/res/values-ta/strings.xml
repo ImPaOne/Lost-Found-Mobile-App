@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Foundly</string>
+    <string name="nav_home">முகப்பு</string>
+    <string name="nav_reports">எனது அறிக்கைகள்</string>
+    <string name="nav_post">பதிவிடவும்</string>
+    <string name="nav_map">வரைபடம்</string>
+    <string name="nav_profile">சுயவிவரம்</string>
+    <string name="settings_title">அமைப்புகள்</string>
+    <string name="saved_items">சேமிக்கப்பட்டவை</string>
+    <string name="trust_score">நம்பிக்கை மற்றும் சாதனைகள்</string>
+    <string name="language">மொழி</string>
+    <string name="theme">தீம்</string>
+    <string name="status_lost">தொலைந்தது</string>
+    <string name="status_found">கிடைத்தது</string>
+    <string name="status_resolved">தீர்க்கப்பட்டது</string>
+    <string name="admin_dashboard">நிர்வாக பலகை</string>
+    <string name="plus_six_today">+6 இன்று</string>
+    <string name="send_announcement">அறிவிப்பு\nஅனுப்புங்கள்</string>
+    <string name="review_reports">அறிக்கைகள் ஆய்வு</string>
+    <string name="manage_users">பயனர்களை நிர்வகி</string>
+</resources>
