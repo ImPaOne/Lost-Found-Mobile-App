@@ -423,16 +423,27 @@ class SettingsFragment : Fragment() {
 
     private fun showLanguageDialog() {
         val languages = arrayOf("English", "සිංහල (Sinhala)", "தமிழ் (Tamil)")
+        val codes = arrayOf("en", "si", "ta")
+        val currentCode = com.group3.lostandfound.util.LocaleHelper.getLanguageCode(requireContext())
+        val selectedIndex = codes.indexOf(currentCode).coerceAtLeast(0)
+
         AlertDialog.Builder(requireContext())
             .setTitle("Select App Language")
-            .setItems(languages) { _, which ->
+            .setSingleChoiceItems(languages, selectedIndex) { dialog, which ->
+                val code = codes[which]
                 val selected = languages[which]
-                val label = selected.substringBefore(" ")
-                textLanguageValue.text = label
-                val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
-                prefs.edit().putString("selected_language", label).apply()
-                ModernToast.show(requireContext(), "Language set to $selected", view)
+                textLanguageValue.text = selected.substringBefore(" ")
+                com.group3.lostandfound.util.LocaleHelper.setLocale(requireContext(), code)
+
+                val uid = FirebaseManager.currentUid
+                if (uid.isNotEmpty()) {
+                    FirebaseManager.usersRef.child(uid).child("preferredLanguage").setValue(code)
+                }
+                dialog.dismiss()
+                ModernToast.show(requireContext(), "Language changed to $selected", view)
+                activity?.recreate()
             }
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
@@ -475,44 +486,68 @@ class SettingsFragment : Fragment() {
     }
 
     private fun showRateAppDialog() {
-        val ctx = requireContext()
-        val layout = LinearLayout(ctx).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(50, 20, 50, 10)
-        }
+        val bottomSheet = com.google.android.material.bottomsheet.BottomSheetDialog(requireContext())
+        val sheetView = layoutInflater.inflate(R.layout.dialog_rate_app, null)
+        bottomSheet.setContentView(sheetView)
 
-        val tvStars = TextView(ctx).apply {
-            text = "⭐⭐⭐⭐⭐"
-            textSize = 28f
-            textAlignment = View.TEXT_ALIGNMENT_CENTER
-            setPadding(0, 10, 0, 20)
-        }
-        val etFeedback = EditText(ctx).apply {
-            hint = "Share your feedback or suggestions..."
-            minLines = 3
-        }
+        val starViews = listOf(
+            sheetView.findViewById<ImageView>(R.id.star1),
+            sheetView.findViewById<ImageView>(R.id.star2),
+            sheetView.findViewById<ImageView>(R.id.star3),
+            sheetView.findViewById<ImageView>(R.id.star4),
+            sheetView.findViewById<ImageView>(R.id.star5)
+        )
+        val tvRatingLabel = sheetView.findViewById<TextView>(R.id.tvRatingLabel)
+        val etFeedback = sheetView.findViewById<EditText>(R.id.etFeedback)
+        val btnDismissRating = sheetView.findViewById<View>(R.id.btnDismissRating)
+        val btnSubmitRating = sheetView.findViewById<View>(R.id.btnSubmitRating)
 
-        layout.addView(tvStars)
-        layout.addView(etFeedback)
+        var selectedRating = 5
 
-        AlertDialog.Builder(ctx)
-            .setTitle("Rate Foundly App")
-            .setView(layout)
-            .setPositiveButton("Submit Review") { _, _ ->
-                val feedback = etFeedback.text.toString().trim()
-                val uid = FirebaseManager.currentUid
-                if (uid.isNotEmpty()) {
-                    val review = mapOf(
-                        "rating" to 5,
-                        "feedback" to feedback,
-                        "timestamp" to System.currentTimeMillis()
-                    )
-                    FirebaseManager.database.getReference("app_reviews").child(uid).setValue(review)
+        fun updateStars(rating: Int) {
+            selectedRating = rating
+            for (i in 0 until 5) {
+                if (i < rating) {
+                    starViews[i].setImageResource(R.drawable.ic_star_filled)
+                } else {
+                    starViews[i].setImageResource(R.drawable.ic_star_outline)
                 }
-                ModernToast.show(ctx, "Thank you! Your 5-star rating was submitted.", view)
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+            tvRatingLabel.text = when (rating) {
+                5 -> "Outstanding · 5.0"
+                4 -> "Very Good · 4.0"
+                3 -> "Good · 3.0"
+                2 -> "Needs Improvement · 2.0"
+                else -> "Poor · 1.0"
+            }
+        }
+
+        starViews.forEachIndexed { index, starView ->
+            starView.setOnClickListener {
+                updateStars(index + 1)
+            }
+        }
+
+        btnDismissRating.setOnClickListener {
+            bottomSheet.dismiss()
+        }
+
+        btnSubmitRating.setOnClickListener {
+            val feedback = etFeedback.text.toString().trim()
+            val uid = FirebaseManager.currentUid
+            if (uid.isNotEmpty()) {
+                val review = mapOf(
+                    "rating" to selectedRating,
+                    "feedback" to feedback,
+                    "timestamp" to System.currentTimeMillis()
+                )
+                FirebaseManager.database.getReference("app_reviews").child(uid).setValue(review)
+            }
+            ModernToast.show(requireContext(), "Thank you for your $selectedRating-star review!", view)
+            bottomSheet.dismiss()
+        }
+
+        bottomSheet.show()
     }
 
     private fun showLogoutConfirmationDialog() {
