@@ -12,10 +12,11 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.group3.lostandfound.repository.ExploreRepository
 import com.group3.lostandfound.util.ImageLoader
+import com.group3.lostandfound.viewmodel.DetailsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -57,7 +58,7 @@ class DetailsFragment : Fragment() {
     private var reporterUserId: String = ""
     private var reporterName: String = "Community Reporter"
 
-    private val exploreRepository = ExploreRepository()
+    private lateinit var detailsViewModel: DetailsViewModel
     private var itemId: String? = null
     private var detailsJob: Job? = null
 
@@ -73,6 +74,7 @@ class DetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initViews(view)
+        detailsViewModel = ViewModelProvider(this)[DetailsViewModel::class.java]
         bindData()
         setupListeners()
         NavigationHelper.setup(this, view, NavigationHelper.Tab.HOME)
@@ -104,6 +106,7 @@ class DetailsFragment : Fragment() {
         val initialStatus = arguments?.getString(ARG_STATUS) ?: "LOST"
         val initialLocation = arguments?.getString(ARG_LOCATION) ?: "Colombo 03"
         itemId = arguments?.getString(ARG_ITEM_ID)
+        detailsViewModel.loadItem(itemId.orEmpty())
 
         // Set initial bundle data
         tvItemTitle.text = initialTitle
@@ -118,11 +121,11 @@ class DetailsFragment : Fragment() {
             showEnlargedPhotoDialog(url, tvItemTitle.text.toString())
         }
 
-        // Live status updates from /items/{itemId}
+        // Live status updates from DetailsViewModel
         if (!itemId.isNullOrEmpty()) {
             detailsJob?.cancel()
             detailsJob = viewLifecycleOwner.lifecycleScope.launch {
-                exploreRepository.getItemDetails(itemId!!).collectLatest { report ->
+                detailsViewModel.itemState.collectLatest { report ->
                     if (report != null) {
                         tvItemTitle.text = report.title.ifEmpty { "Report Details" }
                         tvDescription.text = report.description.ifEmpty { "No description provided." }
