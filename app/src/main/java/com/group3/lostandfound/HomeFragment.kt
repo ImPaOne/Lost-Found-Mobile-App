@@ -114,37 +114,46 @@ class HomeFragment : Fragment() {
         cardLaptopHome = view.findViewById(R.id.cardLaptopHome)
     }
 
+    private var itemsListener: ValueEventListener? = null
+    private var pageChangeCallback: ViewPager2.OnPageChangeCallback? = null
+
     /**
      * Reads real-time data from /items node in Firebase.
      * ZERO dummy data: only actual user created posts are bound and shown.
      */
     private fun observeLiveFirebaseItems() {
-        FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
-            .getReference("items")
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    liveReportsList.clear()
-                    for (child in snapshot.children) {
-                        val report = ReportItem.fromSnapshot(child)
-                        if (report.itemId.isNotEmpty() || report.title.isNotEmpty()) {
-                            liveReportsList.add(report)
-                        }
-                    }
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!isAdded || view == null) return
 
-                    updateUrgentSliderFromLive(liveReportsList)
-                    updateRecentCardsFromLive(liveReportsList)
-
-                    view?.findViewById<TextView>(R.id.textReunitedStatistics)?.let { tvStat ->
-                        val countDisplay = liveReportsList.size
-                        tvStat.text = "$countDisplay community reports active"
+                liveReportsList.clear()
+                for (child in snapshot.children) {
+                    val report = ReportItem.fromSnapshot(child)
+                    if (report.itemId.isNotEmpty() || report.title.isNotEmpty()) {
+                        liveReportsList.add(report)
                     }
                 }
 
-                override fun onCancelled(error: DatabaseError) {}
-            })
+                updateUrgentSliderFromLive(liveReportsList)
+                updateRecentCardsFromLive(liveReportsList)
+
+                view?.findViewById<TextView>(R.id.textReunitedStatistics)?.let { tvStat ->
+                    val countDisplay = liveReportsList.size
+                    tvStat.text = "$countDisplay community reports active"
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        }
+        itemsListener = listener
+        FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+            .getReference("items")
+            .addValueEventListener(listener)
     }
 
     private fun updateUrgentSliderFromLive(reports: List<ReportItem>) {
+        if (!isAdded || view == null) return
+
         val urgentItems = reports.filter {
             it.status.equals("LOST", ignoreCase = true) || it.isFlagged
         }.map { report ->
@@ -184,17 +193,22 @@ class HomeFragment : Fragment() {
                     .commit()
             }
 
-            vpUrgentAlertSlider.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            pageChangeCallback?.let { vpUrgentAlertSlider.unregisterOnPageChangeCallback(it) }
+            val newCallback = object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
                     updateSliderDots(position, urgentItems.size)
                 }
-            })
+            }
+            pageChangeCallback = newCallback
+            vpUrgentAlertSlider.registerOnPageChangeCallback(newCallback)
+            updateSliderDots(vpUrgentAlertSlider.currentItem, urgentItems.size)
 
             sliderRunnable?.let { sliderHandler.removeCallbacks(it) }
             if (urgentItems.size > 1) {
                 sliderRunnable = object : Runnable {
                     override fun run() {
+                        if (!isAdded || view == null) return
                         val currentPos = vpUrgentAlertSlider.currentItem
                         val nextPos = (currentPos + 1) % urgentItems.size
                         vpUrgentAlertSlider.setCurrentItem(nextPos, true)
@@ -207,8 +221,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateSliderDots(position: Int, totalItems: Int) {
-        val activeWidth = (16 * resources.displayMetrics.density).toInt()
-        val inactiveWidth = (6 * resources.displayMetrics.density).toInt()
+        val ctx = context ?: return
+        val density = ctx.resources.displayMetrics.density
+        val activeWidth = (16 * density).toInt()
+        val inactiveWidth = (6 * density).toInt()
 
         val dots = listOf(dotSlider1, dotSlider2, dotSlider3)
         for (i in dots.indices) {
@@ -373,20 +389,27 @@ class HomeFragment : Fragment() {
     }
 
     private fun selectCategoryChip(selectedChip: TextView) {
+        val ctx = context ?: return
         val allChips = listOf(chipCategoryAll, chipCategoryElectronics, chipCategoryDocuments)
         for (chip in allChips) {
             if (chip == selectedChip) {
                 chip.setBackgroundResource(R.drawable.bg_chip_selected)
-                chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                chip.setTextColor(ContextCompat.getColor(ctx, R.color.white))
             } else {
                 chip.setBackgroundResource(R.drawable.bg_chip_unselected)
-                chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                chip.setTextColor(ContextCompat.getColor(ctx, R.color.text_primary))
             }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        pageChangeCallback?.let { vpUrgentAlertSlider.unregisterOnPageChangeCallback(it) }
+        itemsListener?.let {
+            FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                .getReference("items")
+                .removeEventListener(it)
+        }
         sliderRunnable?.let { sliderHandler.removeCallbacks(it) }
     }
 
