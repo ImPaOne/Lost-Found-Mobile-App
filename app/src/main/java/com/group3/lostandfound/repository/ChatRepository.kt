@@ -129,7 +129,8 @@ class ChatRepository {
         chatMessageTextContent: String,
         relatedItemId: String = "",
         otherUserName: String = "",
-        imageUrl: String = ""
+        imageUrl: String = "",
+        relatedItemTitle: String = ""
     ): ResultState<ChatMessage> {
         return try {
             val messagesReference = firebaseDatabaseInstance
@@ -170,7 +171,8 @@ class ChatRepository {
                 otherUserName = otherUserName,
                 lastMessageTextContent = previewText,
                 lastUpdatedTimestamp = System.currentTimeMillis(),
-                relatedItemId = relatedItemId
+                relatedItemId = relatedItemId,
+                relatedItemTitle = relatedItemTitle
             )
             senderMetadataReference.setValue(senderConversationMetadata).await()
 
@@ -192,9 +194,41 @@ class ChatRepository {
                 otherUserName = senderDisplayName,
                 lastMessageTextContent = previewText,
                 lastUpdatedTimestamp = System.currentTimeMillis(),
-                relatedItemId = relatedItemId
+                relatedItemId = relatedItemId,
+                relatedItemTitle = relatedItemTitle
             )
             recipientMetadataReference.setValue(recipientConversationMetadata).await()
+
+            // 4. Send real-time notification to recipient under /notifications/{recipientUserId}
+            if (recipientUserId.isNotEmpty() && recipientUserId != senderUserId) {
+                try {
+                    val notifRef = firebaseDatabaseInstance
+                        .getReference("notifications")
+                        .child(recipientUserId)
+                        .push()
+
+                    val notifId = notifRef.key ?: "notif_${System.currentTimeMillis()}"
+                    val notifTitle = if (relatedItemTitle.isNotBlank()) {
+                        "💬 Message regarding '$relatedItemTitle'"
+                    } else {
+                        "💬 Message from $senderDisplayName"
+                    }
+
+                    val notifItem = com.group3.lostandfound.NotificationItem(
+                        id = notifId,
+                        title = notifTitle,
+                        message = previewText,
+                        timestamp = System.currentTimeMillis(),
+                        read = false,
+                        type = "CHAT_MESSAGE",
+                        itemId = relatedItemId,
+                        conversationId = chatConversationId,
+                        senderUserId = senderUserId,
+                        senderName = senderDisplayName
+                    )
+                    notifRef.setValue(notifItem).await()
+                } catch (_: Exception) {}
+            }
 
             ResultState.Success(newChatMessage)
         } catch (exception: Exception) {
