@@ -209,6 +209,7 @@ data class ConversationMetadata(
     val lastMessageTextContent: String = "",
     val lastUpdatedTimestamp: Long = 0L,
     val relatedItemId: String = "",
-    val relatedItemTitle: String = ""
+    val relatedItemTitle: String = "",
+    val lastSenderId: String = ""
 )
 
