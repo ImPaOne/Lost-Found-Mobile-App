@@ -153,7 +153,8 @@ class HomeFragment : Fragment() {
                 location = report.location.ifEmpty { "Colombo" },
                 status = report.status.ifEmpty { "LOST" },
                 imageUrl = report.imageUrl,
-                description = report.description.ifEmpty { "No description provided." }
+                description = report.description.ifEmpty { "No description provided." },
+                userId = report.userId
             )
         }
 
@@ -172,7 +173,8 @@ class HomeFragment : Fragment() {
                             status = item.status,
                             location = item.location,
                             imageResId = R.drawable.ic_item_placeholder,
-                            itemId = item.id
+                            itemId = item.id,
+                            reporterUserId = item.userId
                         )
                     )
                     .addToBackStack(null)
@@ -301,7 +303,8 @@ class HomeFragment : Fragment() {
                     status = report.status,
                     location = report.location,
                     imageResId = R.drawable.ic_item_placeholder,
-                    itemId = report.itemId
+                    itemId = report.itemId,
+                    reporterUserId = report.userId
                 )
             )
             .addToBackStack(null)
@@ -443,7 +446,8 @@ class HomeFragment : Fragment() {
         val location: String,
         val status: String,
         val imageUrl: String,
-        val description: String
+        val description: String,
+        val userId: String = ""
     )
 
     class UrgentSliderAdapter(
