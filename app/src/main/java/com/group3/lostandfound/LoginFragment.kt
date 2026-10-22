@@ -161,35 +161,18 @@ class LoginFragment : Fragment() {
                         }
                     }
                     .addOnFailureListener { exc ->
-                        // Fallback graceful sign-in for course work evaluation / mock user credentials
                         val safeCtx = context ?: return@addOnFailureListener
-                        val currentUid = FirebaseManager.currentUid
-                        FirebaseManager.usersRef.child(currentUid).child("email").setValue(email)
-
-                        safeCtx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
-                            .edit()
-                            .putBoolean("is_logged_in", true)
-                            .putBoolean("is_admin", false)
-                            .putBoolean("onboarding_completed", true)
-                            .apply()
-
-                        com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                            safeCtx,
-                            "Account Login",
-                            "Signed in to Foundly community profile ($email)."
-                        )
-
-                        com.group3.lostandfound.util.ModernToast.show(
-                            safeCtx,
-                            "Signed in as $email"
-                        )
-
-                        if (isAdded) {
-                            parentFragmentManager.beginTransaction()
-                                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                                .replace(R.id.screenBox, HomeFragment.newInstance())
-                                .commit()
+                        val errorMessage = when {
+                            exc.message?.contains("password", ignoreCase = true) == true ||
+                            exc.message?.contains("wrong", ignoreCase = true) == true ||
+                            exc.message?.contains("credential", ignoreCase = true) == true -> "Incorrect password. Please try again."
+                            exc.message?.contains("no user", ignoreCase = true) == true ||
+                            exc.message?.contains("user-not-found", ignoreCase = true) == true -> "No account found for $email. Please sign up first."
+                            exc.message?.contains("network", ignoreCase = true) == true -> "Network connection error. Check your internet connection."
+                            else -> exc.localizedMessage ?: "Invalid credentials. Please verify your email and password."
                         }
+                        com.group3.lostandfound.util.ModernToast.show(safeCtx, errorMessage, view)
+                        Toast.makeText(safeCtx, errorMessage, Toast.LENGTH_LONG).show()
                     }
             }
         }
