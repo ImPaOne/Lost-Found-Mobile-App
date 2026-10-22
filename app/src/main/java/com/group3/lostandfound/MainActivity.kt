@@ -138,7 +138,12 @@ class MainActivity : AppCompatActivity() {
 
             private fun handleConvUpdate(snapshot: com.google.firebase.database.DataSnapshot) {
                 val metadata = snapshot.getValue(ConversationMetadata::class.java) ?: return
-                if (metadata.lastUpdatedTimestamp > appStartTime && metadata.otherUserId != FirebaseManager.currentUid) {
+                val isSenderSelf = if (metadata.lastSenderId.isNotEmpty()) {
+                    metadata.lastSenderId == FirebaseManager.currentUid
+                } else {
+                    false
+                }
+                if (!isSenderSelf && metadata.lastUpdatedTimestamp > appStartTime && metadata.otherUserId.isNotEmpty()) {
                     val prefs = getSharedPreferences("findit_prefs", MODE_PRIVATE)
                     val notifEnabled = prefs.getBoolean("push_notifications_enabled", true)
                     if (notifEnabled) {
