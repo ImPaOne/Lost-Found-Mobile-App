@@ -67,6 +67,8 @@ class MapFragment : Fragment() {
     private var pinnedLng: Double = 79.8630
     private var isPickerMode = false
 
+    private val markerReportsMap = java.util.concurrent.ConcurrentHashMap<String, com.group3.lostandfound.model.ItemReport>()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -147,8 +149,8 @@ class MapFragment : Fragment() {
         dbRef.limitToLast(50).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!isAdded || view == null) return
-                val jsClear = "items = []; renderMarkers('all');"
-                webViewLeafletMap.evaluateJavascript(jsClear, null)
+                markerReportsMap.clear()
+                val jsBuilder = StringBuilder("items = [];\n")
 
                 for (child in snapshot.children) {
                     val id = child.key ?: continue
@@ -156,19 +158,33 @@ class MapFragment : Fragment() {
                     val status = child.child("status").getValue(String::class.java) ?: "LOST"
                     val desc = child.child("description").getValue(String::class.java) ?: ""
                     val category = child.child("category").getValue(String::class.java) ?: "General"
+                    val location = child.child("location").getValue(String::class.java) ?: "$category Area"
                     val lat = child.child("latitude").getValue(Double::class.java) ?: 0.0
                     val lng = child.child("longitude").getValue(Double::class.java) ?: 0.0
                     val imageUrl = child.child("imageUrl").getValue(String::class.java) ?: ""
 
                     if (lat != 0.0 && lng != 0.0) {
-                        val safeTitle = title.replace("'", "\\'").replace("\n", " ")
-                        val safeDesc = desc.replace("'", "\\'").replace("\n", " ")
-                        val safeLoc = "$category Area".replace("'", "\\'")
-                        val safeImage = imageUrl.replace("'", "\\'")
-                        val jsCode = "addMapItem('$id', '$safeTitle', '$safeLoc', '$status', $lat, $lng, '$safeDesc', '$safeImage');"
-                        webViewLeafletMap.evaluateJavascript(jsCode, null)
+                        val report = com.group3.lostandfound.model.ItemReport(
+                            itemId = id,
+                            title = title,
+                            description = desc,
+                            category = category,
+                            status = status,
+                            location = location,
+                            latitude = lat,
+                            longitude = lng,
+                            imageUrl = imageUrl
+                        )
+                        markerReportsMap[id] = report
+
+                        val safeTitle = title.replace("'", "\\'").replace("\n", " ").take(40)
+                        val safeLoc = location.replace("'", "\\'").replace("\n", " ").take(30)
+                        jsBuilder.append("items.push({id:'$id',title:'$safeTitle',location:'$safeLoc',status:'$status',lat:$lat,lng:$lng});\n")
                     }
                 }
+
+                jsBuilder.append("renderMarkers('all');")
+                webViewLeafletMap.evaluateJavascript(jsBuilder.toString(), null)
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -268,30 +284,32 @@ class MapFragment : Fragment() {
 
     inner class LeafletBridge {
         @JavascriptInterface
-        fun onMarkerClicked(id: String, title: String, location: String, status: String, desc: String, imageUrl: String) {
+        fun onMarkerClicked(id: String) {
             activity?.runOnUiThread {
+                val report = markerReportsMap[id]
                 isLocationPinned = false
                 currentId = id
-                currentTitle = title
-                currentLocation = location
-                currentStatus = status
-                currentDesc = desc
+                currentTitle = report?.title ?: "Reported Item"
+                currentLocation = report?.location ?: "Location"
+                currentStatus = report?.status ?: "LOST"
+                currentDesc = report?.description ?: ""
 
                 cardLaptopItem.visibility = View.VISIBLE
-                textItemTitle.text = title
-                textItemLocation.text = location
-                tagFoundStatus.text = status
+                textItemTitle.text = currentTitle
+                textItemLocation.text = currentLocation
+                tagFoundStatus.text = currentStatus
 
-                if (status.equals("LOST", ignoreCase = true)) {
+                if (currentStatus.equals("LOST", ignoreCase = true)) {
                     tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
                 } else {
                     tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
                 }
 
-                if (imageUrl.isNotEmpty()) {
+                val imgSource = report?.imageUrl ?: ""
+                if (imgSource.isNotEmpty()) {
                     com.group3.lostandfound.util.ImageLoader.load(
                         imgLaptopThumb,
-                        imageUrl,
+                        imgSource,
                         R.drawable.ic_item_placeholder,
                         viewLifecycleOwner.lifecycleScope
                     )
@@ -299,6 +317,11 @@ class MapFragment : Fragment() {
                     imgLaptopThumb.setImageResource(R.drawable.ic_item_placeholder)
                 }
             }
+        }
+
+        @JavascriptInterface
+        fun onMarkerClicked(id: String, title: String, location: String, status: String, desc: String, imageUrl: String) {
+            onMarkerClicked(id)
         }
 
         @JavascriptInterface
@@ -494,14 +517,7 @@ class MapFragment : Fragment() {
 
                     marker.on('click', function() {
                         if (window.AndroidInterface) {
-                            window.AndroidInterface.onMarkerClicked(
-                                item.id,
-                                item.title,
-                                item.location,
-                                item.status,
-                                item.desc,
-                                item.imageUrl || ''
-                            );
+                            window.AndroidInterface.onMarkerClicked(item.id);
                         }
                     });
 
