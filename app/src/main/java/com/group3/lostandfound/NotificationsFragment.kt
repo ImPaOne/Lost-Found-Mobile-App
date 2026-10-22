@@ -65,6 +65,7 @@ class NotificationsFragment : Fragment() {
 
         notifRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
             override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                if (!isAdded) return
                 val notifList = mutableListOf<com.group3.lostandfound.NotificationItem>()
                 for (child in snapshot.children) {
                     val notif = try {
