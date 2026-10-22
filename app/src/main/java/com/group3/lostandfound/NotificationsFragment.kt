@@ -26,6 +26,8 @@ class NotificationsFragment : Fragment() {
     private lateinit var dotAdmin: View
     private lateinit var dotGalleFace: View
 
+    private var currentNotifs: List<com.group3.lostandfound.NotificationItem> = emptyList()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -57,8 +59,6 @@ class NotificationsFragment : Fragment() {
         val tvNotifDesc1 = view.findViewById<TextView>(R.id.tvNotifDesc1)
         val tvNotifTitle2 = view.findViewById<TextView>(R.id.tvNotifTitle2)
         val tvNotifDesc2 = view.findViewById<TextView>(R.id.tvNotifDesc2)
-
-    private var currentNotifs: List<com.group3.lostandfound.NotificationItem> = emptyList()
 
         val currentUid = FirebaseManager.currentUid
         val notifRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
@@ -201,6 +201,46 @@ class NotificationsFragment : Fragment() {
             dotGalleFace.visibility = View.GONE
             parentFragmentManager.beginTransaction()
                 .replace(R.id.screenBox, MapFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
+        }
+    }
+
+    private fun handleNotificationClick(notif: com.group3.lostandfound.NotificationItem) {
+        if (notif.type == "CHAT_MESSAGE" || notif.conversationId.isNotEmpty()) {
+            val targetUid = notif.senderUserId.ifEmpty { "support_admin" }
+            val targetName = notif.senderName.ifEmpty { "Community Member" }
+            val itemTitle = notif.title.removePrefix("💬 Message regarding ").trim('\'', '"', ' ')
+            parentFragmentManager.beginTransaction()
+                .replace(
+                    R.id.screenBox,
+                    ChatFragment.newInstance(
+                        recipientUserId = targetUid,
+                        recipientName = targetName,
+                        itemId = notif.itemId,
+                        itemTitle = itemTitle.ifEmpty { "Item Discussion" }
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
+        } else if (notif.itemId.isNotEmpty()) {
+            parentFragmentManager.beginTransaction()
+                .replace(
+                    R.id.screenBox,
+                    DetailsFragment.newInstance(
+                        itemId = notif.itemId,
+                        title = notif.title,
+                        desc = notif.message,
+                        status = "LOST",
+                        location = "Sri Lanka",
+                        reporterUserId = notif.senderUserId
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
+        } else {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, ReportsFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
         }
