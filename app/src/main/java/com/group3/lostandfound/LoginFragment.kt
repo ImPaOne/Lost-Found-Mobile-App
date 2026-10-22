@@ -176,6 +176,8 @@ class LoginFragment : Fragment() {
                             "Welcome back to Foundly. Signed in as $email."
                         )
 
+                        (activity as? MainActivity)?.setupIncomingMessageNotifications()
+
                         ModernToast.show(
                             safeCtx,
                             if (state.isAdmin) "Admin session verified. Directing to Administrator Dashboard."
