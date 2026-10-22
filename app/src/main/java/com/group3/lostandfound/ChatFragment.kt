@@ -124,6 +124,10 @@ class ChatFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
+        binding.btnChatMenu.setOnClickListener {
+            showChatOptionsMenu()
+        }
+
         binding.btnAttachPhoto.setOnClickListener {
             pickPhotoLauncher.launch("image/*")
         }
