@@ -173,7 +173,8 @@ class ChatFragment : Fragment() {
                             chatMessageTextContent = chatMessageTextContent,
                             relatedItemId = relatedItemId,
                             otherUserName = recipientUserName,
-                            imageUrl = uploadedUrl
+                            imageUrl = uploadedUrl,
+                            relatedItemTitle = relatedItemTitle
                         )
                     } catch (e: Exception) {
                         com.group3.lostandfound.util.ModernToast.show(
@@ -192,7 +193,8 @@ class ChatFragment : Fragment() {
                     recipientUserId = recipientUserId,
                     chatMessageTextContent = chatMessageTextContent,
                     relatedItemId = relatedItemId,
-                    otherUserName = recipientUserName
+                    otherUserName = recipientUserName,
+                    relatedItemTitle = relatedItemTitle
                 )
             }
         }
