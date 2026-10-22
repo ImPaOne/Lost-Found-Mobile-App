@@ -19,9 +19,9 @@ import kotlinx.coroutines.Job
  * status badge styling, and click handling.
  */
 class ExploreAdapter(
-    private var items: List<ItemReport>,
+    private var items: List<ItemReport> = emptyList(),
     private val scope: CoroutineScope,
-    private val onItemClick: (ItemReport) -> Unit
+    private val onItemClick: (ItemReport) -> Unit = {}
 ) : RecyclerView.Adapter<ExploreAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
