@@ -91,19 +91,35 @@ class ProfileFragment : Fragment() {
         }
 
         rowSavedItems.setOnClickListener {
-            Toast.makeText(requireContext(), "Saved items: 4 items saved", Toast.LENGTH_SHORT).show()
+            try {
+                showSavedItemsDialog()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Saved items error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
 
         rowTrustScore.setOnClickListener {
-            navigateTo(TrustFragment.newInstance())
+            try {
+                navigateTo(TrustFragment.newInstance())
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Trust screen error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
 
         rowSettings.setOnClickListener {
-            navigateTo(SettingsFragment.newInstance())
+            try {
+                navigateTo(SettingsFragment.newInstance())
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Settings screen error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
 
         rowHelp.setOnClickListener {
-            Toast.makeText(requireContext(), "Help & Support Center", Toast.LENGTH_SHORT).show()
+            try {
+                showHelpCenterDialog()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Help Center error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
 
         rowLogout.setOnClickListener {
@@ -184,6 +200,132 @@ class ProfileFragment : Fragment() {
                 }
             }
             .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showSavedItemsDialog() {
+        val prefs = requireContext().getSharedPreferences("findit_bookmarks", android.content.Context.MODE_PRIVATE)
+        val savedIds = prefs.getStringSet("bookmarked_ids", emptySet()) ?: emptySet()
+
+        if (savedIds.isEmpty()) {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Saved Items (0)")
+                .setMessage("No bookmarked reports yet.\n\nBrowse items and tap the bookmark ribbon icon on any item detail page to save it here for instant access.")
+                .setPositiveButton("Browse Items") { _, _ ->
+                    navigateTo(HomeFragment.newInstance())
+                }
+                .setNegativeButton("Close", null)
+                .show()
+            return
+        }
+
+        FirebaseManager.itemsRef.get().addOnSuccessListener { snapshot ->
+            val matchingItems = mutableListOf<com.group3.lostandfound.model.ItemReport>()
+            for (child in snapshot.children) {
+                val id = child.child("itemId").getValue(String::class.java) ?: child.key.orEmpty()
+                if (savedIds.contains(id)) {
+                    val report = child.getValue(com.group3.lostandfound.model.ItemReport::class.java)
+                    if (report != null) {
+                        matchingItems.add(report.copy(itemId = id))
+                    }
+                }
+            }
+
+            if (matchingItems.isEmpty()) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Saved Items")
+                    .setMessage("Saved reports are no longer available in the active directory.")
+                    .setPositiveButton("OK", null)
+                    .show()
+            } else {
+                val itemTitles = matchingItems.map { "${it.title} (${it.status}) · ${it.location}" }.toTypedArray()
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Saved Items (${matchingItems.size})")
+                    .setItems(itemTitles) { _, which ->
+                        val selected = matchingItems[which]
+                        navigateTo(DetailsFragment.newInstance(selected.itemId, selected.title, selected.description, selected.status, selected.location, selected.imageUrl))
+                    }
+                    .setNeutralButton("Clear All") { _, _ ->
+                        prefs.edit().remove("bookmarked_ids").apply()
+                        Toast.makeText(requireContext(), "Saved bookmarks cleared", Toast.LENGTH_SHORT).show()
+                    }
+                    .setNegativeButton("Close", null)
+                    .show()
+            }
+        }.addOnFailureListener {
+            Toast.makeText(requireContext(), "Failed to load saved items: ${it.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showHelpCenterDialog() {
+        val helpTopics = arrayOf(
+            "Frequently Asked Questions (FAQ)",
+            "Safety & Handover Guidelines",
+            "Emergency Community Helpline (1919)",
+            "Submit Support Request / Contact Us"
+        )
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Foundly Support Center")
+            .setItems(helpTopics) { _, which ->
+                when (which) {
+                    0 -> {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("Foundly FAQs")
+                            .setMessage("Q: How do I report a lost item?\nA: Tap 'Report Lost Item' on Home or '+ Post' tab, follow the 5 simple steps, and publish.\n\nQ: How do I contact a finder?\nA: Open the item details and tap 'Contact Reporter' to initiate real-time chat with photo attachments.\n\nQ: How does Trust Score work?\nA: You earn Trust Points by submitting verified reports and confirming reunifications.")
+                            .setPositiveButton("Got It", null)
+                            .show()
+                    }
+                    1 -> {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("Safety & Verification Guidelines")
+                            .setMessage("1. Always meet in well-lit public places (e.g. police stations, malls, transit hubs).\n2. Request verifiable proof of ownership before handing over items.\n3. Never share sensitive banking PINs or OTPs.")
+                            .setPositiveButton("I Understand", null)
+                            .show()
+                    }
+                    2 -> {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("Emergency Helpline")
+                            .setMessage("Sri Lanka National Emergency Response: 119\nGovernment Information Center: 1919\nFoundly 24/7 Community Desk: support@foundly.lk")
+                            .setPositiveButton("Call 1919") { _, _ ->
+                                try {
+                                    val dialIntent = android.content.Intent(android.content.Intent.ACTION_DIAL).apply {
+                                        data = android.net.Uri.parse("tel:1919")
+                                    }
+                                    startActivity(dialIntent)
+                                } catch (_: Exception) {}
+                            }
+                            .setNegativeButton("Dismiss", null)
+                            .show()
+                    }
+                    3 -> {
+                        val input = EditText(requireContext()).apply {
+                            hint = "Describe your issue or feedback..."
+                            minLines = 3
+                        }
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("Contact Support")
+                            .setView(input)
+                            .setPositiveButton("Submit") { _, _ ->
+                                val msg = input.text.toString().trim()
+                                if (msg.isNotEmpty()) {
+                                    val ticket = mapOf(
+                                        "userEmail" to FirebaseManager.currentUserEmail,
+                                        "userId" to FirebaseManager.currentUid,
+                                        "message" to msg,
+                                        "timestamp" to System.currentTimeMillis(),
+                                        "status" to "OPEN"
+                                    )
+                                    FirebaseManager.database.getReference("contact_requests").push().setValue(ticket)
+                                    Toast.makeText(requireContext(), "Support inquiry submitted. Administrator will respond shortly.", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+                    }
+                }
+            }
+            .setNegativeButton("Close", null)
             .show()
     }
 
