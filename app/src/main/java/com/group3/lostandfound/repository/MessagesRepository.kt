@@ -43,6 +43,7 @@ class MessagesRepository(
                             val lastMsg = child.child("lastMessageTextContent").getValue(String::class.java).orEmpty()
                             val timestamp = child.child("lastUpdatedTimestamp").getValue(Long::class.java) ?: 0L
                             val itemId = child.child("relatedItemId").getValue(String::class.java).orEmpty()
+                            val itemTitle = child.child("relatedItemTitle").getValue(String::class.java).orEmpty()
                             if (id.isNotEmpty()) {
                                 list.add(
                                     ConversationMetadata(
@@ -51,7 +52,8 @@ class MessagesRepository(
                                         otherUserName = otherName,
                                         lastMessageTextContent = lastMsg,
                                         lastUpdatedTimestamp = timestamp,
-                                        relatedItemId = itemId
+                                        relatedItemId = itemId,
+                                        relatedItemTitle = itemTitle
                                     )
                                 )
                             }
