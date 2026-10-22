@@ -107,14 +107,85 @@ class ChatFragment : Fragment() {
         }
     }
 
+    private var attachedImageUri: android.net.Uri? = null
+    private var previousMessageCount: Int = -1
+    private val reportRepository = com.group3.lostandfound.repository.ReportRepository()
+
+    private val pickPhotoLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            attachedImageUri = uri
+            binding.layoutAttachmentPreview.visibility = View.VISIBLE
+            com.group3.lostandfound.util.ImageLoader.load(requireContext(), uri.toString(), binding.imgAttachedPreview)
+        }
+    }
+
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
+        binding.btnAttachPhoto.setOnClickListener {
+            pickPhotoLauncher.launch("image/*")
+        }
+
+        binding.btnRemoveAttachment.setOnClickListener {
+            attachedImageUri = null
+            binding.layoutAttachmentPreview.visibility = View.GONE
+        }
+
         binding.btnSendChatMessage.setOnClickListener {
-            val chatMessageTextContent = binding.etChatMessageInput.text.toString()
-            if (chatMessageTextContent.isNotBlank()) {
+            val chatMessageTextContent = binding.etChatMessageInput.text.toString().trim()
+            val uriToSend = attachedImageUri
+
+            if (chatMessageTextContent.isBlank() && uriToSend == null) {
+                return@setOnClickListener
+            }
+
+            if (uriToSend != null) {
+                // Upload image first via resilient pipeline
+                binding.btnSendChatMessage.isEnabled = false
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try {
+                        var uploadedUrl = ""
+                        val compressedBytes = reportRepository.compressImageUri(
+                            requireContext(),
+                            uriToSend,
+                            maxWidth = 800,
+                            maxHeight = 800,
+                            quality = 75
+                        )
+
+                        // Tier 1: Try Cloudinary
+                        try {
+                            uploadedUrl = com.group3.lostandfound.util.CloudinaryManager.uploadImage(compressedBytes) {}
+                        } catch (_: Exception) {}
+
+                        // Tier 2: Resilient Base64 fallback if network/Cloudinary failed
+                        if (!uploadedUrl.startsWith("http://") && !uploadedUrl.startsWith("https://")) {
+                            val b64 = android.util.Base64.encodeToString(compressedBytes, android.util.Base64.NO_WRAP)
+                            uploadedUrl = "data:image/jpeg;base64,$b64"
+                        }
+
+                        chatViewModel.sendUserChatMessage(
+                            chatConversationId = chatConversationId,
+                            senderUserId = currentUserId,
+                            recipientUserId = recipientUserId,
+                            chatMessageTextContent = chatMessageTextContent,
+                            relatedItemId = relatedItemId,
+                            otherUserName = recipientUserName,
+                            imageUrl = uploadedUrl
+                        )
+                    } catch (e: Exception) {
+                        com.group3.lostandfound.util.ModernToast.show(
+                            requireContext(),
+                            "Failed to attach photo: ${e.message}",
+                            binding.root
+                        )
+                    } finally {
+                        binding.btnSendChatMessage.isEnabled = true
+                    }
+                }
+            } else {
                 chatViewModel.sendUserChatMessage(
                     chatConversationId = chatConversationId,
                     senderUserId = currentUserId,
@@ -132,6 +203,19 @@ class ChatFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     chatViewModel.chatMessagesListState.collect { messageList ->
+                        if (previousMessageCount != -1 && messageList.size > previousMessageCount) {
+                            val lastMsg = messageList.last()
+                            if (lastMsg.senderUserId != currentUserId && lastMsg.senderUserId.isNotEmpty()) {
+                                com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                                    requireContext(),
+                                    "Message from $recipientUserName",
+                                    if (lastMsg.imageUrl.isNotEmpty()) "[Photo] ${lastMsg.chatMessageTextContent}" else lastMsg.chatMessageTextContent,
+                                    relatedItemId
+                                )
+                            }
+                        }
+                        previousMessageCount = messageList.size
+
                         chatAdapter.submitList(messageList) {
                             if (messageList.isNotEmpty()) {
                                 binding.rvChatMessages.scrollToPosition(messageList.size - 1)
@@ -147,6 +231,8 @@ class ChatFragment : Fragment() {
                         when (operationStatus) {
                             is ResultState.Success -> {
                                 binding.etChatMessageInput.text.clear()
+                                attachedImageUri = null
+                                binding.layoutAttachmentPreview.visibility = View.GONE
                                 chatViewModel.resetSendMessageStatus()
                             }
                             is ResultState.Error -> {
