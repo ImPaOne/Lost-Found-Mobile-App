@@ -34,9 +34,9 @@ class ReportsFragment : Fragment() {
     private lateinit var tvCount: TextView
     private lateinit var tvEmptyReports: TextView
 
-    private lateinit var card1: MaterialCardView
-    private lateinit var card2: MaterialCardView
-    private lateinit var card3: MaterialCardView
+    private lateinit var card1: View
+    private lateinit var card2: View
+    private lateinit var card3: View
 
     private lateinit var img1: ImageView
     private lateinit var img2: ImageView
