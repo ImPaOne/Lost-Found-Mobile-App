@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import AppleNavbar from './components/AppleNavbar';
 import ModernEditorialHero from './components/ModernEditorialHero';
-import InteractivePhoneSimulator from './components/InteractivePhoneSimulator';
-import EditorialCategories from './components/EditorialCategories';
+import CorePillars from './components/CorePillars';
+import RecentItemsFeed from './components/RecentItemsFeed';
 import DownloadCTA from './components/DownloadCTA';
 import AppleFooter from './components/AppleFooter';
 import DownloadModal from './components/DownloadModal';
-import { Download, QrCode, Smartphone } from 'lucide-react';
+import { Download, QrCode } from 'lucide-react';
 import { playSuccessSound } from './utils/audio';
 import './App.css';
 
@@ -63,24 +63,23 @@ export default function App() {
       />
 
       <main>
-        {/* Modern Editorial Hero */}
+        {/* Modern Editorial Hero with Real Warm Showcase Visual (No fake simulator) */}
         <ModernEditorialHero 
           onDownloadApk={triggerApkDownload}
           onOpenQR={() => setIsDownloadOpen(true)}
         />
 
-        {/* Working Interactive Phone Simulator */}
-        <InteractivePhoneSimulator 
+        {/* 3 Core Architecture Pillars (Concise, Non-Repetitive, No Radar) */}
+        <CorePillars 
           onDownloadApk={triggerApkDownload}
+        />
+
+        {/* Live Community Registry Directory */}
+        <RecentItemsFeed 
           onOpenQR={() => setIsDownloadOpen(true)}
         />
 
-        {/* Editorial Categories matching Reference Image 4 */}
-        <EditorialCategories 
-          onDownloadApk={triggerApkDownload}
-        />
-
-        {/* Download Call to Action Section */}
+        {/* Minimalist Download & QR Section */}
         <DownloadCTA 
           onDownloadApk={triggerApkDownload}
           onOpenQR={() => setIsDownloadOpen(true)}
@@ -92,7 +91,7 @@ export default function App() {
         onDownloadApk={triggerApkDownload}
       />
 
-      {/* Floating Sticky Android Download Pill */}
+      {/* Floating Sticky Android Download Pill in Warm Brown & Cream Palette */}
       {showStickyBar && (
         <aside aria-label="Quick Android Download" style={{
           position: 'fixed',
@@ -100,22 +99,22 @@ export default function App() {
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 90,
-          background: 'rgba(255, 255, 255, 0.94)',
+          background: 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'saturate(180%) blur(20px)',
           WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-          border: '1px solid rgba(0, 0, 0, 0.08)',
+          border: '1px solid var(--border-subtle)',
           borderRadius: '9999px',
           padding: '8px 12px 8px 18px',
           display: 'flex',
           alignItems: 'center',
           gap: '16px',
-          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.1)',
-          color: '#111418'
+          boxShadow: '0 12px 32px rgba(30, 21, 16, 0.1)',
+          color: 'var(--text-primary)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--brown-caramel)', display: 'inline-block' }}></span>
             <div style={{ fontSize: '0.82rem', fontWeight: 700 }}>FOUNDIT for Android</div>
-            <span style={{ fontSize: '0.72rem', color: '#6B7280' }}>· v2.4.2</span>
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)' }}>· v2.4.2</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -140,7 +139,7 @@ export default function App() {
         </aside>
       )}
 
-      {/* Instant Download Toast Notification */}
+      {/* Warm Minimal Download Toast Notification */}
       {downloadToast && (
         <div style={{
           position: 'fixed',
@@ -148,24 +147,24 @@ export default function App() {
           right: '24px',
           zIndex: 250,
           background: '#FFFFFF',
-          border: '1px solid #E5E7EB',
+          border: '1px solid var(--border-subtle)',
           borderRadius: '12px',
           padding: '14px 18px',
-          boxShadow: '0 14px 36px rgba(0, 0, 0, 0.12)',
+          boxShadow: '0 14px 36px rgba(30, 21, 16, 0.12)',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
-          animation: 'modalFadeIn 0.3s ease-out'
+          animation: 'fadeIn 0.3s ease-out'
         }}>
-          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#ECFDF5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--bg-subtle)', color: 'var(--brown-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, border: '1px solid var(--border-subtle)' }}>
             ✓
           </div>
           <div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#111827' }}>
+            <div style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               Downloading FOUNDIT-v2.4.2.apk
             </div>
-            <div style={{ fontSize: '0.74rem', color: '#6B7280' }}>
-              Open the downloaded package on your Android device to install.
+            <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+              Package ready for Android installation.
             </div>
           </div>
         </div>
