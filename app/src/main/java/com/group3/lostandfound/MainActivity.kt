@@ -54,8 +54,12 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             val prefs = getSharedPreferences("findit_prefs", MODE_PRIVATE)
             val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-            val isLoggedIn = prefs.getBoolean("is_logged_in", false) && firebaseUser != null
-            if (firebaseUser == null && prefs.getBoolean("is_logged_in", false)) {
+            val localUid = prefs.getString("user_uid", "") ?: ""
+            val isLoggedIn = prefs.getBoolean("is_logged_in", false) && (firebaseUser != null || localUid.isNotEmpty())
+            if (localUid.isNotEmpty()) {
+                FirebaseManager.customUid = localUid
+                FirebaseManager.customEmail = prefs.getString("saved_email", "") ?: ""
+            } else if (firebaseUser == null && prefs.getBoolean("is_logged_in", false)) {
                 prefs.edit().putBoolean("is_logged_in", false).apply()
             }
             val onboardingCompleted = prefs.getBoolean("onboarding_completed", false)
