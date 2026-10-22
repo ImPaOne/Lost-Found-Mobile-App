@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Smartphone, Download, QrCode, ShieldCheck, Copy, Check, FileCode, CheckCircle2 } from 'lucide-react';
+import { Download, QrCode, ShieldCheck, Copy, Check, Smartphone } from 'lucide-react';
 import { playClickSound, playSuccessSound } from '../utils/audio';
 
 export default function DownloadCTA({ onDownloadApk, onOpenQR }) {
@@ -18,28 +18,28 @@ export default function DownloadCTA({ onDownloadApk, onOpenQR }) {
       <div className="container-fullscreen">
         <div className="download-cta-card">
           <div className="cta-left-content">
-            <div className="tag-pill-emerald">
-              <span className="emerald-dot"></span>
-              <span>Official Android Release · v2.4.2</span>
+            <div className="tag-pill-warm">
+              <span className="pulsing-warm-dot"></span>
+              <span>Official Release · v2.4.2 Production</span>
             </div>
 
             <h2 className="cta-heading-large">
-              Install FOUNDIT on your Android phone today.
+              Install FOUNDIT on your Android device.
             </h2>
 
             <p className="cta-subhead-text">
-              Direct, high-speed APK installation. No mandatory Google Play services required. Fully compatible with Samsung Galaxy, Google Pixel, Xiaomi, OnePlus, and all Android devices running Android 8.0 through Android 15.
+              Direct, lightweight APK installation package. Optimized for modern Android smartphones including Samsung Galaxy, Google Pixel, Xiaomi, and OnePlus running Android 8.0 to Android 15.
             </p>
 
             {/* Direct Action Buttons */}
-            <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginTop: '24px' }}>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '24px' }}>
               <button 
                 onClick={onDownloadApk}
                 className="btn-apple-primary"
                 id="cta-direct-apk-btn"
-                style={{ padding: '14px 28px', fontSize: '0.92rem' }}
+                style={{ padding: '13px 26px', fontSize: '0.86rem' }}
               >
-                <Download size={18} />
+                <Download size={16} />
                 <span>Download Direct APK (18.4 MB)</span>
               </button>
 
@@ -47,9 +47,9 @@ export default function DownloadCTA({ onDownloadApk, onOpenQR }) {
                 onClick={onOpenQR}
                 className="btn-apple-secondary"
                 id="cta-scan-qr-btn"
-                style={{ padding: '14px 22px', fontSize: '0.92rem' }}
+                style={{ padding: '13px 20px', fontSize: '0.86rem' }}
               >
-                <QrCode size={18} />
+                <QrCode size={16} />
                 <span>Scan QR for Mobile</span>
               </button>
             </div>
@@ -65,8 +65,8 @@ export default function DownloadCTA({ onDownloadApk, onOpenQR }) {
                 <span className="cta-spec-val">Universal ARM64</span>
               </div>
               <div className="cta-spec-item">
-                <span className="cta-spec-title">Hardware</span>
-                <span className="cta-spec-val">Bluetooth 5.0+ LE</span>
+                <span className="cta-spec-title">Permissions</span>
+                <span className="cta-spec-val">Camera Only</span>
               </div>
               <div className="cta-spec-item">
                 <span className="cta-spec-title">Package Hash</span>
@@ -75,44 +75,44 @@ export default function DownloadCTA({ onDownloadApk, onOpenQR }) {
             </div>
           </div>
 
-          {/* Right: Clean White QR Code Stand */}
+          {/* Right: Clean White QR Code Stand in Warm Brown tones */}
           <div className="cta-qr-stand">
             <div className="qr-stand-card">
               <svg width="130" height="130" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="5" y="5" width="28" height="28" rx="4" fill="#111827" />
+                <rect x="5" y="5" width="28" height="28" rx="4" fill="#1E1510" />
                 <rect x="9" y="9" width="20" height="20" rx="2" fill="#FFFFFF" />
-                <rect x="13" y="13" width="12" height="12" fill="#059669" />
+                <rect x="13" y="13" width="12" height="12" fill="#8C5E3C" />
 
-                <rect x="67" y="5" width="28" height="28" rx="4" fill="#111827" />
+                <rect x="67" y="5" width="28" height="28" rx="4" fill="#1E1510" />
                 <rect x="71" y="9" width="20" height="20" rx="2" fill="#FFFFFF" />
-                <rect x="75" y="13" width="12" height="12" fill="#059669" />
+                <rect x="75" y="13" width="12" height="12" fill="#8C5E3C" />
 
-                <rect x="5" y="67" width="28" height="28" rx="4" fill="#111827" />
+                <rect x="5" y="67" width="28" height="28" rx="4" fill="#1E1510" />
                 <rect x="9" y="71" width="20" height="20" rx="2" fill="#FFFFFF" />
-                <rect x="13" y="75" width="12" height="12" fill="#059669" />
+                <rect x="13" y="75" width="12" height="12" fill="#8C5E3C" />
 
-                <rect x="38" y="10" width="8" height="8" fill="#111827" />
-                <rect x="50" y="10" width="10" height="8" fill="#059669" />
-                <rect x="38" y="24" width="22" height="8" fill="#111827" />
+                <rect x="38" y="10" width="8" height="8" fill="#1E1510" />
+                <rect x="50" y="10" width="10" height="8" fill="#8C5E3C" />
+                <rect x="38" y="24" width="22" height="8" fill="#1E1510" />
                 
-                <rect x="10" y="38" width="8" height="16" fill="#111827" />
-                <rect x="24" y="42" width="12" height="8" fill="#10B981" />
-                <rect x="42" y="38" width="16" height="16" rx="3" fill="#059669" />
-                <rect x="64" y="38" width="8" height="8" fill="#111827" />
-                <rect x="78" y="44" width="16" height="10" fill="#111827" />
+                <rect x="10" y="38" width="8" height="16" fill="#1E1510" />
+                <rect x="24" y="42" width="12" height="8" fill="#B69372" />
+                <rect x="42" y="38" width="16" height="16" rx="3" fill="#8C5E3C" />
+                <rect x="64" y="38" width="8" height="8" fill="#1E1510" />
+                <rect x="78" y="44" width="16" height="10" fill="#1E1510" />
 
-                <rect x="38" y="67" width="10" height="8" fill="#111827" />
-                <rect x="52" y="67" width="14" height="18" fill="#111827" />
-                <rect x="72" y="67" width="22" height="8" fill="#059669" />
-                <rect x="72" y="81" width="10" height="12" fill="#111827" />
-                <rect x="38" y="81" width="8" height="12" fill="#111827" />
+                <rect x="38" y="67" width="10" height="8" fill="#1E1510" />
+                <rect x="52" y="67" width="14" height="18" fill="#1E1510" />
+                <rect x="72" y="67" width="22" height="8" fill="#8C5E3C" />
+                <rect x="72" y="81" width="10" height="12" fill="#1E1510" />
+                <rect x="38" y="81" width="8" height="12" fill="#1E1510" />
               </svg>
 
               <div style={{ textAlign: 'center', marginTop: '12px' }}>
-                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                   Point Phone Camera
                 </div>
-                <div style={{ fontSize: '0.7rem', color: '#6B7280', marginTop: '2px' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '2px' }}>
                   Scan to install directly on Android
                 </div>
               </div>
@@ -120,12 +120,12 @@ export default function DownloadCTA({ onDownloadApk, onOpenQR }) {
 
             {/* Checksum Button */}
             <div className="checksum-pill-box">
-              <span style={{ fontSize: '0.72rem', color: '#6B7280' }}>
-                SHA-256: <code>9b2d8e4f1a...7c80ab3e</code>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                SHA-256: <code>9b2d8e4f...7c80ab3e</code>
               </span>
               <button 
                 onClick={copyChecksum}
-                style={{ background: 'none', border: 'none', color: '#059669', fontWeight: 600, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                style={{ background: 'none', border: 'none', color: 'var(--brown-caramel)', fontWeight: 700, fontSize: '0.74rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
               >
                 {copied ? <Check size={13} /> : <Copy size={13} />}
                 <span>{copied ? 'Copied' : 'Copy'}</span>
