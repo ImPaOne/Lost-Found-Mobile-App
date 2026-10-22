@@ -241,35 +241,114 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <!-- Location Banner: Near Duplication Road -->
-                <LinearLayout
-                    android:id="@+id/bannerLocation"
+                <!-- Item Location & Embedded Map Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardItemMapContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="44dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:background="@drawable/bg_location_banner"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp">
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="1dp"
+                    app:strokeColor="#EDE7E1"
+                    app:strokeWidth="1dp">
 
-                    <TextView
-                        android:id="@+id/tvStreetName"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="Near Duplication Road"
-                        android:textColor="#5C4638"
-                        android:textSize="13sp" />
+                        android:orientation="vertical">
 
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:contentDescription="Pin"
-                        android:src="@drawable/ic_location"
-                        app:tint="#5C4638" />
-                </LinearLayout>
+                        <!-- Location Header Strip (clickable to open full map) -->
+                        <LinearLayout
+                            android:id="@+id/bannerLocation"
+                            android:layout_width="match_parent"
+                            android:layout_height="46dp"
+                            android:background="@drawable/bg_location_banner"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="14dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:contentDescription="Location Pin"
+                                android:src="@drawable/ic_location"
+                                app:tint="#5C4638" />
+
+                            <TextView
+                                android:id="@+id/tvStreetName"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:ellipsize="end"
+                                android:fontFamily="sans-serif-medium"
+                                android:maxLines="1"
+                                android:text="Near Duplication Road"
+                                android:textColor="#5C4638"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/btnOpenFullMap"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-bold"
+                                android:text="Open Map ↗"
+                                android:textColor="#5C4638"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Embedded Interactive Leaflet Map Preview -->
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="180dp">
+
+                            <WebView
+                                android:id="@+id/webViewItemMap"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:overScrollMode="never" />
+
+                            <!-- Tap overlay to open Full Map -->
+                            <View
+                                android:id="@+id/mapClickOverlay"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@android:color/transparent"
+                                android:clickable="true"
+                                android:focusable="true" />
+
+                            <!-- Bottom Floating Coordinates Badge -->
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|start"
+                                android:layout_margin="10dp"
+                                android:background="@drawable/bg_stat_banner"
+                                android:elevation="2dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:paddingStart="10dp"
+                                android:paddingTop="4dp"
+                                android:paddingEnd="10dp"
+                                android:paddingBottom="4dp">
+
+                                <TextView
+                                    android:id="@+id/tvMapCoordinates"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:text="📍 6.9140° N, 79.8630° E · Tap to explore"
+                                    android:textColor="#3D2619"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+                        </FrameLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Reporter Profile Card (Interactive) -->
                 <LinearLayout
