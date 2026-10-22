@@ -463,7 +463,7 @@
                         android:contentDescription="Passport image"
                         android:padding="4dp"
                         android:scaleType="centerInside"
-                        android:src="@drawable/img_passport" />
+                        android:src="@drawable/ic_item_placeholder" />
                 </FrameLayout>
 
                 <!-- Info -->
