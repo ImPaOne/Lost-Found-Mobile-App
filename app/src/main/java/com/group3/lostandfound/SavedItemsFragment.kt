@@ -21,7 +21,6 @@ import com.google.firebase.database.ValueEventListener
 import com.group3.lostandfound.model.ItemReport
 import com.group3.lostandfound.util.ImageLoader
 import com.group3.lostandfound.util.ModernToast
-import com.group3.lostandfound.util.NavigationHelper
 
 /**
  * SavedItemsFragment provides a dedicated, modern screen displaying bookmarked items.
