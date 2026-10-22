@@ -99,6 +99,8 @@ class CreateReportFragment : Fragment() {
     private lateinit var tvReviewTitle: TextView
     private lateinit var tvReviewLocation: TextView
     private lateinit var tvReviewDesc: TextView
+    private var cardReviewThumbnail: View? = null
+    private var imgReviewThumbnail: ImageView? = null
 
     // Upload Progress & Error UI Views
     private lateinit var cardUploadProgress: View
@@ -128,15 +130,44 @@ class CreateReportFragment : Fragment() {
     private lateinit var createReportViewModel: CreateReportViewModel
     private var uploadJob: Job? = null
 
+    private fun copyUriToInternalStorage(uri: Uri): Uri? {
+        return try {
+            val dir = File(requireContext().cacheDir, "report_images")
+            if (!dir.exists()) dir.mkdirs()
+            val destFile = File(dir, "report_${System.currentTimeMillis()}.jpg")
+            requireContext().contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(destFile).use { output ->
+                    input.copyTo(output)
+                }
+            }
+            Uri.fromFile(destFile)
+        } catch (e: Exception) {
+            android.util.Log.e("CreateReportFragment", "Error caching image locally", e)
+            uri
+        }
+    }
+
     // Gallery Picker Launcher
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
-            selectedImageUri = uri
+            val persistentUri = copyUriToInternalStorage(uri) ?: uri
+            selectedImageUri = persistentUri
             photosCount = 1
-            tvPhotosCountStatus.text = "$photosCount photo attached from gallery"
-            imgThumbnail1.setImageURI(uri)
-            rowThumbnails.visibility = View.VISIBLE
-            Toast.makeText(requireContext(), "Photo selected from device gallery", Toast.LENGTH_SHORT).show()
+            currentStep = 4
+            if (::flipperSteps.isInitialized) {
+                flipperSteps.displayedChild = 3
+            }
+            if (::tvPhotosCountStatus.isInitialized) {
+                tvPhotosCountStatus.text = "1 photo attached from gallery"
+            }
+            if (::imgThumbnail1.isInitialized) {
+                com.group3.lostandfound.util.ImageLoader.load(requireContext(), persistentUri.toString(), imgThumbnail1)
+            }
+            if (::rowThumbnails.isInitialized) {
+                rowThumbnails.visibility = View.VISIBLE
+            }
+            updateStepHeader()
+            Toast.makeText(requireContext(), "Photo selected from gallery", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -162,9 +193,20 @@ class CreateReportFragment : Fragment() {
             if (uri != null) {
                 selectedImageUri = uri
                 photosCount = 1
-                tvPhotosCountStatus.text = "$photosCount photo captured with camera"
-                imgThumbnail1.setImageBitmap(bitmap)
-                rowThumbnails.visibility = View.VISIBLE
+                currentStep = 4
+                if (::flipperSteps.isInitialized) {
+                    flipperSteps.displayedChild = 3
+                }
+                if (::tvPhotosCountStatus.isInitialized) {
+                    tvPhotosCountStatus.text = "1 photo captured with camera"
+                }
+                if (::imgThumbnail1.isInitialized) {
+                    imgThumbnail1.setImageBitmap(bitmap)
+                }
+                if (::rowThumbnails.isInitialized) {
+                    rowThumbnails.visibility = View.VISIBLE
+                }
+                updateStepHeader()
                 Toast.makeText(requireContext(), "Camera photo captured successfully", Toast.LENGTH_SHORT).show()
             }
         }
@@ -213,8 +255,24 @@ class CreateReportFragment : Fragment() {
         initViews(view)
         observeViewModel()
 
-        // Only parse initial navigation arguments if starting fresh at Step 1 with empty inputs
-        if (savedInstanceState == null && currentStep == 1 && savedTitle.isEmpty() && savedDescription.isEmpty()) {
+        // Restore state if process/fragment was killed or rotated
+        if (savedInstanceState != null) {
+            currentStep = savedInstanceState.getInt(KEY_SAVED_STEP, currentStep)
+            isLostSelected = savedInstanceState.getBoolean(KEY_SAVED_IS_LOST, isLostSelected)
+            selectedDate = savedInstanceState.getString(KEY_SAVED_DATE, selectedDate) ?: selectedDate
+            selectedCategory = savedInstanceState.getString(KEY_SAVED_CATEGORY, selectedCategory) ?: selectedCategory
+            selectedArea = savedInstanceState.getString(KEY_SAVED_AREA, selectedArea) ?: selectedArea
+            selectedLatitude = savedInstanceState.getDouble(KEY_SAVED_LAT, selectedLatitude)
+            selectedLongitude = savedInstanceState.getDouble(KEY_SAVED_LNG, selectedLongitude)
+            val uriStr = savedInstanceState.getString(KEY_SAVED_IMAGE_URI)
+            if (!uriStr.isNullOrEmpty()) {
+                selectedImageUri = Uri.parse(uriStr)
+            }
+            photosCount = savedInstanceState.getInt(KEY_SAVED_PHOTOS_COUNT, photosCount)
+            savedTitle = savedInstanceState.getString(KEY_SAVED_TITLE, savedTitle) ?: savedTitle
+            savedDescription = savedInstanceState.getString(KEY_SAVED_DESC, savedDescription) ?: savedDescription
+            savedLandmark = savedInstanceState.getString(KEY_SAVED_LANDMARK, savedLandmark) ?: savedLandmark
+        } else if (currentStep == 1 && savedTitle.isEmpty() && savedDescription.isEmpty()) {
             val initialIsLost = arguments?.getBoolean(ARG_IS_LOST, true) ?: true
             isLostSelected = initialIsLost
 
@@ -247,7 +305,7 @@ class CreateReportFragment : Fragment() {
 
         // Restore photo thumbnail if selected
         if (selectedImageUri != null) {
-            imgThumbnail1.setImageURI(selectedImageUri)
+            com.group3.lostandfound.util.ImageLoader.load(requireContext(), selectedImageUri.toString(), imgThumbnail1)
             rowThumbnails.visibility = View.VISIBLE
             tvPhotosCountStatus.text = "$photosCount photo attached"
         }
@@ -338,6 +396,8 @@ class CreateReportFragment : Fragment() {
         tvReviewTitle = view.findViewById(R.id.tvReviewTitle)
         tvReviewLocation = view.findViewById(R.id.tvReviewLocation)
         tvReviewDesc = view.findViewById(R.id.tvReviewDesc)
+        cardReviewThumbnail = view.findViewById(R.id.cardReviewThumbnail)
+        imgReviewThumbnail = view.findViewById(R.id.imgReviewThumbnail)
 
         // Upload Progress UI
         cardUploadProgress = view.findViewById(R.id.cardUploadProgress)
@@ -652,6 +712,15 @@ class CreateReportFragment : Fragment() {
                 tvReviewCategory.text = selectedCategory
                 tvReviewLocation.text = "$selectedArea ${if (landmark.isNotEmpty()) "· $landmark" else ""} · Reported $selectedDate"
                 tvReviewDesc.text = if (desc.isNotEmpty()) desc else "No additional description provided."
+
+                if (selectedImageUri != null) {
+                    cardReviewThumbnail?.visibility = View.VISIBLE
+                    imgReviewThumbnail?.let { iv ->
+                        com.group3.lostandfound.util.ImageLoader.load(requireContext(), selectedImageUri.toString(), iv)
+                    }
+                } else {
+                    cardReviewThumbnail?.visibility = View.GONE
+                }
             }
         }
     }
@@ -758,6 +827,22 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_SAVED_STEP, currentStep)
+        outState.putBoolean(KEY_SAVED_IS_LOST, isLostSelected)
+        outState.putString(KEY_SAVED_DATE, selectedDate)
+        outState.putString(KEY_SAVED_CATEGORY, selectedCategory)
+        outState.putString(KEY_SAVED_AREA, selectedArea)
+        outState.putDouble(KEY_SAVED_LAT, selectedLatitude)
+        outState.putDouble(KEY_SAVED_LNG, selectedLongitude)
+        outState.putString(KEY_SAVED_IMAGE_URI, selectedImageUri?.toString())
+        outState.putInt(KEY_SAVED_PHOTOS_COUNT, photosCount)
+        if (::inputTitle.isInitialized) outState.putString(KEY_SAVED_TITLE, inputTitle.text.toString())
+        if (::inputDescription.isInitialized) outState.putString(KEY_SAVED_DESC, inputDescription.text.toString())
+        if (::inputLandmark.isInitialized) outState.putString(KEY_SAVED_LANDMARK, inputLandmark.text.toString())
+    }
+
     override fun onDestroyView() {
         if (::inputTitle.isInitialized) {
             savedTitle = inputTitle.text.toString()
@@ -776,6 +861,19 @@ class CreateReportFragment : Fragment() {
         private const val ARG_LAT = "arg_lat"
         private const val ARG_LNG = "arg_lng"
         private const val ARG_LOC_NAME = "arg_loc_name"
+
+        private const val KEY_SAVED_STEP = "key_saved_step"
+        private const val KEY_SAVED_IS_LOST = "key_saved_is_lost"
+        private const val KEY_SAVED_DATE = "key_saved_date"
+        private const val KEY_SAVED_CATEGORY = "key_saved_category"
+        private const val KEY_SAVED_AREA = "key_saved_area"
+        private const val KEY_SAVED_LAT = "key_saved_lat"
+        private const val KEY_SAVED_LNG = "key_saved_lng"
+        private const val KEY_SAVED_IMAGE_URI = "key_saved_image_uri"
+        private const val KEY_SAVED_PHOTOS_COUNT = "key_saved_photos_count"
+        private const val KEY_SAVED_TITLE = "key_saved_title"
+        private const val KEY_SAVED_DESC = "key_saved_desc"
+        private const val KEY_SAVED_LANDMARK = "key_saved_landmark"
 
         fun newInstance(
             isLost: Boolean = true,
