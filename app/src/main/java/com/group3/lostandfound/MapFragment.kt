@@ -508,15 +508,18 @@ class MapFragment : Fragment() {
             markersGroup.clearLayers();
             items.forEach(function(item) {
                 if (filter === 'all' || item.status === filter) {
-                    var pinClass = item.status === 'LOST' ? 'pin-lost' : 'pin-found';
-                    var iconHtml = '<div class="custom-pin ' + pinClass + '">' +
-                        (item.status === 'LOST' ? '!' : '✓') +
-                        '</div>';
+                    var pinColor = item.status === 'LOST' ? '#E53935' : '#2E7D32';
+                    var iconSvg = '<svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35)); cursor: pointer;">' +
+                        '<path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0Z" fill="' + pinColor + '"/>' +
+                        '<circle cx="15" cy="15" r="5.5" fill="#FFFFFF"/>' +
+                        '</svg>';
+
                     var customIcon = L.divIcon({
                         className: '',
-                        html: iconHtml,
-                        iconSize: [36, 36],
-                        iconAnchor: [18, 18]
+                        html: iconSvg,
+                        iconSize: [30, 42],
+                        iconAnchor: [15, 42],
+                        popupAnchor: [0, -38]
                     });
 
                     var marker = L.marker([item.lat, item.lng], { icon: customIcon });
@@ -553,11 +556,17 @@ class MapFragment : Fragment() {
                 map.removeLayer(pinnedMarker);
             }
 
+            var pinnedSvg = '<svg width="32" height="44" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.45)); cursor: pointer;">' +
+                '<path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0Z" fill="#1E88E5"/>' +
+                '<circle cx="15" cy="15" r="5.5" fill="#FFFFFF"/>' +
+                '</svg>';
+
             var pinIcon = L.divIcon({
                 className: '',
-                html: '<div class="custom-pin pin-pinned">&bull;</div>',
-                iconSize: [40, 40],
-                iconAnchor: [20, 20]
+                html: pinnedSvg,
+                iconSize: [32, 44],
+                iconAnchor: [16, 44],
+                popupAnchor: [0, -40]
             });
 
             pinnedMarker = L.marker([lat, lng], { icon: pinIcon, draggable: true }).addTo(map);
