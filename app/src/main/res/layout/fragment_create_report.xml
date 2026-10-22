@@ -755,7 +755,7 @@
                             android:layout_height="match_parent"
                             android:contentDescription="Photo 1"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/img_wallet_details" />
+                            android:src="@drawable/ic_item_placeholder" />
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
@@ -772,7 +772,7 @@
                             android:layout_height="match_parent"
                             android:contentDescription="Photo 2"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/img_wallet" />
+                            android:src="@drawable/ic_item_placeholder" />
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
             </LinearLayout>
@@ -827,7 +827,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-medium"
-                                android:text="Electronics"
+                                android:text="Category"
                                 android:textColor="@color/text_secondary"
                                 android:textSize="12sp"
                                 app:layout_constraintBottom_toBottomOf="parent"
@@ -841,7 +841,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:fontFamily="sans-serif-bold"
-                            android:text="Black leather wallet"
+                            android:text="Report Title Preview"
                             android:textColor="#3D2619"
                             android:textSize="18sp"
                             android:textStyle="bold" />

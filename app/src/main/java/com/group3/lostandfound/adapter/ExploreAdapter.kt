@@ -19,9 +19,9 @@ import kotlinx.coroutines.Job
  * status badge styling, and click handling.
  */
 class ExploreAdapter(
-    private var items: List<ItemReport>,
+    private var items: List<ItemReport> = emptyList(),
     private val scope: CoroutineScope,
-    private val onItemClick: (ItemReport) -> Unit
+    private val onItemClick: (ItemReport) -> Unit = {}
 ) : RecyclerView.Adapter<ExploreAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -65,7 +65,7 @@ class ExploreAdapter(
         holder.imageJob = ImageLoader.load(
             imageView = holder.imgItem,
             url = item.imageUrl,
-            placeholderRes = if (item.status.equals("LOST", ignoreCase = true)) R.drawable.img_wallet else R.drawable.img_samsung_phone,
+            placeholderRes = R.drawable.ic_item_placeholder,
             scope = scope
         )
 

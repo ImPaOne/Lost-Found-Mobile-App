@@ -306,7 +306,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
-                                android:text="Tharindu Perera"
+                                android:text="Community Member"
                                 android:textColor="#3D2619"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
@@ -325,7 +325,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
                             android:fontFamily="sans-serif"
-                            android:text="Verified · Trust score 94"
+                            android:text="Community Member"
                             android:textColor="#7D6F67"
                             android:textSize="11sp" />
                     </LinearLayout>
@@ -356,7 +356,8 @@
                     android:text="Similar items"
                     android:textColor="#3D2619"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
                 <!-- Similar Item Card: Brown card holder -->
                 <LinearLayout
@@ -367,7 +368,8 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <!-- Thumbnail -->
                     <com.google.android.material.card.MaterialCardView
@@ -381,9 +383,9 @@
                             android:id="@+id/imgSimilar"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:contentDescription="Brown card holder"
+                            android:contentDescription="Similar item"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/img_brown_card_holder" />
+                            android:src="@drawable/ic_item_placeholder" />
                     </com.google.android.material.card.MaterialCardView>
 
                     <!-- Info -->

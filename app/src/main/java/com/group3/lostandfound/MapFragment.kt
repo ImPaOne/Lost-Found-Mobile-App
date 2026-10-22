@@ -17,6 +17,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.card.MaterialCardView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -54,16 +55,17 @@ class MapFragment : Fragment() {
     private lateinit var tagFoundStatus: TextView
 
     // Selected item tracking
-    private var currentTitle = "Red laptop sleeve"
-    private var currentLocation = "Independence Square"
-    private var currentStatus = "FOUND"
-    private var currentDesc = "Padded red neoprene laptop sleeve found on park bench near walking path."
-    private var currentImageRes = R.drawable.img_wallet_details
+    private var currentId = ""
+    private var currentTitle = ""
+    private var currentLocation = ""
+    private var currentStatus = ""
+    private var currentDesc = ""
 
     // Pinned location tracking
     private var isLocationPinned = false
     private var pinnedLat: Double = 6.9140
     private var pinnedLng: Double = 79.8630
+    private var isPickerMode = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -76,10 +78,24 @@ class MapFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        isPickerMode = arguments?.getBoolean(ARG_IS_PICKER_MODE, false) ?: false
+
         initViews(view)
         setupLeafletWebView()
         setupListeners()
-        setupBottomNav(view, "explore")
+
+        if (isPickerMode) {
+            view.findViewById<View>(R.id.bottomNav)?.visibility = View.GONE
+            cardLaptopItem.visibility = View.VISIBLE
+            textItemTitle.text = "Tap on map to select location"
+            textItemLocation.text = "Tap anywhere on map to pin location"
+            tagFoundStatus.text = "SELECT"
+            tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            imgLaptopThumb.setImageResource(R.drawable.ic_location)
+        } else {
+            cardLaptopItem.visibility = View.GONE
+            setupBottomNav(view, "explore")
+        }
     }
 
     private fun initViews(view: View) {
@@ -128,8 +144,12 @@ class MapFragment : Fragment() {
 
     private fun loadLiveFirebaseMarkers() {
         val dbRef = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("items")
-        dbRef.limitToLast(25).addListenerForSingleValueEvent(object : ValueEventListener {
+        dbRef.limitToLast(50).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                if (!isAdded || view == null) return
+                val jsClear = "items = []; renderMarkers('all');"
+                webViewLeafletMap.evaluateJavascript(jsClear, null)
+
                 for (child in snapshot.children) {
                     val id = child.key ?: continue
                     val title = child.child("title").getValue(String::class.java) ?: continue
@@ -138,12 +158,14 @@ class MapFragment : Fragment() {
                     val category = child.child("category").getValue(String::class.java) ?: "General"
                     val lat = child.child("latitude").getValue(Double::class.java) ?: 0.0
                     val lng = child.child("longitude").getValue(Double::class.java) ?: 0.0
+                    val imageUrl = child.child("imageUrl").getValue(String::class.java) ?: ""
 
                     if (lat != 0.0 && lng != 0.0) {
                         val safeTitle = title.replace("'", "\\'").replace("\n", " ")
                         val safeDesc = desc.replace("'", "\\'").replace("\n", " ")
                         val safeLoc = "$category Area".replace("'", "\\'")
-                        val jsCode = "addMapItem('$id', '$safeTitle', '$safeLoc', '$status', $lat, $lng, '$safeDesc', 'other');"
+                        val safeImage = imageUrl.replace("'", "\\'")
+                        val jsCode = "addMapItem('$id', '$safeTitle', '$safeLoc', '$status', $lat, $lng, '$safeDesc', '$safeImage');"
                         webViewLeafletMap.evaluateJavascript(jsCode, null)
                     }
                 }
@@ -198,22 +220,31 @@ class MapFragment : Fragment() {
         }
 
         cardLaptopItem.setOnClickListener {
-            if (isLocationPinned) {
-                navigateToCreateReport(pinnedLat, pinnedLng)
+            if (isPickerMode) {
+                if (isLocationPinned) {
+                    confirmPickedLocation(pinnedLat, pinnedLng)
+                } else {
+                    Toast.makeText(requireContext(), "Tap on the map first to pin your location", Toast.LENGTH_SHORT).show()
+                }
             } else {
-                parentFragmentManager.beginTransaction()
-                    .replace(
-                        R.id.screenBox,
-                        DetailsFragment.newInstance(
-                            title = currentTitle,
-                            desc = currentDesc,
-                            status = currentStatus,
-                            location = currentLocation,
-                            imageResId = currentImageRes
+                if (isLocationPinned) {
+                    navigateToCreateReport(pinnedLat, pinnedLng)
+                } else if (currentId.isNotEmpty() || currentTitle.isNotEmpty()) {
+                    parentFragmentManager.beginTransaction()
+                        .replace(
+                            R.id.screenBox,
+                            DetailsFragment.newInstance(
+                                title = currentTitle,
+                                desc = currentDesc,
+                                status = currentStatus,
+                                location = currentLocation,
+                                imageResId = R.drawable.ic_item_placeholder,
+                                itemId = currentId
+                            )
                         )
-                    )
-                    .addToBackStack(null)
-                    .commit()
+                        .addToBackStack(null)
+                        .commit()
+                }
             }
         }
     }
@@ -237,45 +268,35 @@ class MapFragment : Fragment() {
 
     inner class LeafletBridge {
         @JavascriptInterface
-        fun onMarkerClicked(id: String, title: String, location: String, status: String, desc: String, imageType: String) {
+        fun onMarkerClicked(id: String, title: String, location: String, status: String, desc: String, imageUrl: String) {
             activity?.runOnUiThread {
                 isLocationPinned = false
+                currentId = id
                 currentTitle = title
                 currentLocation = location
                 currentStatus = status
                 currentDesc = desc
 
-                when (imageType) {
-                    "wallet" -> {
-                        currentImageRes = R.drawable.img_wallet
-                        imgLaptopThumb.setImageResource(R.drawable.img_wallet)
-                    }
-                    "passport" -> {
-                        currentImageRes = R.drawable.img_passport
-                        imgLaptopThumb.setImageResource(R.drawable.img_passport)
-                    }
-                    "cat" -> {
-                        currentImageRes = R.drawable.img_tabby_cat
-                        imgLaptopThumb.setImageResource(R.drawable.img_tabby_cat)
-                    }
-                    "airpods" -> {
-                        currentImageRes = R.drawable.img_airpods_bench
-                        imgLaptopThumb.setImageResource(R.drawable.img_airpods_bench)
-                    }
-                    else -> {
-                        currentImageRes = R.drawable.img_wallet_details
-                        imgLaptopThumb.setImageResource(R.drawable.img_wallet_details)
-                    }
-                }
-
+                cardLaptopItem.visibility = View.VISIBLE
                 textItemTitle.text = title
                 textItemLocation.text = location
                 tagFoundStatus.text = status
 
-                if (status == "LOST") {
+                if (status.equals("LOST", ignoreCase = true)) {
                     tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
                 } else {
                     tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
+                }
+
+                if (imageUrl.isNotEmpty()) {
+                    com.group3.lostandfound.util.ImageLoader.load(
+                        imgLaptopThumb,
+                        imageUrl,
+                        R.drawable.ic_item_placeholder,
+                        viewLifecycleOwner.lifecycleScope
+                    )
+                } else {
+                    imgLaptopThumb.setImageResource(R.drawable.ic_item_placeholder)
                 }
             }
         }
@@ -286,20 +307,20 @@ class MapFragment : Fragment() {
                 isLocationPinned = true
                 pinnedLat = lat
                 pinnedLng = lng
-                currentTitle = "Pinned Location"
+                currentTitle = if (isPickerMode) "Location Selected" else "Pinned Location"
                 currentLocation = String.format(java.util.Locale.US, "%.4f, %.4f", lat, lng)
-                currentStatus = "PINNED"
-                currentDesc = "Location pinned at coordinates ($pinnedLat, $pinnedLng). Tap card to report item here."
+                currentStatus = if (isPickerMode) "SELECTED" else "PINNED"
+                currentDesc = "Location pinned at coordinates ($pinnedLat, $pinnedLng)."
 
-                textItemTitle.text = "Pinned Location"
-                textItemLocation.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Tap to report", lat, lng)
-                tagFoundStatus.text = "PINNED"
-                tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
+                textItemTitle.text = if (isPickerMode) "Location Selected" else "Pinned Location"
+                textItemLocation.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Tap to confirm", lat, lng)
+                tagFoundStatus.text = if (isPickerMode) "USE THIS" else "PINNED"
+                tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), if (isPickerMode) R.color.tag_found_color else R.color.tag_lost_color))
                 imgLaptopThumb.setImageResource(R.drawable.ic_location)
 
                 com.group3.lostandfound.util.ModernToast.show(
                     requireContext(),
-                    "Location pinned. Tap preview card below to report item here.",
+                    if (isPickerMode) "Location pinned! Tap card or popup to confirm." else "Location pinned. Tap preview card below to report item here.",
                     view
                 )
             }
@@ -308,9 +329,26 @@ class MapFragment : Fragment() {
         @JavascriptInterface
         fun onUsePinnedLocation(lat: Double, lng: Double) {
             activity?.runOnUiThread {
-                navigateToCreateReport(lat, lng)
+                if (isPickerMode) {
+                    confirmPickedLocation(lat, lng)
+                } else {
+                    navigateToCreateReport(lat, lng)
+                }
             }
         }
+    }
+
+    private fun confirmPickedLocation(lat: Double, lng: Double) {
+        val locationLabel = String.format(java.util.Locale.US, "Pinned Location (%.4f, %.4f)", lat, lng)
+        parentFragmentManager.setFragmentResult(
+            REQUEST_KEY_LOCATION,
+            Bundle().apply {
+                putDouble(KEY_LATITUDE, lat)
+                putDouble(KEY_LONGITUDE, lng)
+                putString(KEY_LOCATION_NAME, locationLabel)
+            }
+        )
+        parentFragmentManager.popBackStack()
     }
 
     private fun navigateToCreateReport(lat: Double, lng: Double) {
@@ -425,59 +463,7 @@ class MapFragment : Fragment() {
         }).addTo(map);
 
         // Item markers dataset
-        var items = [
-            {
-                id: '1',
-                title: 'Red laptop sleeve',
-                location: 'Independence Square',
-                status: 'FOUND',
-                lat: 6.9042,
-                lng: 69.8679, // fixed to 79.8679 below
-                lng: 79.8679,
-                desc: 'Padded red neoprene laptop sleeve found on park bench near walking path.',
-                imageType: 'laptop'
-            },
-            {
-                id: '2',
-                title: 'Black leather wallet',
-                location: 'Kollupitiya',
-                status: 'LOST',
-                lat: 6.8997,
-                lng: 79.8530,
-                desc: 'Slim bifold wallet with national ID and driving license.',
-                imageType: 'wallet'
-            },
-            {
-                id: '3',
-                title: 'Sri Lankan passport',
-                location: 'Fort Station',
-                status: 'FOUND',
-                lat: 6.9344,
-                lng: 79.8504,
-                desc: 'Sri Lankan passport found on waiting hall chair at Fort Railway Station.',
-                imageType: 'passport'
-            },
-            {
-                id: '4',
-                title: 'AirPods Pro case',
-                location: 'Bambalapitiya',
-                status: 'LOST',
-                lat: 6.8905,
-                lng: 79.8570,
-                desc: 'White AirPods Pro case left behind at cafe counter.',
-                imageType: 'airpods'
-            },
-            {
-                id: '5',
-                title: 'Brown tabby cat',
-                location: 'Viharamahadevi Park',
-                status: 'LOST',
-                lat: 6.9128,
-                lng: 79.8647,
-                desc: 'Friendly brown striped cat with pink collar last seen near lotus pond.',
-                imageType: 'cat'
-            }
-        ];
+        var items = [];
 
         var markersGroup = L.layerGroup().addTo(map);
 
@@ -514,7 +500,7 @@ class MapFragment : Fragment() {
                                 item.location,
                                 item.status,
                                 item.desc,
-                                item.imageType
+                                item.imageUrl || ''
                             );
                         }
                     });
@@ -546,13 +532,17 @@ class MapFragment : Fragment() {
 
             pinnedMarker = L.marker([lat, lng], { icon: pinIcon, draggable: true }).addTo(map);
 
+            var popupBtnText = "${if (isPickerMode) "✓ Use This Location" else "+ Report Item Here"}";
+            var popupSubtext = "${if (isPickerMode) "Location pinned. Tap below to confirm location." else "Location pinned. Tap below to create report."}";
+            var popupBadge = "${if (isPickerMode) "SELECTED LOCATION" else "PINNED LOCATION"}";
+
             var popupHtml = '<div class="popup-box" style="text-align:center;">' +
-                '<div class="popup-badge" style="background:#FFF3E0;color:#E65100;font-weight:bold;">PINNED LOCATION</div>' +
+                '<div class="popup-badge" style="background:#FFF3E0;color:#E65100;font-weight:bold;">' + popupBadge + '</div>' +
                 '<div style="font-weight:bold;margin:4px 0;font-size:13px;">' + lat.toFixed(4) + '° N, ' + lng.toFixed(4) + '° E</div>' +
-                '<div style="font-size:11px;color:#7D6F67;margin-bottom:8px;">Location pinned. Tap below to create report.</div>' +
+                '<div style="font-size:11px;color:#7D6F67;margin-bottom:8px;">' + popupSubtext + '</div>' +
                 '<button onclick="window.AndroidInterface.onUsePinnedLocation(' + lat + ', ' + lng + ')" ' +
                 'style="background:#2B2625;color:#FFFFFF;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:bold;cursor:pointer;width:100%;">' +
-                '+ Report Item Here</button>' +
+                popupBtnText + '</button>' +
                 '</div>';
 
             pinnedMarker.bindPopup(popupHtml).openPopup();
@@ -569,7 +559,7 @@ class MapFragment : Fragment() {
             }
         });
 
-        function addMapItem(id, title, location, status, lat, lng, desc, imageType) {
+        function addMapItem(id, title, location, status, lat, lng, desc, imageUrl) {
             items.push({
                 id: id,
                 title: title,
@@ -578,7 +568,7 @@ class MapFragment : Fragment() {
                 lat: lat,
                 lng: lng,
                 desc: desc,
-                imageType: imageType
+                imageUrl: imageUrl
             });
             renderMarkers('all');
         }
@@ -602,6 +592,19 @@ class MapFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(): MapFragment = MapFragment()
+        const val ARG_IS_PICKER_MODE = "arg_is_picker_mode"
+        const val REQUEST_KEY_LOCATION = "request_key_location"
+        const val KEY_LATITUDE = "key_latitude"
+        const val KEY_LONGITUDE = "key_longitude"
+        const val KEY_LOCATION_NAME = "key_location_name"
+
+        fun newInstance(isPickerMode: Boolean = false): MapFragment {
+            val fragment = MapFragment()
+            val args = Bundle().apply {
+                putBoolean(ARG_IS_PICKER_MODE, isPickerMode)
+            }
+            fragment.arguments = args
+            return fragment
+        }
     }
 }

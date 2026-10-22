@@ -152,9 +152,9 @@
                 android:id="@+id/img1"
                 android:layout_width="84dp"
                 android:layout_height="84dp"
-                android:contentDescription="Wallet item image"
+                android:contentDescription="Item image"
                 android:scaleType="centerCrop"
-                android:src="@drawable/img_wallet"
+                android:src="@drawable/ic_item_placeholder"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
             <LinearLayout
@@ -229,9 +229,9 @@
                 android:id="@+id/img2"
                 android:layout_width="84dp"
                 android:layout_height="84dp"
-                android:contentDescription="Passport item image"
+                android:contentDescription="Item image"
                 android:scaleType="centerCrop"
-                android:src="@drawable/img_passport"
+                android:src="@drawable/ic_item_placeholder"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
             <LinearLayout
@@ -306,9 +306,9 @@
                 android:id="@+id/img3"
                 android:layout_width="84dp"
                 android:layout_height="84dp"
-                android:contentDescription="AirPods Pro item image"
+                android:contentDescription="Item image"
                 android:scaleType="centerCrop"
-                android:src="@drawable/img_airpods"
+                android:src="@drawable/ic_item_placeholder"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
             <LinearLayout
@@ -365,6 +365,19 @@
                 android:padding="4dp"
                 android:src="@drawable/ic_more_dots" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvEmptyReports"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:text="No reports submitted yet.\nTap + to report a lost or found item."
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:lineSpacingExtra="4dp"
+            android:visibility="gone" />
 
     </LinearLayout>
     </androidx.core.widget.NestedScrollView>

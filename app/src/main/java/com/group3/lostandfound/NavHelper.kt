@@ -71,7 +71,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
 
     tabMessages?.setOnClickListener {
         if (activeTab != "messages") {
-            navigateTo(NotificationsFragment.newInstance())
+            navigateTo(MessagesFragment.newInstance())
         }
     }
 

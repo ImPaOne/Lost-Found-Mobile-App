@@ -51,7 +51,7 @@ class NotificationsFragment : Fragment() {
         dotAdmin = view.findViewById(R.id.dotAdmin)
         dotGalleFace = view.findViewById(R.id.dotGalleFace)
 
-        setupBottomNav(view, "messages")
+        setupBottomNav(view, "")
 
         val tvNotifTitle1 = view.findViewById<TextView>(R.id.tvNotifTitle1)
         val tvNotifDesc1 = view.findViewById<TextView>(R.id.tvNotifDesc1)
@@ -65,6 +65,7 @@ class NotificationsFragment : Fragment() {
 
         notifRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
             override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                if (!isAdded) return
                 val notifList = mutableListOf<com.group3.lostandfound.NotificationItem>()
                 for (child in snapshot.children) {
                     val notif = try {
@@ -135,7 +136,7 @@ class NotificationsFragment : Fragment() {
                 .replace(
                     R.id.screenBox,
                     ChatFragment.newInstance(
-                        recipientUserId = "default_user_101",
+                        recipientUserId = "support_admin",
                         recipientName = "Community Contact",
                         itemId = "",
                         itemTitle = "Inquiry"
@@ -154,7 +155,7 @@ class NotificationsFragment : Fragment() {
                         desc = "Your reported passport has passed moderation review and is visible to the community.",
                         status = "FOUND",
                         location = "Fort Railway Station",
-                        imageResId = R.drawable.img_passport
+                        imageResId = R.drawable.ic_item_placeholder
                     )
                 )
                 .addToBackStack(null)
@@ -178,7 +179,7 @@ class NotificationsFragment : Fragment() {
                         desc = "This case has been marked as resolved and reunited with owner.",
                         status = "RESOLVED",
                         location = "Bambalapitiya",
-                        imageResId = R.drawable.img_wallet_details
+                        imageResId = R.drawable.ic_item_placeholder
                     )
                 )
                 .addToBackStack(null)

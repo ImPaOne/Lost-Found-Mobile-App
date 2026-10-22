@@ -38,7 +38,7 @@ class ChatFragment : Fragment() {
     private var relatedItemTitle: String = ""
 
     private val currentUserId: String
-        get() = FirebaseAuth.getInstance().currentUser?.uid ?: "default_user_101"
+        get() = FirebaseManager.currentUid
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

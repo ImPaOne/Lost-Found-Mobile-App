@@ -12,10 +12,11 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.group3.lostandfound.repository.ExploreRepository
 import com.group3.lostandfound.util.ImageLoader
+import com.group3.lostandfound.viewmodel.DetailsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -54,8 +55,10 @@ class DetailsFragment : Fragment() {
     private var isBookmarked = false
     private var itemPhotoList = listOf<String>()
     private var activeImageUrl: String = ""
+    private var reporterUserId: String = ""
+    private var reporterName: String = "Community Reporter"
 
-    private val exploreRepository = ExploreRepository()
+    private lateinit var detailsViewModel: DetailsViewModel
     private var itemId: String? = null
     private var detailsJob: Job? = null
 
@@ -71,6 +74,7 @@ class DetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initViews(view)
+        detailsViewModel = ViewModelProvider(this)[DetailsViewModel::class.java]
         bindData()
         setupListeners()
         NavigationHelper.setup(this, view, NavigationHelper.Tab.HOME)
@@ -102,6 +106,7 @@ class DetailsFragment : Fragment() {
         val initialStatus = arguments?.getString(ARG_STATUS) ?: "LOST"
         val initialLocation = arguments?.getString(ARG_LOCATION) ?: "Colombo 03"
         itemId = arguments?.getString(ARG_ITEM_ID)
+        detailsViewModel.loadItem(itemId.orEmpty())
 
         // Set initial bundle data
         tvItemTitle.text = initialTitle
@@ -116,20 +121,26 @@ class DetailsFragment : Fragment() {
             showEnlargedPhotoDialog(url, tvItemTitle.text.toString())
         }
 
-        // Live status updates from /items/{itemId}
+        // Live status updates from DetailsViewModel
         if (!itemId.isNullOrEmpty()) {
             detailsJob?.cancel()
             detailsJob = viewLifecycleOwner.lifecycleScope.launch {
-                exploreRepository.getItemDetails(itemId!!).collectLatest { report ->
+                detailsViewModel.itemState.collectLatest { report ->
                     if (report != null) {
                         tvItemTitle.text = report.title.ifEmpty { "Report Details" }
                         tvDescription.text = report.description.ifEmpty { "No description provided." }
                         updateStatusTag(report.status)
 
+                        if (report.userId.isNotEmpty()) {
+                            reporterUserId = report.userId
+                            reporterName = "User #${report.userId.takeLast(4)}"
+                            view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
+                        }
+
                         val loc = if (report.latitude != 0.0 || report.longitude != 0.0) {
                             "${report.latitude}, ${report.longitude}"
                         } else {
-                            "Colombo 03"
+                            report.location.ifEmpty { "Colombo 03" }
                         }
                         tvLocationText.text = loc
 
@@ -243,19 +254,24 @@ class DetailsFragment : Fragment() {
                 .setItems(contactOptions) { _, which ->
                     when (which) {
                         0 -> {
-                            // Direct Real-Time Chat screen
-                            parentFragmentManager.beginTransaction()
-                                .replace(
-                                    R.id.screenBox,
-                                    ChatFragment.newInstance(
-                                        recipientUserId = "default_user_101",
-                                        recipientName = "Item Reporter",
-                                        itemId = itemId ?: "",
-                                        itemTitle = itemTitle
+                            // Direct Real-Time Chat screen with actual reporter
+                            val targetUid = reporterUserId.ifEmpty { "reporter_${itemId ?: "user"}" }
+                            if (targetUid == FirebaseManager.currentUid && FirebaseManager.currentUid.isNotEmpty()) {
+                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "This is your own report. Check Messages for incoming chats.", view)
+                            } else {
+                                parentFragmentManager.beginTransaction()
+                                    .replace(
+                                        R.id.screenBox,
+                                        ChatFragment.newInstance(
+                                            recipientUserId = targetUid,
+                                            recipientName = reporterName,
+                                            itemId = itemId ?: "",
+                                            itemTitle = itemTitle
+                                        )
                                     )
-                                )
-                                .addToBackStack(null)
-                                .commit()
+                                    .addToBackStack(null)
+                                    .commit()
+                            }
                         }
                         1 -> {
                             val msgInput = android.widget.EditText(requireContext()).apply {
@@ -352,21 +368,8 @@ class DetailsFragment : Fragment() {
                 .commit()
         }
 
-        cardSimilarItem.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(
-                    R.id.screenBox,
-                    newInstance(
-                        title = "Brown card holder",
-                        desc = "Leather card holder found near cafe counter.",
-                        status = "FOUND",
-                        location = "Colombo 03",
-                        imageResId = R.drawable.img_wallet
-                    )
-                )
-                .addToBackStack(null)
-                .commit()
-        }
+        // Hide cardSimilarItem since there is no dummy item
+        cardSimilarItem.visibility = View.GONE
     }
 
     private fun showEnlargedPhotoDialog(imageUrl: String, title: String) {
@@ -379,7 +382,7 @@ class DetailsFragment : Fragment() {
         val tvEnlargedTitle = dialog.findViewById<TextView>(R.id.tvEnlargedTitle)
 
         tvEnlargedTitle.text = title
-        ImageLoader.load(imgEnlargedView, imageUrl, R.drawable.img_wallet_details, viewLifecycleOwner.lifecycleScope)
+        ImageLoader.load(imgEnlargedView, imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
 
         btnCloseLargePhoto.setOnClickListener { dialog.dismiss() }
         imgEnlargedView.setOnClickListener { dialog.dismiss() }
@@ -414,7 +417,7 @@ class DetailsFragment : Fragment() {
         override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
             val url = photos[position]
             holder.job?.cancel()
-            holder.job = ImageLoader.load(holder.imageView, url, R.drawable.img_wallet_details, scope)
+            holder.job = ImageLoader.load(holder.imageView, url, R.drawable.ic_item_placeholder, scope)
 
             holder.imageView.setOnClickListener {
                 onPhotoClicked(url)
@@ -437,7 +440,7 @@ class DetailsFragment : Fragment() {
             desc: String = "No description provided.",
             status: String = "LOST",
             location: String = "Colombo 03",
-            imageResId: Int = R.drawable.img_wallet_details,
+            imageResId: Int = R.drawable.ic_item_placeholder,
             itemId: String? = null
         ): DetailsFragment {
             val fragment = DetailsFragment()
