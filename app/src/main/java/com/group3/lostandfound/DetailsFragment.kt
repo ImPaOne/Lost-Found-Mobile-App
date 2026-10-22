@@ -1,11 +1,15 @@
 package com.group3.lostandfound
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -15,7 +19,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.group3.lostandfound.model.ItemReport
 import com.group3.lostandfound.repository.ChatRepository
+import com.group3.lostandfound.util.FlyerGenerator
 import com.group3.lostandfound.util.ImageLoader
 import com.group3.lostandfound.viewmodel.DetailsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -60,6 +66,15 @@ class DetailsFragment : Fragment() {
     private var reporterUserId: String = ""
     private var reporterName: String = "Community Reporter"
 
+    // Embedded Map Properties
+    private var webViewItemMap: WebView? = null
+    private var btnOpenFullMap: View? = null
+    private var mapClickOverlay: View? = null
+    private var tvMapCoordinates: TextView? = null
+    private var itemLatitude: Double = 6.9140
+    private var itemLongitude: Double = 79.8630
+    private var currentItemReport: ItemReport? = null
+
     private lateinit var detailsViewModel: DetailsViewModel
     private var itemId: String? = null
     private var detailsJob: Job? = null
@@ -101,6 +116,12 @@ class DetailsFragment : Fragment() {
         dotPhoto1 = view.findViewById(R.id.dotPhoto1)
         dotPhoto2 = view.findViewById(R.id.dotPhoto2)
         dotPhoto3 = view.findViewById(R.id.dotPhoto3)
+
+        webViewItemMap = view.findViewById(R.id.webViewItemMap)
+        btnOpenFullMap = view.findViewById(R.id.btnOpenFullMap)
+        mapClickOverlay = view.findViewById(R.id.mapClickOverlay)
+        tvMapCoordinates = view.findViewById(R.id.tvMapCoordinates)
+        setupEmbeddedMap()
     }
 
     private fun bindData() {
@@ -171,12 +192,25 @@ class DetailsFragment : Fragment() {
                             })
                         }
 
+                        currentItemReport = report
+                        if (report.latitude != 0.0 || report.longitude != 0.0) {
+                            itemLatitude = report.latitude
+                            itemLongitude = report.longitude
+                        } else {
+                            val resolved = resolveFallbackCoordinates(report.location)
+                            itemLatitude = resolved.first
+                            itemLongitude = resolved.second
+                        }
+
                         val loc = if (report.latitude != 0.0 || report.longitude != 0.0) {
                             "${report.latitude}, ${report.longitude}"
                         } else {
                             report.location.ifEmpty { "Colombo 03" }
                         }
                         tvLocationText.text = loc
+                        view?.findViewById<TextView>(R.id.tvStreetName)?.text = if (report.location.isNotBlank()) report.location else "Colombo, Western Province"
+
+                        loadEmbeddedMap(itemLatitude, itemLongitude, report.status, report.title)
 
                         if (report.imageUrl.isNotEmpty()) {
                             activeImageUrl = report.imageUrl
@@ -272,22 +306,23 @@ class DetailsFragment : Fragment() {
             prefs.edit().putStringSet("bookmarked_ids", bookmarkedSet).apply()
         }
 
-        // Social Media & Messaging Sharing (Requirement 3.1 #10)
+        // Social Media & Messaging Sharing with Modern QR Flyer
         btnShare.setOnClickListener {
-            val title = tvItemTitle.text.toString()
-            val desc = tvDescription.text.toString()
-            val loc = tvLocationText.text.toString()
-            val status = tagStatus.text.toString()
-
-            val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(android.content.Intent.EXTRA_SUBJECT, "$status: $title - FindIt LK")
-                putExtra(
-                    android.content.Intent.EXTRA_TEXT,
-                    "Lost and Found Report ($status)\n\nItem: $title\nLocation: $loc\n\nDetails: $desc\n\nShared via Foundly - Reconnecting Communities"
-                )
-            }
-            startActivity(android.content.Intent.createChooser(shareIntent, "Share item report via"))
+            val reportToShare = currentItemReport ?: ItemReport(
+                itemId = itemId.orEmpty(),
+                userId = reporterUserId,
+                title = tvItemTitle.text.toString(),
+                description = tvDescription.text.toString(),
+                status = tagStatus.text.toString(),
+                location = tvLocationText.text.toString(),
+                latitude = itemLatitude,
+                longitude = itemLongitude,
+                authorName = reporterName
+            )
+            FlyerGenerator.showFlyerShareDialog(
+                requireActivity(),
+                reportToShare
+            )
         }
 
         // Instant Live Messaging & Options
@@ -338,12 +373,24 @@ class DetailsFragment : Fragment() {
                 .show()
         }
 
-        bannerLocation.setOnClickListener {
+        val openMapAction = View.OnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, MapFragment.newInstance())
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(
+                    R.id.screenBox,
+                    MapFragment.newInstance(
+                        isPickerMode = false,
+                        targetLat = itemLatitude,
+                        targetLng = itemLongitude,
+                        targetItemId = itemId.orEmpty()
+                    )
+                )
                 .addToBackStack(null)
                 .commit()
         }
+        bannerLocation.setOnClickListener(openMapAction)
+        btnOpenFullMap?.setOnClickListener(openMapAction)
+        mapClickOverlay?.setOnClickListener(openMapAction)
 
         // Hide cardSimilarItem since there is no dummy item
         cardSimilarItem.visibility = View.GONE
