@@ -66,7 +66,7 @@ class MessagesFragment : Fragment() {
                     putString(ChatFragment.ARG_RECIPIENT_USER_ID, conversation.otherUserId)
                     putString(ChatFragment.ARG_RECIPIENT_NAME, conversation.otherUserName.ifEmpty { "User #${conversation.otherUserId.takeLast(4)}" })
                     putString(ChatFragment.ARG_ITEM_ID, conversation.relatedItemId)
-                    putString(ChatFragment.ARG_ITEM_TITLE, "Discussion")
+                    putString(ChatFragment.ARG_ITEM_TITLE, conversation.relatedItemTitle.ifEmpty { "Item Discussion" })
                 }
             }
             parentFragmentManager.beginTransaction()
@@ -143,9 +143,12 @@ class MessagesFragment : Fragment() {
                 holder.tvTime.text = "Recent"
             }
 
-            if (item.relatedItemId.isNotEmpty()) {
+            if (item.relatedItemTitle.isNotEmpty()) {
                 holder.tvItem.visibility = View.VISIBLE
-                holder.tvItem.text = "Item Discussion"
+                holder.tvItem.text = "Re: ${item.relatedItemTitle}"
+            } else if (item.relatedItemId.isNotEmpty()) {
+                holder.tvItem.visibility = View.VISIBLE
+                holder.tvItem.text = "Re: Item Discussion"
             } else {
                 holder.tvItem.visibility = View.GONE
             }
