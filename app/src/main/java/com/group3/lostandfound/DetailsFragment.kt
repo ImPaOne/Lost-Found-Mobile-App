@@ -38,6 +38,7 @@ class DetailsFragment : Fragment() {
     private lateinit var btnBookmark: ImageView
     private lateinit var btnShare: ImageView
     private lateinit var btnContact: TextView
+    private var btnContactMore: View? = null
     private lateinit var bannerLocation: View
     private lateinit var cardSimilarItem: View
 
@@ -86,6 +87,7 @@ class DetailsFragment : Fragment() {
         btnBookmark = view.findViewById(R.id.btnBookmark)
         btnShare = view.findViewById(R.id.btnShare)
         btnContact = view.findViewById(R.id.btnContact)
+        btnContactMore = view.findViewById(R.id.btnContactMore)
         bannerLocation = view.findViewById(R.id.bannerLocation)
         cardSimilarItem = view.findViewById(R.id.cardSimilarItem)
 
@@ -108,9 +110,20 @@ class DetailsFragment : Fragment() {
         val initialLocation = arguments?.getString(ARG_LOCATION) ?: "Colombo 03"
         itemId = arguments?.getString(ARG_ITEM_ID)
         val initialReporter = arguments?.getString(ARG_REPORTER_UID).orEmpty()
+        val initialAuthorName = arguments?.getString(ARG_AUTHOR_NAME).orEmpty()
+        if (initialAuthorName.isNotEmpty()) {
+            reporterName = initialAuthorName
+            view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
+        }
         if (initialReporter.isNotEmpty()) {
             reporterUserId = initialReporter
-            reporterName = "User #${initialReporter.takeLast(4)}"
+            if (initialAuthorName.isEmpty()) {
+                reporterName = "User #${initialReporter.takeLast(4)}"
+                view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
+            }
+        }
+        if (reporterUserId.isEmpty() && !itemId.isNullOrEmpty()) {
+            reporterUserId = "user_${itemId.orEmpty().replace("-", "").takeLast(6)}"
         }
         detailsViewModel.loadItem(itemId.orEmpty())
 
@@ -277,13 +290,19 @@ class DetailsFragment : Fragment() {
             startActivity(android.content.Intent.createChooser(shareIntent, "Share item report via"))
         }
 
-        // Secure Messaging & Reward Attachment (Requirements 3.1 #8 & System Features)
-        val openContactAction = View.OnClickListener {
+        // Instant Live Messaging & Options
+        btnContact.setOnClickListener {
+            openLiveChat()
+        }
+        btnContactMore?.setOnClickListener {
             showContactOptions()
         }
-        btnContact.setOnClickListener(openContactAction)
-        view?.findViewById<View>(R.id.rowReporter)?.setOnClickListener(openContactAction)
-        view?.findViewById<View>(R.id.imgAvatar)?.setOnClickListener(openContactAction)
+        view?.findViewById<View>(R.id.rowReporter)?.setOnClickListener {
+            openLiveChat()
+        }
+        view?.findViewById<View>(R.id.imgAvatar)?.setOnClickListener {
+            openLiveChat()
+        }
 
         // Live status resolution & management
         tagStatus.setOnClickListener {
@@ -383,6 +402,37 @@ class DetailsFragment : Fragment() {
         }
 
         override fun getItemCount(): Int = photos.size
+    }
+
+    private fun openLiveChat() {
+        val itemTitle = tvItemTitle.text.toString()
+        resolveReporterAndProceed { targetUid, targetName ->
+            val isOwnReport = targetUid == FirebaseManager.currentUid && FirebaseManager.currentUid.isNotEmpty()
+            val effectiveUid = if (isOwnReport) "support_inquiry" else targetUid
+            val effectiveName = if (isOwnReport) "$targetName (Self Preview)" else targetName
+
+            if (isOwnReport) {
+                com.group3.lostandfound.util.ModernToast.show(
+                    requireContext(),
+                    "Opening chat in test mode. You can test live messaging with support.",
+                    view
+                )
+            }
+
+            parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(
+                    R.id.screenBox,
+                    ChatFragment.newInstance(
+                        recipientUserId = effectiveUid,
+                        recipientName = effectiveName,
+                        itemId = itemId ?: "",
+                        itemTitle = itemTitle
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     private fun showContactOptions() {
@@ -582,6 +632,7 @@ class DetailsFragment : Fragment() {
         private const val ARG_LOCATION = "arg_location"
         private const val ARG_IMAGE_RES = "arg_image_res"
         private const val ARG_REPORTER_UID = "arg_reporter_uid"
+        private const val ARG_AUTHOR_NAME = "arg_author_name"
 
         fun newInstance(
             title: String = "Item Report",
@@ -590,7 +641,8 @@ class DetailsFragment : Fragment() {
             location: String = "Colombo 03",
             imageResId: Int = R.drawable.ic_item_placeholder,
             itemId: String? = null,
-            reporterUserId: String? = null
+            reporterUserId: String? = null,
+            authorName: String? = null
         ): DetailsFragment {
             val fragment = DetailsFragment()
             val args = Bundle().apply {
@@ -601,6 +653,7 @@ class DetailsFragment : Fragment() {
                 putString(ARG_LOCATION, location)
                 putInt(ARG_IMAGE_RES, imageResId)
                 putString(ARG_REPORTER_UID, reporterUserId)
+                putString(ARG_AUTHOR_NAME, authorName)
             }
             fragment.arguments = args
             return fragment
@@ -613,7 +666,8 @@ class DetailsFragment : Fragment() {
             status: String,
             location: String,
             imageUrl: String = "",
-            reporterUserId: String? = null
+            reporterUserId: String? = null,
+            authorName: String? = null
         ): DetailsFragment {
             val fragment = DetailsFragment()
             val args = Bundle().apply {
@@ -625,6 +679,7 @@ class DetailsFragment : Fragment() {
                 putString("arg_image_url", imageUrl)
                 putInt(ARG_IMAGE_RES, R.drawable.ic_item_placeholder)
                 putString(ARG_REPORTER_UID, reporterUserId)
+                putString(ARG_AUTHOR_NAME, authorName)
             }
             fragment.arguments = args
             return fragment
