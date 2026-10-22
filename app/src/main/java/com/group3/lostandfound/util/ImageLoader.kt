@@ -44,6 +44,25 @@ object ImageLoader {
     }
 
     fun load(
+        context: Context,
+        url: String?,
+        imageView: ImageView,
+        placeholderRes: Int = R.drawable.ic_item_placeholder
+    ): Job? {
+        val scope = CoroutineScope(Dispatchers.Main)
+        return load(imageView, url, placeholderRes, scope)
+    }
+
+    fun load(
+        imageView: ImageView,
+        url: String?,
+        placeholderRes: Int = R.drawable.ic_item_placeholder
+    ): Job? {
+        val scope = CoroutineScope(Dispatchers.Main)
+        return load(imageView, url, placeholderRes, scope)
+    }
+
+    fun load(
         imageView: ImageView,
         url: String?,
         placeholderRes: Int = R.drawable.ic_item_placeholder,
