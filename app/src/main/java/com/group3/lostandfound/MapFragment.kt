@@ -68,6 +68,10 @@ class MapFragment : Fragment() {
     private var pinnedLng: Double = 79.8630
     private var isPickerMode = false
 
+    private var targetLat: Double = 0.0
+    private var targetLng: Double = 0.0
+    private var targetItemId: String = ""
+
     private val markerReportsMap = java.util.concurrent.ConcurrentHashMap<String, com.group3.lostandfound.model.ItemReport>()
 
     override fun onCreateView(
@@ -82,6 +86,9 @@ class MapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         isPickerMode = arguments?.getBoolean(ARG_IS_PICKER_MODE, false) ?: false
+        targetLat = arguments?.getDouble("arg_target_lat", 0.0) ?: 0.0
+        targetLng = arguments?.getDouble("arg_target_lng", 0.0) ?: 0.0
+        targetItemId = arguments?.getString("arg_target_item_id", "") ?: ""
 
         initViews(view)
         setupLeafletWebView()
@@ -184,7 +191,10 @@ class MapFragment : Fragment() {
                     }
                 }
 
-                jsBuilder.append("renderMarkers('all');")
+                jsBuilder.append("renderMarkers('all');\n")
+                if (targetLat != 0.0 && targetLng != 0.0) {
+                    jsBuilder.append("map.flyTo([$targetLat, $targetLng], 16, { duration: 1.2 });\n")
+                }
                 webViewLeafletMap.evaluateJavascript(jsBuilder.toString(), null)
             }
 
@@ -618,10 +628,18 @@ class MapFragment : Fragment() {
         const val KEY_LONGITUDE = "key_longitude"
         const val KEY_LOCATION_NAME = "key_location_name"
 
-        fun newInstance(isPickerMode: Boolean = false): MapFragment {
+        fun newInstance(
+            isPickerMode: Boolean = false,
+            targetLat: Double = 0.0,
+            targetLng: Double = 0.0,
+            targetItemId: String = ""
+        ): MapFragment {
             val fragment = MapFragment()
             val args = Bundle().apply {
                 putBoolean(ARG_IS_PICKER_MODE, isPickerMode)
+                putDouble("arg_target_lat", targetLat)
+                putDouble("arg_target_lng", targetLng)
+                putString("arg_target_item_id", targetItemId)
             }
             fragment.arguments = args
             return fragment
