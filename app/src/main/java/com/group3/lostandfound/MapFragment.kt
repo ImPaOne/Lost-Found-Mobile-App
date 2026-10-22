@@ -60,6 +60,7 @@ class MapFragment : Fragment() {
     private var currentLocation = ""
     private var currentStatus = ""
     private var currentDesc = ""
+    private var currentUserId = ""
 
     // Pinned location tracking
     private var isLocationPinned = false
@@ -255,7 +256,8 @@ class MapFragment : Fragment() {
                                 status = currentStatus,
                                 location = currentLocation,
                                 imageResId = R.drawable.ic_item_placeholder,
-                                itemId = currentId
+                                itemId = currentId,
+                                reporterUserId = currentUserId
                             )
                         )
                         .addToBackStack(null)
@@ -293,6 +295,7 @@ class MapFragment : Fragment() {
                 currentLocation = report?.location ?: "Location"
                 currentStatus = report?.status ?: "LOST"
                 currentDesc = report?.description ?: ""
+                currentUserId = report?.userId ?: ""
 
                 cardLaptopItem.visibility = View.VISIBLE
                 textItemTitle.text = currentTitle
