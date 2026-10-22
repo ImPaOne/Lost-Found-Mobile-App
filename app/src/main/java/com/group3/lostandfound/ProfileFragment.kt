@@ -33,7 +33,7 @@ class ProfileFragment : Fragment() {
         .child(currentUid)
 
     private var profileListener: ValueEventListener? = null
-    private var currentDisplayName = "Nadeesha Silva"
+    private var currentDisplayName = "Community Member"
     private var currentLanguage = "en"
 
     override fun onCreateView(
@@ -122,7 +122,7 @@ class ProfileFragment : Fragment() {
                 if (snapshot.exists()) {
                     currentDisplayName = snapshot.child("displayName").getValue(String::class.java)
                         ?: snapshot.child("fullName").getValue(String::class.java)
-                        ?: "Nadeesha Silva"
+                        ?: "Community Member"
                     currentLanguage = snapshot.child("preferredLanguage").getValue(String::class.java) ?: "en"
                     val isTrusted = snapshot.child("isTrustedFinder").getValue(Boolean::class.java) ?: false
 
