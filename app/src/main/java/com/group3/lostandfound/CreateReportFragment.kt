@@ -23,9 +23,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.group3.lostandfound.model.ItemReport
-import com.group3.lostandfound.repository.ReportRepository
+import com.group3.lostandfound.viewmodel.CreateReportViewModel
+import com.group3.lostandfound.viewmodel.ReportUploadState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
@@ -123,7 +125,7 @@ class CreateReportFragment : Fragment() {
     private var savedDescription: String = ""
     private var savedLandmark: String = ""
 
-    private val reportRepository = ReportRepository()
+    private lateinit var createReportViewModel: CreateReportViewModel
     private var uploadJob: Job? = null
 
     // Gallery Picker Launcher
@@ -206,7 +208,10 @@ class CreateReportFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        createReportViewModel = ViewModelProvider(this)[CreateReportViewModel::class.java]
+
         initViews(view)
+        observeViewModel()
 
         // Only parse initial navigation arguments if starting fresh at Step 1 with empty inputs
         if (savedInstanceState == null && currentStep == 1 && savedTitle.isEmpty() && savedDescription.isEmpty()) {
@@ -681,80 +686,74 @@ class CreateReportFragment : Fragment() {
             timestamp = System.currentTimeMillis()
         )
 
-        // Show Progress Bar (0-100%)
-        cardUploadProgress.visibility = View.VISIBLE
-        layoutUploadError.visibility = View.GONE
-        pbUploadBar.progress = 0
-        tvUploadPercentage.text = "0%"
-        tvUploadStatusText.text = "Compressing photo & preparing upload..."
+        createReportViewModel.submitReport(requireContext(), selectedImageUri, report)
+    }
 
-        btnContinue.isEnabled = false
-        btnContinue.text = "Publishing..."
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            createReportViewModel.uploadState.collect { state ->
+                when (state) {
+                    is ReportUploadState.Progress -> {
+                        cardUploadProgress.visibility = View.VISIBLE
+                        layoutUploadError.visibility = View.GONE
+                        pbUploadBar.progress = state.percentage
+                        tvUploadPercentage.text = "${state.percentage}%"
+                        tvUploadStatusText.text = state.statusText
 
-        uploadJob?.cancel()
-        uploadJob = viewLifecycleOwner.lifecycleScope.launch {
-            val result = reportRepository.uploadImageAndCreateReport(
-                context = requireContext(),
-                imageUri = selectedImageUri,
-                report = report,
-                maxRetries = 3
-            ) { progress ->
-                pbUploadBar.progress = progress
-                tvUploadPercentage.text = "$progress%"
-                tvUploadStatusText.text = when {
-                    progress < 25 -> "Compressing image..."
-                    progress < 90 -> "Uploading photo to Storage ($progress%)..."
-                    progress < 100 -> "Saving report to Realtime Database..."
-                    else -> "Done! Finalizing report..."
+                        btnContinue.isEnabled = false
+                        btnContinue.text = if (state.percentage > 0) "Publishing ${state.percentage}%" else "Publishing..."
+                    }
+                    is ReportUploadState.Success -> {
+                        val createdReport = state.report
+                        pbUploadBar.progress = 100
+                        tvUploadPercentage.text = "100%"
+                        tvUploadStatusText.text = "Successfully published"
+
+                        if (isLostSelected) {
+                            com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                                requireContext(),
+                                "Lost Item Broadcasted",
+                                "Search alert active for '${createdReport.title}'. Nearby community members notified.",
+                                createdReport.itemId
+                            )
+                        } else {
+                            com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                                requireContext(),
+                                "Found Item Registered",
+                                "Thank you for reporting '${createdReport.title}'. Searching for the verified owner.",
+                                createdReport.itemId
+                            )
+                        }
+
+                        com.group3.lostandfound.util.ModernToast.show(
+                            requireContext(),
+                            "Report published successfully. Redirecting to My Reports.",
+                            view
+                        )
+
+                        parentFragmentManager.beginTransaction()
+                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                            .replace(R.id.screenBox, ReportsFragment.newInstance())
+                            .commit()
+
+                        createReportViewModel.resetState()
+                    }
+                    is ReportUploadState.Error -> {
+                        layoutUploadError.visibility = View.VISIBLE
+                        tvErrorMessage.text = "Upload error: ${state.message}. Check connection and retry."
+                        tvUploadStatusText.text = "Upload interrupted."
+
+                        btnContinue.isEnabled = true
+                        btnContinue.text = "Publish Report"
+
+                        Toast.makeText(
+                            requireContext(),
+                            "Upload failed: ${state.message}. You can retry.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    is ReportUploadState.Idle -> {}
                 }
-                btnContinue.text = "Publishing $progress%"
-            }
-
-            result.onSuccess { createdReport ->
-                pbUploadBar.progress = 100
-                tvUploadPercentage.text = "100%"
-                tvUploadStatusText.text = "Successfully published"
-
-                if (isLostSelected) {
-                    com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                        requireContext(),
-                        "Lost Item Broadcasted",
-                        "Search alert active for '${createdReport.title}'. Nearby community members notified.",
-                        createdReport.itemId
-                    )
-                } else {
-                    com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                        requireContext(),
-                        "Found Item Registered",
-                        "Thank you for reporting '${createdReport.title}'. Searching for the verified owner.",
-                        createdReport.itemId
-                    )
-                }
-
-                com.group3.lostandfound.util.ModernToast.show(
-                    requireContext(),
-                    "Report published successfully. Redirecting to My Reports.",
-                    view
-                )
-
-                // Redirect user directly to My Reports (ReportsFragment) as requested
-                parentFragmentManager.beginTransaction()
-                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                    .replace(R.id.screenBox, ReportsFragment.newInstance())
-                    .commit()
-            }.onFailure { error ->
-                layoutUploadError.visibility = View.VISIBLE
-                tvErrorMessage.text = "Upload error: ${error.localizedMessage ?: "Network error"}. Check connection and retry."
-                tvUploadStatusText.text = "Upload interrupted."
-
-                btnContinue.isEnabled = true
-                btnContinue.text = "Publish Report"
-
-                Toast.makeText(
-                    requireContext(),
-                    "Upload failed: ${error.message}. You can retry.",
-                    Toast.LENGTH_LONG
-                ).show()
             }
         }
     }
