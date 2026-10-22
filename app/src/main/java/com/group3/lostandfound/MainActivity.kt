@@ -85,6 +85,34 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.screenBox, initialFragment)
                 .commit()
         }
+
+        handleDeepLinkOrNotification(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleDeepLinkOrNotification(intent)
+    }
+
+    private fun handleDeepLinkOrNotification(intent: Intent?) {
+        val uri = intent?.data
+        var targetItemId = intent?.getStringExtra("item_id") ?: intent?.getStringExtra("itemId") ?: ""
+        if (uri != null) {
+            val segments = uri.pathSegments
+            if (segments.isNotEmpty()) {
+                targetItemId = segments.last()
+            } else if (!uri.host.isNullOrEmpty() && uri.host != "item") {
+                targetItemId = uri.host.orEmpty()
+            }
+        }
+        if (targetItemId.isNotEmpty()) {
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(R.id.screenBox, DetailsFragment.newInstance(itemId = targetItemId))
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     private var isMessageListenerAttached = false
