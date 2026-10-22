@@ -272,7 +272,7 @@
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/vpUrgentAlertSlider"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="124dp"
                 android:overScrollMode="never" />
 
             <!-- Slider Indicator Dots -->
