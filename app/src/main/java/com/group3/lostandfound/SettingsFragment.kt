@@ -129,8 +129,8 @@ class SettingsFragment : Fragment() {
         textProfileVisibilityValue.text = visibility
 
         // Language
-        val language = prefs.getString("selected_language", "English") ?: "English"
-        textLanguageValue.text = language
+        val langCode = com.group3.lostandfound.util.LocaleHelper.getLanguageCode(requireContext())
+        textLanguageValue.text = com.group3.lostandfound.util.LocaleHelper.getLanguageLabel(langCode).substringBefore(" ")
 
         // Theme
         val theme = prefs.getString("selected_theme_label", "System") ?: "System"
