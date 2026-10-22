@@ -687,7 +687,7 @@ class DetailsFragment : Fragment() {
     private fun loadEmbeddedMap(lat: Double, lng: Double, status: String, title: String) {
         val html = buildEmbeddedMapHtml(lat, lng, status, title)
         webViewItemMap?.loadDataWithBaseURL("https://leafletjs.com/", html, "text/html", "UTF-8", null)
-        tvMapCoordinates?.text = String.format(java.util.Locale.US, "📍 %.4f° N, %.4f° E · Tap to explore", lat, lng)
+        tvMapCoordinates?.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Tap to explore", lat, lng)
     }
 
     private fun resolveFallbackCoordinates(location: String): Pair<Double, Double> {
@@ -705,7 +705,7 @@ class DetailsFragment : Fragment() {
     }
 
     private fun buildEmbeddedMapHtml(lat: Double, lng: Double, status: String, title: String): String {
-        val pinColor = if (status.equals("LOST", ignoreCase = true)) "#D43838" else "#3B7A57"
+        val pinColor = if (status.equals("LOST", ignoreCase = true)) "#E53935" else "#2E7D32"
         val cleanTitle = title.replace("'", "\\'").replace("\"", "\\\"").replace("\n", " ").take(40)
         return """
 <!DOCTYPE html>
@@ -722,20 +722,6 @@ class DetailsFragment : Fragment() {
             margin: 0;
             padding: 0;
             background: #F7F5F0;
-        }
-        .pin-marker {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: $pinColor;
-            border: 2px solid #ffffff;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.35);
-            color: #ffffff;
-            font-weight: bold;
-            font-size: 14px;
         }
         .leaflet-control-attribution {
             display: none !important;
@@ -758,11 +744,17 @@ class DetailsFragment : Fragment() {
             maxZoom: 19
         }).addTo(map);
 
+        var pinSvg = '<svg width="28" height="38" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">' +
+            '<path d="M14 0C6.268 0 0 6.268 0 14C0 24.5 14 38 14 38C14 38 28 24.5 28 14C28 6.268 21.732 0 14 0Z" fill="$pinColor"/>' +
+            '<circle cx="14" cy="14" r="5" fill="#FFFFFF"/>' +
+            '</svg>';
+
         var pinIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: "<div class='pin-marker'>📍</div>",
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
+            className: '',
+            html: pinSvg,
+            iconSize: [28, 38],
+            iconAnchor: [14, 38],
+            popupAnchor: [0, -34]
         });
 
         L.marker([$lat, $lng], { icon: pinIcon }).addTo(map)
