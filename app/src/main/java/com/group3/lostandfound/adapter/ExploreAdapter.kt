@@ -65,7 +65,7 @@ class ExploreAdapter(
         holder.imageJob = ImageLoader.load(
             imageView = holder.imgItem,
             url = item.imageUrl,
-            placeholderRes = if (item.status.equals("LOST", ignoreCase = true)) R.drawable.img_wallet else R.drawable.img_samsung_phone,
+            placeholderRes = R.drawable.ic_item_placeholder,
             scope = scope
         )
 
