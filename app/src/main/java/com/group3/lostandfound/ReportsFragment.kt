@@ -151,6 +151,7 @@ class ReportsFragment : Fragment() {
         }
 
         tvCount.text = "${filtered.size} reports · updated live"
+        tvEmptyReports.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
 
         // Item 1
         if (filtered.isNotEmpty()) {
@@ -159,6 +160,7 @@ class ReportsFragment : Fragment() {
             name1.text = item1.title
             sub1.text = item1.location
             tag1.text = item1.status
+            ImageLoader.load(img1, item1.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             card1.setOnClickListener { openItemDetails(item1) }
             opt1.setOnClickListener { showOptionsMenu(item1) }
         } else {
@@ -172,6 +174,7 @@ class ReportsFragment : Fragment() {
             name2.text = item2.title
             sub2.text = item2.location
             tag2.text = item2.status
+            ImageLoader.load(img2, item2.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             card2.setOnClickListener { openItemDetails(item2) }
             opt2.setOnClickListener { showOptionsMenu(item2) }
         } else {
@@ -185,6 +188,7 @@ class ReportsFragment : Fragment() {
             name3.text = item3.title
             sub3.text = item3.location
             tag3.text = item3.status
+            ImageLoader.load(img3, item3.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             card3.setOnClickListener { openItemDetails(item3) }
             opt3.setOnClickListener { showOptionsMenu(item3) }
         } else {
