@@ -128,13 +128,8 @@ class UserManagementFragment : Fragment() {
                     }
                 }
 
-                // If completely empty, auto-seed default admin + community members
-                if (allUsersList.isEmpty()) {
-                    seedSampleUsers()
-                } else {
-                    updateSummaryCounts()
-                    renderUserCards()
-                }
+                updateSummaryCounts()
+                renderUserCards()
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -378,55 +373,6 @@ class UserManagementFragment : Fragment() {
             .show()
     }
 
-    private fun seedSampleUsers() {
-        val seedUsers = listOf(
-            mapOf(
-                "uid" to FirebaseManager.currentUid,
-                "email" to "admin@gmail.com",
-                "fullName" to "System Administrator",
-                "role" to "ADMIN",
-                "isBanned" to false,
-                "trustScore" to 100
-            ),
-            mapOf(
-                "uid" to "user_nadeesha",
-                "email" to "nadeesha.silva@gmail.com",
-                "fullName" to "Nadeesha Silva",
-                "role" to "USER",
-                "isBanned" to false,
-                "trustScore" to 95
-            ),
-            mapOf(
-                "uid" to "user_kavindu",
-                "email" to "kavindu.perera@gmail.com",
-                "fullName" to "Kavindu Perera",
-                "role" to "USER",
-                "isBanned" to false,
-                "trustScore" to 88
-            ),
-            mapOf(
-                "uid" to "user_rashmi",
-                "email" to "rashmi.wick@yahoo.com",
-                "fullName" to "Rashmi Wickrama",
-                "role" to "USER",
-                "isBanned" to false,
-                "trustScore" to 92
-            ),
-            mapOf(
-                "uid" to "user_suspicious",
-                "email" to "spam.bot99@tempmail.com",
-                "fullName" to "Suspicious Poster",
-                "role" to "USER",
-                "isBanned" to true,
-                "trustScore" to 30
-            )
-        )
-
-        for (user in seedUsers) {
-            val uid = user["uid"] as String
-            FirebaseManager.usersRef.child(uid).setValue(user)
-        }
-    }
 
     companion object {
         fun newInstance(): UserManagementFragment = UserManagementFragment()
