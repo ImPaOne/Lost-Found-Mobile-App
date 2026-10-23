@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Smartphone, Download, ShieldCheck, Check, Copy, HelpCircle } from 'lucide-react';
-import { playClickSound, playSuccessSound } from '../utils/audio';
+import { Smartphone, Download, ShieldCheck, HelpCircle } from 'lucide-react';
 
-export default function DownloadModal({ isOpen, onClose, onDownloadApk }) {
-  const [copied, setCopied] = useState(false);
+export default function DownloadModal({ isOpen, onClose, onDownloadAndroid }) {
   const [downloadStep, setDownloadStep] = useState('ready');
 
   useEffect(() => {
@@ -19,18 +17,10 @@ export default function DownloadModal({ isOpen, onClose, onDownloadApk }) {
 
   const handleDownload = () => {
     setDownloadStep('downloading');
-    onDownloadApk();
+    onDownloadAndroid();
     setTimeout(() => {
       setDownloadStep('done');
     }, 1000);
-  };
-
-  const copyChecksum = () => {
-    playClickSound();
-    navigator.clipboard.writeText('9b2d8e4f1a5c68430b1e564d7c80ab3e');
-    setCopied(true);
-    playSuccessSound();
-    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -42,17 +32,17 @@ export default function DownloadModal({ isOpen, onClose, onDownloadApk }) {
               <Smartphone size={20} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}>
-                Download for Android
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}>
+                Get Foundly for Android
               </h3>
               <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                FOUNDIT Client · Release v2.4.2 Production
+                Free download · Works on Android 8+
               </p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            style={{ background: 'none', border: 'none', fontSize: '1.1rem', color: 'var(--text-tertiary)', cursor: 'pointer', padding: '4px' }}
+            style={{ background: 'none', border: 'none', fontSize: '1.2rem', color: 'var(--text-tertiary)', cursor: 'pointer', padding: '4px' }}
           >
             ✕
           </button>
@@ -115,14 +105,14 @@ export default function DownloadModal({ isOpen, onClose, onDownloadApk }) {
 
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                Scan with Phone Camera
+                Scan to install on phone
               </div>
               <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: '1.4' }}>
-                Point your Android camera or Google Lens to download the APK directly.
+                Open your phone's camera to download Foundly directly to your device.
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', fontSize: '0.72rem', color: 'var(--brown-caramel)', fontWeight: 700 }}>
                 <ShieldCheck size={14} />
-                <span>Verified Direct Android Package</span>
+                <span>Safe &amp; Verified Download</span>
               </div>
             </div>
           </div>
@@ -137,52 +127,25 @@ export default function DownloadModal({ isOpen, onClose, onDownloadApk }) {
             >
               <Download size={16} />
               <span>
-                {downloadStep === 'done' ? '✓ APK Saved! Click to Download Again' : 'Download Direct APK (18.4 MB)'}
+                {downloadStep === 'done' ? '✓ Download Started! Tap to Download Again' : 'Download for Android'}
               </span>
             </button>
           </div>
 
-          {/* Installation steps */}
+          {/* Simple installation steps */}
           <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <HelpCircle size={15} color="var(--brown-caramel)" />
               <h4 style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                How to install on Android:
+                Quick install guide:
               </h4>
             </div>
 
             <ol style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', paddingLeft: '18px', lineHeight: '1.6', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <li>Tap <strong>Download Direct APK</strong> to save the package.</li>
-              <li>When prompted in your browser, tap <strong>Open</strong>.</li>
-              <li>If asked, enable <em>"Allow from this source"</em> in Android Security Settings.</li>
-              <li>Tap <strong>Install</strong> to start FOUNDIT.</li>
+              <li>Tap <strong>Download for Android</strong> above.</li>
+              <li>When the download finishes, tap the notification to open it.</li>
+              <li>Tap <strong>Install</strong> to start using Foundly.</li>
             </ol>
-          </div>
-
-          {/* Checksum */}
-          <div style={{ 
-            marginTop: '18px', 
-            background: 'var(--bg-subtle)', 
-            padding: '10px 14px', 
-            borderRadius: '8px',
-            fontSize: '0.72rem',
-            color: 'var(--text-secondary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            border: '1px solid var(--border-light)'
-          }}>
-            <div>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>SHA-256: </span>
-              <code>9b2d8e4f...7c80ab3e</code>
-            </div>
-            <button 
-              onClick={copyChecksum}
-              style={{ background: 'none', border: 'none', color: 'var(--brown-caramel)', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-            >
-              {copied ? <Check size={12} /> : <Copy size={12} />}
-              <span>{copied ? 'Copied' : 'Copy'}</span>
-            </button>
           </div>
         </div>
       </div>
