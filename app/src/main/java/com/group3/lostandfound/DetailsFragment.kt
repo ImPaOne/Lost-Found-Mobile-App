@@ -45,7 +45,7 @@ class DetailsFragment : Fragment() {
     private lateinit var btnShare: ImageView
     private lateinit var btnLiveChat: TextView
     private lateinit var btnWhatsApp: TextView
-    private var btnContactMore: View? = null
+    // btnContactMore removed — only Live Chat and WhatsApp are shown
     private var reporterPhone: String = ""
     private lateinit var bannerLocation: View
     private lateinit var cardSimilarItem: View
@@ -380,9 +380,6 @@ class DetailsFragment : Fragment() {
         btnWhatsApp.setOnClickListener {
             openWhatsApp()
         }
-        btnContactMore?.setOnClickListener {
-            showContactOptions()
-        }
         view?.findViewById<View>(R.id.rowReporter)?.setOnClickListener {
             showReporterProfileDialog()
         }
@@ -572,21 +569,17 @@ class DetailsFragment : Fragment() {
     }
 
     private fun showReporterProfileDialog() {
-        resolveReporterAndProceed { targetUid, targetName ->
+        resolveReporterAndProceed { _, targetName ->
             val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            val phoneText = if (reporterPhone.isNotBlank()) "📞 Phone: $reporterPhone" else "🔒 Contact via In-App Chat"
-            val message = "Name: $targetName\n$phoneText\n\n🛡️ Foundly Trust Score: 98%\n✨ Verified Community Reporter"
-            
+            val phoneText = if (reporterPhone.isNotBlank()) "📞 ${reporterPhone}" else "🔒 Contact via Live Chat"
+            val message = "Reporter: $targetName\n$phoneText"
+
             val dialogBuilder = builder.setTitle("Reporter Profile")
                 .setMessage(message)
-                .setPositiveButton("Live Chat") { _, _ ->
-                    openLiveChat()
-                }
+                .setPositiveButton("Live Chat") { _, _ -> openLiveChat() }
 
             if (reporterPhone.isNotBlank()) {
-                dialogBuilder.setNeutralButton("WhatsApp") { _, _ ->
-                    openWhatsApp()
-                }
+                dialogBuilder.setNeutralButton("WhatsApp") { _, _ -> openWhatsApp() }
             }
             dialogBuilder.setNegativeButton("Close", null).show()
         }
