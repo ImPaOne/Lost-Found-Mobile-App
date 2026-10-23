@@ -1,18 +1,7 @@
-import React, { useState } from 'react';
-import { Download, QrCode, ShieldCheck, Copy, Check, Smartphone } from 'lucide-react';
-import { playClickSound, playSuccessSound } from '../utils/audio';
+import React from 'react';
+import { Download, QrCode, Smartphone, ShieldCheck, Check } from 'lucide-react';
 
-export default function DownloadCTA({ onDownloadApk, onOpenQR }) {
-  const [copied, setCopied] = useState(false);
-
-  const copyChecksum = () => {
-    playClickSound();
-    navigator.clipboard.writeText('9b2d8e4f1a5c68430b1e564d7c80ab3e');
-    setCopied(true);
-    playSuccessSound();
-    setTimeout(() => setCopied(false), 2000);
-  };
-
+export default function DownloadCTA({ onDownloadAndroid, onOpenQR }) {
   return (
     <section className="download-cta-section" id="download">
       <div className="container-fullscreen">
@@ -20,27 +9,27 @@ export default function DownloadCTA({ onDownloadApk, onOpenQR }) {
           <div className="cta-left-content">
             <div className="tag-pill-warm">
               <span className="pulsing-warm-dot"></span>
-              <span>Official Release · v2.4.2 Production</span>
+              <span>GET THE APP</span>
             </div>
 
             <h2 className="cta-heading-large">
-              Install FOUNDIT on your Android device.
+              Get Foundly on your Android phone.
             </h2>
 
             <p className="cta-subhead-text">
-              Direct, lightweight APK installation package. Optimized for modern Android smartphones including Samsung Galaxy, Google Pixel, Xiaomi, and OnePlus running Android 8.0 to Android 15.
+              Fast, simple, and free. Works on Samsung Galaxy, Google Pixel, Xiaomi, OnePlus, and all phones running Android 8 or newer.
             </p>
 
             {/* Direct Action Buttons */}
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '24px' }}>
               <button 
-                onClick={onDownloadApk}
+                onClick={onDownloadAndroid}
                 className="btn-apple-primary"
-                id="cta-direct-apk-btn"
+                id="cta-direct-download-btn"
                 style={{ padding: '13px 26px', fontSize: '0.86rem' }}
               >
                 <Download size={16} />
-                <span>Download Direct APK (18.4 MB)</span>
+                <span>Download for Android</span>
               </button>
 
               <button 
@@ -50,27 +39,27 @@ export default function DownloadCTA({ onDownloadApk, onOpenQR }) {
                 style={{ padding: '13px 20px', fontSize: '0.86rem' }}
               >
                 <QrCode size={16} />
-                <span>Scan QR for Mobile</span>
+                <span>Scan QR Code</span>
               </button>
             </div>
 
-            {/* Spec Badges */}
+            {/* Simple spec badges */}
             <div className="cta-spec-badges-grid">
               <div className="cta-spec-item">
                 <span className="cta-spec-title">Compatibility</span>
-                <span className="cta-spec-val">Android 8.0 - 15</span>
+                <span className="cta-spec-val">Android 8.0+</span>
               </div>
               <div className="cta-spec-item">
-                <span className="cta-spec-title">Architecture</span>
-                <span className="cta-spec-val">Universal ARM64</span>
+                <span className="cta-spec-title">Download size</span>
+                <span className="cta-spec-val">Under 20 MB</span>
               </div>
               <div className="cta-spec-item">
-                <span className="cta-spec-title">Permissions</span>
-                <span className="cta-spec-val">Camera Only</span>
+                <span className="cta-spec-title">Privacy</span>
+                <span className="cta-spec-val">No ads or tracking</span>
               </div>
               <div className="cta-spec-item">
-                <span className="cta-spec-title">Package Hash</span>
-                <span className="cta-spec-val">SHA-256 Verified</span>
+                <span className="cta-spec-title">Price</span>
+                <span className="cta-spec-val">100% Free</span>
               </div>
             </div>
           </div>
@@ -113,23 +102,9 @@ export default function DownloadCTA({ onDownloadApk, onOpenQR }) {
                   Point Phone Camera
                 </div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '2px' }}>
-                  Scan to install directly on Android
+                  Scan to install directly on your phone
                 </div>
               </div>
-            </div>
-
-            {/* Checksum Button */}
-            <div className="checksum-pill-box">
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
-                SHA-256: <code>9b2d8e4f...7c80ab3e</code>
-              </span>
-              <button 
-                onClick={copyChecksum}
-                style={{ background: 'none', border: 'none', color: 'var(--brown-caramel)', fontWeight: 700, fontSize: '0.74rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-              >
-                {copied ? <Check size={13} /> : <Copy size={13} />}
-                <span>{copied ? 'Copied' : 'Copy'}</span>
-              </button>
             </div>
           </div>
         </div>
