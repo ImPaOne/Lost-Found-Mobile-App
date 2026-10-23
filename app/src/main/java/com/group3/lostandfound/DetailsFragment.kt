@@ -444,6 +444,30 @@ class DetailsFragment : Fragment() {
                 .show()
         }
 
+
+        val openMapAction = View.OnClickListener {
+            parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(
+                    R.id.screenBox,
+                    MapFragment.newInstance(
+                        isPickerMode = false,
+                        targetLat = itemLatitude,
+                        targetLng = itemLongitude,
+                        targetItemId = itemId.orEmpty()
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
+        }
+        bannerLocation.setOnClickListener(openMapAction)
+        btnOpenFullMap?.setOnClickListener(openMapAction)
+        mapClickOverlay?.setOnClickListener(openMapAction)
+
+        // Hide cardSimilarItem since there is no dummy item
+        cardSimilarItem.visibility = View.GONE
+    }
+
     private fun markItemAsResolved() {
         val currentItemId = itemId ?: return
         val itemTitle = tvItemTitle.text.toString()
@@ -491,29 +515,6 @@ class DetailsFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-        val openMapAction = View.OnClickListener {
-            parentFragmentManager.beginTransaction()
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                .replace(
-                    R.id.screenBox,
-                    MapFragment.newInstance(
-                        isPickerMode = false,
-                        targetLat = itemLatitude,
-                        targetLng = itemLongitude,
-                        targetItemId = itemId.orEmpty()
-                    )
-                )
-                .addToBackStack(null)
-                .commit()
-        }
-        bannerLocation.setOnClickListener(openMapAction)
-        btnOpenFullMap?.setOnClickListener(openMapAction)
-        mapClickOverlay?.setOnClickListener(openMapAction)
-
-        // Hide cardSimilarItem since there is no dummy item
-        cardSimilarItem.visibility = View.GONE
     }
 
     private fun showEnlargedPhotoDialog(imageUrl: String, title: String) {
