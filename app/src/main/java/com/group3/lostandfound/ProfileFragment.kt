@@ -33,6 +33,8 @@ class ProfileFragment : Fragment() {
     private lateinit var userName: TextView
     private lateinit var userSubtitle: TextView
     private lateinit var countItemsFound: TextView
+    private lateinit var countItemsReturned: TextView
+    private lateinit var countTrustScore: TextView
 
     private val currentUid = FirebaseManager.currentUid
     private val userRef = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
@@ -40,6 +42,7 @@ class ProfileFragment : Fragment() {
         .child(currentUid)
 
     private var profileListener: ValueEventListener? = null
+    private var itemStatsListener: ValueEventListener? = null
     private var currentDisplayName = "Community Member"
     private var currentLanguage = "en"
     private var currentPhone = ""
@@ -70,6 +73,8 @@ class ProfileFragment : Fragment() {
         userName = view.findViewById(R.id.userName)
         userSubtitle = view.findViewById(R.id.userSubtitle)
         countItemsFound = view.findViewById(R.id.countItemsFound)
+        countItemsReturned = view.findViewById(R.id.countItemsReturned)
+        countTrustScore = view.findViewById(R.id.countTrustScore)
 
         val rowReports = view.findViewById<LinearLayout>(R.id.rowReports)
         val rowSavedItems = view.findViewById<LinearLayout>(R.id.rowSavedItems)
@@ -78,8 +83,9 @@ class ProfileFragment : Fragment() {
         val rowHelp = view.findViewById<LinearLayout>(R.id.rowHelp)
         val rowLogout = view.findViewById<LinearLayout>(R.id.rowLogout)
 
-        // Real-time observation of /users/{uid}
+        // Real-time observation of /users/{uid} and user item stats
         observeUserProfile()
+        observeUserItemStats()
 
         // Tap avatar or name to open modern profile editor & photo upload
         boxAvatarContainer.setOnClickListener {
@@ -185,6 +191,38 @@ class ProfileFragment : Fragment() {
             }
         }
         profileListener?.let { userRef.addValueEventListener(it) }
+    }
+
+    private fun observeUserItemStats() {
+        val uid = currentUid
+        itemStatsListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!isAdded) return
+                var foundCount = 0
+                var returnedCount = 0
+
+                for (child in snapshot.children) {
+                    val report = com.group3.lostandfound.model.ItemReport.fromSnapshot(child)
+                    if (report.userId == uid && uid.isNotEmpty()) {
+                        val status = report.status.uppercase()
+                        if (status == "FOUND") {
+                            foundCount++
+                        } else if (status == "RESOLVED" || status == "RETURNED") {
+                            returnedCount++
+                        }
+                    }
+                }
+
+                val calculatedTrust = (50 + (returnedCount * 15) + (foundCount * 5)).coerceIn(50, 99)
+
+                countItemsFound.text = foundCount.toString()
+                countItemsReturned.text = returnedCount.toString()
+                countTrustScore.text = "$calculatedTrust%"
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        }
+        itemStatsListener?.let { FirebaseManager.itemsRef.addValueEventListener(it) }
     }
 
     private fun uploadProfileImage(uri: android.net.Uri) {
@@ -412,6 +450,7 @@ class ProfileFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         profileListener?.let { userRef.removeEventListener(it) }
+        itemStatsListener?.let { FirebaseManager.itemsRef.removeEventListener(it) }
     }
 
     private fun navigateTo(fragment: Fragment) {
