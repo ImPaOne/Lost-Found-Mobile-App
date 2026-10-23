@@ -2,13 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/flyerRootLayout"
-    android:layout_width="600dp"
+    android:layout_width="550dp"
     android:layout_height="wrap_content"
     android:background="@color/white"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
     android:padding="24dp">
 
-    <!-- Header Brand Bar -->
+    <!-- Brand Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,88 +17,86 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:src="@drawable/ic_splash_logo"
             app:tint="#624E43" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-black"
-                android:text="FOUNDLY LK"
-                android:textColor="#3D2619"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:text="Sri Lanka's Community Lost &amp; Found Network"
-                android:textColor="#7D6F67"
-                android:textSize="11sp" />
-        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:fontFamily="sans-serif-black"
+            android:text="FOUNDLY"
+            android:textColor="#3D2619"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tvFlyerCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:background="@drawable/bg_stat_banner"
             android:paddingStart="10dp"
-            android:paddingTop="4dp"
+            android:paddingTop="3dp"
             android:paddingEnd="10dp"
-            android:paddingBottom="4dp"
+            android:paddingBottom="3dp"
             android:fontFamily="sans-serif-bold"
-            android:text="OFFICIAL REPORT"
+            android:text="COMMUNITY"
             android:textColor="#624E43"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+            android:textSize="11sp" />
     </LinearLayout>
 
-    <View
+    <!-- 1. What is Lost/Found: Item Title -->
+    <TextView
+        android:id="@+id/tvFlyerItemTitle"
         android:layout_width="match_parent"
-        android:layout_height="2dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="#EDE7E1" />
+        android:fontFamily="sans-serif-black"
+        android:gravity="center"
+        android:text="Item Title"
+        android:textColor="#2C1810"
+        android:textSize="26sp"
+        android:textStyle="bold" />
 
-    <!-- Status Alert Header Banner -->
+    <!-- 2. Status Badge (LOST or FOUND) -->
     <LinearLayout
         android:id="@+id/flyerStatusBanner"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="38dp"
+        android:layout_marginTop="10dp"
         android:background="#D43838"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp">
 
         <TextView
             android:id="@+id/tvFlyerStatusAlert"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.05"
-            android:text="⚠️ LOST ITEM ALERT"
+            android:letterSpacing="0.06"
+            android:text="LOST ITEM"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Item Photo Container -->
+    <!-- 3. Item Image -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="260dp"
-        android:layout_marginTop="16dp"
+        android:layout_height="280dp"
+        android:layout_marginTop="14dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:strokeColor="#EDE7E1"
-        app:strokeWidth="1dp">
+        app:strokeWidth="1.5dp">
 
         <ImageView
             android:id="@+id/imgFlyerPhoto"
@@ -107,109 +106,46 @@
             android:src="@drawable/ic_item_placeholder" />
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Item Title -->
+    <!-- Location & Description (Compact) -->
     <TextView
-        android:id="@+id/tvFlyerItemTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="sans-serif-black"
-        android:text="Black Leather Wallet"
-        android:textColor="#2C1810"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <!-- Meta Details Grid -->
-    <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/tvFlyerLocation"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:fontFamily="sans-serif-bold"
+        android:text="Colombo, Sri Lanka"
+        android:textColor="#7D6F67"
+        android:textSize="13sp" />
 
-        <!-- Location Badge -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@drawable/ic_location"
-                app:tint="#D43838" />
-
-            <TextView
-                android:id="@+id/tvFlyerLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:fontFamily="sans-serif-bold"
-                android:text="Colombo 03 · Near Duplication Rd"
-                android:textColor="#3D2619"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- Category Badge -->
-        <TextView
-            android:id="@+id/tvFlyerCategory"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_stat_banner"
-            android:paddingStart="12dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="4dp"
-            android:fontFamily="sans-serif-bold"
-            android:text="WALLET &amp; CARDS"
-            android:textColor="#624E43"
-            android:textSize="11sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <!-- Description Box -->
-    <LinearLayout
+    <TextView
+        android:id="@+id/tvFlyerDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/bg_location_banner"
-        android:orientation="vertical"
-        android:padding="12dp">
-
-        <TextView
-            android:id="@+id/tvFlyerDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
-            android:lineSpacingExtra="3dp"
-            android:text="Slim wallet with national ID and two bank cards. Small scratch near the clasp. Please contact if found!"
-            android:textColor="#5C4638"
-            android:textSize="13sp" />
-    </LinearLayout>
+        android:layout_marginTop="4dp"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:maxLines="2"
+        android:text="Scan QR code below to connect with reporter"
+        android:textColor="#8C7E74"
+        android:textSize="12sp" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
         android:background="#EDE7E1" />
 
-    <!-- QR Code & App Open Callout Section -->
+    <!-- 4. QR Code Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_stat_banner"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="14dp">
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <!-- Generated QR Code Image -->
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
             app:strokeColor="#EDE7E1"
@@ -219,75 +155,39 @@
                 android:id="@+id/imgFlyerQrCode"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="6dp"
+                android:padding="8dp"
                 android:scaleType="fitCenter" />
         </com.google.android.material.card.MaterialCardView>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-black"
-                android:text="SCAN TO OPEN IN APP"
-                android:textColor="#2C1810"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif"
-                android:lineSpacingExtra="2dp"
-                android:text="Scan with your phone camera or Foundly app to open item report, view location, and contact the reporter instantly."
-                android:textColor="#624E43"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/tvFlyerDirectLink"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:fontFamily="sans-serif-bold"
-                android:text="foundly://item/report_id"
-                android:textColor="#D43838"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Footer Note -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/tvFlyerReporterTag"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:fontFamily="sans-serif-medium"
-            android:text="Reported by Verified Member"
-            android:textColor="#7D6F67"
-            android:textSize="11sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:fontFamily="sans-serif-bold"
-            android:text="Foundly • Reconnecting Sri Lanka"
-            android:textColor="#624E43"
-            android:textSize="11sp"
+            android:text="SCAN TO VIEW &amp; REPORT"
+            android:textColor="#3D2619"
+            android:textSize="13sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvFlyerDirectLink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="sans-serif"
+            android:text="foundly://item/id"
+            android:textColor="#9E8D84"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/tvFlyerReporterTag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Reported on Foundly Community"
+            android:textColor="#B0A39B"
+            android:textSize="10sp" />
     </LinearLayout>
 
 </LinearLayout>
