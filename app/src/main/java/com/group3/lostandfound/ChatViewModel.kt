@@ -54,7 +54,10 @@ class ChatViewModel(
         relatedItemId: String = "",
         otherUserName: String = "",
         imageUrl: String = "",
-        relatedItemTitle: String = ""
+        relatedItemTitle: String = "",
+        replyToMessageId: String = "",
+        replyToSenderName: String = "",
+        replyToText: String = ""
     ) {
         if (chatMessageTextContent.isBlank() && imageUrl.isBlank()) return
 
@@ -68,11 +71,40 @@ class ChatViewModel(
                 relatedItemId = relatedItemId,
                 otherUserName = otherUserName,
                 imageUrl = imageUrl,
-                relatedItemTitle = relatedItemTitle
+                relatedItemTitle = relatedItemTitle,
+                replyToMessageId = replyToMessageId,
+                replyToSenderName = replyToSenderName,
+                replyToText = replyToText
             )
             _sendMessageOperationStatus.value = operationResult
         }
     }
+
+    fun deleteMessageForEveryone(chatConversationId: String, messageId: String) {
+        viewModelScope.launch {
+            try {
+                chatRepository.deleteMessageForEveryone(chatConversationId, messageId)
+            } catch (_: Exception) {}
+        }
+    }
+
+    fun deleteMessageForMe(chatConversationId: String, messageId: String, userId: String) {
+        viewModelScope.launch {
+            try {
+                chatRepository.deleteMessageForMe(chatConversationId, messageId, userId)
+            } catch (_: Exception) {}
+        }
+    }
+
+    fun setTyping(chatConversationId: String, userId: String, isTyping: Boolean) {
+        chatRepository.setTypingStatus(chatConversationId, userId, isTyping)
+    }
+
+    fun getTypingFlow(chatConversationId: String, otherUserId: String) =
+        chatRepository.streamTypingStatus(chatConversationId, otherUserId)
+
+    fun getUserPresenceFlow(userId: String) =
+        chatRepository.streamUserPresence(userId)
 
     /**
      * Resets the send status state after being consumed by the UI.
