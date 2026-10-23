@@ -35,4 +35,11 @@
     <color name="badge_flagged_text">#FFC1121F</color>
     <color name="badge_pending_bg">#FFFFF8EE</color>
     <color name="badge_pending_text">#FFB87A26</color>
+
+    <!-- Compatibility aliases mapped to Fiery Ocean -->
+    <color name="nude_cream">#FFFCF5EE</color>
+    <color name="nude_dark">#FF003049</color>
+    <color name="nude_taupe">#FF5B8DB8</color>
+    <color name="nude_light_taupe">#FFDDCFC2</color>
+    <color name="nude_sand">#FFAAC4DC</color>
 </resources>
