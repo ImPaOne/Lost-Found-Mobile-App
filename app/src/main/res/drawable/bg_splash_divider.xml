@@ -2,5 +2,6 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <corners android:radius="2dp" />
-    <solid android:color="#CBAD8D" />
+    <!-- Steel Blue divider on deep blue splash -->
+    <solid android:color="#5B8DB8" />
 </shape>
