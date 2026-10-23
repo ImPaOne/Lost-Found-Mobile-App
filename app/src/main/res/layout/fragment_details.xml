@@ -476,6 +476,24 @@
                     <!-- btnContactMore removed: only Live Chat and WhatsApp shown -->
                 </LinearLayout>
 
+                <!-- Mark as Resolved / Reunited Action (Visible for Reporter / Owner) -->
+                <TextView
+                    android:id="@+id/btnMarkResolved"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_btn_resolved"
+                    android:clickable="true"
+                    android:elevation="2dp"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-bold"
+                    android:gravity="center"
+                    android:text="🎉 Mark as Resolved &amp; Reunited"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
                 <!-- 4. Section: Similar items -->
                 <TextView
                     android:id="@+id/lblSimilar"
