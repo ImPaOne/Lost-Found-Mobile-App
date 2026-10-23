@@ -60,7 +60,6 @@ class SettingsFragment : Fragment() {
     private lateinit var rowBlockList: LinearLayout
     private lateinit var textBlockListValue: TextView
 
-    private lateinit var rowExportData: LinearLayout
 
     private lateinit var rowLanguage: LinearLayout
     private lateinit var textLanguageValue: TextView
@@ -104,7 +103,6 @@ class SettingsFragment : Fragment() {
         rowBlockList = view.findViewById(R.id.rowBlockList)
         textBlockListValue = view.findViewById(R.id.textBlockListValue)
 
-        rowExportData = view.findViewById(R.id.rowExportData)
 
         rowLanguage = view.findViewById(R.id.rowLanguage)
         textLanguageValue = view.findViewById(R.id.textLanguageValue)
@@ -200,10 +198,6 @@ class SettingsFragment : Fragment() {
             showBlockListDialog()
         }
 
-        // Data Export
-        rowExportData.setOnClickListener {
-            showDataExportDialog()
-        }
 
         // Language Selection
         rowLanguage.setOnClickListener {
@@ -389,37 +383,6 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
-    private fun showDataExportDialog() {
-        val ctx = requireContext()
-        val uid = FirebaseManager.currentUid
-        val email = FirebaseManager.currentUserEmail
-
-        val summaryJson = JSONObject().apply {
-            put("accountUid", uid)
-            put("email", email)
-            put("exportTimestamp", System.currentTimeMillis())
-            put("platform", "Foundly Android Client")
-            put("storageStatus", "Synced with Realtime Database")
-        }
-
-        AlertDialog.Builder(ctx)
-            .setTitle("Export Personal Data")
-            .setMessage("Foundly securely generates an archive of your active reports, listings, and messages.\n\nAccount: $email\nFormat: JSON Archive")
-            .setPositiveButton("Share Archive") { _, _ ->
-                val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_SUBJECT, "Foundly User Data Export ($email)")
-                    putExtra(Intent.EXTRA_TEXT, summaryJson.toString(2))
-                }
-                startActivity(Intent.createChooser(shareIntent, "Export user archive via"))
-            }
-            .setNeutralButton("Clear Image Cache") { _, _ ->
-                ImageLoader.clearCache()
-                ModernToast.show(ctx, "Memory image cache cleared successfully", view)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
 
     private fun showLanguageDialog() {
         val languages = arrayOf("English", "සිංහල (Sinhala)", "தமிழ் (Tamil)")
