@@ -55,9 +55,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
             android:fontFamily="sans-serif-black"
-            android:text="FindIt LK"
+            android:text="Foundly"
             android:textColor="#4A3528"
-            android:textSize="31sp"
+            android:textSize="32sp"
             android:textStyle="bold" />
 
         <!-- Accent Divider -->
