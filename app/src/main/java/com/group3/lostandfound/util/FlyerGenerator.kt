@@ -87,11 +87,12 @@ object FlyerGenerator {
         tvCategory.text = (report.category.ifEmpty { "GENERAL" }).uppercase()
         tvDescription.text = report.description.ifEmpty { "No extra details specified. Scan QR code to verify or contact the reporter." }
 
-        val deepLinkUri = "foundly://item/${report.itemId}"
-        val qrBitmap = generateQrBitmap(deepLinkUri, size = 360)
+        // QR encodes the web URL so it opens in browser (clickable on any scanner)
+        val webLink = "https://foundly.lk/item/${report.itemId}"
+        val qrBitmap = generateQrBitmap(webLink, size = 360)
         imgQr.setImageBitmap(qrBitmap)
 
-        tvDirectLink.text = deepLinkUri
+        tvDirectLink.text = webLink
         tvReporterTag.text = "Reported by ${report.authorName.ifEmpty { "Community Member" }}"
 
         // Measure & render to Bitmap
@@ -150,8 +151,8 @@ object FlyerGenerator {
         val flyerBitmap = generateFlyerBitmap(activity, report, itemPhotoBitmap)
         imgPreview.setImageBitmap(flyerBitmap)
 
-        val deepLink = "foundly://item/${report.itemId}"
-        val webLink = "https://foundly.lk/item/${report.itemId}"
+        val deepLink = "https://foundly.lk/item/${report.itemId}"
+        val webLink = deepLink
 
         btnClose.setOnClickListener {
             dialog.dismiss()
@@ -161,12 +162,12 @@ object FlyerGenerator {
             val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("Foundly Item Link", deepLink)
             clipboard.setPrimaryClip(clip)
-            Toast.makeText(activity, "Link copied to clipboard: $deepLink", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, "Link copied: $deepLink", Toast.LENGTH_SHORT).show()
         }
 
         btnShare.setOnClickListener {
             val flyerUri = saveFlyerToCache(activity, flyerBitmap, report.itemId)
-            val shareText = "📢 ${report.status}: ${report.title}\n📍 Location: ${report.location}\n\nScan the QR code on the flyer or open in Foundly: $deepLink\n\nShared via Foundly App - Reconnecting Sri Lanka"
+            val shareText = "📢 ${report.status}: ${report.title}\n📍 ${report.location}\n\nTap to view on Foundly:\n$deepLink\n\nShared via Foundly App"
 
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 if (flyerUri != null) {
