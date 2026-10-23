@@ -1,47 +1,47 @@
 import React, { useState } from 'react';
-import { Search, MapPin, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { Search, MapPin, ArrowUpRight } from 'lucide-react';
 import { playClickSound } from '../utils/audio';
 
 const registryItems = [
   {
     id: 1,
-    title: 'Google Pixel 8 Pro (Obsidian)',
+    title: 'Google Pixel 8 Pro (Black)',
     category: 'tech',
     status: 'FOUND',
     badgeClass: 'status-badge-found',
     location: 'University Library · 3rd Floor',
     time: '25m ago',
-    desc: 'Found on study desk in matte black protective casing.'
+    desc: 'Found on a study desk with a protective case.'
   },
   {
     id: 2,
-    title: 'Vintage Leather Bifold & Keys',
+    title: 'Vintage Leather Wallet & Keys',
     category: 'wallets',
     status: 'REUNITED',
     badgeClass: 'status-badge-reunited',
     location: 'Central Plaza Coffee Bar',
     time: '2h ago',
-    desc: 'Safely claimed through single-use verification question.'
+    desc: 'Safely returned to owner today.'
   },
   {
     id: 3,
-    title: 'Golden Retriever Companion',
+    title: 'Golden Retriever (Milo)',
     category: 'pets',
     status: 'LOST',
     badgeClass: 'status-badge-lost',
-    location: 'North Meadow Park Grounds',
+    location: 'North Meadow Park',
     time: '45m ago',
-    desc: 'Wearing reflective collar with engraved QR medallion.'
+    desc: 'Wearing a reflective collar with an ID tag.'
   },
   {
     id: 4,
-    title: 'Sony WH-1000XM5 Case',
+    title: 'Sony Headphones Case',
     category: 'tech',
     status: 'FOUND',
     badgeClass: 'status-badge-found',
-    location: 'Transit Station · Terminal B',
+    location: 'Campus Transit Station',
     time: '3h ago',
-    desc: 'Lodged safely at Station Information & Lost Property Desk.'
+    desc: 'Handed to the Campus Lost Property Desk.'
   }
 ];
 
@@ -57,17 +57,17 @@ export default function RecentItemsFeed({ onOpenQR }) {
   });
 
   return (
-    <section className="section-registry" id="directory">
+    <section className="section-registry" id="recent">
       <div className="container-fullscreen">
         <div className="registry-header">
           <div>
-            <div className="pillars-overline">COMMUNITY DIRECTORY</div>
+            <div className="pillars-overline">RECENT ACTIVITY</div>
             <h2 className="pillars-heading">
-              Live Activity Registry.
+              Recently Reported Items.
             </h2>
           </div>
           <p style={{ maxWidth: '380px', fontSize: '0.86rem', color: 'var(--text-secondary)' }}>
-            Real-time reports registered via the FOUNDIT Android client across local campus checkpoints.
+            Items reported lost or found by the campus community using Foundly.
           </p>
         </div>
 
@@ -92,7 +92,7 @@ export default function RecentItemsFeed({ onOpenQR }) {
             <Search size={15} color="var(--brown-mocha)" />
             <input 
               type="text" 
-              placeholder="Filter by item or location..."
+              placeholder="Search by item or location..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="registry-search-input"
@@ -119,10 +119,10 @@ export default function RecentItemsFeed({ onOpenQR }) {
 
               <div className="item-footer-action">
                 <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', fontWeight: 600 }}>
-                  Android Encrypted Log
+                  Reported on Foundly
                 </span>
                 <button onClick={onOpenQR} className="item-action-link">
-                  <span>Verify</span>
+                  <span>View Details</span>
                   <ArrowUpRight size={13} />
                 </button>
               </div>
