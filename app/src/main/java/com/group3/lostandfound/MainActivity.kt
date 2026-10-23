@@ -95,11 +95,19 @@ class MainActivity : AppCompatActivity() {
         val uri = intent?.data
         var targetItemId = intent?.getStringExtra("item_id") ?: intent?.getStringExtra("itemId") ?: ""
         if (uri != null) {
-            val segments = uri.pathSegments
-            if (segments.isNotEmpty()) {
-                targetItemId = segments.last()
-            } else if (!uri.host.isNullOrEmpty() && uri.host != "item") {
-                targetItemId = uri.host.orEmpty()
+            val paramId = uri.getQueryParameter("id") ?: uri.getQueryParameter("itemId")
+            if (!paramId.isNullOrEmpty()) {
+                targetItemId = paramId
+            } else {
+                val segments = uri.pathSegments
+                if (segments.isNotEmpty()) {
+                    val last = segments.last()
+                    if (last != "item") {
+                        targetItemId = last
+                    }
+                } else if (!uri.host.isNullOrEmpty() && uri.host != "item" && uri.host != "foundly.lk" && uri.host != "foundly.app") {
+                    targetItemId = uri.host.orEmpty()
+                }
             }
         }
         if (targetItemId.isNotEmpty()) {
