@@ -46,7 +46,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="foundly" android:host="item" />
             </intent-filter>
-            <!-- Web link: https://foundly.lk/item/{id} -->
+            <!-- Web link: https://foundly.lk/item/{id} and https://foundly.app/item/{id} -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -54,6 +54,15 @@
                 <data
                     android:scheme="https"
                     android:host="foundly.lk"
+                    android:pathPrefix="/item" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="foundly.app"
                     android:pathPrefix="/item" />
             </intent-filter>
         </activity>
