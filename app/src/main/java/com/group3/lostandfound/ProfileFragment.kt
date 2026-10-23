@@ -76,6 +76,10 @@ class ProfileFragment : Fragment() {
         countItemsReturned = view.findViewById(R.id.countItemsReturned)
         countTrustScore = view.findViewById(R.id.countTrustScore)
 
+        countItemsFound.text = "0"
+        countItemsReturned.text = "0"
+        countTrustScore.text = "50%"
+
         val rowReports = view.findViewById<LinearLayout>(R.id.rowReports)
         val rowSavedItems = view.findViewById<LinearLayout>(R.id.rowSavedItems)
         val rowTrustScore = view.findViewById<LinearLayout>(R.id.rowTrustScore)
