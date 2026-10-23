@@ -473,25 +473,7 @@
                         app:drawableStartCompat="@drawable/ic_whatsapp"
                         android:drawablePadding="8dp" />
 
-                    <FrameLayout
-                        android:id="@+id/btnContactMore"
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
-                        android:layout_marginStart="10dp"
-                        android:background="@drawable/bg_stat_banner"
-                        android:clickable="true"
-                        android:contentDescription="More contact options"
-                        android:elevation="1dp"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:layout_gravity="center"
-                            android:contentDescription="More contact options"
-                            android:src="@drawable/ic_more_vertical"
-                            app:tint="@color/text_primary" />
-                    </FrameLayout>
+                    <!-- btnContactMore removed: only Live Chat and WhatsApp shown -->
                 </LinearLayout>
 
                 <!-- 4. Section: Similar items -->
