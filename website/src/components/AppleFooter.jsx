@@ -1,7 +1,7 @@
 import React from 'react';
-import { Smartphone, Download, ArrowUp, Shield } from 'lucide-react';
+import { ArrowUp, ShieldCheck } from 'lucide-react';
 
-export default function AppleFooter({ onDownloadApk }) {
+export default function AppleFooter({ onDownloadAndroid }) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -12,52 +12,51 @@ export default function AppleFooter({ onDownloadApk }) {
         <div className="apple-footer-grid">
           {/* Brand Col */}
           <div>
-            <div style={{ fontFamily: 'var(--font-serif)', fontWeight: 700, fontSize: '1.4rem', color: 'var(--text-primary)', marginBottom: '8px' }}>
-              FOUNDIT
+            <div style={{ fontFamily: 'var(--font-serif)', fontWeight: 700, fontSize: '1.45rem', color: 'var(--text-primary)', marginBottom: '8px' }}>
+              Foundly
             </div>
             <p style={{ maxWidth: '280px', marginBottom: '16px', lineHeight: '1.6' }}>
-              The minimalist Lost &amp; Found application built exclusively for the Android mobile ecosystem.
+              The easy lost and found app made for Android.
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--brown-caramel)', fontWeight: 700, fontSize: '0.76rem' }}>
-              <Shield size={14} />
-              <span>Verified Package · Universal ARM64</span>
+              <ShieldCheck size={14} />
+              <span>Private &amp; Secure</span>
             </div>
           </div>
 
-          {/* Architecture */}
+          {/* How it works */}
           <div>
-            <div className="footer-section-title">Architecture</div>
+            <div className="footer-section-title">How it works</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <a href="#pillars" style={{ color: 'inherit', textDecoration: 'none' }}>On-Device AI Vision</a>
-              <a href="#pillars" style={{ color: 'inherit', textDecoration: 'none' }}>Zero-Knowledge Proofs</a>
-              <a href="#pillars" style={{ color: 'inherit', textDecoration: 'none' }}>Safe Return Lockers</a>
-              <a href="#directory" style={{ color: 'inherit', textDecoration: 'none' }}>Live Campus Registry</a>
+              <a href="#features" style={{ color: 'inherit', textDecoration: 'none' }}>Quick photo search</a>
+              <a href="#features" style={{ color: 'inherit', textDecoration: 'none' }}>Private contact</a>
+              <a href="#features" style={{ color: 'inherit', textDecoration: 'none' }}>Campus drop spots</a>
+              <a href="#recent" style={{ color: 'inherit', textDecoration: 'none' }}>Recent items</a>
             </div>
           </div>
 
-          {/* Android Client */}
+          {/* Android App */}
           <div>
-            <div className="footer-section-title">Android Client</div>
+            <div className="footer-section-title">Get the App</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>v2.4.2 Production</span>
-              <span>Android 8.0 - 15 Support</span>
-              <span>SHA-256 Checksum</span>
+              <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Android 8.0 or newer</span>
+              <span>Free to download</span>
               <button 
-                onClick={onDownloadApk} 
+                onClick={onDownloadAndroid} 
                 style={{ background: 'none', border: 'none', color: 'var(--brown-caramel)', textAlign: 'left', padding: 0, cursor: 'pointer', fontSize: 'inherit', fontFamily: 'inherit', fontWeight: 700 }}
               >
-                Download APK (18.4 MB)
+                Download for Android
               </button>
             </div>
           </div>
 
-          {/* Course Work / Project */}
+          {/* Project Details */}
           <div>
-            <div className="footer-section-title">Course Work</div>
+            <div className="footer-section-title">Project</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <span>HDSE 26.1 · MAD Project</span>
+              <span>HDSE 26.1 MAD Project</span>
               <span>Mobile Application Development</span>
-              <span>Lost &amp; Found Ecosystem</span>
+              <span>Lost &amp; Found System</span>
             </div>
           </div>
         </div>
@@ -65,7 +64,7 @@ export default function AppleFooter({ onDownloadApk }) {
         {/* Bottom bar */}
         <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            © 2026 FOUNDIT · Native Android Client. Designed for calm recovery.
+            © 2026 Foundly. Built for easy, safe recovery.
           </div>
 
           <button 
