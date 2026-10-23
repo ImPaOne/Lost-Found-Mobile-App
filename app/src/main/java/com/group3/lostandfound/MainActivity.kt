@@ -38,23 +38,8 @@ class MainActivity : AppCompatActivity() {
         applyWindowInsets()
         setupDoubleTapBackToHome()
 
-        // Initialize notification channel with sound & vibration
+        // Initialize notification channel with Apple-like sound & vibration
         FCMService.createNotificationChannel(this)
-
-        // Request runtime permission for notifications on Android 13+ (API 33+)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            if (androidx.core.content.ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.POST_NOTIFICATIONS
-                ) != android.content.pm.PackageManager.PERMISSION_GRANTED
-            ) {
-                androidx.core.app.ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                    101
-                )
-            }
-        }
 
         // Sync FCM device token to /users/{uid}/fcmToken
         FCMService.syncUserToken(this)
