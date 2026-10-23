@@ -126,6 +126,11 @@ class SavedItemsFragment : Fragment() {
         loadSavedItems()
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadSavedItems()
+    }
+
     private fun loadSavedItems() {
         val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
         val localBookmarkedSet = prefs.getStringSet("bookmarked_ids", emptySet())?.toMutableSet() ?: mutableSetOf()
@@ -166,10 +171,18 @@ class SavedItemsFragment : Fragment() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!isAdded) return
                 savedItemList.clear()
+                val currentUid = FirebaseManager.currentUid
                 for (child in snapshot.children) {
                     val report = ItemReport.fromSnapshot(child)
-                    if (bookmarkedSet.contains(report.itemId)) {
-                        savedItemList.add(report)
+                    val key = child.key.orEmpty()
+                    val isMatch = bookmarkedSet.any { bId ->
+                        bId.equals(report.itemId, ignoreCase = true) || (key.isNotEmpty() && bId.equals(key, ignoreCase = true))
+                    }
+                    if (isMatch) {
+                        // Exclude user's own posts if any were bookmarked
+                        if (currentUid.isEmpty() || report.userId != currentUid) {
+                            savedItemList.add(report)
+                        }
                     }
                 }
                 adapter.notifyDataSetChanged()
