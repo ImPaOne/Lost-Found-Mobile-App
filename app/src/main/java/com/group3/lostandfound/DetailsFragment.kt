@@ -45,6 +45,7 @@ class DetailsFragment : Fragment() {
     private lateinit var btnShare: ImageView
     private lateinit var btnLiveChat: TextView
     private lateinit var btnWhatsApp: TextView
+    private lateinit var btnMarkResolved: TextView
     // btnContactMore removed — only Live Chat and WhatsApp are shown
     private var reporterPhone: String = ""
     private lateinit var bannerLocation: View
