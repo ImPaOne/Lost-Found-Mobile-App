@@ -435,7 +435,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/btnContact"
+                        android:id="@+id/btnLiveChat"
                         android:layout_width="0dp"
                         android:layout_height="52dp"
                         android:layout_weight="1"
@@ -445,12 +445,32 @@
                         android:focusable="true"
                         android:fontFamily="sans-serif-bold"
                         android:gravity="center"
-                        android:text="Chat &amp; Connect"
+                        android:text="Live Chat"
                         android:textColor="@color/white"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         app:drawableStartCompat="@drawable/ic_nav_messages"
                         app:drawableTint="@color/white"
+                        android:drawablePadding="8dp" />
+
+                    <TextView
+                        android:id="@+id/btnWhatsApp"
+                        android:layout_width="0dp"
+                        android:layout_height="52dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_btn_whatsapp"
+                        android:clickable="true"
+                        android:elevation="2dp"
+                        android:focusable="true"
+                        android:fontFamily="sans-serif-bold"
+                        android:gravity="center"
+                        android:text="WhatsApp"
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        app:drawableStartCompat="@drawable/ic_whatsapp"
                         android:drawablePadding="8dp" />
 
                     <FrameLayout
