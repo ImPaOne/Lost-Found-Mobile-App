@@ -322,7 +322,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showSavedItemsDialog() {
-        val prefs = requireContext().getSharedPreferences("findit_bookmarks", android.content.Context.MODE_PRIVATE)
+        val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
         val savedIds = prefs.getStringSet("bookmarked_ids", emptySet()) ?: emptySet()
 
         if (savedIds.isEmpty()) {
