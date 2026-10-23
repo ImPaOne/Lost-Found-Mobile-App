@@ -184,11 +184,9 @@ class DetailsFragment : Fragment() {
                         if (report.userId.isNotEmpty()) {
                             reporterUserId = report.userId
                             val currentUid = FirebaseManager.currentUid
-                            if (currentUid.isNotEmpty() && reporterUserId == currentUid) {
-                                btnBookmark.visibility = View.GONE
-                            } else {
-                                btnBookmark.visibility = View.VISIBLE
-                            }
+                            val isOwner = currentUid.isNotEmpty() && (reporterUserId == currentUid || report.userId == currentUid)
+                            btnBookmark.visibility = if (isOwner) View.GONE else View.VISIBLE
+                            btnMarkResolved.visibility = if (isOwner && !report.status.equals("RESOLVED", ignoreCase = true)) View.VISIBLE else View.GONE
                             FirebaseManager.usersRef.child(report.userId).addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
                                 override fun onDataChange(userSnapshot: com.google.firebase.database.DataSnapshot) {
                                     val name = userSnapshot.child("fullName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
@@ -381,6 +379,9 @@ class DetailsFragment : Fragment() {
         }
         btnWhatsApp.setOnClickListener {
             openWhatsApp()
+        }
+        btnMarkResolved.setOnClickListener {
+            markItemAsResolved()
         }
         view?.findViewById<View>(R.id.rowReporter)?.setOnClickListener {
             showReporterProfileDialog()
