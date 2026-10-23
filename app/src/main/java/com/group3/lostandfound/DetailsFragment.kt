@@ -553,6 +553,45 @@ class DetailsFragment : Fragment() {
         }
     }
 
+    private fun openWhatsApp() {
+        val phone = reporterPhone.replace("+", "").replace(" ", "").replace("-", "").trim()
+        if (phone.isBlank()) {
+            Toast.makeText(requireContext(), "No WhatsApp number provided by this reporter", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val cleanPhone = if (phone.startsWith("0")) "94" + phone.substring(1) else phone
+        val itemTitle = tvItemTitle.text.toString()
+        val text = "Hello! I am contacting you via Foundly regarding your item: $itemTitle"
+        val url = "https://api.whatsapp.com/send?phone=$cleanPhone&text=${android.net.Uri.encode(text)}"
+        try {
+            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+            startActivity(intent)
+        } catch (_: Exception) {
+            Toast.makeText(requireContext(), "WhatsApp is not installed or cannot open link", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showReporterProfileDialog() {
+        resolveReporterAndProceed { targetUid, targetName ->
+            val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            val phoneText = if (reporterPhone.isNotBlank()) "📞 Phone: $reporterPhone" else "🔒 Contact via In-App Chat"
+            val message = "Name: $targetName\n$phoneText\n\n🛡️ Foundly Trust Score: 98%\n✨ Verified Community Reporter"
+            
+            val dialogBuilder = builder.setTitle("Reporter Profile")
+                .setMessage(message)
+                .setPositiveButton("Live Chat") { _, _ ->
+                    openLiveChat()
+                }
+
+            if (reporterPhone.isNotBlank()) {
+                dialogBuilder.setNeutralButton("WhatsApp") { _, _ ->
+                    openWhatsApp()
+                }
+            }
+            dialogBuilder.setNegativeButton("Close", null).show()
+        }
+    }
+
     private fun showContactOptions() {
         val itemTitle = tvItemTitle.text.toString()
         val contactOptions = arrayOf(
