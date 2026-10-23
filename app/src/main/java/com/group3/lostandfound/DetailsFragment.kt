@@ -105,7 +105,7 @@ class DetailsFragment : Fragment() {
         btnShare = view.findViewById(R.id.btnShare)
         btnLiveChat = view.findViewById(R.id.btnLiveChat)
         btnWhatsApp = view.findViewById(R.id.btnWhatsApp)
-        btnContactMore = view.findViewById(R.id.btnContactMore)
+        // btnContactMore removed from layout
         bannerLocation = view.findViewById(R.id.bannerLocation)
         cardSimilarItem = view.findViewById(R.id.cardSimilarItem)
 
