@@ -201,7 +201,9 @@ class MainActivity : AppCompatActivity() {
     private fun applyWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainBox)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            val bottomPadding = if (ime.bottom > 0) ime.bottom else systemBars.bottom
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, bottomPadding)
             insets
         }
     }
