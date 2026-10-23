@@ -76,8 +76,10 @@ class FCMService : FirebaseMessagingService() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Apple chime sound URI from res/raw
-        val soundUri = Uri.parse("android.resource://$packageName/${R.raw.apple_chime}")
+        // Selected Apple tone sound URI from findit_prefs
+        val prefs = getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+        val soundRes = prefs.getInt("selected_notification_sound", R.raw.apple_chime)
+        val soundUri = Uri.parse("android.resource://$packageName/$soundRes")
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_nav_my_reports)
@@ -107,13 +109,15 @@ class FCMService : FirebaseMessagingService() {
         private const val KEY_FCM_TOKEN = "cached_fcm_token"
 
         /**
-         * Creates the notification channel with Apple chime sound.
+         * Creates the notification channel with user-chosen Apple tone.
          * Must be called before any notification is shown.
          */
         fun createNotificationChannel(context: Context) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
             try {
-                val soundUri = Uri.parse("android.resource://${context.packageName}/${R.raw.apple_chime}")
+                val prefs = context.getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+                val soundRes = prefs.getInt("selected_notification_sound", R.raw.apple_chime)
+                val soundUri = Uri.parse("android.resource://${context.packageName}/$soundRes")
                 val audioAttr = android.media.AudioAttributes.Builder()
                     .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
                     .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
