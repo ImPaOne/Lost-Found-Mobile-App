@@ -4,7 +4,8 @@
     android:id="@+id/mainBox"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/linen_bg"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
     <!-- Screen Container: each screen layout includes its own bottom nav bar -->
