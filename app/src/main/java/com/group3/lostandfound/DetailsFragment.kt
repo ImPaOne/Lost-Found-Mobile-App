@@ -444,6 +444,55 @@ class DetailsFragment : Fragment() {
                 .show()
         }
 
+    private fun markItemAsResolved() {
+        val currentItemId = itemId ?: return
+        val itemTitle = tvItemTitle.text.toString()
+        val resolverUid = FirebaseManager.currentUid
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("🎉 Confirm Resolution")
+            .setMessage("Has '$itemTitle' been successfully reunited with its rightful owner?")
+            .setPositiveButton("Yes, Reunited!") { _, _ ->
+                FirebaseManager.updateItemStatus(
+                    itemId = currentItemId,
+                    newStatus = "RESOLVED",
+                    onSuccess = {
+                        updateStatusTag("RESOLVED")
+                        btnMarkResolved.visibility = View.GONE
+                        if (resolverUid.isNotEmpty()) {
+                            val userDbRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("users").child(resolverUid)
+                            userDbRef.child("itemsReturned").setValue(com.google.firebase.database.ServerValue.increment(1))
+                            userDbRef.child("trustScore").setValue(com.google.firebase.database.ServerValue.increment(15))
+                            val achievement = mapOf(
+                                "id" to "honest_finder_${System.currentTimeMillis()}",
+                                "title" to "Honest Finder Badge",
+                                "description" to "Successfully resolved '$itemTitle' and reunited with owner!",
+                                "timestamp" to System.currentTimeMillis()
+                            )
+                            userDbRef.child("achievements").push().setValue(achievement)
+                        }
+                        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                            .setTitle("🎉 Congratulations!")
+                            .setMessage("'$itemTitle' has been marked as RESOLVED and reunited!\n\n🏆 You earned +15 Trust Score and unlocked the 'Honest Finder' achievement badge!")
+                            .setPositiveButton("Awesome!", null)
+                            .show()
+
+                        com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                            requireContext(),
+                            "🎉 Item Reunited & Resolved!",
+                            "'$itemTitle' has been returned and marked RESOLVED in Foundly community.",
+                            currentItemId
+                        )
+                    },
+                    onError = { error ->
+                        Toast.makeText(requireContext(), "Failed to update: $error", Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
         val openMapAction = View.OnClickListener {
             parentFragmentManager.beginTransaction()
                 .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
