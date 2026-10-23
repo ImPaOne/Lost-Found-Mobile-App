@@ -9,6 +9,24 @@
     android:paddingTop="4dp"
     android:paddingBottom="4dp">
 
+    <!-- Calendar Date Separator Header -->
+    <TextView
+        android:id="@+id/tvDateHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/bg_stat_banner"
+        android:fontFamily="sans-serif-bold"
+        android:paddingStart="12dp"
+        android:paddingTop="3dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="3dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        android:visibility="gone" />
+
     <!-- Outgoing message bubble (Right aligned) -->
     <LinearLayout
         android:id="@+id/layoutOutgoingMessage"
@@ -20,6 +38,7 @@
         android:visibility="gone">
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardOutgoingBubble"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:cardBackgroundColor="@color/nude_dark"
@@ -30,6 +49,49 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
+                <!-- WhatsApp Quote Reply Banner -->
+                <LinearLayout
+                    android:id="@+id/layoutOutgoingReplyBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="#4A3B33"
+                    android:orientation="horizontal"
+                    android:padding="6dp"
+                    android:visibility="gone">
+
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="match_parent"
+                        android:background="#D1C7BD" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvOutgoingReplyName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#EBE3DB"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvOutgoingReplyText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:textColor="#D1C7BD"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </LinearLayout>
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardOutgoingImage"
@@ -81,6 +143,7 @@
         android:visibility="gone">
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardIncomingBubble"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:cardBackgroundColor="@color/nude_cream"
@@ -91,6 +154,49 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
+                <!-- WhatsApp Quote Reply Banner -->
+                <LinearLayout
+                    android:id="@+id/layoutIncomingReplyBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="#DFCFC4"
+                    android:orientation="horizontal"
+                    android:padding="6dp"
+                    android:visibility="gone">
+
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/nude_dark" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvIncomingReplyName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/nude_dark"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvIncomingReplyText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:textColor="@color/text_primary"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </LinearLayout>
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardIncomingImage"

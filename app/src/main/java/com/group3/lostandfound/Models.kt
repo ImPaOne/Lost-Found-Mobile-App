@@ -160,7 +160,12 @@ data class ChatMessage(
     val recipientUserId: String = "",
     val chatMessageTextContent: String = "",
     val messageSentTimestamp: Long = 0L,
-    val imageUrl: String = ""
+    val imageUrl: String = "",
+    val replyToMessageId: String = "",
+    val replyToSenderName: String = "",
+    val replyToText: String = "",
+    val isDeletedForEveryone: Boolean = false,
+    val deletedForUserIds: List<String> = emptyList()
 ) {
     companion object {
         fun fromSnapshot(child: DataSnapshot): ChatMessage {
@@ -180,6 +185,15 @@ data class ChatMessage(
                 val imgUrl = child.child("imageUrl").getValue(String::class.java)
                     ?: child.child("image").getValue(String::class.java)
                     ?: ""
+                val replyId = child.child("replyToMessageId").getValue(String::class.java).orEmpty()
+                val replySender = child.child("replyToSenderName").getValue(String::class.java).orEmpty()
+                val replyText = child.child("replyToText").getValue(String::class.java).orEmpty()
+                val isDeleted = child.child("isDeletedForEveryone").getValue(Boolean::class.java) ?: false
+                val deletedList = mutableListOf<String>()
+                child.child("deletedForUserIds").children.forEach { snap ->
+                    snap.key?.let { deletedList.add(it) }
+                }
+
                 val rawTime = child.child("messageSentTimestamp").value
                     ?: child.child("timestamp").value
                 val time = when (rawTime) {
@@ -193,7 +207,12 @@ data class ChatMessage(
                     recipientUserId = recipient,
                     chatMessageTextContent = text,
                     messageSentTimestamp = time,
-                    imageUrl = imgUrl
+                    imageUrl = imgUrl,
+                    replyToMessageId = replyId,
+                    replyToSenderName = replySender,
+                    replyToText = replyText,
+                    isDeletedForEveryone = isDeleted,
+                    deletedForUserIds = deletedList
                 )
             } catch (e: Exception) {
                 ChatMessage()

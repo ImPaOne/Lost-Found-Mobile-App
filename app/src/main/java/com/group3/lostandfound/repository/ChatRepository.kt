@@ -130,7 +130,10 @@ class ChatRepository {
         relatedItemId: String = "",
         otherUserName: String = "",
         imageUrl: String = "",
-        relatedItemTitle: String = ""
+        relatedItemTitle: String = "",
+        replyToMessageId: String = "",
+        replyToSenderName: String = "",
+        replyToText: String = ""
     ): ResultState<ChatMessage> {
         return try {
             val messagesReference = firebaseDatabaseInstance
@@ -147,7 +150,10 @@ class ChatRepository {
                 recipientUserId = recipientUserId,
                 chatMessageTextContent = chatMessageTextContent,
                 imageUrl = imageUrl,
-                messageSentTimestamp = System.currentTimeMillis()
+                messageSentTimestamp = System.currentTimeMillis(),
+                replyToMessageId = replyToMessageId,
+                replyToSenderName = replyToSenderName,
+                replyToText = replyToText
             )
 
             // 1. Store message under /chat_conversations/{chatConversationId}/messages/{chatMessageId}
@@ -236,5 +242,79 @@ class ChatRepository {
         } catch (exception: Exception) {
             ResultState.Error(exception.localizedMessage ?: "Failed to send chat message")
         }
+    }
+
+    suspend fun deleteMessageForEveryone(chatConversationId: String, messageId: String) {
+        val ref = firebaseDatabaseInstance.getReference("chat_conversations")
+            .child(chatConversationId)
+            .child("messages")
+            .child(messageId)
+        ref.child("isDeletedForEveryone").setValue(true).await()
+        ref.child("chatMessageTextContent").setValue("🚫 This message was deleted").await()
+    }
+
+    suspend fun deleteMessageForMe(chatConversationId: String, messageId: String, userId: String) {
+        val ref = firebaseDatabaseInstance.getReference("chat_conversations")
+            .child(chatConversationId)
+            .child("messages")
+            .child(messageId)
+            .child("deletedForUserIds")
+        ref.child(userId).setValue(true).await()
+    }
+
+    fun setTypingStatus(chatConversationId: String, userId: String, isTyping: Boolean) {
+        if (chatConversationId.isEmpty() || userId.isEmpty()) return
+        firebaseDatabaseInstance.getReference("chat_conversations")
+            .child(chatConversationId)
+            .child("typing")
+            .child(userId)
+            .setValue(isTyping)
+    }
+
+    fun streamTypingStatus(chatConversationId: String, otherUserId: String): Flow<Boolean> = callbackFlow {
+        if (chatConversationId.isEmpty() || otherUserId.isEmpty()) {
+            trySend(false)
+            close()
+            return@callbackFlow
+        }
+        val ref = firebaseDatabaseInstance.getReference("chat_conversations")
+            .child(chatConversationId)
+            .child("typing")
+            .child(otherUserId)
+        val listener = object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val typing = snapshot.getValue(Boolean::class.java) ?: false
+                trySend(typing)
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        }
+        ref.addValueEventListener(listener)
+        awaitClose { ref.removeEventListener(listener) }
+    }
+
+    fun setUserPresence(userId: String, isOnline: Boolean) {
+        if (userId.isEmpty()) return
+        val userRef = firebaseDatabaseInstance.getReference("users").child(userId)
+        userRef.child("isOnline").setValue(isOnline)
+        userRef.child("lastSeen").setValue(System.currentTimeMillis())
+    }
+
+    fun streamUserPresence(userId: String): Flow<Pair<Boolean, Long>> = callbackFlow {
+        if (userId.isEmpty()) {
+            trySend(Pair(false, 0L))
+            close()
+            return@callbackFlow
+        }
+        val userRef = firebaseDatabaseInstance.getReference("users").child(userId)
+        val listener = object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val isOnline = snapshot.child("isOnline").getValue(Boolean::class.java) ?: false
+                val lastSeen = snapshot.child("lastSeen").getValue(Long::class.java) ?: 0L
+                trySend(Pair(isOnline, lastSeen))
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        }
+        userRef.addValueEventListener(listener)
+        awaitClose { userRef.removeEventListener(listener) }
     }
 }

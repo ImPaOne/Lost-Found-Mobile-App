@@ -43,8 +43,11 @@ class DetailsFragment : Fragment() {
     private lateinit var btnBack: ImageView
     private lateinit var btnBookmark: ImageView
     private lateinit var btnShare: ImageView
-    private lateinit var btnContact: TextView
-    private var btnContactMore: View? = null
+    private lateinit var btnLiveChat: TextView
+    private lateinit var btnWhatsApp: TextView
+    private lateinit var btnMarkResolved: TextView
+    // btnContactMore removed — only Live Chat and WhatsApp are shown
+    private var reporterPhone: String = ""
     private lateinit var bannerLocation: View
     private lateinit var cardSimilarItem: View
 
@@ -101,8 +104,10 @@ class DetailsFragment : Fragment() {
         btnBack = view.findViewById(R.id.btnBack)
         btnBookmark = view.findViewById(R.id.btnBookmark)
         btnShare = view.findViewById(R.id.btnShare)
-        btnContact = view.findViewById(R.id.btnContact)
-        btnContactMore = view.findViewById(R.id.btnContactMore)
+        btnLiveChat = view.findViewById(R.id.btnLiveChat)
+        btnWhatsApp = view.findViewById(R.id.btnWhatsApp)
+        btnMarkResolved = view.findViewById(R.id.btnMarkResolved)
+        // btnContactMore removed from layout
         bannerLocation = view.findViewById(R.id.bannerLocation)
         cardSimilarItem = view.findViewById(R.id.cardSimilarItem)
 
@@ -178,6 +183,10 @@ class DetailsFragment : Fragment() {
 
                         if (report.userId.isNotEmpty()) {
                             reporterUserId = report.userId
+                            val currentUid = FirebaseManager.currentUid
+                            val isOwner = currentUid.isNotEmpty() && (reporterUserId == currentUid || report.userId == currentUid)
+                            btnBookmark.visibility = if (isOwner) View.GONE else View.VISIBLE
+                            btnMarkResolved.visibility = if (isOwner && !report.status.equals("RESOLVED", ignoreCase = true)) View.VISIBLE else View.GONE
                             FirebaseManager.usersRef.child(report.userId).addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
                                 override fun onDataChange(userSnapshot: com.google.firebase.database.DataSnapshot) {
                                     val name = userSnapshot.child("fullName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
@@ -187,6 +196,16 @@ class DetailsFragment : Fragment() {
                                         ?: "User #${report.userId.takeLast(4)}"
                                     reporterName = name
                                     view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
+
+                                    val phone = userSnapshot.child("phone").getValue(String::class.java)
+                                        ?: userSnapshot.child("phoneNumber").getValue(String::class.java)
+                                        ?: ""
+                                    reporterPhone = phone.trim()
+                                    if (reporterPhone.isNotBlank()) {
+                                        btnWhatsApp.visibility = View.VISIBLE
+                                    } else {
+                                        btnWhatsApp.visibility = View.GONE
+                                    }
                                 }
                                 override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
                             })
@@ -238,22 +257,22 @@ class DetailsFragment : Fragment() {
             "LOST" -> {
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
                 tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
-                btnContact.text = "Contact Owner"
+                btnLiveChat.text = "Chat Owner"
             }
             "FOUND" -> {
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
                 tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
-                btnContact.text = "Contact Finder"
+                btnLiveChat.text = "Chat Finder"
             }
             "RESOLVED" -> {
                 tagStatus.setTextColor(Color.parseColor("#4A7C59"))
                 tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
-                btnContact.text = "Item Claimed"
+                btnLiveChat.text = "Item Claimed"
             }
             else -> {
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
                 tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
-                btnContact.text = "Contact & Connect"
+                btnLiveChat.text = "Live Chat"
             }
         }
     }
@@ -288,24 +307,49 @@ class DetailsFragment : Fragment() {
             showEnlargedPhotoDialog(activeImageUrl, tvItemTitle.text.toString())
         }
 
-        // Bookmarks persistence
-        val prefs = requireContext().getSharedPreferences("findit_bookmarks", android.content.Context.MODE_PRIVATE)
+        // Bookmarks persistence in findit_prefs & Firebase
+        val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
         val currentSet = prefs.getStringSet("bookmarked_ids", emptySet()) ?: emptySet()
         isBookmarked = itemId != null && currentSet.contains(itemId)
         btnBookmark.setImageResource(if (isBookmarked) R.drawable.ic_nav_my_reports else R.drawable.ic_bookmark_outline)
 
+        val currentUid = FirebaseManager.currentUid
+        if (currentUid.isNotEmpty() && reporterUserId == currentUid) {
+            btnBookmark.visibility = View.GONE
+        }
+
         btnBookmark.setOnClickListener {
             val curId = itemId ?: return@setOnClickListener
+            if (reporterUserId.isNotEmpty() && reporterUserId == currentUid) {
+                Toast.makeText(requireContext(), "You cannot save your own posts. They are in My Reports.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val bookmarkedSet = prefs.getStringSet("bookmarked_ids", emptySet())?.toMutableSet() ?: mutableSetOf()
             isBookmarked = !isBookmarked
             if (isBookmarked) {
                 bookmarkedSet.add(curId)
                 btnBookmark.setImageResource(R.drawable.ic_nav_my_reports)
                 Toast.makeText(requireContext(), "Item saved to bookmarks", Toast.LENGTH_SHORT).show()
+                if (currentUid.isNotEmpty()) {
+                    com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                        .getReference("users")
+                        .child(currentUid)
+                        .child("saved_items")
+                        .child(curId)
+                        .setValue(true)
+                }
             } else {
                 bookmarkedSet.remove(curId)
                 btnBookmark.setImageResource(R.drawable.ic_bookmark_outline)
                 Toast.makeText(requireContext(), "Removed from bookmarks", Toast.LENGTH_SHORT).show()
+                if (currentUid.isNotEmpty()) {
+                    com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                        .getReference("users")
+                        .child(currentUid)
+                        .child("saved_items")
+                        .child(curId)
+                        .removeValue()
+                }
             }
             prefs.edit().putStringSet("bookmarked_ids", bookmarkedSet).apply()
         }
@@ -329,18 +373,21 @@ class DetailsFragment : Fragment() {
             )
         }
 
-        // Instant Live Messaging & Options
-        btnContact.setOnClickListener {
+        // Instant Live Messaging & WhatsApp actions
+        btnLiveChat.setOnClickListener {
             openLiveChat()
         }
-        btnContactMore?.setOnClickListener {
-            showContactOptions()
+        btnWhatsApp.setOnClickListener {
+            openWhatsApp()
+        }
+        btnMarkResolved.setOnClickListener {
+            markItemAsResolved()
         }
         view?.findViewById<View>(R.id.rowReporter)?.setOnClickListener {
-            openLiveChat()
+            showReporterProfileDialog()
         }
         view?.findViewById<View>(R.id.imgAvatar)?.setOnClickListener {
-            openLiveChat()
+            showReporterProfileDialog()
         }
 
         // Live status resolution & management
@@ -361,6 +408,26 @@ class DetailsFragment : Fragment() {
                         newStatus = newStatus,
                         onSuccess = {
                             updateStatusTag(newStatus)
+                            if (newStatus == "RESOLVED") {
+                                val resolverUid = FirebaseManager.currentUid
+                                if (resolverUid.isNotEmpty()) {
+                                    val userDbRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("users").child(resolverUid)
+                                    userDbRef.child("itemsReturned").setValue(com.google.firebase.database.ServerValue.increment(1))
+                                    userDbRef.child("trustScore").setValue(com.google.firebase.database.ServerValue.increment(15))
+                                    val achievement = mapOf(
+                                        "id" to "honest_finder_${System.currentTimeMillis()}",
+                                        "title" to "Honest Finder Badge",
+                                        "description" to "Successfully resolved '$itemTitle' and reunited with owner!",
+                                        "timestamp" to System.currentTimeMillis()
+                                    )
+                                    userDbRef.child("achievements").push().setValue(achievement)
+                                }
+                                androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                                    .setTitle("🎉 Congratulations!")
+                                    .setMessage("'$itemTitle' has been marked as RESOLVED and reunited with its owner!\n\n🏆 You earned +15 Trust Score and unlocked the 'Honest Finder' achievement badge!")
+                                    .setPositiveButton("Awesome!", null)
+                                    .show()
+                            }
                             com.group3.lostandfound.service.FCMService.triggerPushNotification(
                                 requireContext(),
                                 "Status Updated: $newStatus",
@@ -376,6 +443,55 @@ class DetailsFragment : Fragment() {
                 }
                 .show()
         }
+
+    private fun markItemAsResolved() {
+        val currentItemId = itemId ?: return
+        val itemTitle = tvItemTitle.text.toString()
+        val resolverUid = FirebaseManager.currentUid
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("🎉 Confirm Resolution")
+            .setMessage("Has '$itemTitle' been successfully reunited with its rightful owner?")
+            .setPositiveButton("Yes, Reunited!") { _, _ ->
+                FirebaseManager.updateItemStatus(
+                    itemId = currentItemId,
+                    newStatus = "RESOLVED",
+                    onSuccess = {
+                        updateStatusTag("RESOLVED")
+                        btnMarkResolved.visibility = View.GONE
+                        if (resolverUid.isNotEmpty()) {
+                            val userDbRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("users").child(resolverUid)
+                            userDbRef.child("itemsReturned").setValue(com.google.firebase.database.ServerValue.increment(1))
+                            userDbRef.child("trustScore").setValue(com.google.firebase.database.ServerValue.increment(15))
+                            val achievement = mapOf(
+                                "id" to "honest_finder_${System.currentTimeMillis()}",
+                                "title" to "Honest Finder Badge",
+                                "description" to "Successfully resolved '$itemTitle' and reunited with owner!",
+                                "timestamp" to System.currentTimeMillis()
+                            )
+                            userDbRef.child("achievements").push().setValue(achievement)
+                        }
+                        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                            .setTitle("🎉 Congratulations!")
+                            .setMessage("'$itemTitle' has been marked as RESOLVED and reunited!\n\n🏆 You earned +15 Trust Score and unlocked the 'Honest Finder' achievement badge!")
+                            .setPositiveButton("Awesome!", null)
+                            .show()
+
+                        com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                            requireContext(),
+                            "🎉 Item Reunited & Resolved!",
+                            "'$itemTitle' has been returned and marked RESOLVED in Foundly community.",
+                            currentItemId
+                        )
+                    },
+                    onError = { error ->
+                        Toast.makeText(requireContext(), "Failed to update: $error", Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
 
         val openMapAction = View.OnClickListener {
             parentFragmentManager.beginTransaction()
@@ -483,6 +599,41 @@ class DetailsFragment : Fragment() {
                 )
                 .addToBackStack(null)
                 .commit()
+        }
+    }
+
+    private fun openWhatsApp() {
+        val phone = reporterPhone.replace("+", "").replace(" ", "").replace("-", "").trim()
+        if (phone.isBlank()) {
+            Toast.makeText(requireContext(), "No WhatsApp number provided by this reporter", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val cleanPhone = if (phone.startsWith("0")) "94" + phone.substring(1) else phone
+        val itemTitle = tvItemTitle.text.toString()
+        val text = "Hello! I am contacting you via Foundly regarding your item: $itemTitle"
+        val url = "https://api.whatsapp.com/send?phone=$cleanPhone&text=${android.net.Uri.encode(text)}"
+        try {
+            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+            startActivity(intent)
+        } catch (_: Exception) {
+            Toast.makeText(requireContext(), "WhatsApp is not installed or cannot open link", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showReporterProfileDialog() {
+        resolveReporterAndProceed { _, targetName ->
+            val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            val phoneText = if (reporterPhone.isNotBlank()) "📞 ${reporterPhone}" else "🔒 Contact via Live Chat"
+            val message = "Reporter: $targetName\n$phoneText"
+
+            val dialogBuilder = builder.setTitle("Reporter Profile")
+                .setMessage(message)
+                .setPositiveButton("Live Chat") { _, _ -> openLiveChat() }
+
+            if (reporterPhone.isNotBlank()) {
+                dialogBuilder.setNeutralButton("WhatsApp") { _, _ -> openWhatsApp() }
+            }
+            dialogBuilder.setNegativeButton("Close", null).show()
         }
     }
 

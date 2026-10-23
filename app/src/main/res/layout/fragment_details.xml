@@ -435,7 +435,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/btnContact"
+                        android:id="@+id/btnLiveChat"
                         android:layout_width="0dp"
                         android:layout_height="52dp"
                         android:layout_weight="1"
@@ -445,7 +445,7 @@
                         android:focusable="true"
                         android:fontFamily="sans-serif-bold"
                         android:gravity="center"
-                        android:text="Chat &amp; Connect"
+                        android:text="Live Chat"
                         android:textColor="@color/white"
                         android:textSize="15sp"
                         android:textStyle="bold"
@@ -453,26 +453,46 @@
                         app:drawableTint="@color/white"
                         android:drawablePadding="8dp" />
 
-                    <FrameLayout
-                        android:id="@+id/btnContactMore"
-                        android:layout_width="52dp"
+                    <TextView
+                        android:id="@+id/btnWhatsApp"
+                        android:layout_width="0dp"
                         android:layout_height="52dp"
                         android:layout_marginStart="10dp"
-                        android:background="@drawable/bg_stat_banner"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_btn_whatsapp"
                         android:clickable="true"
-                        android:contentDescription="More contact options"
-                        android:elevation="1dp"
-                        android:focusable="true">
+                        android:elevation="2dp"
+                        android:focusable="true"
+                        android:fontFamily="sans-serif-bold"
+                        android:gravity="center"
+                        android:text="WhatsApp"
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        app:drawableStartCompat="@drawable/ic_whatsapp"
+                        android:drawablePadding="8dp" />
 
-                        <ImageView
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:layout_gravity="center"
-                            android:contentDescription="More contact options"
-                            android:src="@drawable/ic_more_vertical"
-                            app:tint="@color/text_primary" />
-                    </FrameLayout>
+                    <!-- btnContactMore removed: only Live Chat and WhatsApp shown -->
                 </LinearLayout>
+
+                <!-- Mark as Resolved / Reunited Action (Visible for Reporter / Owner) -->
+                <TextView
+                    android:id="@+id/btnMarkResolved"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_btn_resolved"
+                    android:clickable="true"
+                    android:elevation="2dp"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-bold"
+                    android:gravity="center"
+                    android:text="🎉 Mark as Resolved &amp; Reunited"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
                 <!-- 4. Section: Similar items -->
                 <TextView

@@ -97,7 +97,11 @@ class ChatFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        chatAdapter = ChatAdapter(currentUserId = currentUserId)
+        chatAdapter = ChatAdapter(
+            currentUserId = currentUserId,
+            onMessageLongClicked = { message -> handleMessageLongClick(message) },
+            onReplyClicked = { message -> startReply(message) }
+        )
         val linearLayoutManager = LinearLayoutManager(requireContext()).apply {
             stackFromEnd = true
         }
@@ -108,7 +112,11 @@ class ChatFragment : Fragment() {
     }
 
     private var attachedImageUri: android.net.Uri? = null
+    private var selectedReplyMessage: ChatMessage? = null
     private var previousMessageCount: Int = -1
+    private var isRecipientTyping: Boolean = false
+    private var recipientPresence: Pair<Boolean, Long> = Pair(false, 0L)
+    private var typingDebounceJob: kotlinx.coroutines.Job? = null
     private val reportRepository = com.group3.lostandfound.repository.ReportRepository()
 
     private val pickPhotoLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri ->
@@ -117,6 +125,127 @@ class ChatFragment : Fragment() {
             binding.layoutAttachmentPreview.visibility = View.VISIBLE
             com.group3.lostandfound.util.ImageLoader.load(requireContext(), uri.toString(), binding.imgAttachedPreview)
         }
+    }
+
+    private val takeCameraLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        if (bitmap != null) {
+            val uri = saveBitmapToTempUri(bitmap)
+            if (uri != null) {
+                attachedImageUri = uri
+                binding.layoutAttachmentPreview.visibility = View.VISIBLE
+                com.group3.lostandfound.util.ImageLoader.load(requireContext(), uri.toString(), binding.imgAttachedPreview)
+            }
+        }
+    }
+
+    private val requestCameraPermissionLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            takeCameraLauncher.launch(null)
+        } else {
+            com.group3.lostandfound.util.ModernToast.show(requireContext(), "Camera permission is required to capture photos", binding.root)
+        }
+    }
+
+    private val requestStoragePermissionLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            pickPhotoLauncher.launch("image/*")
+        } else {
+            com.group3.lostandfound.util.ModernToast.show(requireContext(), "Storage permission is required to select photos", binding.root)
+        }
+    }
+
+    private fun saveBitmapToTempUri(bitmap: android.graphics.Bitmap): android.net.Uri? {
+        return try {
+            val cachePath = java.io.File(requireContext().cacheDir, "images")
+            cachePath.mkdirs()
+            val file = java.io.File(cachePath, "chat_${System.currentTimeMillis()}.jpg")
+            java.io.FileOutputStream(file).use { stream ->
+                bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, stream)
+                stream.flush()
+            }
+            androidx.core.content.FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider",
+                file
+            )
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun showAttachmentOptions() {
+        val options = arrayOf("Take Photo with Camera", "Choose from Gallery")
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Attach Photo")
+            .setItems(options) { _, which ->
+                if (which == 0) {
+                    if (androidx.core.content.ContextCompat.checkSelfPermission(
+                            requireContext(),
+                            android.Manifest.permission.CAMERA
+                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                    ) {
+                        takeCameraLauncher.launch(null)
+                    } else {
+                        requestCameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+                    }
+                } else {
+                    val storagePermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                        android.Manifest.permission.READ_MEDIA_IMAGES
+                    } else {
+                        android.Manifest.permission.READ_EXTERNAL_STORAGE
+                    }
+                    if (androidx.core.content.ContextCompat.checkSelfPermission(
+                            requireContext(),
+                            storagePermission
+                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                    ) {
+                        pickPhotoLauncher.launch("image/*")
+                    } else {
+                        requestStoragePermissionLauncher.launch(storagePermission)
+                    }
+                }
+            }
+            .show()
+    }
+
+    private fun handleMessageLongClick(message: ChatMessage) {
+        if (message.isDeletedForEveryone) return
+        val isSender = message.senderUserId == currentUserId
+        val options = if (isSender) {
+            arrayOf("Delete for everyone", "Delete for me", "Reply")
+        } else {
+            arrayOf("Delete for me", "Reply")
+        }
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Message Options")
+            .setItems(options) { _, which ->
+                val selected = options[which]
+                when (selected) {
+                    "Delete for everyone" -> {
+                        chatViewModel.deleteMessageForEveryone(chatConversationId, message.chatMessageId)
+                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "Message deleted for everyone", binding.root)
+                    }
+                    "Delete for me" -> {
+                        chatViewModel.deleteMessageForMe(chatConversationId, message.chatMessageId, currentUserId)
+                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "Message removed from your view", binding.root)
+                    }
+                    "Reply" -> {
+                        startReply(message)
+                    }
+                }
+            }
+            .show()
+    }
+
+    private fun startReply(message: ChatMessage) {
+        if (message.isDeletedForEveryone) return
+        selectedReplyMessage = message
+        binding.layoutReplyPreview.visibility = View.VISIBLE
+        binding.tvReplyToName.text = if (message.senderUserId == currentUserId) "You" else recipientUserName
+        val preview = if (message.chatMessageTextContent.isNotBlank()) message.chatMessageTextContent else "[Photo]"
+        binding.tvReplyToText.text = preview
+        binding.etChatMessageInput.requestFocus()
     }
 
     private fun setupListeners() {
@@ -129,13 +258,36 @@ class ChatFragment : Fragment() {
         }
 
         binding.btnAttachPhoto.setOnClickListener {
-            pickPhotoLauncher.launch("image/*")
+            showAttachmentOptions()
         }
 
         binding.btnRemoveAttachment.setOnClickListener {
             attachedImageUri = null
             binding.layoutAttachmentPreview.visibility = View.GONE
         }
+
+        binding.btnCloseReply.setOnClickListener {
+            selectedReplyMessage = null
+            binding.layoutReplyPreview.visibility = View.GONE
+        }
+
+        binding.etChatMessageInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val hasText = !s.isNullOrBlank()
+                if (hasText) {
+                    chatViewModel.setTyping(chatConversationId, currentUserId, true)
+                    typingDebounceJob?.cancel()
+                    typingDebounceJob = viewLifecycleOwner.lifecycleScope.launch {
+                        kotlinx.coroutines.delay(2000)
+                        chatViewModel.setTyping(chatConversationId, currentUserId, false)
+                    }
+                } else {
+                    chatViewModel.setTyping(chatConversationId, currentUserId, false)
+                }
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
 
         binding.btnQuickReply1.setOnClickListener {
             binding.etChatMessageInput.setText("Hi, is this item still available?")
@@ -158,10 +310,17 @@ class ChatFragment : Fragment() {
         binding.btnSendChatMessage.setOnClickListener {
             val chatMessageTextContent = binding.etChatMessageInput.text.toString().trim()
             val uriToSend = attachedImageUri
+            val replyMsg = selectedReplyMessage
 
             if (chatMessageTextContent.isBlank() && uriToSend == null) {
                 return@setOnClickListener
             }
+
+            val replyId = replyMsg?.chatMessageId ?: ""
+            val replyName = if (replyMsg != null) {
+                if (replyMsg.senderUserId == currentUserId) "You" else recipientUserName
+            } else ""
+            val replyText = replyMsg?.chatMessageTextContent?.ifEmpty { "[Photo]" } ?: ""
 
             if (uriToSend != null) {
                 // Upload image first via resilient pipeline
@@ -196,7 +355,10 @@ class ChatFragment : Fragment() {
                             relatedItemId = relatedItemId,
                             otherUserName = recipientUserName,
                             imageUrl = uploadedUrl,
-                            relatedItemTitle = relatedItemTitle
+                            relatedItemTitle = relatedItemTitle,
+                            replyToMessageId = replyId,
+                            replyToSenderName = replyName,
+                            replyToText = replyText
                         )
                     } catch (e: Exception) {
                         com.group3.lostandfound.util.ModernToast.show(
@@ -216,7 +378,10 @@ class ChatFragment : Fragment() {
                     chatMessageTextContent = chatMessageTextContent,
                     relatedItemId = relatedItemId,
                     otherUserName = recipientUserName,
-                    relatedItemTitle = relatedItemTitle
+                    relatedItemTitle = relatedItemTitle,
+                    replyToMessageId = replyId,
+                    replyToSenderName = replyName,
+                    replyToText = replyText
                 )
             }
         }
@@ -231,9 +396,12 @@ class ChatFragment : Fragment() {
                             val lastMsg = messageList.last()
                             if (lastMsg.senderUserId != currentUserId && lastMsg.senderUserId.isNotEmpty()) {
                                 try {
-                                    val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
-                                    val ringtone = android.media.RingtoneManager.getRingtone(requireContext().applicationContext, soundUri)
-                                    ringtone?.play()
+                                    val mediaPlayer = android.media.MediaPlayer.create(
+                                        requireContext().applicationContext,
+                                        R.raw.apple_chime
+                                    )
+                                    mediaPlayer?.start()
+                                    mediaPlayer?.setOnCompletionListener { it.release() }
                                 } catch (_: Exception) {}
                             }
                         }
@@ -250,11 +418,27 @@ class ChatFragment : Fragment() {
                 }
 
                 launch {
+                    chatViewModel.getTypingFlow(chatConversationId, recipientUserId).collect { typing ->
+                        isRecipientTyping = typing
+                        updateChatSubtitle()
+                    }
+                }
+
+                launch {
+                    chatViewModel.getUserPresenceFlow(recipientUserId).collect { presence ->
+                        recipientPresence = presence
+                        updateChatSubtitle()
+                    }
+                }
+
+                launch {
                     chatViewModel.sendMessageOperationStatus.collect { operationStatus ->
                         when (operationStatus) {
                             is ResultState.Success -> {
                                 binding.etChatMessageInput.text.clear()
                                 attachedImageUri = null
+                                selectedReplyMessage = null
+                                binding.layoutReplyPreview.visibility = View.GONE
                                 binding.layoutAttachmentPreview.visibility = View.GONE
                                 chatViewModel.resetSendMessageStatus()
                             }
@@ -274,6 +458,52 @@ class ChatFragment : Fragment() {
                     }
                 }
             }
+        }
+    }
+
+    private fun updateChatSubtitle() {
+        if (_binding == null) return
+        if (isRecipientTyping) {
+            binding.tvChatSubtitle.text = "typing..."
+            binding.tvChatSubtitle.setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.primary)
+            )
+            binding.tvChatSubtitle.setTypeface(null, android.graphics.Typeface.BOLD_ITALIC)
+        } else {
+            binding.tvChatSubtitle.setTypeface(null, android.graphics.Typeface.NORMAL)
+            binding.tvChatSubtitle.setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.text_secondary)
+            )
+            if (recipientPresence.first) {
+                binding.tvChatSubtitle.text = "Online"
+            } else if (recipientPresence.second > 0L) {
+                val formatted = android.text.format.DateUtils.getRelativeTimeSpanString(
+                    recipientPresence.second,
+                    System.currentTimeMillis(),
+                    android.text.format.DateUtils.MINUTE_IN_MILLIS
+                )
+                binding.tvChatSubtitle.text = "Last seen $formatted"
+            } else if (relatedItemTitle.isNotEmpty()) {
+                binding.tvChatSubtitle.text = "Regarding: $relatedItemTitle"
+            } else {
+                binding.tvChatSubtitle.text = "Direct Discussion"
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (currentUserId.isNotEmpty()) {
+            chatRepository.setUserPresence(currentUserId, true)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        typingDebounceJob?.cancel()
+        if (currentUserId.isNotEmpty() && chatConversationId.isNotEmpty()) {
+            chatViewModel.setTyping(chatConversationId, currentUserId, false)
+            chatRepository.setUserPresence(currentUserId, false)
         }
     }
 

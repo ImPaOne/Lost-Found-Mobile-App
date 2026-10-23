@@ -340,50 +340,6 @@
                     android:src="@drawable/ic_chevron_right" />
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#F0EAE3" />
-
-            <!-- Row: Data Export -->
-            <LinearLayout
-                android:id="@+id/rowExportData"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <FrameLayout
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="@drawable/bg_settings_icon">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_download" />
-                </FrameLayout>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="Data Export"
-                    android:textColor="#5C4638"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_chevron_right" />
-            </LinearLayout>
 
 
             <!-- SECTION 3: APP -->

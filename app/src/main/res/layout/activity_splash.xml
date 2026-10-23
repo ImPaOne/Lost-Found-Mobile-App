@@ -5,7 +5,7 @@
     android:id="@+id/splashRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#FF003049"
     tools:context=".SplashActivity">
 
     <!-- Center Branding Container -->
@@ -19,97 +19,95 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.48">
+        app:layout_constraintVertical_bias="0.46">
 
-        <!-- Outer Logo Card with soft rounded corners -->
+        <!-- Logo Card: Brick Red outer, white inner -->
         <FrameLayout
             android:id="@+id/logoOuterBox"
-            android:layout_width="104dp"
-            android:layout_height="104dp"
+            android:layout_width="110dp"
+            android:layout_height="110dp"
             android:background="@drawable/bg_splash_outer_card"
-            android:elevation="2dp">
+            android:elevation="6dp">
 
-            <!-- Inner Dark Clay Card -->
             <FrameLayout
                 android:id="@+id/logoInnerBox"
-                android:layout_width="54dp"
-                android:layout_height="54dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_gravity="center"
                 android:background="@drawable/bg_splash_inner_card">
 
-                <!-- Person Profile + Checkmark Icon -->
                 <ImageView
                     android:id="@+id/logoIcon"
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:layout_gravity="center"
-                    android:contentDescription="FindIt LK Logo"
+                    android:contentDescription="Foundly Logo"
                     android:src="@drawable/ic_splash_logo" />
             </FrameLayout>
         </FrameLayout>
 
-        <!-- App Brand Title -->
+        <!-- App Name: Foundly — large, bold, white on deep blue -->
         <TextView
             android:id="@+id/appNameText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
+            android:layout_marginTop="24dp"
             android:fontFamily="sans-serif-black"
-            android:text="FindIt LK"
-            android:textColor="#4A3528"
-            android:textSize="31sp"
-            android:textStyle="bold" />
+            android:text="Foundly"
+            android:textColor="#FFFFFFFF"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.02" />
 
-        <!-- Accent Divider -->
+        <!-- Accent Divider: Brick Red -->
         <View
             android:id="@+id/brandDivider"
-            android:layout_width="34dp"
-            android:layout_height="2dp"
-            android:layout_marginTop="12dp"
+            android:layout_width="40dp"
+            android:layout_height="3dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/bg_splash_divider" />
 
-        <!-- Tagline / Subtitle -->
+        <!-- Tagline -->
         <TextView
             android:id="@+id/taglineText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="14dp"
             android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.01"
+            android:letterSpacing="0.04"
             android:text="Lost less. Found faster."
-            android:textColor="#A48374"
-            android:textSize="14.5sp" />
+            android:textColor="#AACBDF"
+            android:textSize="15sp" />
 
-        <!-- 3 Page Indicator Dots -->
+        <!-- Loading dots -->
         <LinearLayout
             android:id="@+id/indicatorDotsRow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="38dp"
+            android:layout_marginTop="48dp"
             android:gravity="center"
             android:orientation="horizontal">
 
             <View
                 android:id="@+id/dotFirst"
-                android:layout_width="6.5dp"
-                android:layout_height="6.5dp"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
                 android:background="@drawable/bg_dot_active" />
 
             <View
                 android:id="@+id/dotSecond"
-                android:layout_width="6.5dp"
-                android:layout_height="6.5dp"
-                android:layout_marginStart="7dp"
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:layout_marginStart="8dp"
                 android:background="@drawable/bg_dot_inactive_1" />
 
             <View
                 android:id="@+id/dotThird"
-                android:layout_width="6.5dp"
-                android:layout_height="6.5dp"
-                android:layout_marginStart="7dp"
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:layout_marginStart="8dp"
                 android:background="@drawable/bg_dot_inactive_2" />
         </LinearLayout>
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -38,23 +38,8 @@ class MainActivity : AppCompatActivity() {
         applyWindowInsets()
         setupDoubleTapBackToHome()
 
-        // Initialize notification channel with sound & vibration
+        // Initialize notification channel with Apple-like sound & vibration
         FCMService.createNotificationChannel(this)
-
-        // Request runtime permission for notifications on Android 13+ (API 33+)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            if (androidx.core.content.ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.POST_NOTIFICATIONS
-                ) != android.content.pm.PackageManager.PERMISSION_GRANTED
-            ) {
-                androidx.core.app.ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                    101
-                )
-            }
-        }
 
         // Sync FCM device token to /users/{uid}/fcmToken
         FCMService.syncUserToken(this)
@@ -110,11 +95,19 @@ class MainActivity : AppCompatActivity() {
         val uri = intent?.data
         var targetItemId = intent?.getStringExtra("item_id") ?: intent?.getStringExtra("itemId") ?: ""
         if (uri != null) {
-            val segments = uri.pathSegments
-            if (segments.isNotEmpty()) {
-                targetItemId = segments.last()
-            } else if (!uri.host.isNullOrEmpty() && uri.host != "item") {
-                targetItemId = uri.host.orEmpty()
+            val paramId = uri.getQueryParameter("id") ?: uri.getQueryParameter("itemId")
+            if (!paramId.isNullOrEmpty()) {
+                targetItemId = paramId
+            } else {
+                val segments = uri.pathSegments
+                if (segments.isNotEmpty()) {
+                    val last = segments.last()
+                    if (last != "item") {
+                        targetItemId = last
+                    }
+                } else if (!uri.host.isNullOrEmpty() && uri.host != "item" && uri.host != "foundly.lk" && uri.host != "foundly.app") {
+                    targetItemId = uri.host.orEmpty()
+                }
             }
         }
         if (targetItemId.isNotEmpty()) {
@@ -216,7 +209,9 @@ class MainActivity : AppCompatActivity() {
     private fun applyWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainBox)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            val bottomPadding = if (ime.bottom > 0) ime.bottom else systemBars.bottom
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, bottomPadding)
             insets
         }
     }

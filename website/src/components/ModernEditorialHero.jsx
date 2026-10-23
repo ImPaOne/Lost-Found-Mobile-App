@@ -1,92 +1,115 @@
 import React from 'react';
-import { Smartphone, Download, QrCode, ArrowDown, ShieldCheck, Sparkles } from 'lucide-react';
-import { playClickSound } from '../utils/audio';
+import { Download, QrCode, ShieldCheck, Smartphone, Check } from 'lucide-react';
 
-export default function ModernEditorialHero({ onDownloadApk, onOpenQR }) {
-  const scrollToSimulator = () => {
-    playClickSound();
-    const el = document.getElementById('interactive-app');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
-
+export default function ModernEditorialHero({ onDownloadAndroid, onOpenQR }) {
   return (
     <section className="editorial-hero-fullscreen">
       <div className="container-fullscreen">
         {/* Top Micro Header */}
         <div className="hero-editorial-meta-row">
           <div className="hero-status-pill">
-            <span className="pulsing-emerald-dot"></span>
-            <span>FOUNDIT MOBILE ECOSYSTEM · ANDROID NATIVE RELEASE</span>
+            <span className="pulsing-warm-dot"></span>
+            <span>FOUNDLY FOR ANDROID</span>
           </div>
 
           <div className="hero-meta-stat">
-            28,490+ ITEMS REUNITED THIS SEMESTER
+            OVER 28,000 ITEMS REUNITED
           </div>
         </div>
 
-        {/* Giant Editorial Title Inspired by Reference Image 1 & 4 */}
+        {/* Headline in simple, clean wording */}
         <div className="editorial-title-box">
           <h1 className="editorial-hero-title">
-            RECONNECT WHAT'S LOST.
+            LOST SOMETHING?<br />FIND IT WITH FOUNDLY.
           </h1>
         </div>
 
-        {/* Editorial Subtitle Columns (Matching Reference Image 1) */}
+        {/* 3 Simple Columns in Plain English */}
         <div className="editorial-hero-split-text">
           <div className="hero-split-col">
-            <span className="col-num-label">01 / ARCHITECTURE</span>
+            <span className="col-num-label">01 / QUICK PHOTO</span>
             <p className="col-paragraph">
-              A modern, decentralized mobile recovery network designed to turn frantic loss into quiet relief. Built with low-energy Bluetooth beacon triangulation and on-device neural vision.
+              Found a wallet, keys, or a pet? Just snap a photo. Foundly matches it instantly with lost reports nearby.
             </p>
           </div>
 
           <div className="hero-split-col">
-            <span className="col-num-label">02 / PROTOCOL</span>
+            <span className="col-num-label">02 / STAY PRIVATE</span>
             <p className="col-paragraph">
-              Zero phone numbers or private emails disclosed. Claimants and finders connect through single-use cryptographic tokens and verified 24/7 campus safe-drop lockers.
+              Connect safely without giving away your personal phone number, email, or home address.
             </p>
           </div>
 
           <div className="hero-split-col hero-col-actions">
             <span className="col-num-label">03 / GET STARTED</span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
               <button 
-                onClick={onDownloadApk}
+                onClick={onDownloadAndroid}
                 className="btn-apple-primary"
-                id="hero-apk-download"
-                style={{ width: '100%', padding: '13px 20px', fontSize: '0.86rem' }}
+                id="hero-download-btn"
+                style={{ width: '100%', padding: '12px 18px', fontSize: '0.84rem' }}
               >
-                <Download size={16} />
-                <span>Download APK (v2.4.2)</span>
+                <Download size={15} />
+                <span>Download for Android</span>
               </button>
 
               <button 
-                onClick={scrollToSimulator}
+                onClick={onOpenQR}
                 className="btn-apple-secondary"
-                id="hero-test-simulator"
-                style={{ width: '100%', padding: '12px 20px', fontSize: '0.86rem' }}
+                id="hero-scan-qr-btn"
+                style={{ width: '100%', padding: '11px 18px', fontSize: '0.84rem' }}
               >
-                <Smartphone size={16} />
-                <span>Try In-Browser App Simulator ↓</span>
+                <QrCode size={15} />
+                <span>Scan QR Code</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Visual Banner Preview Image with Scroll Prompt */}
-        <div className="hero-visual-banner" onClick={scrollToSimulator}>
-          <img 
-            src="/assets/hero_sky.jpg" 
-            alt="Freedom of recovering lost items"
-            className="hero-banner-photo" 
-          />
-          <div className="hero-banner-scrim"></div>
-          
-          <div className="hero-banner-inner-badge">
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-              SCROLL DOWN TO TEST LIVE ANDROID APP
-            </span>
-            <ArrowDown size={14} />
+        {/* Showcase Frame with Simple, Human Details */}
+        <div className="hero-editorial-showcase">
+          <div className="showcase-image-wrapper">
+            <img 
+              src="/assets/app_showcase_warm.jpg" 
+              alt="Foundly App on Android Smartphone"
+              className="showcase-hero-img" 
+            />
+          </div>
+
+          <div className="showcase-info-side">
+            <div className="showcase-badge-row">
+              <span className="badge-warm-pill">
+                <Smartphone size={13} />
+                <span>Android App</span>
+              </span>
+              <span className="badge-warm-pill">
+                <ShieldCheck size={13} />
+                <span>100% Private</span>
+              </span>
+            </div>
+
+            <h2 className="showcase-headline">
+              Calm, fast recovery when it matters most.
+            </h2>
+
+            <p className="showcase-subtext">
+              Foundly turns the stress of losing something into quick relief. No complicated menus, no ads, and no personal data sharing.
+            </p>
+
+            <div className="showcase-spec-list">
+              <div className="showcase-spec-row">
+                <span className="spec-row-label">Works on</span>
+                <span className="spec-row-val">Samsung, Pixel, Xiaomi &amp; all Android phones</span>
+              </div>
+              <div className="showcase-spec-row">
+                <span className="spec-row-label">System</span>
+                <span className="spec-row-val">Android 8.0 or newer</span>
+              </div>
+              <div className="showcase-spec-row">
+                <span className="spec-row-label">Cost</span>
+                <span className="spec-row-val">Free to use</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

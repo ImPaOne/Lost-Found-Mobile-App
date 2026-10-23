@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import AppleNavbar from './components/AppleNavbar';
 import ModernEditorialHero from './components/ModernEditorialHero';
-import InteractivePhoneSimulator from './components/InteractivePhoneSimulator';
-import EditorialCategories from './components/EditorialCategories';
+import CorePillars from './components/CorePillars';
+import RecentItemsFeed from './components/RecentItemsFeed';
 import DownloadCTA from './components/DownloadCTA';
 import AppleFooter from './components/AppleFooter';
 import DownloadModal from './components/DownloadModal';
-import { Download, QrCode, Smartphone } from 'lucide-react';
+import { Download, QrCode } from 'lucide-react';
 import { playSuccessSound } from './utils/audio';
 import './App.css';
 
@@ -17,7 +17,7 @@ export default function App() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 380) {
+      if (window.scrollY > 420) {
         setShowStickyBar(true);
       } else {
         setShowStickyBar(false);
@@ -27,27 +27,24 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Universal Working APK Download Trigger
-  const triggerApkDownload = () => {
+  // Simple Android App Download Trigger
+  const triggerAndroidDownload = () => {
     playSuccessSound();
     setDownloadToast(true);
     setTimeout(() => setDownloadToast(false), 4500);
 
     const blob = new Blob([
-      `FOUNDIT Android Client v2.4.2 (Production Release)\n` +
-      `Checksum SHA256: 9b2d8e4f1a5c68430b1e564d7c80ab3e\n` +
-      `Target ABI: Universal ARM64-v8a / armeabi-v7a\n` +
-      `Min Android: 8.0 (Oreo API 26)\n` +
-      `Target Android: 15 (API 35)\n` +
-      `Package: com.foundit.lostfound.android\n` +
-      `Coursework: HDSE 26.1 MAD Project\n` +
-      `Generated at: ${new Date().toISOString()}`
+      `Foundly Android Application\n` +
+      `Lost & Found Community Recovery Network\n` +
+      `Compatible with Android 8.0 and newer\n` +
+      `Downloaded from: https://foundly.app\n` +
+      `Date: ${new Date().toLocaleDateString()}`
     ], { type: 'application/vnd.android.package-archive' });
 
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'FOUNDIT-v2.4.2-release.apk';
+    a.download = 'Foundly-Android.apk';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -56,40 +53,39 @@ export default function App() {
 
   return (
     <div className="fullscreen-app-showcase">
-      {/* Top Navbar */}
+      {/* Floating Auto-Hiding Navbar */}
       <AppleNavbar 
-        onDownloadApk={triggerApkDownload}
+        onDownloadAndroid={triggerAndroidDownload}
         onOpenQR={() => setIsDownloadOpen(true)}
       />
 
       <main>
         {/* Modern Editorial Hero */}
         <ModernEditorialHero 
-          onDownloadApk={triggerApkDownload}
+          onDownloadAndroid={triggerAndroidDownload}
           onOpenQR={() => setIsDownloadOpen(true)}
         />
 
-        {/* Working Interactive Phone Simulator */}
-        <InteractivePhoneSimulator 
-          onDownloadApk={triggerApkDownload}
+        {/* 3 Core How It Works Pillars */}
+        <CorePillars 
+          onDownloadAndroid={triggerAndroidDownload}
+        />
+
+        {/* Recent Items Activity Directory */}
+        <RecentItemsFeed 
           onOpenQR={() => setIsDownloadOpen(true)}
         />
 
-        {/* Editorial Categories matching Reference Image 4 */}
-        <EditorialCategories 
-          onDownloadApk={triggerApkDownload}
-        />
-
-        {/* Download Call to Action Section */}
+        {/* Download & QR Section */}
         <DownloadCTA 
-          onDownloadApk={triggerApkDownload}
+          onDownloadAndroid={triggerAndroidDownload}
           onOpenQR={() => setIsDownloadOpen(true)}
         />
       </main>
 
       {/* Footer */}
       <AppleFooter 
-        onDownloadApk={triggerApkDownload}
+        onDownloadAndroid={triggerAndroidDownload}
       />
 
       {/* Floating Sticky Android Download Pill */}
@@ -100,22 +96,21 @@ export default function App() {
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 90,
-          background: 'rgba(255, 255, 255, 0.94)',
+          background: 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'saturate(180%) blur(20px)',
           WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-          border: '1px solid rgba(0, 0, 0, 0.08)',
+          border: '1px solid var(--border-subtle)',
           borderRadius: '9999px',
           padding: '8px 12px 8px 18px',
           display: 'flex',
           alignItems: 'center',
           gap: '16px',
-          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.1)',
-          color: '#111418'
+          boxShadow: '0 12px 32px rgba(30, 21, 16, 0.1)',
+          color: 'var(--text-primary)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
-            <div style={{ fontSize: '0.82rem', fontWeight: 700 }}>FOUNDIT for Android</div>
-            <span style={{ fontSize: '0.72rem', color: '#6B7280' }}>· v2.4.2</span>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--brown-caramel)', display: 'inline-block' }}></span>
+            <div style={{ fontSize: '0.82rem', fontWeight: 700 }}>Foundly for Android</div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -128,44 +123,44 @@ export default function App() {
               <QrCode size={13} />
             </button>
             <button 
-              onClick={triggerApkDownload}
+              onClick={triggerAndroidDownload}
               className="btn-apple-primary"
-              id="sticky-apk-download-btn"
+              id="sticky-download-btn"
               style={{ padding: '7px 16px', fontSize: '0.78rem' }}
             >
               <Download size={13} />
-              <span>Download APK</span>
+              <span>Download for Android</span>
             </button>
           </div>
         </aside>
       )}
 
-      {/* Instant Download Toast Notification */}
+      {/* Friendly Download Toast Notification */}
       {downloadToast && (
         <div style={{
           position: 'fixed',
-          top: '80px',
+          top: '84px',
           right: '24px',
           zIndex: 250,
           background: '#FFFFFF',
-          border: '1px solid #E5E7EB',
+          border: '1px solid var(--border-subtle)',
           borderRadius: '12px',
           padding: '14px 18px',
-          boxShadow: '0 14px 36px rgba(0, 0, 0, 0.12)',
+          boxShadow: '0 14px 36px rgba(30, 21, 16, 0.12)',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
-          animation: 'modalFadeIn 0.3s ease-out'
+          animation: 'fadeIn 0.3s ease-out'
         }}>
-          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#ECFDF5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--bg-subtle)', color: 'var(--brown-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, border: '1px solid var(--border-subtle)' }}>
             ✓
           </div>
           <div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#111827' }}>
-              Downloading FOUNDIT-v2.4.2.apk
+            <div style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Downloading Foundly for Android
             </div>
-            <div style={{ fontSize: '0.74rem', color: '#6B7280' }}>
-              Open the downloaded package on your Android device to install.
+            <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+              Open the downloaded file on your phone to install.
             </div>
           </div>
         </div>
@@ -175,7 +170,7 @@ export default function App() {
       <DownloadModal 
         isOpen={isDownloadOpen} 
         onClose={() => setIsDownloadOpen(false)} 
-        onDownloadApk={triggerApkDownload}
+        onDownloadAndroid={triggerAndroidDownload}
       />
     </div>
   );
