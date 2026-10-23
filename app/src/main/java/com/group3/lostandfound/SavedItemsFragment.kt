@@ -100,6 +100,16 @@ class SavedItemsFragment : Fragment() {
                 bookmarkedSet.remove(item.itemId)
                 prefs.edit().putStringSet("bookmarked_ids", bookmarkedSet).apply()
 
+                val uid = FirebaseManager.currentUid
+                if (uid.isNotEmpty()) {
+                    FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                        .getReference("users")
+                        .child(uid)
+                        .child("saved_items")
+                        .child(item.itemId)
+                        .removeValue()
+                }
+
                 if (position in savedItemList.indices) {
                     savedItemList.removeAt(position)
                     adapter.notifyItemRemoved(position)
@@ -118,8 +128,33 @@ class SavedItemsFragment : Fragment() {
 
     private fun loadSavedItems() {
         val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
-        val bookmarkedSet = prefs.getStringSet("bookmarked_ids", emptySet()) ?: emptySet()
+        val localBookmarkedSet = prefs.getStringSet("bookmarked_ids", emptySet())?.toMutableSet() ?: mutableSetOf()
+        val uid = FirebaseManager.currentUid
 
+        if (uid.isNotEmpty()) {
+            FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                .getReference("users")
+                .child(uid)
+                .child("saved_items")
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (child in snapshot.children) {
+                            child.key?.let { localBookmarkedSet.add(it) }
+                        }
+                        prefs.edit().putStringSet("bookmarked_ids", localBookmarkedSet).apply()
+                        fetchItemsForSavedKeys(localBookmarkedSet)
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        fetchItemsForSavedKeys(localBookmarkedSet)
+                    }
+                })
+        } else {
+            fetchItemsForSavedKeys(localBookmarkedSet)
+        }
+    }
+
+    private fun fetchItemsForSavedKeys(bookmarkedSet: Set<String>) {
         if (bookmarkedSet.isEmpty()) {
             savedItemList.clear()
             adapter.notifyDataSetChanged()
@@ -127,26 +162,24 @@ class SavedItemsFragment : Fragment() {
             return
         }
 
-        FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
-            .getReference("reports")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (!isAdded) return
-                    savedItemList.clear()
-                    for (child in snapshot.children) {
-                        val report = ItemReport.fromSnapshot(child)
-                        if (bookmarkedSet.contains(report.itemId)) {
-                            savedItemList.add(report)
-                        }
+        FirebaseManager.itemsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!isAdded) return
+                savedItemList.clear()
+                for (child in snapshot.children) {
+                    val report = ItemReport.fromSnapshot(child)
+                    if (bookmarkedSet.contains(report.itemId)) {
+                        savedItemList.add(report)
                     }
-                    adapter.notifyDataSetChanged()
-                    updateUiState()
                 }
+                adapter.notifyDataSetChanged()
+                updateUiState()
+            }
 
-                override fun onCancelled(error: DatabaseError) {
-                    if (isAdded) updateUiState()
-                }
-            })
+            override fun onCancelled(error: DatabaseError) {
+                if (isAdded) updateUiState()
+            }
+        })
     }
 
     private fun updateUiState() {
