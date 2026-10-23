@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -19,69 +20,53 @@ import com.group3.lostandfound.MainActivity
 import com.group3.lostandfound.R
 
 /**
- * FCM Integration service handling incoming push messages and persisting refreshed tokens
- * under Firebase Realtime Database path `/users/{uid}/fcmToken`.
+ * FCMService handles incoming push messages from Firebase Cloud Messaging.
+ * Notifications are delivered even when the app is closed or the phone is locked.
+ * Uses Apple-style chime sound stored in res/raw/apple_chime.wav.
  */
 class FCMService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d(TAG, "Refreshed FCM token received: $token")
+        Log.d(TAG, "FCM token refreshed")
         saveTokenLocally(token)
         sendTokenToServer(token)
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        Log.d(TAG, "FCM message received from: ${remoteMessage.from}")
 
         val title = remoteMessage.notification?.title
             ?: remoteMessage.data["title"]
-            ?: "Foundly Alert"
+            ?: "Foundly"
 
         val body = remoteMessage.notification?.body
             ?: remoteMessage.data["body"]
             ?: remoteMessage.data["message"]
-            ?: "New update on your reported lost or found item."
+            ?: "New update on your item."
 
         val itemId = remoteMessage.data["itemId"]
-
         showNotification(title, body, itemId)
     }
 
     private fun saveTokenLocally(token: String) {
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putString(KEY_FCM_TOKEN, token).apply()
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().putString(KEY_FCM_TOKEN, token).apply()
     }
 
     private fun sendTokenToServer(token: String) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid != null) {
-            val userTokenRef = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
-                .getReference("users")
-                .child(uid)
-                .child("fcmToken")
-
-            userTokenRef.setValue(token).addOnSuccessListener {
-                Log.d(TAG, "Successfully synced FCM token to /users/$uid/fcmToken")
-            }.addOnFailureListener { error ->
-                Log.e(TAG, "Failed to sync FCM token to database: ${error.message}")
-            }
-        } else {
-            Log.d(TAG, "No authenticated user yet; token cached locally for post-login sync.")
-        }
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+            .getReference("users").child(uid).child("fcmToken")
+            .setValue(token)
     }
 
     private fun showNotification(title: String, body: String, itemId: String?) {
         createNotificationChannel(this)
 
-        val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
-
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            if (itemId != null) {
-                putExtra("extra_item_id", itemId)
-            }
+            itemId?.let { putExtra("extra_item_id", it) }
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -91,7 +76,8 @@ class FCMService : FirebaseMessagingService() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val appleSoundUri = Uri.parse("android.resource://" + packageName + "/" + R.raw.apple_chime)
+        // Apple chime sound URI from res/raw
+        val soundUri = Uri.parse("android.resource://$packageName/${R.raw.apple_chime}")
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_nav_my_reports)
@@ -101,7 +87,7 @@ class FCMService : FirebaseMessagingService() {
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-            .setSound(appleSoundUri)
+            .setSound(soundUri)
             .setVibrate(longArrayOf(0, 250, 150, 250))
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
@@ -110,84 +96,67 @@ class FCMService : FirebaseMessagingService() {
         try {
             NotificationManagerCompat.from(this).notify(System.currentTimeMillis().toInt(), notification)
         } catch (e: Throwable) {
-            Log.e(TAG, "Notification dispatch failed: ${e.message}")
+            Log.e(TAG, "Notification failed: ${e.message}")
         }
     }
 
     companion object {
         private const val TAG = "FCMService"
-        const val CHANNEL_ID = "foundly_alerts_channel_v2"
+        const val CHANNEL_ID = "foundly_alerts_v3"
         private const val PREFS_NAME = "lost_found_prefs"
         private const val KEY_FCM_TOKEN = "cached_fcm_token"
 
+        /**
+         * Creates the notification channel with Apple chime sound.
+         * Must be called before any notification is shown.
+         */
         fun createNotificationChannel(context: Context) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                try {
-                    val name = "Foundly Urgent Alerts & Messages"
-                    val descriptionText = "Push notifications with Apple chime sound for urgent items and incoming messages"
-                    val importance = NotificationManager.IMPORTANCE_HIGH
-                    val appleSoundUri = Uri.parse("android.resource://" + context.packageName + "/" + R.raw.apple_chime)
-                    val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-                        description = descriptionText
-                        enableVibration(true)
-                        vibrationPattern = longArrayOf(0, 250, 150, 250)
-                        enableLights(true)
-                        lightColor = android.graphics.Color.rgb(255, 112, 67)
-                        lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
-                        setShowBadge(true)
-                        val audioAttributes = android.media.AudioAttributes.Builder()
-                            .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                            .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
-                            .build()
-                        setSound(appleSoundUri, audioAttributes)
-                    }
-                    val notificationManager: NotificationManager =
-                        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                    notificationManager.createNotificationChannel(channel)
-                } catch (e: Throwable) {
-                    Log.e(TAG, "Failed to create notification channel: ${e.message}")
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+            try {
+                val soundUri = Uri.parse("android.resource://${context.packageName}/${R.raw.apple_chime}")
+                val audioAttr = android.media.AudioAttributes.Builder()
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
+                    .build()
+
+                val channel = NotificationChannel(
+                    CHANNEL_ID,
+                    "Foundly Alerts & Messages",
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = "Push alerts with Apple chime for messages and item matches"
+                    enableVibration(true)
+                    vibrationPattern = longArrayOf(0, 250, 150, 250)
+                    enableLights(true)
+                    lightColor = 0xFFC1121F.toInt()
+                    lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+                    setShowBadge(true)
+                    setSound(soundUri, audioAttr)
                 }
+
+                val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                manager.createNotificationChannel(channel)
+            } catch (e: Throwable) {
+                Log.e(TAG, "Channel creation failed: ${e.message}")
             }
         }
 
         /**
-         * Triggers a push notification with sound and vibration immediately.
+         * Triggers an immediate notification — works even when app is in background.
+         * Plays Apple chime via the notification channel.
          */
-        fun triggerPushNotification(context: Context, title: String, body: String, itemId: String? = null) {
+        fun triggerPushNotification(
+            context: Context,
+            title: String,
+            body: String,
+            itemId: String? = null
+        ) {
             try {
                 createNotificationChannel(context)
-                val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
-
-                // Guaranteed audible sound feedback for modern alerts
-                try {
-                    val ringtone = android.media.RingtoneManager.getRingtone(context.applicationContext, soundUri)
-                    ringtone?.play()
-                } catch (_: Exception) {}
-
-                try {
-                    val toneGen = android.media.ToneGenerator(android.media.AudioManager.STREAM_NOTIFICATION, 100)
-                    toneGen.startTone(android.media.ToneGenerator.TONE_PROP_BEEP2, 350)
-                } catch (_: Exception) {
-                    try {
-                        val toneGen = android.media.ToneGenerator(android.media.AudioManager.STREAM_MUSIC, 100)
-                        toneGen.startTone(android.media.ToneGenerator.TONE_PROP_BEEP, 300)
-                    } catch (_: Exception) {}
-                }
-
-                try {
-                    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                        vibrator?.vibrate(android.os.VibrationEffect.createOneShot(200, android.os.VibrationEffect.DEFAULT_AMPLITUDE))
-                    } else {
-                        vibrator?.vibrate(200)
-                    }
-                } catch (_: Exception) {}
 
                 val intent = Intent(context, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    if (itemId != null) {
-                        putExtra("extra_item_id", itemId)
-                    }
+                    itemId?.let { putExtra("extra_item_id", it) }
                 }
 
                 val pendingIntent = PendingIntent.getActivity(
@@ -196,6 +165,9 @@ class FCMService : FirebaseMessagingService() {
                     intent,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
+
+                // Apple chime from channel (system handles sound delivery)
+                val soundUri = Uri.parse("android.resource://${context.packageName}/${R.raw.apple_chime}")
 
                 val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_nav_my_reports)
@@ -207,39 +179,31 @@ class FCMService : FirebaseMessagingService() {
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setSound(soundUri)
                     .setVibrate(longArrayOf(0, 200, 100, 200, 100, 250))
-                    .setDefaults(NotificationCompat.DEFAULT_ALL)
                     .setAutoCancel(true)
                     .setContentIntent(pendingIntent)
                     .build()
 
-                NotificationManagerCompat.from(context).notify(System.currentTimeMillis().toInt(), notification)
+                NotificationManagerCompat.from(context)
+                    .notify(System.currentTimeMillis().toInt(), notification)
             } catch (e: Throwable) {
-                Log.e(TAG, "triggerPushNotification failed gracefully: ${e.message}")
+                Log.e(TAG, "triggerPushNotification failed: ${e.message}")
             }
         }
 
-        /**
-         * Call upon successful user login or app start to ensure current user's token is saved under /users/{uid}/fcmToken.
-         */
+        /** Syncs the user's FCM token to Firebase after login. */
         fun syncUserToken(context: Context) {
             val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            val cachedToken = prefs.getString(KEY_FCM_TOKEN, null)
+            val token = prefs.getString(KEY_FCM_TOKEN, null)
+            val ref = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                .getReference("users").child(uid).child("fcmToken")
 
-            if (cachedToken != null) {
-                FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
-                    .getReference("users")
-                    .child(uid)
-                    .child("fcmToken")
-                    .setValue(cachedToken)
+            if (token != null) {
+                ref.setValue(token)
             } else {
-                FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-                    prefs.edit().putString(KEY_FCM_TOKEN, token).apply()
-                    FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
-                        .getReference("users")
-                        .child(uid)
-                        .child("fcmToken")
-                        .setValue(token)
+                FirebaseMessaging.getInstance().token.addOnSuccessListener { t ->
+                    prefs.edit().putString(KEY_FCM_TOKEN, t).apply()
+                    ref.setValue(t)
                 }
             }
         }
