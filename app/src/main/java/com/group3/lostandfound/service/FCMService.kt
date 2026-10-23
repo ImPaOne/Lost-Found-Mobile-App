@@ -91,15 +91,18 @@ class FCMService : FirebaseMessagingService() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val appleSoundUri = Uri.parse("android.resource://" + packageName + "/" + R.raw.apple_chime)
+
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_nav_my_reports)
             .setContentTitle(title)
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setSound(soundUri)
-            .setVibrate(longArrayOf(0, 300, 200, 300))
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setSound(appleSoundUri)
+            .setVibrate(longArrayOf(0, 250, 150, 250))
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .build()
@@ -113,7 +116,7 @@ class FCMService : FirebaseMessagingService() {
 
     companion object {
         private const val TAG = "FCMService"
-        const val CHANNEL_ID = "foundly_alerts_channel"
+        const val CHANNEL_ID = "foundly_alerts_channel_v2"
         private const val PREFS_NAME = "lost_found_prefs"
         private const val KEY_FCM_TOKEN = "cached_fcm_token"
 
@@ -121,22 +124,22 @@ class FCMService : FirebaseMessagingService() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 try {
                     val name = "Foundly Urgent Alerts & Messages"
-                    val descriptionText = "Push notifications with modern sounds for urgent items and incoming messages"
+                    val descriptionText = "Push notifications with Apple chime sound for urgent items and incoming messages"
                     val importance = NotificationManager.IMPORTANCE_HIGH
+                    val appleSoundUri = Uri.parse("android.resource://" + context.packageName + "/" + R.raw.apple_chime)
                     val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                         description = descriptionText
                         enableVibration(true)
-                        vibrationPattern = longArrayOf(0, 200, 100, 200, 100, 250)
+                        vibrationPattern = longArrayOf(0, 250, 150, 250)
                         enableLights(true)
                         lightColor = android.graphics.Color.rgb(255, 112, 67)
                         lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
                         setShowBadge(true)
-                        val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
                         val audioAttributes = android.media.AudioAttributes.Builder()
                             .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
                             .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
                             .build()
-                        setSound(soundUri, audioAttributes)
+                        setSound(appleSoundUri, audioAttributes)
                     }
                     val notificationManager: NotificationManager =
                         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
