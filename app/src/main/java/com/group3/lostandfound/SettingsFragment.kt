@@ -175,7 +175,7 @@ class SettingsFragment : Fragment() {
         }
 
         rowNotificationPrefs.setOnClickListener {
-            switchNotifications.toggle()
+            showNotificationSoundDialog()
         }
 
         // Edit Profile Dialog
@@ -383,6 +383,57 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
+    private fun showNotificationSoundDialog() {
+        val soundNames = arrayOf(
+            "Tri-Tone (Classic iPhone)",
+            "Note (Default iOS SMS)",
+            "Pop (Quick Apple Pop)",
+            "Aurora (Ambient Synth)",
+            "Bamboo (Acoustic Marimba)",
+            "Chord (Gentle iOS Chime)",
+            "Classic Chime (Foundly Alert)"
+        )
+        val soundResIds = intArrayOf(
+            R.raw.apple_tri_tone,
+            R.raw.apple_note,
+            R.raw.apple_pop,
+            R.raw.apple_aurora,
+            R.raw.apple_bamboo,
+            R.raw.apple_chord,
+            R.raw.apple_chime
+        )
+        val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+        val currentSound = prefs.getInt("selected_notification_sound", R.raw.apple_chime)
+        var selectedIndex = soundResIds.indexOf(currentSound).coerceAtLeast(0)
+
+        var previewPlayer: android.media.MediaPlayer? = null
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("🔔 Notification Tone & Alerts")
+            .setSingleChoiceItems(soundNames, selectedIndex) { _, which ->
+                selectedIndex = which
+                try {
+                    previewPlayer?.release()
+                    previewPlayer = android.media.MediaPlayer.create(requireContext(), soundResIds[which])
+                    previewPlayer?.start()
+                } catch (_: Exception) {}
+            }
+            .setPositiveButton("Set Tone") { _, _ ->
+                previewPlayer?.release()
+                val chosenRes = soundResIds[selectedIndex]
+                val chosenName = soundNames[selectedIndex]
+                prefs.edit().putInt("selected_notification_sound", chosenRes).apply()
+                FCMService.createNotificationChannel(requireContext())
+                ModernToast.show(requireContext(), "Alert tone set to $chosenName", view)
+            }
+            .setNegativeButton("Cancel") { _, _ ->
+                previewPlayer?.release()
+            }
+            .setOnDismissListener {
+                previewPlayer?.release()
+            }
+            .show()
+    }
 
     private fun showLanguageDialog() {
         val languages = arrayOf("English", "සිංහල (Sinhala)", "தமிழ் (Tamil)")
