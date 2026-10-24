@@ -35,7 +35,7 @@ object ModernToast {
 
                 // Modern rounded pill styling
                 val background = GradientDrawable().apply {
-                    setColor(Color.parseColor("#3A2D28")) // Nude Dark
+                    setColor(Color.parseColor("#003049")) // Deep Trust Navy
                     cornerRadius = 24f * context.resources.displayMetrics.density
                 }
                 snackbarView.background = background
