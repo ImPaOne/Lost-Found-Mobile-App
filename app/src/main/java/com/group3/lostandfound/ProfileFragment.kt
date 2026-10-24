@@ -404,3 +404,19 @@ class ProfileFragment : Fragment() {
                             .show()
                     }
 
+                    2 -> {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("Emergency Helpline")
+                            .setMessage("Sri Lanka National Emergency Response: 119\nGovernment Information Center: 1919\nFoundly 24/7 Community Desk: support@foundly.lk")
+                            .setPositiveButton("Call 1919") { _, _ ->
+                                try {
+                                    val dialIntent = android.content.Intent(android.content.Intent.ACTION_DIAL).apply {
+                                        data = android.net.Uri.parse("tel:1919")
+                                    }
+                                    startActivity(dialIntent)
+                                } catch (_: Exception) {}
+                            }
+                            .setNegativeButton("Dismiss", null)
+                            .show()
+                    }
+
