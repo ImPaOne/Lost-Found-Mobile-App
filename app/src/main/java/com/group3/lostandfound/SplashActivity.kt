@@ -94,3 +94,14 @@ class SplashActivity : AppCompatActivity() {
             openMainActivity()
         }, splashDelayMs)
     }
+
+    private fun openMainActivity() {
+        if (isNavigated) return
+        isNavigated = true
+        handler.removeCallbacksAndMessages(null)
+
+        val openMainIntent = Intent(this, MainActivity::class.java)
+        startActivity(openMainIntent)
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        finish()
+    }
