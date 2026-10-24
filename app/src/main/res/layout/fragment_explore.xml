@@ -58,7 +58,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-bold"
                     android:text="Explore"
-                    android:textColor="#3D2E27"
+                    android:textColor="@color/text_primary"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -112,8 +112,8 @@
                     android:paddingStart="10dp"
                     android:paddingEnd="8dp"
                     android:singleLine="true"
-                    android:textColor="#3A2D28"
-                    android:textColorHint="#A48374"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
                     android:textSize="14sp" />
 
                 <ImageView
@@ -164,7 +164,7 @@
                     android:paddingEnd="18dp"
                     android:paddingBottom="8dp"
                     android:text="Lost"
-                    android:textColor="#3A2D28"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp" />
 
                 <TextView
@@ -181,7 +181,7 @@
                     android:paddingEnd="18dp"
                     android:paddingBottom="8dp"
                     android:text="Found"
-                    android:textColor="#3A2D28"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp" />
 
                 <TextView
@@ -197,7 +197,7 @@
                     android:paddingEnd="18dp"
                     android:paddingBottom="8dp"
                     android:text="Pets"
-                    android:textColor="#3A2D28"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp" />
             </LinearLayout>
             <!-- 4. Results subtitle + View Mode Icons (Grid & List) -->
@@ -216,7 +216,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif"
                     android:text="64 results near Colombo"
-                    android:textColor="#7D6F67"
+                    android:textColor="@color/text_secondary"
                     android:textSize="13sp" />
 
                 <ImageView
