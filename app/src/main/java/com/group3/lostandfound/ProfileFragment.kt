@@ -213,3 +213,31 @@ class ProfileFragment : Fragment() {
                         }
                     }
                 }
+                
+                val calculatedTrust = (50 + (returnedCount * 15) + (foundCount * 5)).coerceIn(50, 99)
+
+                countItemsFound.text = foundCount.toString()
+                countItemsReturned.text = returnedCount.toString()
+                countTrustScore.text = "$calculatedTrust%"
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        }
+        itemStatsListener?.let { FirebaseManager.itemsRef.addValueEventListener(it) }
+    }
+
+    private fun uploadProfileImage(uri: android.net.Uri) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                ModernToast.show(requireContext(), "Uploading profile photo...", view)
+                val compressedBytes = com.group3.lostandfound.repository.ReportRepository().compressImageUri(
+                    requireContext(),
+                    uri,
+                    maxWidth = 500,
+                    maxHeight = 500,
+                    quality = 80
+                )
+                var uploadedUrl = ""
+                try {
+                    uploadedUrl = com.group3.lostandfound.util.CloudinaryManager.uploadImage(compressedBytes) {}
+                } catch (_: Exception) {}
