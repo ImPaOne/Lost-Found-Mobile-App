@@ -315,8 +315,10 @@ class MapFragment : Fragment() {
 
                 if (currentStatus.equals("LOST", ignoreCase = true)) {
                     tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
+                    tagFoundStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
                 } else {
                     tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
+                    tagFoundStatus.setBackgroundResource(R.drawable.bg_tag_found_outlined)
                 }
 
                 val imgSource = report?.imageUrl ?: ""
@@ -353,6 +355,7 @@ class MapFragment : Fragment() {
                 textItemLocation.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Tap to confirm", lat, lng)
                 tagFoundStatus.text = if (isPickerMode) "USE THIS" else "PINNED"
                 tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), if (isPickerMode) R.color.tag_found_color else R.color.tag_lost_color))
+                tagFoundStatus.setBackgroundResource(if (isPickerMode) R.drawable.bg_tag_found_outlined else R.drawable.bg_tag_lost_outlined)
                 imgLaptopThumb.setImageResource(R.drawable.ic_location)
 
                 com.group3.lostandfound.util.ModernToast.show(
@@ -439,15 +442,15 @@ class MapFragment : Fragment() {
             transform: scale(1.15);
         }
         .pin-lost {
-            background: #D43838;
+            background: #C1121F;
         }
         .pin-found {
-            background: #3B7A57;
+            background: #003049;
         }
         .pin-pinned {
-            background: #E65100;
+            background: #C1121F;
             border: 3px solid #ffffff;
-            box-shadow: 0 4px 14px rgba(230,81,0,0.7);
+            box-shadow: 0 4px 14px rgba(193,18,31,0.7);
             animation: pulse-pin 1.2s infinite;
         }
         @keyframes pulse-pin {
@@ -463,7 +466,7 @@ class MapFragment : Fragment() {
         .popup-box {
             font-size: 13px;
             line-height: 1.4;
-            color: #3A2D28;
+            color: #003049;
             padding: 4px 6px;
         }
         .popup-badge {
@@ -475,12 +478,12 @@ class MapFragment : Fragment() {
             margin-bottom: 4px;
         }
         .badge-lost {
-            background: #FFE8E8;
-            color: #D43838;
+            background: #FFF1F2;
+            color: #C1121F;
         }
         .badge-found {
-            background: #E8F5E9;
-            color: #2E7D32;
+            background: #EAF2F8;
+            color: #003049;
         }
     </style>
 </head>
@@ -508,7 +511,7 @@ class MapFragment : Fragment() {
             markersGroup.clearLayers();
             items.forEach(function(item) {
                 if (filter === 'all' || item.status === filter) {
-                    var pinColor = item.status === 'LOST' ? '#E53935' : '#2E7D32';
+                    var pinColor = item.status === 'LOST' ? '#C1121F' : '#003049';
                     var iconSvg = '<svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35)); cursor: pointer;">' +
                         '<path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0Z" fill="' + pinColor + '"/>' +
                         '<circle cx="15" cy="15" r="5.5" fill="#FFFFFF"/>' +
@@ -528,7 +531,7 @@ class MapFragment : Fragment() {
                     var popupHtml = '<div class="popup-box">' +
                         '<div class="popup-badge ' + badgeClass + '">' + item.status + '</div>' +
                         '<div><strong>' + item.title + '</strong></div>' +
-                        '<div style="color: #7D6F67; font-size: 11px;">' + item.location + '</div>' +
+                        '<div style="color: #64748B; font-size: 11px;">' + item.location + '</div>' +
                         '</div>';
                     marker.bindPopup(popupHtml);
 
@@ -557,7 +560,7 @@ class MapFragment : Fragment() {
             }
 
             var pinnedSvg = '<svg width="32" height="44" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.45)); cursor: pointer;">' +
-                '<path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0Z" fill="#1E88E5"/>' +
+                '<path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0Z" fill="#C1121F"/>' +
                 '<circle cx="15" cy="15" r="5.5" fill="#FFFFFF"/>' +
                 '</svg>';
 
@@ -576,11 +579,11 @@ class MapFragment : Fragment() {
             var popupBadge = "${if (isPickerMode) "SELECTED LOCATION" else "PINNED LOCATION"}";
 
             var popupHtml = '<div class="popup-box" style="text-align:center;">' +
-                '<div class="popup-badge" style="background:#FFF3E0;color:#E65100;font-weight:bold;">' + popupBadge + '</div>' +
+                '<div class="popup-badge" style="background:#FFF1F2;color:#C1121F;font-weight:bold;">' + popupBadge + '</div>' +
                 '<div style="font-weight:bold;margin:4px 0;font-size:13px;">' + lat.toFixed(4) + '° N, ' + lng.toFixed(4) + '° E</div>' +
-                '<div style="font-size:11px;color:#7D6F67;margin-bottom:8px;">' + popupSubtext + '</div>' +
+                '<div style="font-size:11px;color:#64748B;margin-bottom:8px;">' + popupSubtext + '</div>' +
                 '<button onclick="window.AndroidInterface.onUsePinnedLocation(' + lat + ', ' + lng + ')" ' +
-                'style="background:#2B2625;color:#FFFFFF;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:bold;cursor:pointer;width:100%;">' +
+                'style="background:#003049;color:#FFFFFF;border:none;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:bold;cursor:pointer;width:100%;">' +
                 popupBtnText + '</button>' +
                 '</div>';
 

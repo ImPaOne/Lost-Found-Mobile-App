@@ -19,7 +19,7 @@
         android:fontFamily="sans-serif"
         android:padding="8dp"
         android:text="Skip"
-        android:textColor="#8A786E"
+        android:textColor="@color/text_secondary"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -78,7 +78,7 @@
             android:fontFamily="sans-serif-bold"
             android:gravity="center"
             android:text="Reunite &amp; Connect"
-            android:textColor="#3D2619"
+            android:textColor="@color/text_primary"
             android:textSize="26sp"
             android:textStyle="bold" />
 
@@ -94,7 +94,7 @@
             android:paddingStart="36dp"
             android:paddingEnd="36dp"
             android:text="Private chat and verified claims bring\npeople and belongings back together."
-            android:textColor="#7D6F67"
+            android:textColor="@color/text_secondary"
             android:textSize="14sp" />
     </LinearLayout>
 

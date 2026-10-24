@@ -33,7 +33,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-bold"
                 android:text="Foundly UI Kit"
-                android:textColor="#3D2619"
+                android:textColor="@color/text_primary"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -44,7 +44,7 @@
                 android:layout_marginTop="2dp"
                 android:fontFamily="sans-serif"
                 android:text="Android · Mobile · Core components &amp; states"
-                android:textColor="#7D6F67"
+                android:textColor="@color/text_secondary"
                 android:textSize="13sp" />
 
             <!-- 2. Section: BUTTONS · DEFAULT / HOVER / DISABLED -->
@@ -94,7 +94,7 @@
                     android:fontFamily="sans-serif-bold"
                     android:gravity="center"
                     android:text="Secondary"
-                    android:textColor="#3D2619"
+                    android:textColor="@color/text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -156,7 +156,7 @@
                 android:layout_marginTop="12dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="Item title"
-                android:textColor="#3D2619"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -171,7 +171,7 @@
                 android:paddingEnd="14dp"
                 android:singleLine="true"
                 android:text="Blue Samsung phone"
-                android:textColor="#5C4638"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp" />
 
             <!-- Side by Side: Focused & Error Inputs -->
@@ -195,7 +195,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="Focused"
-                        android:textColor="#3D2619"
+                        android:textColor="@color/text_primary"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
@@ -210,7 +210,7 @@
                         android:paddingEnd="14dp"
                         android:singleLine="true"
                         android:text="Colombo"
-                        android:textColor="#5C4638"
+                        android:textColor="@color/text_primary"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -227,7 +227,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="Error"
-                        android:textColor="#3D2619"
+                        android:textColor="@color/text_primary"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
@@ -242,7 +242,7 @@
                         android:paddingEnd="14dp"
                         android:singleLine="true"
                         android:text="Required"
-                        android:textColor="#5C4638"
+                        android:textColor="@color/text_primary"
                         android:textSize="14sp" />
 
                     <TextView
@@ -251,7 +251,7 @@
                         android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif"
                         android:text="This field is required"
-                        android:textColor="#D43838"
+                        android:textColor="@color/tag_lost_color"
                         android:textSize="11sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -280,7 +280,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif"
                     android:text="Search lost and found items"
-                    android:textColor="#7D6F67"
+                    android:textColor="@color/text_secondary"
                     android:textSize="14sp" />
 
                 <ImageView
@@ -334,7 +334,7 @@
                     android:paddingEnd="16dp"
                     android:paddingBottom="7dp"
                     android:text="Lost"
-                    android:textColor="#D43838"
+                    android:textColor="@color/tag_lost_color"
                     android:textSize="13sp" />
 
                 <TextView
@@ -348,7 +348,7 @@
                     android:paddingEnd="16dp"
                     android:paddingBottom="7dp"
                     android:text="Found"
-                    android:textColor="#3D2619"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp" />
 
                 <TextView
@@ -361,7 +361,7 @@
                     android:paddingEnd="16dp"
                     android:paddingBottom="7dp"
                     android:text="Pets"
-                    android:textColor="#3D2619"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -400,7 +400,7 @@
                         android:layout_marginEnd="3dp"
                         android:layout_marginBottom="3dp"
                         android:background="@drawable/bg_onboard_dot_inactive"
-                        android:backgroundTint="#5C4638" />
+                        android:backgroundTint="@color/text_primary" />
                 </FrameLayout>
 
                 <!-- Large avatar -->
@@ -485,7 +485,7 @@
                             android:layout_weight="1"
                             android:fontFamily="sans-serif-bold"
                             android:text="FOUND"
-                            android:textColor="#5C4638"
+                            android:textColor="@color/text_primary"
                             android:textSize="11sp"
                             android:textStyle="bold" />
 
@@ -494,7 +494,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif"
                             android:text="2h ago"
-                            android:textColor="#7D6F67"
+                            android:textColor="@color/text_secondary"
                             android:textSize="11sp" />
                     </LinearLayout>
 
@@ -504,7 +504,7 @@
                         android:layout_marginTop="2dp"
                         android:fontFamily="sans-serif-bold"
                         android:text="Sri Lankan passport"
-                        android:textColor="#3D2619"
+                        android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
@@ -520,7 +520,7 @@
                             android:layout_height="12dp"
                             android:contentDescription="Pin"
                             android:src="@drawable/ic_location"
-                            app:tint="#7D6F67" />
+                            app:tint="@color/text_secondary" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -528,7 +528,7 @@
                             android:layout_marginStart="3dp"
                             android:fontFamily="sans-serif"
                             android:text="Fort Railway Station"
-                            android:textColor="#7D6F67"
+                            android:textColor="@color/text_secondary"
                             android:textSize="11sp" />
                     </LinearLayout>
                 </LinearLayout>

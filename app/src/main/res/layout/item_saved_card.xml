@@ -59,7 +59,7 @@
                 android:fontFamily="sans-serif-bold"
                 android:maxLines="1"
                 android:text="Item Title"
-                android:textColor="@color/nude_dark"
+                android:textColor="@color/text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -86,7 +86,7 @@
             android:focusable="true"
             android:padding="8dp"
             android:src="@drawable/ic_bookmark_filled"
-            app:tint="@color/nude_taupe" />
+            app:tint="@color/primary" />
 
     </LinearLayout>
 

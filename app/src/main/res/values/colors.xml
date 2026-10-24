@@ -4,42 +4,65 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- FIERY OCEAN PALETTE -->
-    <color name="primary">#FFC1121F</color>           <!-- Brick Red: primary actions, buttons -->
-    <color name="primary_dark">#FF8B0000</color>       <!-- Dark Crimson: pressed states, danger -->
-    <color name="secondary">#FF5B8DB8</color>          <!-- Steel Blue: secondary/found state -->
-    <color name="deep_blue">#FF003049</color>          <!-- Deep Space Blue: headers, nav bar -->
-    <color name="linen_bg">#FFFAF0E6</color>           <!-- Linen: main background -->
-    <color name="linen_card">#FFFCF5EE</color>         <!-- Lighter linen for cards -->
+    <!-- LOST & FOUND EMERGENCY THEME PALETTE -->
+    <!-- LOST = #C1121F (Urgent Crimson Red / Emergency Alert) -->
+    <color name="primary">#FFC1121F</color>           <!-- Emergency Crimson Red -->
+    <color name="primary_dark">#FF8B0000</color>      <!-- Dark Crimson: pressed states, danger -->
+    <color name="lost_primary">#FFC1121F</color>      <!-- Lost accent -->
+    <color name="lost_bg_light">#FFFFF1F2</color>     <!-- Soft rose/red tint for lost badges -->
+    <color name="lost_border">#FFFDA4AF</color>       <!-- Lost tag border -->
 
-    <!-- Semantic Mappings -->
-    <color name="background_screen">#FFFAF0E6</color>
-    <color name="text_primary">#FF003049</color>       <!-- Deep Blue for text -->
-    <color name="text_secondary">#FF5B8DB8</color>     <!-- Steel Blue for secondary text -->
-    <color name="text_hint">#FFAAC4DC</color>          <!-- Faded steel blue for hints -->
-    <color name="component_stroke">#FFDDCFC2</color>
-    <color name="component_stroke_border">#FFCCBBAA</color>
-    <color name="stroke_light">#FFE8DDD0</color>
-    <color name="beige_card_bg">#FFFCF5EE</color>
+    <!-- FOUND = #003049 (Deep Trust Navy Blue / Resolved / Secure) -->
+    <color name="deep_blue">#FF003049</color>         <!-- Deep Trust Navy Blue -->
+    <color name="found_primary">#FF003049</color>     <!-- Found primary accent -->
+    <color name="found_bg_light">#FFEAF2F8</color>    <!-- Soft navy tint for found badges -->
+    <color name="found_border">#FFBFDBFE</color>      <!-- Found tag border -->
+    <color name="secondary">#FF003049</color>         <!-- Trust Navy Blue for secondary actions -->
+    <color name="accent_blue">#FF669BBC</color>       <!-- Complementary Sky Steel Blue -->
+
+    <!-- Backgrounds & Surfaces (Modern, crisp, high-quality) -->
+    <color name="background_screen">#FFF8FAFC</color> <!-- Slate 50 clean modern background -->
+    <color name="card_surface">#FFFFFFFF</color>
+    <color name="linen_bg">#FFF8FAFC</color>          <!-- Replaced linen with modern clean slate -->
+    <color name="linen_card">#FFFFFFFF</color>        <!-- Clean crisp white card -->
+    <color name="beige_card_bg">#FFFFFFFF</color>     <!-- Clean white card surface -->
+
+    <!-- Text Hierarchy (Authoritative & Highly Legible) -->
+    <color name="text_primary">#FF003049</color>      <!-- Deep Navy for primary headings & titles -->
+    <color name="text_secondary">#FF475569</color>    <!-- Slate 600 for subtitles, labels & metadata -->
+    <color name="text_hint">#FF94A3B8</color>         <!-- Slate 400 for input hints -->
+    <color name="text_muted">#FF64748B</color>
+
+    <!-- Strokes & Borders -->
+    <color name="component_stroke">#FFE2E8F0</color>  <!-- Clean modern Slate 200 border -->
+    <color name="component_stroke_border">#FFCBD5E1</color>
+    <color name="stroke_light">#FFF1F5F9</color>
+
+    <!-- Status Tags: LOST (#C1121F) & FOUND (#003049) -->
+    <color name="tag_lost_color">#FFC1121F</color>    <!-- Emergency Crimson for LOST -->
+    <color name="tag_found_color">#FF003049</color>   <!-- Deep Trust Navy for FOUND -->
+    <color name="tag_resolved_color">#FF003049</color><!-- Resolved items -->
+    <color name="notification_badge_red">#FFC1121F</color>
     <color name="see_all_color">#FFC1121F</color>
 
-    <!-- Status Tags -->
-    <color name="tag_lost_color">#FFC1121F</color>     <!-- Brick Red for LOST -->
-    <color name="tag_found_color">#FF5B8DB8</color>    <!-- Steel Blue for FOUND -->
-    <color name="notification_badge_red">#FFC1121F</color>
+    <!-- Emergency Theme Tokens -->
+    <color name="emergency_red">#FFC1121F</color>
+    <color name="emergency_glow">#33C1121F</color>
+    <color name="emergency_banner_bg">#FF003049</color>
+    <color name="emergency_banner_text">#FFFFFFFF</color>
 
-    <!-- Moderation -->
+    <!-- Moderation & Badges -->
     <color name="btn_approve">#FF003049</color>
     <color name="btn_reject">#FFC1121F</color>
-    <color name="badge_flagged_bg">#FFFDF2F2</color>
+    <color name="badge_flagged_bg">#FFFFF1F2</color>
     <color name="badge_flagged_text">#FFC1121F</color>
-    <color name="badge_pending_bg">#FFFFF8EE</color>
-    <color name="badge_pending_text">#FFB87A26</color>
+    <color name="badge_pending_bg">#FFFFFBEB</color>
+    <color name="badge_pending_text">#FFD97706</color>
 
-    <!-- Compatibility aliases mapped to Fiery Ocean -->
-    <color name="nude_cream">#FFFCF5EE</color>
+    <!-- Compatibility aliases mapped to Emergency Theme -->
+    <color name="nude_cream">#FFFFFFFF</color>
     <color name="nude_dark">#FF003049</color>
-    <color name="nude_taupe">#FF5B8DB8</color>
-    <color name="nude_light_taupe">#FFDDCFC2</color>
-    <color name="nude_sand">#FFAAC4DC</color>
+    <color name="nude_taupe">#FF475569</color>
+    <color name="nude_light_taupe">#FFE2E8F0</color>
+    <color name="nude_sand">#FF94A3B8</color>
 </resources>

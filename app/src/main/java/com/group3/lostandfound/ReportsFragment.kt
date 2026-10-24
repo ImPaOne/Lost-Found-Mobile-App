@@ -143,8 +143,9 @@ class ReportsFragment : Fragment() {
             card1.visibility = View.VISIBLE
             name1.text = item1.title
             sub1.text = "${item1.location} · Live Post"
-            tag1.text = item1.status
-            tag1.setTextColor(ContextCompat.getColor(requireContext(), if (item1.status.equals("RESOLVED", ignoreCase = true)) R.color.tag_found_color else R.color.tag_lost_color))
+            val isLost1 = item1.status.equals("LOST", ignoreCase = true)
+            tag1.setTextColor(ContextCompat.getColor(requireContext(), if (isLost1) R.color.tag_lost_color else R.color.tag_found_color))
+            tag1.setBackgroundResource(if (isLost1) R.drawable.bg_tag_lost_outlined else R.drawable.bg_tag_found_outlined)
             ImageLoader.load(img1, item1.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             card1.setOnClickListener { openItemDetails(item1) }
             opt1.setOnClickListener { showItemMenu(item1) }
@@ -159,7 +160,9 @@ class ReportsFragment : Fragment() {
             name2.text = item2.title
             sub2.text = "${item2.location} · Live Post"
             tag2.text = item2.status
-            tag2.setTextColor(ContextCompat.getColor(requireContext(), if (item2.status.equals("RESOLVED", ignoreCase = true)) R.color.tag_found_color else R.color.tag_lost_color))
+            val isLost2 = item2.status.equals("LOST", ignoreCase = true)
+            tag2.setTextColor(ContextCompat.getColor(requireContext(), if (isLost2) R.color.tag_lost_color else R.color.tag_found_color))
+            tag2.setBackgroundResource(if (isLost2) R.drawable.bg_tag_lost_outlined else R.drawable.bg_tag_found_outlined)
             ImageLoader.load(img2, item2.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             card2.setOnClickListener { openItemDetails(item2) }
             opt2.setOnClickListener { showItemMenu(item2) }
@@ -174,7 +177,9 @@ class ReportsFragment : Fragment() {
             name3.text = item3.title
             sub3.text = "${item3.location} · Live Post"
             tag3.text = item3.status
-            tag3.setTextColor(ContextCompat.getColor(requireContext(), if (item3.status.equals("RESOLVED", ignoreCase = true)) R.color.tag_found_color else R.color.tag_lost_color))
+            val isLost3 = item3.status.equals("LOST", ignoreCase = true)
+            tag3.setTextColor(ContextCompat.getColor(requireContext(), if (isLost3) R.color.tag_lost_color else R.color.tag_found_color))
+            tag3.setBackgroundResource(if (isLost3) R.drawable.bg_tag_lost_outlined else R.drawable.bg_tag_found_outlined)
             ImageLoader.load(img3, item3.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             card3.setOnClickListener { openItemDetails(item3) }
             opt3.setOnClickListener { showItemMenu(item3) }

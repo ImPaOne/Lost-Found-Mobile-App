@@ -4,34 +4,34 @@
     android:viewportWidth="120"
     android:viewportHeight="120">
 
-    <!-- Segment 1: Electronics 38% - Brown #A48374 -->
+    <!-- Segment 1: Electronics 38% - Emergency Red #C1121F -->
     <path
         android:fillColor="@android:color/transparent"
-        android:strokeColor="#A48374"
+        android:strokeColor="#C1121F"
         android:strokeWidth="18"
         android:strokeLineCap="butt"
         android:pathData="M60,19 A41,41 0 0,1 87,91" />
 
-    <!-- Segment 2: Other 17% - Dark clay #3A2D28 -->
+    <!-- Segment 2: Documents 27% - Deep Navy #003049 -->
     <path
         android:fillColor="@android:color/transparent"
-        android:strokeColor="#3A2D28"
+        android:strokeColor="#003049"
         android:strokeWidth="18"
         android:strokeLineCap="butt"
         android:pathData="M87,91 A41,41 0 0,1 33,91" />
 
-    <!-- Segment 3: Pets 18% - Sand #CBAD8D -->
+    <!-- Segment 3: Pets 18% - Steel Blue #457B9D -->
     <path
         android:fillColor="@android:color/transparent"
-        android:strokeColor="#CBAD8D"
+        android:strokeColor="#457B9D"
         android:strokeWidth="18"
         android:strokeLineCap="butt"
         android:pathData="M33,91 A41,41 0 0,1 21,48" />
 
-    <!-- Segment 4: Documents 27% - Light taupe #D1C7BD -->
+    <!-- Segment 4: Other 17% - Slate Gray #94A3B8 -->
     <path
         android:fillColor="@android:color/transparent"
-        android:strokeColor="#D1C7BD"
+        android:strokeColor="#94A3B8"
         android:strokeWidth="18"
         android:strokeLineCap="butt"
         android:pathData="M21,48 A41,41 0 0,1 60,19" />

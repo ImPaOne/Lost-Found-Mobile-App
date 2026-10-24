@@ -41,7 +41,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFAF0E6"
+        android:background="@color/white"
         android:orientation="vertical"
         android:padding="20dp">
 
@@ -105,7 +105,7 @@
             android:drawablePadding="4dp"
             android:fontFamily="sans-serif-medium"
             android:text="📍 Colombo, Sri Lanka"
-            android:textColor="#5B8DB8"
+            android:textColor="@color/text_secondary"
             android:textSize="13sp" />
 
         <!-- Description (short) -->
@@ -117,7 +117,7 @@
             android:fontFamily="sans-serif"
             android:maxLines="2"
             android:text="Scan QR to view and contact the reporter."
-            android:textColor="#5C4638"
+            android:textColor="@color/text_primary"
             android:textSize="12sp" />
 
         <!-- Divider -->
@@ -126,7 +126,7 @@
             android:layout_height="1dp"
             android:layout_marginTop="14dp"
             android:layout_marginBottom="14dp"
-            android:background="#DDCFC2" />
+            android:background="@color/component_stroke" />
 
         <!-- QR + Reporter row -->
         <LinearLayout
@@ -141,7 +141,7 @@
                 android:layout_height="110dp"
                 app:cardCornerRadius="10dp"
                 app:cardElevation="2dp"
-                app:strokeColor="#DDCFC2"
+                app:strokeColor="@color/component_stroke"
                 app:strokeWidth="1dp">
 
                 <ImageView
@@ -176,7 +176,7 @@
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif"
                     android:text="foundly://item/id"
-                    android:textColor="#8C7E74"
+                    android:textColor="@color/text_secondary"
                     android:textSize="10sp" />
 
                 <TextView
@@ -186,7 +186,7 @@
                     android:layout_marginTop="8dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Reported on Foundly"
-                    android:textColor="#B0A39B"
+                    android:textColor="@color/text_secondary"
                     android:textSize="11sp" />
             </LinearLayout>
         </LinearLayout>

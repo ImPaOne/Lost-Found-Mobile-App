@@ -35,7 +35,7 @@
             android:layout_centerInParent="true"
             android:fontFamily="sans-serif-bold"
             android:text="Settings"
-            android:textColor="#5C4638"
+            android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -86,7 +86,7 @@
                 android:fontFamily="sans-serif-bold"
                 android:letterSpacing="0.04"
                 android:text="ACCOUNT"
-                android:textColor="#7C6E66"
+                android:textColor="@color/text_secondary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -120,7 +120,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-bold"
                     android:text="Edit Profile"
-                    android:textColor="#5C4638"
+                    android:textColor="@color/text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -165,7 +165,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-bold"
                     android:text="Change Password"
-                    android:textColor="#5C4638"
+                    android:textColor="@color/text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -198,7 +198,7 @@
                         android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_bell"
-                        app:tint="#5C4638" />
+                        app:tint="@color/text_primary" />
                 </FrameLayout>
 
                 <TextView
@@ -208,7 +208,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-bold"
                     android:text="Notification Preferences"
-                    android:textColor="#5C4638"
+                    android:textColor="@color/text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -231,7 +231,7 @@
                 android:fontFamily="sans-serif-bold"
                 android:letterSpacing="0.04"
                 android:text="PRIVACY"
-                android:textColor="#7C6E66"
+                android:textColor="@color/text_secondary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -265,7 +265,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-bold"
                     android:text="Profile Visibility"
-                    android:textColor="#5C4638"
+                    android:textColor="@color/text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -320,7 +320,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-bold"
                     android:text="Block List"
-                    android:textColor="#5C4638"
+                    android:textColor="@color/text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -351,7 +351,7 @@
                 android:fontFamily="sans-serif-bold"
                 android:letterSpacing="0.04"
                 android:text="APP"
-                android:textColor="#7C6E66"
+                android:textColor="@color/text_secondary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -385,7 +385,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-bold"
                     android:text="Language"
-                    android:textColor="#5C4638"
+                    android:textColor="@color/text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -440,7 +440,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-bold"
                     android:text="Theme"
-                    android:textColor="#5C4638"
+                    android:textColor="@color/text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -495,7 +495,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-bold"
                     android:text="About"
-                    android:textColor="#5C4638"
+                    android:textColor="@color/text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -540,7 +540,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-bold"
                     android:text="Rate App"
-                    android:textColor="#5C4638"
+                    android:textColor="@color/text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 

@@ -34,7 +34,7 @@
             android:layout_gravity="center"
             android:contentDescription="GPS Target"
             android:src="@drawable/ic_gps_target"
-            app:tint="#5C4638" />
+            app:tint="@color/text_primary" />
     </FrameLayout>
 
     <!-- 3. Top Overlay Controls: Header, Search, Chips -->
@@ -93,7 +93,7 @@
                 android:contentDescription="List view"
                 android:focusable="true"
                 android:src="@drawable/ic_list_view"
-                app:tint="#5C4638" />
+                app:tint="@color/text_primary" />
         </RelativeLayout>
 
         <!-- Floating Search Input Box -->
@@ -151,7 +151,7 @@
                     android:contentDescription="Filter sliders"
                     android:focusable="true"
                     android:src="@drawable/ic_filter"
-                    app:tint="#5C4638" />
+                    app:tint="@color/text_primary" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -339,7 +339,7 @@
                         android:layout_marginStart="4dp"
                         android:fontFamily="sans-serif"
                         android:text="Independence Square"
-                        android:textColor="#7C6E66"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>

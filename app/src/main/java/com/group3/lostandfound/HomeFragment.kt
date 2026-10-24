@@ -248,7 +248,12 @@ class HomeFragment : Fragment() {
             cardWalletItem.visibility = View.VISIBLE
             cardWalletItem.findViewById<TextView>(R.id.textWalletItemTitle)?.text = first.title
             cardWalletItem.findViewById<TextView>(R.id.textWalletLocationName)?.text = first.location
-            cardWalletItem.findViewById<TextView>(R.id.badgeWalletLostTag)?.text = first.status
+            cardWalletItem.findViewById<TextView>(R.id.badgeWalletLostTag)?.apply {
+                text = first.status.uppercase()
+                val isLost = first.status.equals("LOST", ignoreCase = true)
+                setTextColor(ContextCompat.getColor(context, if (isLost) R.color.tag_lost_color else R.color.tag_found_color))
+                setBackgroundResource(if (isLost) R.drawable.bg_tag_lost_outlined else R.drawable.bg_tag_found_outlined)
+            }
             cardWalletItem.findViewById<ImageView>(R.id.imageWalletPhoto)?.let { img ->
                 ImageLoader.load(img, first.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             }
@@ -265,7 +270,12 @@ class HomeFragment : Fragment() {
             cardDogItem.visibility = View.VISIBLE
             cardDogItem.findViewById<TextView>(R.id.textDogItemTitle)?.text = second.title
             cardDogItem.findViewById<TextView>(R.id.textDogLocationName)?.text = second.location
-            cardDogItem.findViewById<TextView>(R.id.badgeDogFoundTag)?.text = second.status
+            cardDogItem.findViewById<TextView>(R.id.badgeDogFoundTag)?.apply {
+                text = second.status.uppercase()
+                val isLost = second.status.equals("LOST", ignoreCase = true)
+                setTextColor(ContextCompat.getColor(context, if (isLost) R.color.tag_lost_color else R.color.tag_found_color))
+                setBackgroundResource(if (isLost) R.drawable.bg_tag_lost_outlined else R.drawable.bg_tag_found_outlined)
+            }
             cardDogItem.findViewById<ImageView>(R.id.imageDogPhoto)?.let { img ->
                 ImageLoader.load(img, second.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             }
@@ -282,7 +292,12 @@ class HomeFragment : Fragment() {
             cardLaptopHome?.visibility = View.VISIBLE
             cardLaptopHome?.findViewById<TextView>(R.id.textLaptopItemTitle)?.text = third.title
             cardLaptopHome?.findViewById<TextView>(R.id.textLaptopLocationName)?.text = third.location
-            cardLaptopHome?.findViewById<TextView>(R.id.badgeLaptopTag)?.text = third.status
+            cardLaptopHome?.findViewById<TextView>(R.id.badgeLaptopTag)?.apply {
+                text = third.status.uppercase()
+                val isLost = third.status.equals("LOST", ignoreCase = true)
+                setTextColor(ContextCompat.getColor(context, if (isLost) R.color.tag_lost_color else R.color.tag_found_color))
+                setBackgroundResource(if (isLost) R.drawable.bg_tag_lost_outlined else R.drawable.bg_tag_found_outlined)
+            }
             cardLaptopHome?.findViewById<ImageView>(R.id.imageLaptopPhoto)?.let { img ->
                 ImageLoader.load(img, third.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             }

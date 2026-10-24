@@ -51,8 +51,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:fontFamily="sans-serif-bold"
-                    android:text="FindIt LK"
-                    android:textColor="#3A2D28"
+                    android:text="Foundly"
+                    android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -64,7 +64,7 @@
                 android:layout_marginTop="28dp"
                 android:fontFamily="sans-serif-black"
                 android:text="Welcome back"
-                android:textColor="#3A2D28"
+                android:textColor="@color/text_primary"
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
@@ -73,8 +73,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:fontFamily="sans-serif"
-                android:text="Sign in to continue finding what matters."
-                android:textColor="#7C6E66"
+                android:text="Sign in to the Emergency Lost &amp; Found Network."
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
 
             <!-- Email or Phone Label -->
@@ -84,7 +84,7 @@
                 android:layout_marginTop="32dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="Email or phone"
-                android:textColor="#4A3B32"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -92,50 +92,51 @@
             <EditText
                 android:id="@+id/inputEmail"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:background="@null"
+                android:layout_height="48dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_search_box"
                 android:fontFamily="sans-serif"
                 android:hint="user@example.com"
                 android:importantForAutofill="no"
                 android:inputType="textEmailAddress"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
-                android:textColor="#3A2D28"
-                android:textColorHint="#7C6E66"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_hint"
                 android:textSize="15sp" />
 
             <!-- Password Label -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="18dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="Password"
-                android:textColor="#4A3B32"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
             <!-- Password Input Field with Eye Icon -->
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp">
+                android:layout_height="48dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_search_box">
 
                 <EditText
                     android:id="@+id/inputPassword"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_toStartOf="@+id/btnTogglePassword"
                     android:background="@null"
                     android:fontFamily="sans-serif"
                     android:hint="••••••••"
                     android:importantForAutofill="no"
                     android:inputType="textPassword"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="6dp"
-                    android:textColor="#3A2D28"
-                    android:textColorHint="#7C6E66"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="8dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
                     android:textSize="15sp" />
 
                 <ImageView
@@ -144,12 +145,13 @@
                     android:layout_height="24dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
+                    android:layout_marginEnd="12dp"
                     android:clickable="true"
                     android:contentDescription="Toggle password visibility"
                     android:focusable="true"
                     android:padding="2dp"
                     android:src="@drawable/ic_eye"
-                    app:tint="#7C6E66" />
+                    app:tint="@color/text_secondary" />
             </RelativeLayout>
 
             <!-- Options Row: Remember Me & Forgot Password -->
@@ -162,10 +164,10 @@
                     android:id="@+id/checkRememberMe"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:buttonTint="#7C6E66"
+                    android:buttonTint="@color/deep_blue"
                     android:fontFamily="sans-serif"
                     android:text="Remember me"
-                    android:textColor="#7C6E66"
+                    android:textColor="@color/text_secondary"
                     android:textSize="13sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -179,7 +181,7 @@
                     android:focusable="true"
                     android:fontFamily="sans-serif-bold"
                     android:text="Forgot Password?"
-                    android:textColor="#4A3B32"
+                    android:textColor="@color/primary"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -195,6 +197,7 @@
                 android:layout_marginTop="28dp"
                 android:background="@drawable/bg_btn_create_account"
                 android:clickable="true"
+                android:elevation="2dp"
                 android:focusable="true"
                 android:fontFamily="sans-serif-bold"
                 android:gravity="center"
@@ -220,7 +223,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
                     android:text="Don't have an account? "
-                    android:textColor="#7C6E66"
+                    android:textColor="@color/text_secondary"
                     android:textSize="14sp" />
 
                 <TextView
@@ -228,7 +231,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-bold"
                     android:text="Sign Up"
-                    android:textColor="#059669"
+                    android:textColor="@color/deep_blue"
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>

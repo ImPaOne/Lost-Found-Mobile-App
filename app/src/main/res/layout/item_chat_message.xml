@@ -58,7 +58,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
-                    android:background="#4A3B33"
+                    android:background="#0A3D59"
                     android:orientation="horizontal"
                     android:padding="6dp"
                     android:visibility="gone">
@@ -66,7 +66,7 @@
                     <View
                         android:layout_width="3dp"
                         android:layout_height="match_parent"
-                        android:background="#D1C7BD" />
+                        android:background="@color/accent_blue" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -78,7 +78,7 @@
                             android:id="@+id/tvOutgoingReplyName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="#EBE3DB"
+                            android:textColor="@color/white"
                             android:textSize="11sp"
                             android:textStyle="bold" />
 
@@ -88,7 +88,7 @@
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
                             android:maxLines="1"
-                            android:textColor="#D1C7BD"
+                            android:textColor="#CBD5E1"
                             android:textSize="11sp" />
                     </LinearLayout>
                 </LinearLayout>
@@ -146,7 +146,9 @@
             android:id="@+id/cardIncomingBubble"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/nude_cream"
+            app:cardBackgroundColor="@color/white"
+            app:strokeColor="@color/component_stroke"
+            app:strokeWidth="1dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp">
 
@@ -163,7 +165,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
-                    android:background="#DFCFC4"
+                    android:background="#F1F5F9"
                     android:orientation="horizontal"
                     android:padding="6dp"
                     android:visibility="gone">
@@ -171,7 +173,7 @@
                     <View
                         android:layout_width="3dp"
                         android:layout_height="match_parent"
-                        android:background="@color/nude_dark" />
+                        android:background="@color/deep_blue" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -183,7 +185,7 @@
                             android:id="@+id/tvIncomingReplyName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/nude_dark"
+                            android:textColor="@color/deep_blue"
                             android:textSize="11sp"
                             android:textStyle="bold" />
 
@@ -193,7 +195,7 @@
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
                             android:maxLines="1"
-                            android:textColor="@color/text_primary"
+                            android:textColor="@color/text_secondary"
                             android:textSize="11sp" />
                     </LinearLayout>
                 </LinearLayout>

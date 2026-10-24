@@ -418,8 +418,8 @@ class CreateReportFragment : Fragment() {
             cardFoundItem.setBackgroundResource(R.drawable.bg_card_select_unselected)
             iconFound.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
         } else {
-            cardFoundItem.setBackgroundResource(R.drawable.bg_card_select_lost)
-            iconFound.setColorFilter(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
+            cardFoundItem.setBackgroundResource(R.drawable.bg_card_select_found)
+            iconFound.setColorFilter(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
 
             cardLostItem.setBackgroundResource(R.drawable.bg_card_select_unselected)
             iconLost.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
@@ -703,6 +703,9 @@ class CreateReportFragment : Fragment() {
 
                 tvReviewTitle.text = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
                 badgeReviewStatus.text = if (isLostSelected) "LOST ITEM" else "FOUND ITEM"
+                badgeReviewStatus.setBackgroundResource(
+                    if (isLostSelected) R.drawable.bg_tag_lost_outlined else R.drawable.bg_tag_found_outlined
+                )
                 badgeReviewStatus.setTextColor(
                     ContextCompat.getColor(
                         requireContext(),

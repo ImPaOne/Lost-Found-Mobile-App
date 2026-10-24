@@ -50,8 +50,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:fontFamily="sans-serif-bold"
-                    android:text="FindIt LK"
-                    android:textColor="#3A2D28"
+                    android:text="Foundly"
+                    android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -63,7 +63,7 @@
                 android:layout_marginTop="22dp"
                 android:fontFamily="sans-serif-black"
                 android:text="Create your account"
-                android:textColor="#3A2D28"
+                android:textColor="@color/text_primary"
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
@@ -74,7 +74,7 @@
                 android:fontFamily="sans-serif"
                 android:lineSpacingExtra="3dp"
                 android:text="Join Sri Lanka’s trusted lost and found\ncommunity."
-                android:textColor="#7C6E66"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
 
             <!-- Field 1: Full name -->
@@ -84,7 +84,7 @@
                 android:layout_marginTop="22dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="Full name"
-                android:textColor="#4A3B32"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -100,8 +100,8 @@
                 android:inputType="textPersonName"
                 android:paddingTop="6dp"
                 android:paddingBottom="6dp"
-                android:textColor="#3A2D28"
-                android:textColorHint="#7C6E66"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_hint"
                 android:textSize="15sp" />
 
             <!-- Field 2: Email -->
@@ -111,7 +111,7 @@
                 android:layout_marginTop="16dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="Email"
-                android:textColor="#4A3B32"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -127,8 +127,8 @@
                 android:inputType="textEmailAddress"
                 android:paddingTop="6dp"
                 android:paddingBottom="6dp"
-                android:textColor="#3A2D28"
-                android:textColorHint="#7C6E66"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_hint"
                 android:textSize="15sp" />
 
             <!-- Field 3 & 4: Two-column Phone number & NIC number -->
@@ -152,7 +152,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="Phone number"
-                        android:textColor="#4A3B32"
+                        android:textColor="@color/text_primary"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
@@ -168,8 +168,8 @@
                         android:inputType="phone"
                         android:paddingTop="6dp"
                         android:paddingBottom="6dp"
-                        android:textColor="#3A2D28"
-                        android:textColorHint="#7C6E66"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_hint"
                         android:textSize="15sp" />
                 </LinearLayout>
 
@@ -186,7 +186,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="NIC number"
-                        android:textColor="#4A3B32"
+                        android:textColor="@color/text_primary"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
@@ -202,8 +202,8 @@
                         android:inputType="text"
                         android:paddingTop="6dp"
                         android:paddingBottom="6dp"
-                        android:textColor="#3A2D28"
-                        android:textColorHint="#7C6E66"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_hint"
                         android:textSize="15sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -215,7 +215,7 @@
                 android:layout_marginTop="16dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="Password"
-                android:textColor="#4A3B32"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -238,8 +238,8 @@
                     android:inputType="textPassword"
                     android:paddingTop="6dp"
                     android:paddingBottom="6dp"
-                    android:textColor="#3A2D28"
-                    android:textColorHint="#7C6E66"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
                     android:textSize="15sp" />
 
                 <ImageView
@@ -250,7 +250,8 @@
                     android:contentDescription="Toggle password visibility"
                     android:focusable="true"
                     android:padding="2dp"
-                    android:src="@drawable/ic_eye" />
+                    android:src="@drawable/ic_eye"
+                    app:tint="@color/text_secondary" />
             </LinearLayout>
 
             <!-- Field 6: Confirm password -->
@@ -260,7 +261,7 @@
                 android:layout_marginTop="16dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="Confirm password"
-                android:textColor="#4A3B32"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -283,8 +284,8 @@
                     android:inputType="textPassword"
                     android:paddingTop="6dp"
                     android:paddingBottom="6dp"
-                    android:textColor="#3A2D28"
-                    android:textColorHint="#7C6E66"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
                     android:textSize="15sp" />
 
                 <ImageView
@@ -295,7 +296,8 @@
                     android:contentDescription="Toggle confirm password visibility"
                     android:focusable="true"
                     android:padding="2dp"
-                    android:src="@drawable/ic_eye" />
+                    android:src="@drawable/ic_eye"
+                    app:tint="@color/text_secondary" />
             </LinearLayout>
 
             <!-- Terms Agreement Checkbox Row -->
@@ -310,7 +312,7 @@
                     android:id="@+id/checkTerms"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:buttonTint="#0E804D"
+                    android:buttonTint="@color/deep_blue"
                     android:checked="false"
                     android:minWidth="0dp"
                     android:minHeight="0dp" />
@@ -323,7 +325,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif"
                     android:text="I agree to the Terms of Service and Privacy Policy"
-                    android:textColor="#7C6E66"
+                    android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -335,6 +337,7 @@
                 android:layout_marginTop="22dp"
                 android:background="@drawable/bg_btn_create_account"
                 android:clickable="true"
+                android:elevation="2dp"
                 android:focusable="true"
                 android:fontFamily="sans-serif-medium"
                 android:gravity="center"
@@ -360,7 +363,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
                     android:text="Already have an account? "
-                    android:textColor="#7C6E66"
+                    android:textColor="@color/text_secondary"
                     android:textSize="13sp" />
 
                 <TextView
@@ -369,7 +372,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-bold"
                     android:text="Login"
-                    android:textColor="#0E804D"
+                    android:textColor="@color/deep_blue"
                     android:textSize="13sp"
                     android:textStyle="bold" />
             </LinearLayout>

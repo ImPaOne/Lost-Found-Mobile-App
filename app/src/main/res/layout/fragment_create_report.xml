@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-bold"
             android:text="Create report"
-            android:textColor="#3D2619"
+            android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -123,7 +123,7 @@
             android:layout_marginTop="3dp"
             android:fontFamily="sans-serif-bold"
             android:text="What happened?"
-            android:textColor="#3D2619"
+            android:textColor="@color/text_primary"
             android:textSize="22sp"
             android:textStyle="bold" />
 
@@ -134,7 +134,7 @@
             android:layout_marginTop="2dp"
             android:fontFamily="sans-serif"
             android:text="Select whether you lost or found an item."
-            android:textColor="#7D6F67"
+            android:textColor="@color/text_secondary"
             android:textSize="13sp" />
     </LinearLayout>
 
@@ -169,7 +169,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-bold"
                     android:text="Report Type"
-                    android:textColor="#3D2619"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -215,7 +215,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-black"
                                 android:text="Lost item"
-                                android:textColor="#3D2619"
+                                android:textColor="@color/text_primary"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
 
@@ -224,7 +224,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif"
                                 android:text="I misplaced it"
-                                android:textColor="#7D6F67"
+                                android:textColor="@color/text_secondary"
                                 android:textSize="11sp" />
                         </LinearLayout>
                     </LinearLayout>
@@ -263,7 +263,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-black"
                                 android:text="Found item"
-                                android:textColor="#3D2619"
+                                android:textColor="@color/text_primary"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
 
@@ -272,7 +272,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif"
                                 android:text="I discovered it"
-                                android:textColor="#7D6F67"
+                                android:textColor="@color/text_secondary"
                                 android:textSize="11sp" />
                         </LinearLayout>
                     </LinearLayout>
@@ -285,7 +285,7 @@
                     android:layout_marginTop="20dp"
                     android:fontFamily="sans-serif-bold"
                     android:text="When did this happen?"
-                    android:textColor="#3D2619"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -357,7 +357,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="Next up: Category &amp; details"
-                        android:textColor="#5C4638"
+                        android:textColor="@color/text_primary"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
@@ -367,7 +367,7 @@
                         android:layout_marginTop="3dp"
                         android:fontFamily="sans-serif"
                         android:text="You will describe the item, its brand, model, and key visual features."
-                        android:textColor="#7D6F67"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -385,7 +385,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-bold"
                     android:text="Item Category *"
-                    android:textColor="#3D2619"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -407,7 +407,7 @@
                         android:layout_centerVertical="true"
                         android:fontFamily="sans-serif-medium"
                         android:text="Electronics"
-                        android:textColor="#3D2619"
+                        android:textColor="@color/text_primary"
                         android:textSize="14sp" />
 
                     <ImageView
@@ -417,7 +417,7 @@
                         android:layout_centerVertical="true"
                         android:contentDescription="Dropdown"
                         android:src="@drawable/ic_chevron_down"
-                        app:tint="#A48374" />
+                        app:tint="@color/text_hint" />
                 </RelativeLayout>
 
                 <!-- Item Title Input -->
@@ -427,7 +427,7 @@
                     android:layout_marginTop="16dp"
                     android:fontFamily="sans-serif-bold"
                     android:text="Item Title *"
-                    android:textColor="#3D2619"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -443,8 +443,8 @@
                     android:paddingStart="14dp"
                     android:paddingEnd="14dp"
                     android:singleLine="true"
-                    android:textColor="#3D2619"
-                    android:textColorHint="#A48374"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
                     android:textSize="14sp" />
 
                 <!-- Description Input -->
@@ -454,7 +454,7 @@
                     android:layout_marginTop="16dp"
                     android:fontFamily="sans-serif-bold"
                     android:text="Description &amp; Identifying Marks"
-                    android:textColor="#3D2619"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -473,8 +473,8 @@
                     android:paddingTop="12dp"
                     android:paddingEnd="14dp"
                     android:paddingBottom="12dp"
-                    android:textColor="#3D2619"
-                    android:textColorHint="#A48374"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
                     android:textSize="14sp" />
             </LinearLayout>
 
@@ -490,7 +490,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-bold"
                     android:text="Select City / Area *"
-                    android:textColor="#3D2619"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -578,7 +578,7 @@
                     android:layout_marginTop="16dp"
                     android:fontFamily="sans-serif-bold"
                     android:text="Specific Spot / Landmark"
-                    android:textColor="#3D2619"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -594,8 +594,8 @@
                     android:paddingStart="14dp"
                     android:paddingEnd="14dp"
                     android:singleLine="true"
-                    android:textColor="#3D2619"
-                    android:textColorHint="#A48374"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
                     android:textSize="14sp" />
 
                 <!-- Location Map Pin Banner Preview -->
@@ -640,7 +640,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
                                 android:text="Colombo 03, Western Province"
-                                android:textColor="#3D2619"
+                                android:textColor="@color/text_primary"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
 
@@ -650,7 +650,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif"
                                 android:text="6.9042° N, 79.8530° E · Tap to open map"
-                                android:textColor="#7D6F67"
+                                android:textColor="@color/text_secondary"
                                 android:textSize="11sp" />
                         </LinearLayout>
 
@@ -678,7 +678,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-bold"
                     android:text="Upload Item Photos"
-                    android:textColor="#3D2619"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -717,7 +717,7 @@
                             android:layout_marginTop="8dp"
                             android:fontFamily="sans-serif-bold"
                             android:text="Tap to attach photos"
-                            android:textColor="#3D2619"
+                            android:textColor="@color/text_primary"
                             android:textSize="14sp"
                             android:textStyle="bold" />
 
@@ -727,7 +727,7 @@
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif"
                             android:text="PNG, JPG or WebP up to 10MB each"
-                            android:textColor="#7D6F67"
+                            android:textColor="@color/text_secondary"
                             android:textSize="12sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -842,7 +842,7 @@
                             android:layout_marginTop="8dp"
                             android:fontFamily="sans-serif-bold"
                             android:text="Report Title Preview"
-                            android:textColor="#3D2619"
+                            android:textColor="@color/text_primary"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -853,7 +853,7 @@
                             android:layout_marginTop="4dp"
                             android:fontFamily="sans-serif"
                             android:text="Colombo 03 · Reported Today"
-                            android:textColor="#7D6F67"
+                            android:textColor="@color/text_secondary"
                             android:textSize="13sp" />
 
                         <com.google.android.material.card.MaterialCardView
@@ -889,7 +889,7 @@
                             android:fontFamily="sans-serif"
                             android:lineSpacingExtra="3dp"
                             android:text="Slim wallet with national ID and cards. Distinctive scratch near the clasp."
-                            android:textColor="#5C4638"
+                            android:textColor="@color/text_primary"
                             android:textSize="13sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -944,7 +944,7 @@
                                 android:layout_weight="1"
                                 android:fontFamily="sans-serif-bold"
                                 android:text="Uploading item photo &amp; creating listing..."
-                                android:textColor="#3D2619"
+                                android:textColor="@color/text_primary"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
 
@@ -1033,7 +1033,7 @@
             android:fontFamily="sans-serif-bold"
             android:gravity="center"
             android:text="Back"
-            android:textColor="#3D2619"
+            android:textColor="@color/text_primary"
             android:textSize="15sp"
             android:textStyle="bold" />
 

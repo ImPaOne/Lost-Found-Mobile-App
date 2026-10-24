@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Fiery Ocean — Dark Mode overrides -->
-    <color name="background_screen">#FF001824</color>    <!-- Darker deep blue for night -->
-    <color name="text_primary">#FFFAF0E6</color>          <!-- Linen text on dark -->
-    <color name="text_secondary">#FF8BB5CC</color>        <!-- Lighter steel blue -->
-    <color name="text_hint">#FF5B7D8F</color>
-    <color name="component_stroke">#FF1A3548</color>
-    <color name="component_stroke_border">#FF1A3548</color>
-    <color name="stroke_light">#FF1A3548</color>
-    <color name="beige_card_bg">#FF001824</color>
-    <color name="linen_bg">#FF001824</color>
-    <color name="linen_card">#FF012233</color>
+    <!-- Emergency & Recovery Dark Mode overrides -->
+    <color name="background_screen">#FF001422</color>    <!-- Deep navy-black for night -->
+    <color name="card_surface">#FF002236</color>
+    <color name="text_primary">#FFF8FAFC</color>          <!-- Crisp slate-white on dark -->
+    <color name="text_secondary">#FF94A3B8</color>        <!-- Slate-400 for secondary text -->
+    <color name="text_hint">#FF64748B</color>
+    <color name="component_stroke">#FF1E3A52</color>
+    <color name="component_stroke_border">#FF1E3A52</color>
+    <color name="stroke_light">#FF102A3C</color>
+    <color name="beige_card_bg">#FF002236</color>
+    <color name="linen_bg">#FF001422</color>
+    <color name="linen_card">#FF002236</color>
+
+    <color name="tag_lost_color">#FFF87171</color>
+    <color name="tag_found_color">#FF60A5FA</color>
+    <color name="lost_bg_light">#FF450A0A</color>
+    <color name="found_bg_light">#FF082F49</color>
 
     <!-- Compatibility aliases for night mode -->
-    <color name="nude_cream">#FF012233</color>
-    <color name="nude_dark">#FFFAF0E6</color>
-    <color name="nude_taupe">#FF8BB5CC</color>
-    <color name="nude_light_taupe">#FF1A3548</color>
-    <color name="nude_sand">#FF5B7D8F</color>
+    <color name="nude_cream">#FF002236</color>
+    <color name="nude_dark">#FFF8FAFC</color>
+    <color name="nude_taupe">#FF94A3B8</color>
+    <color name="nude_light_taupe">#FF1E3A52</color>
+    <color name="nude_sand">#FF64748B</color>
 </resources>

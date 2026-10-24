@@ -98,6 +98,11 @@ class BottomNavFragment : Fragment() {
         lblExplore.setTextColor(if (tab == NavigationTab.EXPLORE) colAct else colInact)
         lblMessages.setTextColor(if (tab == NavigationTab.MESSAGES) colAct else colInact)
         lblProfile.setTextColor(if (tab == NavigationTab.PROFILE) colAct else colInact)
+
+        view?.findViewById<android.widget.ImageView>(R.id.imgHome)?.setColorFilter(if (tab == NavigationTab.HOME) colAct else colInact)
+        view?.findViewById<android.widget.ImageView>(R.id.imgExplore)?.setColorFilter(if (tab == NavigationTab.EXPLORE) colAct else colInact)
+        view?.findViewById<android.widget.ImageView>(R.id.imgMessages)?.setColorFilter(if (tab == NavigationTab.MESSAGES) colAct else colInact)
+        view?.findViewById<android.widget.ImageView>(R.id.imgProfile)?.setColorFilter(if (tab == NavigationTab.PROFILE) colAct else colInact)
     }
 
     override fun onDetach() {

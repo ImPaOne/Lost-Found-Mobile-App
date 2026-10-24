@@ -215,7 +215,7 @@ class UserManagementFragment : Fragment() {
             textSize = 11f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
             val isAdm = user.role.equals("ADMIN", ignoreCase = true)
-            setTextColor(if (isAdm) android.graphics.Color.WHITE else android.graphics.Color.parseColor("#4A3B32"))
+            setTextColor(if (isAdm) android.graphics.Color.WHITE else android.graphics.Color.parseColor("#003049"))
             setBackgroundResource(if (isAdm) R.drawable.bg_badge_admin else R.drawable.bg_badge_user)
             val hPad = (8 * resources.displayMetrics.density).toInt()
             val vPad = (3 * resources.displayMetrics.density).toInt()
@@ -244,7 +244,7 @@ class UserManagementFragment : Fragment() {
             text = if (user.isBanned) "● BANNED" else "● ACTIVE"
             textSize = 12f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
-            setTextColor(if (user.isBanned) android.graphics.Color.parseColor("#DC2626") else android.graphics.Color.parseColor("#059669"))
+            setTextColor(if (user.isBanned) android.graphics.Color.parseColor("#C1121F") else android.graphics.Color.parseColor("#059669"))
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
         actionsRow.addView(tvStatus)
@@ -254,7 +254,7 @@ class UserManagementFragment : Fragment() {
             text = if (user.isBanned) "Unban" else "Ban User"
             textSize = 13f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
-            setTextColor(if (user.isBanned) android.graphics.Color.parseColor("#059669") else android.graphics.Color.parseColor("#DC2626"))
+            setTextColor(if (user.isBanned) android.graphics.Color.parseColor("#059669") else android.graphics.Color.parseColor("#C1121F"))
             setBackgroundResource(R.drawable.bg_btn_outline)
             val hPad = (12 * resources.displayMetrics.density).toInt()
             val vPad = (6 * resources.displayMetrics.density).toInt()
@@ -271,7 +271,7 @@ class UserManagementFragment : Fragment() {
             text = if (isAdm) "Make User" else "Make Admin"
             textSize = 13f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
-            setTextColor(android.graphics.Color.parseColor("#4A3B32"))
+            setTextColor(android.graphics.Color.parseColor("#003049"))
             setBackgroundResource(R.drawable.bg_btn_outline)
             val hPad = (10 * resources.displayMetrics.density).toInt()
             val vPad = (6 * resources.displayMetrics.density).toInt()
