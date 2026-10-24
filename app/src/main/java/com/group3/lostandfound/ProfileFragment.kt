@@ -158,3 +158,31 @@ class ProfileFragment : Fragment() {
                 .replace(R.id.screenBox, LoginFragment.newInstance())
                 .commit()
         }
+
+         setupBottomNav(view, "profile")
+    }
+
+    private fun observeUserProfile() {
+        profileListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    currentDisplayName = snapshot.child("displayName").getValue(String::class.java)
+                        ?: snapshot.child("fullName").getValue(String::class.java)
+                        ?: "Community Member"
+                    currentLanguage = snapshot.child("preferredLanguage").getValue(String::class.java) ?: "en"
+                    currentPhone = snapshot.child("phone").getValue(String::class.java)
+                        ?: snapshot.child("phoneNumber").getValue(String::class.java)
+                        ?: ""
+                    currentPhotoUrl = snapshot.child("photoUrl").getValue(String::class.java)
+                        ?: snapshot.child("avatarUrl").getValue(String::class.java)
+                        ?: ""
+                    val isTrusted = snapshot.child("isTrustedFinder").getValue(Boolean::class.java) ?: false
+
+                    userName.text = currentDisplayName
+                    userSubtitle.text = "Language: ${currentLanguage.uppercase()} · ${if (isTrusted) "Trusted Finder" else "Community Member"}"
+
+                    if (currentPhotoUrl.isNotEmpty()) {
+                        ImageLoader.load(userAvatar, currentPhotoUrl, R.drawable.ic_user_avatar, viewLifecycleOwner.lifecycleScope)
+                    }
+                }
+            }
