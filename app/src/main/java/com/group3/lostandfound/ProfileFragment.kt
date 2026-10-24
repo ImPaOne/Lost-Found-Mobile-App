@@ -186,3 +186,30 @@ class ProfileFragment : Fragment() {
                     }
                 }
             }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Silently handle error
+            }
+        }
+        profileListener?.let { userRef.addValueEventListener(it) }
+    }
+
+    private fun observeUserItemStats() {
+        val uid = currentUid
+        itemStatsListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!isAdded) return
+                var foundCount = 0
+                var returnedCount = 0
+
+                for (child in snapshot.children) {
+                    val report = com.group3.lostandfound.model.ItemReport.fromSnapshot(child)
+                    if (report.userId == uid && uid.isNotEmpty()) {
+                        val status = report.status.uppercase()
+                        if (status == "FOUND") {
+                            foundCount++
+                        } else if (status == "RESOLVED" || status == "RETURNED") {
+                            returnedCount++
+                        }
+                    }
+                }
