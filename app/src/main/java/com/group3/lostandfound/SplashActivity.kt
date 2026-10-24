@@ -63,3 +63,14 @@ class SplashActivity : AppCompatActivity() {
                 }
                 .start()
         }
+
+        taglineText?.apply {
+            alpha = 0f
+            translationY = 20f
+            animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setStartDelay(600)
+                .setDuration(1000)
+                .start()
+        }
