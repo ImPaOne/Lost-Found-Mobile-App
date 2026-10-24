@@ -36,7 +36,7 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:contentDescription="App Logo"
-                android:src="@drawable/ic_splash_logo"
+                android:src="@drawable/logoo"
                 android:scaleType="fitCenter" />
         </FrameLayout>
 
