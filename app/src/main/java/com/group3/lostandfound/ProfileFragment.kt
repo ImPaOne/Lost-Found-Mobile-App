@@ -40,3 +40,25 @@ class ProfileFragment : Fragment() {
     private val userRef = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
         .getReference("users")
         .child(currentUid)
+
+    private var profileListener: ValueEventListener? = null
+    private var itemStatsListener: ValueEventListener? = null
+    private var currentDisplayName = "Community Member"
+    private var currentLanguage = "en"
+    private var currentPhone = ""
+    private var currentPhotoUrl = ""
+    private var activeDialogAvatarPreview: ImageView? = null
+
+    private val pickProfileAvatarLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            uploadProfileImage(uri)
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_profile, container, false)
+    }
