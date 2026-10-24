@@ -25,7 +25,7 @@ class SplashActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_splash)
 
-         val splashRootView = findViewById<View>(R.id.splashRoot)
+        val splashRootView = findViewById<View>(R.id.splashRoot)
         val centerBrandingBox = findViewById<View>(R.id.centerBrandingBox)
         val taglineText = findViewById<View>(R.id.taglineText)
         val indicatorDotsRow = findViewById<View>(R.id.indicatorDotsRow)
@@ -105,3 +105,4 @@ class SplashActivity : AppCompatActivity() {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()
     }
+}
