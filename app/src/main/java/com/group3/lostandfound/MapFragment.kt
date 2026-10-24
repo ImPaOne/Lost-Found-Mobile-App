@@ -445,7 +445,7 @@ class MapFragment : Fragment() {
             background: #C1121F;
         }
         .pin-found {
-            background: #003049;
+            background: #2D9A4E;
         }
         .pin-pinned {
             background: #C1121F;
@@ -482,8 +482,8 @@ class MapFragment : Fragment() {
             color: #C1121F;
         }
         .badge-found {
-            background: #EAF2F8;
-            color: #003049;
+            background: #E8F5EC;
+            color: #2D9A4E;
         }
     </style>
 </head>
@@ -511,7 +511,7 @@ class MapFragment : Fragment() {
             markersGroup.clearLayers();
             items.forEach(function(item) {
                 if (filter === 'all' || item.status === filter) {
-                    var pinColor = item.status === 'LOST' ? '#C1121F' : '#003049';
+                    var pinColor = item.status === 'LOST' ? '#C1121F' : '#2D9A4E';
                     var iconSvg = '<svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35)); cursor: pointer;">' +
                         '<path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0Z" fill="' + pinColor + '"/>' +
                         '<circle cx="15" cy="15" r="5.5" fill="#FFFFFF"/>' +
