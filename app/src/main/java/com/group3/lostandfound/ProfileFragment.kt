@@ -420,3 +420,25 @@ class ProfileFragment : Fragment() {
                             .show()
                     }
 
+                    3 -> {
+                        val input = EditText(requireContext()).apply {
+                            hint = "Describe your issue or feedback..."
+                            minLines = 3
+                        }
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("Contact Support")
+                            .setView(input)
+                            .setPositiveButton("Submit") { _, _ ->
+                                val msg = input.text.toString().trim()
+                                if (msg.isNotEmpty()) {
+                                    val ticket = mapOf(
+                                        "userEmail" to FirebaseManager.currentUserEmail,
+                                        "userId" to FirebaseManager.currentUid,
+                                        "message" to msg,
+                                        "timestamp" to System.currentTimeMillis(),
+                                        "status" to "OPEN"
+                                    )
+                                    FirebaseManager.database.getReference("contact_requests").push().setValue(ticket)
+                                    Toast.makeText(requireContext(), "Support inquiry submitted. Administrator will respond shortly.", Toast.LENGTH_LONG).show()
+                                }
+
