@@ -171,6 +171,18 @@ class MapFragment : Fragment() {
                     val lng = child.child("longitude").getValue(Double::class.java) ?: 0.0
                     val imageUrl = child.child("imageUrl").getValue(String::class.java) ?: ""
 
+                    // Read the permanent item type (LOST/FOUND). Falls back to deriving it
+                    // from status so that admin approval (status -> "APPROVED") never changes
+                    // the pin color — Lost items stay red, Found items stay blue.
+                    val storedItemType = child.child("itemType").getValue(String::class.java)
+                    val itemType = when {
+                        storedItemType.equals("LOST", ignoreCase = true) -> "LOST"
+                        storedItemType.equals("FOUND", ignoreCase = true) -> "FOUND"
+                        status.equals("LOST", ignoreCase = true) -> "LOST"
+                        status.equals("FOUND", ignoreCase = true) -> "FOUND"
+                        else -> "LOST" // safe default
+                    }
+
                     if (lat != 0.0 && lng != 0.0) {
                         val report = com.group3.lostandfound.model.ItemReport(
                             itemId = id,
@@ -187,7 +199,9 @@ class MapFragment : Fragment() {
 
                         val safeTitle = title.replace("'", "\\'").replace("\n", " ").take(40)
                         val safeLoc = location.replace("'", "\\'").replace("\n", " ").take(30)
-                        jsBuilder.append("items.push({id:'$id',title:'$safeTitle',location:'$safeLoc',status:'$status',lat:$lat,lng:$lng});\n")
+                        // Pass itemType separately so pin color is always LOST=red / FOUND=blue
+                        // regardless of whether admin has approved the item (status -> "APPROVED")
+                        jsBuilder.append("items.push({id:'$id',title:'$safeTitle',location:'$safeLoc',status:'$status',itemType:'$itemType',lat:$lat,lng:$lng});\n")
                     }
                 }
 
@@ -510,8 +524,13 @@ class MapFragment : Fragment() {
         function renderMarkers(filter) {
             markersGroup.clearLayers();
             items.forEach(function(item) {
-                if (filter === 'all' || item.status === filter) {
-                    var pinColor = item.status === 'LOST' ? '#C1121F' : '#1565C0';
+                // Use itemType (LOST/FOUND) for filtering so chips work correctly even
+                // after admin approval changes status to "APPROVED"
+                var type = item.itemType || item.status;
+                if (filter === 'all' || type === filter) {
+                    // Pin color is always driven by itemType — never by status —
+                    // so admin approval cannot change the pin color
+                    var pinColor = type === 'LOST' ? '#C1121F' : '#1565C0';
                     var iconSvg = '<svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35)); cursor: pointer;">' +
                         '<path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0Z" fill="' + pinColor + '"/>' +
                         '<circle cx="15" cy="15" r="5.5" fill="#FFFFFF"/>' +

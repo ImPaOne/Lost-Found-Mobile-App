@@ -23,6 +23,14 @@ data class ItemReport(
      * Converts ItemReport to a map representation for Firebase Realtime Database updates.
      */
     fun toMap(): Map<String, Any?> {
+        // Derive itemType: always LOST or FOUND, independent of moderation status.
+        // Admin approval changes `status` to "APPROVED" but must never touch `itemType`,
+        // so map pins keep the correct red (Lost) / blue (Found) color after approval.
+        val itemType = when {
+            status.equals("LOST", ignoreCase = true) -> "LOST"
+            status.equals("FOUND", ignoreCase = true) -> "FOUND"
+            else -> "LOST" // safe default
+        }
         return mapOf(
             "itemId" to itemId,
             "userId" to userId,
@@ -30,6 +38,7 @@ data class ItemReport(
             "description" to description,
             "category" to category,
             "status" to status,
+            "itemType" to itemType,   // permanent LOST/FOUND type — never overwritten by approval
             "imageUrl" to imageUrl,
             "location" to if (location.isNotEmpty()) location else "$category, Western Province",
             "latitude" to latitude,
