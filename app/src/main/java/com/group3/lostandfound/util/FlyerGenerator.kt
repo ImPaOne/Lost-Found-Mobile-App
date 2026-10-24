@@ -66,13 +66,13 @@ object FlyerGenerator {
         val isFound = report.status.equals("FOUND", ignoreCase = true)
 
         if (isLost) {
-            banner.setBackgroundColor(Color.parseColor("#D43838"))
-            tvStatusAlert.text = "⚠️ LOST ITEM ALERT"
+            banner.setBackgroundColor(Color.parseColor("#C1121F"))
+            tvStatusAlert.text = "🚨 LOST ITEM EMERGENCY ALERT"
         } else if (isFound) {
-            banner.setBackgroundColor(Color.parseColor("#3B7A57"))
-            tvStatusAlert.text = "✅ FOUND ITEM NOTICE"
+            banner.setBackgroundColor(Color.parseColor("#003049"))
+            tvStatusAlert.text = "✓ FOUND ITEM RECOVERY NOTICE"
         } else {
-            banner.setBackgroundColor(Color.parseColor("#624E43"))
+            banner.setBackgroundColor(Color.parseColor("#003049"))
             tvStatusAlert.text = "📌 ${report.status.uppercase()} REPORT"
         }
 
