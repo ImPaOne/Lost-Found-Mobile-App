@@ -265,3 +265,19 @@ class ProfileFragment : Fragment() {
         }
     }
 
+     private fun showEditProfileDialog() {
+        val bottomSheet = BottomSheetDialog(requireContext())
+        val sheetView = layoutInflater.inflate(R.layout.dialog_edit_profile, null)
+        bottomSheet.setContentView(sheetView)
+
+        val dialogAvatarPreview = sheetView.findViewById<ImageView>(R.id.dialogAvatarPreview)
+        val rowChangeAvatar = sheetView.findViewById<View>(R.id.rowChangeAvatar)
+        val etProfileName = sheetView.findViewById<EditText>(R.id.etProfileName)
+        val etProfilePhone = sheetView.findViewById<EditText>(R.id.etProfilePhone)
+        val btnCancelEdit = sheetView.findViewById<View>(R.id.btnCancelEdit)
+        val btnSaveProfile = sheetView.findViewById<View>(R.id.btnSaveProfile)
+
+        activeDialogAvatarPreview = dialogAvatarPreview
+        if (currentPhotoUrl.isNotEmpty()) {
+            ImageLoader.load(dialogAvatarPreview, currentPhotoUrl, R.drawable.ic_user_avatar, viewLifecycleOwner.lifecycleScope)
+        }
