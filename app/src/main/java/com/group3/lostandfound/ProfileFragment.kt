@@ -105,3 +105,16 @@ class ProfileFragment : Fragment() {
                 navigateTo(HomeFragment.newInstance())
             }
         }
+        btnMenu.setOnClickListener {
+            val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+            val isAdmin = prefs.getBoolean("is_admin", false) && FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
+            if (isAdmin) {
+                navigateTo(AdminFragment.newInstance())
+            } else {
+                navigateTo(SettingsFragment.newInstance())
+            }
+        }
+
+        rowReports.setOnClickListener {
+            navigateTo(ReportsFragment.newInstance())
+        }
