@@ -305,3 +305,15 @@ class ProfileFragment : Fragment() {
                 updates["phone"] = newPhone
                 updates["phoneNumber"] = newPhone
             }
+
+            userRef.updateChildren(updates).addOnSuccessListener {
+                currentDisplayName = newName
+                currentPhone = newPhone
+                userName.text = newName
+                ModernToast.show(requireContext(), "Profile updated in Firebase!", view)
+                bottomSheet.dismiss()
+            }.addOnFailureListener {
+                Toast.makeText(requireContext(), "Update failed: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+
