@@ -117,7 +117,7 @@
             android:fontFamily="sans-serif"
             android:maxLines="2"
             android:text="Scan QR to view and contact the reporter."
-            android:textColor="#5C4638"
+            android:textColor="@color/text_primary"
             android:textSize="12sp" />
 
         <!-- Divider -->
@@ -176,7 +176,7 @@
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif"
                     android:text="foundly://item/id"
-                    android:textColor="#8C7E74"
+                    android:textColor="@color/text_secondary"
                     android:textSize="10sp" />
 
                 <TextView
