@@ -317,3 +317,25 @@ class ProfileFragment : Fragment() {
             }
         }
 
+        bottomSheet.setOnDismissListener {
+            activeDialogAvatarPreview = null
+        }
+        bottomSheet.show()
+    }
+
+    private fun showSavedItemsDialog() {
+        val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+        val savedIds = prefs.getStringSet("bookmarked_ids", emptySet()) ?: emptySet()
+
+        if (savedIds.isEmpty()) {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Saved Items (0)")
+                .setMessage("No bookmarked reports yet.\n\nBrowse items and tap the bookmark ribbon icon on any item detail page to save it here for instant access.")
+                .setPositiveButton("Browse Items") { _, _ ->
+                    navigateTo(HomeFragment.newInstance())
+                }
+                .setNegativeButton("Close", null)
+                .show()
+            return
+        }
+
