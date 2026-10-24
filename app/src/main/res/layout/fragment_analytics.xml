@@ -170,7 +170,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <!-- Electronics 38% (#A48374) -->
+                <!-- Electronics 38% (@color/text_hint) -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -181,7 +181,7 @@
                         android:layout_width="8dp"
                         android:layout_height="8dp"
                         android:background="@drawable/bg_circle_black"
-                        android:backgroundTint="#A48374" />
+                        android:backgroundTint="@color/text_hint" />
 
                     <TextView
                         android:id="@+id/tvCategoryElectronics"
@@ -244,7 +244,7 @@
                         android:textSize="13sp" />
                 </LinearLayout>
 
-                <!-- Other 17% (#3A2D28) -->
+                <!-- Other 17% (@color/text_primary) -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -256,7 +256,7 @@
                         android:layout_width="8dp"
                         android:layout_height="8dp"
                         android:background="@drawable/bg_circle_black"
-                        android:backgroundTint="#3A2D28" />
+                        android:backgroundTint="@color/text_primary" />
 
                     <TextView
                         android:id="@+id/tvCategoryOther"
