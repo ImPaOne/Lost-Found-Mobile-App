@@ -47,10 +47,13 @@ class ExploreAdapter(
 
         if (item.status.equals("LOST", ignoreCase = true)) {
             holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.tag_lost_color))
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
         } else if (item.status.equals("FOUND", ignoreCase = true)) {
             holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.tag_found_color))
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_tag_found_outlined)
         } else {
-            holder.tvStatus.setTextColor(Color.parseColor("#4A7C59"))
+            holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.tag_found_color))
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_tag_found_outlined)
         }
 
         val locationText = if (item.category.isNotBlank()) {
