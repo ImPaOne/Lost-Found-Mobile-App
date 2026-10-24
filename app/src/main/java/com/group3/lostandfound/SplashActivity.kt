@@ -16,10 +16,10 @@ import androidx.core.view.WindowInsetsCompat
  */
 class SplashActivity : AppCompatActivity() {
 
-    private val splashDelayMs = 2000L
+    private val splashDelayMs = 3500L
     private val handler = Handler(Looper.getMainLooper())
     private var isNavigated = false
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
