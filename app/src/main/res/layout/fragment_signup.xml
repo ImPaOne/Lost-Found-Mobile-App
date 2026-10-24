@@ -50,8 +50,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:fontFamily="sans-serif-bold"
-                    android:text="FindIt LK"
-                    android:textColor="#3A2D28"
+                    android:text="Foundly"
+                    android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -63,7 +63,7 @@
                 android:layout_marginTop="22dp"
                 android:fontFamily="sans-serif-black"
                 android:text="Create your account"
-                android:textColor="#3A2D28"
+                android:textColor="@color/text_primary"
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
@@ -74,7 +74,7 @@
                 android:fontFamily="sans-serif"
                 android:lineSpacingExtra="3dp"
                 android:text="Join Sri Lanka’s trusted lost and found\ncommunity."
-                android:textColor="#7C6E66"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
 
             <!-- Field 1: Full name -->
@@ -84,7 +84,7 @@
                 android:layout_marginTop="22dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="Full name"
-                android:textColor="#4A3B32"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -100,8 +100,8 @@
                 android:inputType="textPersonName"
                 android:paddingTop="6dp"
                 android:paddingBottom="6dp"
-                android:textColor="#3A2D28"
-                android:textColorHint="#7C6E66"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_hint"
                 android:textSize="15sp" />
 
             <!-- Field 2: Email -->
@@ -111,7 +111,7 @@
                 android:layout_marginTop="16dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="Email"
-                android:textColor="#4A3B32"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -127,8 +127,8 @@
                 android:inputType="textEmailAddress"
                 android:paddingTop="6dp"
                 android:paddingBottom="6dp"
-                android:textColor="#3A2D28"
-                android:textColorHint="#7C6E66"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_hint"
                 android:textSize="15sp" />
 
             <!-- Field 3 & 4: Two-column Phone number & NIC number -->
