@@ -20,3 +20,23 @@ import com.google.firebase.database.ValueEventListener
 import com.group3.lostandfound.util.ImageLoader
 import com.group3.lostandfound.util.ModernToast
 import kotlinx.coroutines.launch
+
+/**
+ * ProfileFragment displays user profile information, activity statistics,
+ * and handles real-time synchronization with Firebase Realtime Database at `/users/{uid}`.
+ * Provides controls to update displayName and preferredLanguage via updateChildren().
+ */
+class ProfileFragment : Fragment() {
+
+    private lateinit var userAvatar: ImageView
+    private lateinit var boxAvatarContainer: View
+    private lateinit var userName: TextView
+    private lateinit var userSubtitle: TextView
+    private lateinit var countItemsFound: TextView
+    private lateinit var countItemsReturned: TextView
+    private lateinit var countTrustScore: TextView
+
+    private val currentUid = FirebaseManager.currentUid
+    private val userRef = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+        .getReference("users")
+        .child(currentUid)
