@@ -315,8 +315,10 @@ class MapFragment : Fragment() {
 
                 if (currentStatus.equals("LOST", ignoreCase = true)) {
                     tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
+                    tagFoundStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
                 } else {
                     tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
+                    tagFoundStatus.setBackgroundResource(R.drawable.bg_tag_found_outlined)
                 }
 
                 val imgSource = report?.imageUrl ?: ""
@@ -353,6 +355,7 @@ class MapFragment : Fragment() {
                 textItemLocation.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Tap to confirm", lat, lng)
                 tagFoundStatus.text = if (isPickerMode) "USE THIS" else "PINNED"
                 tagFoundStatus.setTextColor(ContextCompat.getColor(requireContext(), if (isPickerMode) R.color.tag_found_color else R.color.tag_lost_color))
+                tagFoundStatus.setBackgroundResource(if (isPickerMode) R.drawable.bg_tag_found_outlined else R.drawable.bg_tag_lost_outlined)
                 imgLaptopThumb.setImageResource(R.drawable.ic_location)
 
                 com.group3.lostandfound.util.ModernToast.show(
