@@ -138,3 +138,23 @@ class ProfileFragment : Fragment() {
                 Toast.makeText(requireContext(), "Settings screen error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
+        rowHelp.setOnClickListener {
+            try {
+                showHelpCenterDialog()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Help Center error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        rowLogout.setOnClickListener {
+            requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean("is_logged_in", false)
+                .putBoolean("is_admin", false)
+                .apply()
+            com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
+            Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, LoginFragment.newInstance())
+                .commit()
+        }
