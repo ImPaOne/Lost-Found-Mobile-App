@@ -47,3 +47,19 @@ class SplashActivity : AppCompatActivity() {
                 .scaleY(1f)
                 .setDuration(1200)
                 .withEndAction {
+                    // Subtle gentle breathing pulse
+                    centerBrandingBox.animate()
+                        .scaleX(1.03f)
+                        .scaleY(1.03f)
+                        .setDuration(900)
+                        .withEndAction {
+                            centerBrandingBox.animate()
+                                .scaleX(1f)
+                                .scaleY(1f)
+                                .setDuration(900)
+                                .start()
+                        }
+                        .start()
+                }
+                .start()
+        }
