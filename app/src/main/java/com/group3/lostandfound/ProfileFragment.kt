@@ -62,3 +62,30 @@ class ProfileFragment : Fragment() {
     ): View? {
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val btnClose = view.findViewById<ImageView>(R.id.btnClose)
+        val btnMenu = view.findViewById<ImageView>(R.id.btnMenu)
+        userAvatar = view.findViewById(R.id.userAvatar)
+        boxAvatarContainer = view.findViewById(R.id.boxAvatarContainer)
+        userName = view.findViewById(R.id.userName)
+        userSubtitle = view.findViewById(R.id.userSubtitle)
+        countItemsFound = view.findViewById(R.id.countItemsFound)
+        countItemsReturned = view.findViewById(R.id.countItemsReturned)
+        countTrustScore = view.findViewById(R.id.countTrustScore)
+
+        countItemsFound.text = "0"
+        countItemsReturned.text = "0"
+        countTrustScore.text = "50%"
+
+        val rowReports = view.findViewById<LinearLayout>(R.id.rowReports)
+        val rowSavedItems = view.findViewById<LinearLayout>(R.id.rowSavedItems)
+        val rowTrustScore = view.findViewById<LinearLayout>(R.id.rowTrustScore)
+        val rowSettings = view.findViewById<LinearLayout>(R.id.rowSettings)
+        val rowHelp = view.findViewById<LinearLayout>(R.id.rowHelp)
+        val rowLogout = view.findViewById<LinearLayout>(R.id.rowLogout)
+
+        // Real-time observation of /users/{uid} and user item stats
+        observeUserProfile()
+        observeUserItemStats()
