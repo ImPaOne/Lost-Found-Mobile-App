@@ -37,6 +37,9 @@ class ChatFragment : Fragment() {
     private var relatedItemId: String = ""
     private var relatedItemTitle: String = ""
 
+    private var isCurrentUserReporter: Boolean = false
+    private var isItemAlreadyResolved: Boolean = false
+
     private val currentUserId: String
         get() = FirebaseManager.currentUid
 
@@ -83,6 +86,7 @@ class ChatFragment : Fragment() {
         setupRecyclerView()
         setupListeners()
         observeViewModel()
+        checkReportResolutionStatus()
 
         chatViewModel.initializeChatConversation(chatConversationId)
     }
@@ -242,7 +246,14 @@ class ChatFragment : Fragment() {
         if (message.isDeletedForEveryone) return
         selectedReplyMessage = message
         binding.layoutReplyPreview.visibility = View.VISIBLE
-        binding.tvReplyToName.text = if (message.senderUserId == currentUserId) "You" else recipientUserName
+        val displayName = if (message.senderUserId == currentUserId) {
+            "You"
+        } else if (message.replyToSenderName.isNotBlank() && message.replyToSenderName != "You") {
+            message.replyToSenderName
+        } else {
+            recipientUserName
+        }
+        binding.tvReplyToName.text = "Replying to $displayName"
         val preview = if (message.chatMessageTextContent.isNotBlank()) message.chatMessageTextContent else "[Photo]"
         binding.tvReplyToText.text = preview
         binding.etChatMessageInput.requestFocus()
@@ -507,25 +518,224 @@ class ChatFragment : Fragment() {
         }
     }
 
-    private fun showChatOptionsMenu() {
-        val options = arrayOf(
-            "Block $recipientUserName",
-            "Report Inappropriate Activity",
-            "Clear Local View"
+    private fun checkReportResolutionStatus() {
+        if (relatedItemId.isBlank()) {
+            binding.layoutResolveReportBanner.visibility = View.GONE
+            return
+        }
+
+        FirebaseManager.itemsRef.child(relatedItemId)
+            .addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
+                override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                    if (_binding == null || !isAdded) return
+                    val reporterId = snapshot.child("userId").getValue(String::class.java) ?: ""
+                    val status = snapshot.child("status").getValue(String::class.java) ?: ""
+                    isCurrentUserReporter = reporterId.isNotEmpty() && reporterId == currentUserId
+                    isItemAlreadyResolved = status.equals("RESOLVED", ignoreCase = true)
+
+                    if (isCurrentUserReporter && !isItemAlreadyResolved) {
+                        binding.layoutResolveReportBanner.visibility = View.VISIBLE
+                        binding.tvResolveBannerTitle.text = "Reunited with $recipientUserName?"
+                        binding.tvResolveBannerSub.text = "Select this user to resolve & award achievement"
+                        binding.btnResolveWithChatUser.visibility = View.VISIBLE
+                        binding.btnResolveWithChatUser.text = "Resolve Case"
+                        binding.btnResolveWithChatUser.setOnClickListener {
+                            confirmResolveReportWithUser(recipientUserId, recipientUserName)
+                        }
+                    } else if (isItemAlreadyResolved) {
+                        val resolvedWithName = snapshot.child("resolvedWithUserName").getValue(String::class.java)
+                            ?: recipientUserName
+                        binding.layoutResolveReportBanner.visibility = View.VISIBLE
+                        binding.tvResolveBannerTitle.text = "✓ Report RESOLVED & Reunited"
+                        binding.tvResolveBannerSub.text = "Resolved with $resolvedWithName"
+                        binding.btnResolveWithChatUser.visibility = View.GONE
+                    } else {
+                        binding.layoutResolveReportBanner.visibility = View.GONE
+                    }
+                }
+
+                override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+            })
+    }
+
+    private fun confirmResolveReportWithUser(targetUserId: String, targetUserName: String) {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("🤝 Resolve Case with $targetUserName")
+            .setMessage(
+                "Did $targetUserName help safely return or reunite '$relatedItemTitle'?\n\n" +
+                "🎉 Recognition & Rewards:\n" +
+                "• 🏆 $targetUserName will earn the 'Reunited Hero' Achievement Badge\n" +
+                "• 🌟 +20 Trust Score points for $targetUserName\n" +
+                "• 🌟 +15 Trust Score points for you\n" +
+                "• Case status will be permanently marked as RESOLVED"
+            )
+            .setPositiveButton("Yes, Resolve & Award!") { _, _ ->
+                performReportResolution(targetUserId, targetUserName)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun performReportResolution(targetUserId: String, targetUserName: String) {
+        if (relatedItemId.isBlank()) return
+        val currentContext = context ?: return
+        val itemTitle = relatedItemTitle.ifEmpty { "Reported Item" }
+        val reporterName = FirebaseManager.currentUserEmail.substringBefore("@").replaceFirstChar { it.uppercase() }
+
+        // 1. Update Item in Firebase Realtime Database
+        val itemUpdate = mapOf(
+            "status" to "RESOLVED",
+            "resolvedWithUserId" to targetUserId,
+            "resolvedWithUserName" to targetUserName,
+            "resolvedByUserId" to currentUserId,
+            "resolvedTimestamp" to System.currentTimeMillis()
         )
+        FirebaseManager.itemsRef.child(relatedItemId).updateChildren(itemUpdate)
+
+        // 2. Award Achievement and Trust Score to Chatted User (targetUserId)
+        if (targetUserId.isNotEmpty()) {
+            val recipientDbRef = FirebaseManager.usersRef.child(targetUserId)
+            recipientDbRef.child("itemsReturned").setValue(com.google.firebase.database.ServerValue.increment(1))
+            recipientDbRef.child("trustScore").setValue(com.google.firebase.database.ServerValue.increment(20))
+
+            val achievementKey = "reunited_hero_${System.currentTimeMillis()}"
+            val recipientAchievement = mapOf(
+                "id" to achievementKey,
+                "title" to "🤝 Reunited Hero",
+                "description" to "Helped resolve '$itemTitle' with $reporterName! Safely returned to owner.",
+                "timestamp" to System.currentTimeMillis(),
+                "badge" to "HERO_REUNITED",
+                "xpAwarded" to 20
+            )
+            recipientDbRef.child("achievements").child(achievementKey).setValue(recipientAchievement)
+
+            // Notification for recipient
+            val notif = mapOf(
+                "id" to "notif_${System.currentTimeMillis()}",
+                "title" to "🏆 Achievement Unlocked: Reunited Hero!",
+                "message" to "$reporterName confirmed you helped reunite '$itemTitle'. You earned +20 Trust Points!",
+                "timestamp" to System.currentTimeMillis(),
+                "type" to "ACHIEVEMENT",
+                "itemId" to relatedItemId,
+                "senderUserId" to currentUserId,
+                "read" to false
+            )
+            FirebaseManager.database.getReference("notifications").child(targetUserId).push().setValue(notif)
+        }
+
+        // 3. Award Trust Score and Achievement to Reporting User (currentUserId)
+        if (currentUserId.isNotEmpty()) {
+            val currentReporterRef = FirebaseManager.usersRef.child(currentUserId)
+            currentReporterRef.child("trustScore").setValue(com.google.firebase.database.ServerValue.increment(15))
+            currentReporterRef.child("resolvedReports").setValue(com.google.firebase.database.ServerValue.increment(1))
+
+            val reporterAchievement = mapOf(
+                "id" to "case_resolved_${System.currentTimeMillis()}",
+                "title" to "🎉 Case Resolved",
+                "description" to "Successfully resolved '$itemTitle' with $targetUserName!",
+                "timestamp" to System.currentTimeMillis()
+            )
+            currentReporterRef.child("achievements").push().setValue(reporterAchievement)
+        }
+
+        // 4. Send celebratory announcement message in chat
+        chatViewModel.sendUserChatMessage(
+            chatConversationId = chatConversationId,
+            senderUserId = currentUserId,
+            recipientUserId = targetUserId,
+            chatMessageTextContent = "🎉 [Case Resolved] '$itemTitle' has been marked as RESOLVED! Congratulations to $targetUserName for safely reuniting this item! 🏆 (+20 Trust XP & Reunited Hero badge awarded)",
+            relatedItemId = relatedItemId,
+            otherUserName = targetUserName,
+            relatedItemTitle = itemTitle
+        )
+
+        // 5. Trigger local push notification & update banner
+        com.group3.lostandfound.service.FCMService.triggerPushNotification(
+            currentContext,
+            "🎉 Item Reunited & Resolved!",
+            "'$itemTitle' marked RESOLVED with $targetUserName. Achievements awarded!",
+            relatedItemId
+        )
+
+        isItemAlreadyResolved = true
+        binding.tvResolveBannerTitle.text = "✓ Report RESOLVED & Reunited"
+        binding.tvResolveBannerSub.text = "Resolved with $targetUserName"
+        binding.btnResolveWithChatUser.visibility = View.GONE
+
+        androidx.appcompat.app.AlertDialog.Builder(currentContext)
+            .setTitle("🎉 Congratulations!")
+            .setMessage("'$itemTitle' has been marked as RESOLVED!\n\n🏆 $targetUserName was awarded the 'Reunited Hero' achievement and +20 Trust Score points.\nYou received +15 Trust Score points.")
+            .setPositiveButton("Awesome!", null)
+            .show()
+    }
+
+    private val overlayPermissionLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (com.group3.lostandfound.service.FloatingOverlayService.canDrawOverlays(requireContext())) {
+            com.group3.lostandfound.service.FloatingOverlayService.startService(requireContext())
+            com.group3.lostandfound.util.ModernToast.show(
+                requireContext(),
+                "Floating chat head launched! You can minimize Foundly and keep multitasking.",
+                binding.root
+            )
+        }
+    }
+
+    private fun launchFloatingBubble() {
+        if (com.group3.lostandfound.service.FloatingOverlayService.canDrawOverlays(requireContext())) {
+            com.group3.lostandfound.service.FloatingOverlayService.startService(requireContext())
+            com.group3.lostandfound.util.ModernToast.show(
+                requireContext(),
+                "Floating chat head launched! You can minimize Foundly and keep multitasking.",
+                binding.root
+            )
+        } else {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Allow Draw Over Other Apps")
+                .setMessage("Foundly requires permission to display over other apps to show floating chat bubbles while you use other apps.")
+                .setPositiveButton("Open Settings") { _, _ ->
+                    val intent = android.content.Intent(
+                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        android.net.Uri.parse("package:${requireContext().packageName}")
+                    )
+                    overlayPermissionLauncher.launch(intent)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+    }
+
+    private fun showChatOptionsMenu() {
+        val optionsList = mutableListOf<String>()
+        if (isCurrentUserReporter && !isItemAlreadyResolved && relatedItemId.isNotBlank()) {
+            optionsList.add("🤝 Mark RESOLVED with $recipientUserName")
+        }
+        optionsList.add("🫧 Pop out Floating Chat Bubble")
+        optionsList.add("Block $recipientUserName")
+        optionsList.add("Report Inappropriate Activity")
+        optionsList.add("Clear Local View")
+
+        val options = optionsList.toTypedArray()
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Chat Options · $recipientUserName")
             .setItems(options) { _, which ->
-                when (which) {
-                    0 -> confirmBlockUser()
-                    1 -> {
+                when (options[which]) {
+                    "🤝 Mark RESOLVED with $recipientUserName" -> {
+                        confirmResolveReportWithUser(recipientUserId, recipientUserName)
+                    }
+                    "🫧 Pop out Floating Chat Bubble" -> {
+                        launchFloatingBubble()
+                    }
+                    "Block $recipientUserName" -> confirmBlockUser()
+                    "Report Inappropriate Activity" -> {
                         com.group3.lostandfound.util.ModernToast.show(
                             requireContext(),
                             "Report submitted for safety review.",
                             binding.root
                         )
                     }
-                    2 -> {
+                    "Clear Local View" -> {
                         chatAdapter.submitList(emptyList())
                         binding.layoutChatEmptyState.visibility = View.VISIBLE
                         com.group3.lostandfound.util.ModernToast.show(
