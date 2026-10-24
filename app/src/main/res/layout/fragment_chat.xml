@@ -30,7 +30,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
             android:src="@drawable/ic_back_chevron"
-            app:tint="@color/nude_dark" />
+            app:tint="@color/text_primary" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -44,7 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Chat"
-                android:textColor="@color/nude_dark"
+                android:textColor="@color/text_primary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
 
@@ -66,7 +66,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Chat Options"
             android:src="@drawable/ic_more_vertical"
-            app:tint="@color/nude_dark" />
+            app:tint="@color/text_primary" />
     </LinearLayout>
 
     <!-- Empty State -->
@@ -87,7 +87,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/ic_nav_messages"
-            app:tint="@color/nude_sand" />
+            app:tint="@color/text_hint" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -205,7 +205,7 @@
             <View
                 android:layout_width="3.5dp"
                 android:layout_height="32dp"
-                android:background="@color/nude_dark" />
+                android:background="@color/deep_blue" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -219,7 +219,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Replying to Message"
-                    android:textColor="@color/nude_dark"
+                    android:textColor="@color/deep_blue"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -251,7 +251,7 @@
             android:id="@+id/layoutAttachmentPreview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#F5EFE6"
+            android:background="#F8FAFC"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:padding="8dp"
@@ -316,7 +316,7 @@
                 android:padding="8dp"
                 android:contentDescription="Attach photo"
                 android:src="@drawable/ic_nav_plus"
-                app:tint="@color/nude_dark" />
+                app:tint="@color/text_primary" />
 
             <EditText
                 android:id="@+id/etChatMessageInput"
@@ -347,7 +347,7 @@
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
                 android:padding="0dp"
-                app:backgroundTint="@color/nude_dark"
+                app:backgroundTint="@color/deep_blue"
                 app:cornerRadius="24dp"
                 app:icon="@drawable/ic_send"
                 app:iconGravity="textStart"

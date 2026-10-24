@@ -28,7 +28,7 @@
 
     <!-- Inner Circle in Pin -->
     <path
-        android:fillColor="#FF3A2D28"
+        android:fillColor="#FF003049"
         android:pathData="M54,49m-14,0a14,14 0,1 1,28 0a14,14 0,1 1,-28 0" />
 
     <!-- Reunited Heart / Sparkle in Center -->

@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-bold"
         android:text="Edit Profile Details"
-        android:textColor="@color/nude_dark"
+        android:textColor="@color/text_primary"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-bold"
                 android:text="Profile Photo"
-                android:textColor="@color/nude_dark"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -89,7 +89,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-bold"
             android:text="Upload →"
-            android:textColor="@color/nude_taupe"
+            android:textColor="@color/primary"
             android:textSize="13sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -101,7 +101,7 @@
         android:layout_marginTop="16dp"
         android:fontFamily="sans-serif-bold"
         android:text="FULL NAME"
-        android:textColor="@color/nude_dark"
+        android:textColor="@color/text_primary"
         android:textSize="11sp"
         android:textStyle="bold" />
 
@@ -116,7 +116,7 @@
         android:inputType="textPersonName"
         android:paddingStart="14dp"
         android:paddingEnd="14dp"
-        android:textColor="@color/nude_dark"
+        android:textColor="@color/text_primary"
         android:textSize="14sp" />
 
     <!-- Phone Number Input -->
@@ -126,7 +126,7 @@
         android:layout_marginTop="14dp"
         android:fontFamily="sans-serif-bold"
         android:text="PHONE NUMBER (FOR HANDOVER)"
-        android:textColor="@color/nude_dark"
+        android:textColor="@color/text_primary"
         android:textSize="11sp"
         android:textStyle="bold" />
 
@@ -141,7 +141,7 @@
         android:inputType="phone"
         android:paddingStart="14dp"
         android:paddingEnd="14dp"
-        android:textColor="@color/nude_dark"
+        android:textColor="@color/text_primary"
         android:textSize="14sp" />
 
     <!-- Action Buttons -->
@@ -163,7 +163,7 @@
             android:fontFamily="sans-serif-medium"
             android:gravity="center"
             android:text="Cancel"
-            android:textColor="@color/nude_dark"
+            android:textColor="@color/text_primary"
             android:textSize="14sp" />
 
         <TextView

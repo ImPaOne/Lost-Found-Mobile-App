@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-bold"
         android:text="Enjoying Foundly?"
-        android:textColor="@color/nude_dark"
+        android:textColor="@color/text_primary"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -111,7 +111,7 @@
         android:layout_marginTop="8dp"
         android:fontFamily="sans-serif-bold"
         android:text="Outstanding · 5.0"
-        android:textColor="@color/nude_dark"
+        android:textColor="@color/text_primary"
         android:textSize="14sp"
         android:textStyle="bold" />
 
@@ -125,7 +125,7 @@
         android:gravity="top|start"
         android:hint="Any suggestions or thoughts for our team? (Optional)"
         android:padding="12dp"
-        android:textColor="@color/nude_dark"
+        android:textColor="@color/text_primary"
         android:textSize="13sp" />
 
     <LinearLayout
@@ -146,7 +146,7 @@
             android:fontFamily="sans-serif-medium"
             android:gravity="center"
             android:text="Not Now"
-            android:textColor="@color/nude_dark"
+            android:textColor="@color/text_primary"
             android:textSize="14sp" />
 
         <TextView

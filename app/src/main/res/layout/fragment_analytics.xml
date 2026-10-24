@@ -181,7 +181,7 @@
                         android:layout_width="8dp"
                         android:layout_height="8dp"
                         android:background="@drawable/bg_circle_black"
-                        android:backgroundTint="@color/text_hint" />
+                        android:backgroundTint="#C1121F" />
 
                     <TextView
                         android:id="@+id/tvCategoryElectronics"
@@ -194,7 +194,7 @@
                         android:textSize="13sp" />
                 </LinearLayout>
 
-                <!-- Documents 27% (#D1C7BD) -->
+                <!-- Documents 27% (#003049) -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -206,7 +206,7 @@
                         android:layout_width="8dp"
                         android:layout_height="8dp"
                         android:background="@drawable/bg_circle_black"
-                        android:backgroundTint="#D1C7BD" />
+                        android:backgroundTint="#003049" />
 
                     <TextView
                         android:id="@+id/tvCategoryDocuments"
@@ -219,7 +219,7 @@
                         android:textSize="13sp" />
                 </LinearLayout>
 
-                <!-- Pets 18% (#CBAD8D) -->
+                <!-- Pets 18% (#457B9D) -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -231,7 +231,7 @@
                         android:layout_width="8dp"
                         android:layout_height="8dp"
                         android:background="@drawable/bg_circle_black"
-                        android:backgroundTint="#CBAD8D" />
+                        android:backgroundTint="#457B9D" />
 
                     <TextView
                         android:id="@+id/tvCategoryPets"
@@ -244,7 +244,7 @@
                         android:textSize="13sp" />
                 </LinearLayout>
 
-                <!-- Other 17% (@color/text_primary) -->
+                <!-- Other 17% (#94A3B8) -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -256,7 +256,7 @@
                         android:layout_width="8dp"
                         android:layout_height="8dp"
                         android:background="@drawable/bg_circle_black"
-                        android:backgroundTint="@color/text_primary" />
+                        android:backgroundTint="#94A3B8" />
 
                     <TextView
                         android:id="@+id/tvCategoryOther"
