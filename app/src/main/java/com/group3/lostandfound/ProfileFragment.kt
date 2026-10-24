@@ -281,3 +281,27 @@ class ProfileFragment : Fragment() {
         if (currentPhotoUrl.isNotEmpty()) {
             ImageLoader.load(dialogAvatarPreview, currentPhotoUrl, R.drawable.ic_user_avatar, viewLifecycleOwner.lifecycleScope)
         }
+
+        etProfileName.setText(currentDisplayName)
+        etProfilePhone.setText(currentPhone)
+
+        rowChangeAvatar.setOnClickListener {
+            pickProfileAvatarLauncher.launch("image/*")
+        }
+
+        btnCancelEdit.setOnClickListener {
+            bottomSheet.dismiss()
+        }
+
+        btnSaveProfile.setOnClickListener {
+            val newName = etProfileName.text.toString().trim().ifEmpty { currentDisplayName }
+            val newPhone = etProfilePhone.text.toString().trim()
+
+            val updates = mutableMapOf<String, Any>(
+                "displayName" to newName,
+                "fullName" to newName
+            )
+            if (newPhone.isNotEmpty()) {
+                updates["phone"] = newPhone
+                updates["phoneNumber"] = newPhone
+            }
