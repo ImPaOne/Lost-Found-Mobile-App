@@ -458,3 +458,15 @@ class ProfileFragment : Fragment() {
         itemStatsListener?.let { FirebaseManager.itemsRef.removeEventListener(it) }
     }
 
+    private fun navigateTo(fragment: Fragment) {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.screenBox, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    companion object {
+        fun newInstance(): ProfileFragment = ProfileFragment()
+    }
+}
+
