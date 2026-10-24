@@ -62,6 +62,7 @@ class ProfileFragment : Fragment() {
     ): View? {
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -105,6 +106,7 @@ class ProfileFragment : Fragment() {
                 navigateTo(HomeFragment.newInstance())
             }
         }
+
         btnMenu.setOnClickListener {
             val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
             val isAdmin = prefs.getBoolean("is_admin", false) && FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
@@ -138,6 +140,7 @@ class ProfileFragment : Fragment() {
                 Toast.makeText(requireContext(), "Settings screen error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
+
         rowHelp.setOnClickListener {
             try {
                 showHelpCenterDialog()
@@ -159,7 +162,7 @@ class ProfileFragment : Fragment() {
                 .commit()
         }
 
-         setupBottomNav(view, "profile")
+        setupBottomNav(view, "profile")
     }
 
     private fun observeUserProfile() {
@@ -213,7 +216,7 @@ class ProfileFragment : Fragment() {
                         }
                     }
                 }
-                
+
                 val calculatedTrust = (50 + (returnedCount * 15) + (foundCount * 5)).coerceIn(50, 99)
 
                 countItemsFound.text = foundCount.toString()
@@ -242,7 +245,6 @@ class ProfileFragment : Fragment() {
                     uploadedUrl = com.group3.lostandfound.util.CloudinaryManager.uploadImage(compressedBytes) {}
                 } catch (_: Exception) {}
 
-                
                 if (!uploadedUrl.startsWith("http://") && !uploadedUrl.startsWith("https://")) {
                     val b64 = android.util.Base64.encodeToString(compressedBytes, android.util.Base64.NO_WRAP)
                     uploadedUrl = "data:image/jpeg;base64,$b64"
@@ -265,7 +267,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-     private fun showEditProfileDialog() {
+    private fun showEditProfileDialog() {
         val bottomSheet = BottomSheetDialog(requireContext())
         val sheetView = layoutInflater.inflate(R.layout.dialog_edit_profile, null)
         bottomSheet.setContentView(sheetView)
@@ -351,7 +353,7 @@ class ProfileFragment : Fragment() {
                 }
             }
 
-             if (matchingItems.isEmpty()) {
+            if (matchingItems.isEmpty()) {
                 AlertDialog.Builder(requireContext())
                     .setTitle("Saved Items")
                     .setMessage("Saved reports are no longer available in the active directory.")
@@ -403,7 +405,6 @@ class ProfileFragment : Fragment() {
                             .setPositiveButton("I Understand", null)
                             .show()
                     }
-
                     2 -> {
                         AlertDialog.Builder(requireContext())
                             .setTitle("Emergency Helpline")
@@ -419,7 +420,6 @@ class ProfileFragment : Fragment() {
                             .setNegativeButton("Dismiss", null)
                             .show()
                     }
-
                     3 -> {
                         val input = EditText(requireContext()).apply {
                             hint = "Describe your issue or feedback..."
@@ -441,8 +441,7 @@ class ProfileFragment : Fragment() {
                                     FirebaseManager.database.getReference("contact_requests").push().setValue(ticket)
                                     Toast.makeText(requireContext(), "Support inquiry submitted. Administrator will respond shortly.", Toast.LENGTH_LONG).show()
                                 }
-
-                                }
+                            }
                             .setNegativeButton("Cancel", null)
                             .show()
                     }
@@ -469,4 +468,3 @@ class ProfileFragment : Fragment() {
         fun newInstance(): ProfileFragment = ProfileFragment()
     }
 }
-
