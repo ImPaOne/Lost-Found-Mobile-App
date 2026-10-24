@@ -36,24 +36,14 @@ class SplashActivity : AppCompatActivity() {
             insets
         }
 
-        // Tap anywhere on the splash screen to skip wait
-        splashRootView.setOnClickListener {
-            openMainActivity()
-        }
-
-        // Automatically navigate after the splash delay
-        handler.postDelayed({
-            openMainActivity()
-        }, splashDelayMs)
-    }
-
-    private fun openMainActivity() {
-        if (isNavigated) return
-        isNavigated = true
-        handler.removeCallbacksAndMessages(null)
-
-        val openMainIntent = Intent(this, MainActivity::class.java)
-        startActivity(openMainIntent)
-        finish()
-    }
-}
+        // Smooth branding entry animation lasting longer
+        centerBrandingBox?.apply {
+            alpha = 0f
+            scaleX = 0.82f
+            scaleY = 0.82f
+            animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(1200)
+                .withEndAction {
