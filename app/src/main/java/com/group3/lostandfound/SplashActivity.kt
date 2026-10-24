@@ -25,7 +25,11 @@ class SplashActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_splash)
 
-        val splashRootView = findViewById<View>(R.id.splashRoot)
+         val splashRootView = findViewById<View>(R.id.splashRoot)
+        val centerBrandingBox = findViewById<View>(R.id.centerBrandingBox)
+        val taglineText = findViewById<View>(R.id.taglineText)
+        val indicatorDotsRow = findViewById<View>(R.id.indicatorDotsRow)
+
         ViewCompat.setOnApplyWindowInsetsListener(splashRootView) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
