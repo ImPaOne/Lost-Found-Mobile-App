@@ -89,3 +89,19 @@ class ProfileFragment : Fragment() {
         // Real-time observation of /users/{uid} and user item stats
         observeUserProfile()
         observeUserItemStats()
+
+        // Tap avatar or name to open modern profile editor & photo upload
+        boxAvatarContainer.setOnClickListener {
+            showEditProfileDialog()
+        }
+        userName.setOnClickListener {
+            showEditProfileDialog()
+        }
+
+        btnClose.setOnClickListener {
+            if (parentFragmentManager.backStackEntryCount > 0) {
+                parentFragmentManager.popBackStack()
+            } else {
+                navigateTo(HomeFragment.newInstance())
+            }
+        }
