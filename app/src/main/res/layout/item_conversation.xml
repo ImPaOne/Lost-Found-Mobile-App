@@ -12,7 +12,7 @@
     app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="18dp"
     app:cardElevation="2dp"
-    app:strokeColor="#EDE7E1"
+    app:strokeColor="@color/component_stroke"
     app:strokeWidth="1dp">
 
     <LinearLayout
