@@ -69,6 +69,75 @@
             app:tint="@color/text_primary" />
     </LinearLayout>
 
+    <!-- Resolution Banner for Reporting Person to select chatted user -->
+    <LinearLayout
+        android:id="@+id/layoutResolveReportBanner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#EBF5FF"
+        android:elevation="1dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutChatHeader">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_verified_check"
+            app:tint="@color/deep_blue" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvResolveBannerTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Reunited with this user?"
+                android:textColor="@color/deep_blue"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvResolveBannerSub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Select to resolve &amp; award achievement"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnResolveWithChatUser"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="Resolve Case"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:textAllCaps="false"
+            app:cornerRadius="18dp"
+            app:backgroundTint="@color/deep_blue" />
+    </LinearLayout>
+
     <!-- Empty State -->
     <LinearLayout
         android:id="@+id/layoutChatEmptyState"
@@ -78,10 +147,10 @@
         android:orientation="vertical"
         android:padding="32dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/layoutChatInputBar"
+        app:layout_constraintBottom_toTopOf="@id/layoutBottomControls"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutChatHeader">
+        app:layout_constraintTop_toBottomOf="@id/layoutResolveReportBanner">
 
         <ImageView
             android:layout_width="48dp"
@@ -174,7 +243,7 @@
         app:layout_constraintBottom_toTopOf="@id/layoutBottomControls"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutChatHeader" />
+        app:layout_constraintTop_toBottomOf="@id/layoutResolveReportBanner" />
 
     <!-- Bottom Container holding Reply, Attachment, and Input Bar -->
     <LinearLayout
@@ -216,8 +285,10 @@
 
                 <TextView
                     android:id="@+id/tvReplyToName"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="Replying to Message"
                     android:textColor="@color/deep_blue"
                     android:textSize="12sp"
@@ -225,10 +296,10 @@
 
                 <TextView
                     android:id="@+id/tvReplyToText"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:maxLines="1"
+                    android:maxLines="2"
                     android:text="Quoted text preview"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />

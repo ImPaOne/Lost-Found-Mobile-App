@@ -22,6 +22,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.group3.lostandfound.service.FCMService
+import com.group3.lostandfound.service.FloatingOverlayService
 import com.group3.lostandfound.util.ImageLoader
 import com.group3.lostandfound.util.ModernToast
 import kotlinx.coroutines.Dispatchers
@@ -54,12 +55,15 @@ class SettingsFragment : Fragment() {
     private lateinit var rowChangePassword: LinearLayout
     private lateinit var rowNotificationPrefs: LinearLayout
 
+    private lateinit var rowDrawOverApps: LinearLayout
+    private lateinit var textDrawOverAppsStatus: TextView
+    private lateinit var switchDrawOverApps: SwitchCompat
+
     private lateinit var rowProfileVisibility: LinearLayout
     private lateinit var textProfileVisibilityValue: TextView
 
     private lateinit var rowBlockList: LinearLayout
     private lateinit var textBlockListValue: TextView
-
 
     private lateinit var rowLanguage: LinearLayout
     private lateinit var textLanguageValue: TextView
@@ -70,6 +74,28 @@ class SettingsFragment : Fragment() {
     private lateinit var rowAbout: LinearLayout
     private lateinit var rowRateApp: LinearLayout
     private lateinit var rowLogout: LinearLayout
+
+    private val overlayPermissionLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (FloatingOverlayService.canDrawOverlays(requireContext())) {
+            FloatingOverlayService.startService(requireContext())
+            requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+                .edit().putBoolean("draw_over_apps_enabled", true).apply()
+            ModernToast.show(
+                requireContext(),
+                "Draw over apps enabled! Floating bubble active.",
+                view
+            )
+        } else {
+            ModernToast.show(
+                requireContext(),
+                "Draw over apps permission was not granted.",
+                view
+            )
+        }
+        updateDrawOverAppsUI()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -88,6 +114,11 @@ class SettingsFragment : Fragment() {
         setupListeners()
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateDrawOverAppsUI()
+    }
+
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         btnHeaderMenu = view.findViewById(R.id.btnHeaderMenu)
@@ -97,12 +128,15 @@ class SettingsFragment : Fragment() {
         rowChangePassword = view.findViewById(R.id.rowChangePassword)
         rowNotificationPrefs = view.findViewById(R.id.rowNotificationPrefs)
 
+        rowDrawOverApps = view.findViewById(R.id.rowDrawOverApps)
+        textDrawOverAppsStatus = view.findViewById(R.id.textDrawOverAppsStatus)
+        switchDrawOverApps = view.findViewById(R.id.switchDrawOverApps)
+
         rowProfileVisibility = view.findViewById(R.id.rowProfileVisibility)
         textProfileVisibilityValue = view.findViewById(R.id.textProfileVisibilityValue)
 
         rowBlockList = view.findViewById(R.id.rowBlockList)
         textBlockListValue = view.findViewById(R.id.textBlockListValue)
-
 
         rowLanguage = view.findViewById(R.id.rowLanguage)
         textLanguageValue = view.findViewById(R.id.textLanguageValue)
@@ -115,12 +149,31 @@ class SettingsFragment : Fragment() {
         rowLogout = view.findViewById(R.id.rowLogout)
     }
 
+    private fun updateDrawOverAppsUI() {
+        if (!isAdded) return
+        val hasOverlayPermission = FloatingOverlayService.canDrawOverlays(requireContext())
+        val isServiceRunning = FloatingOverlayService.isServiceRunning
+        val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+        val userEnabled = prefs.getBoolean("draw_over_apps_enabled", false)
+
+        switchDrawOverApps.isChecked = hasOverlayPermission && (isServiceRunning || userEnabled)
+        textDrawOverAppsStatus.text = when {
+            !hasOverlayPermission -> "Permission required · Tap to enable"
+            isServiceRunning -> "Floating bubble active on screen"
+            userEnabled -> "Active · Tap bubble to multitask"
+            else -> "Permission granted · Ready to float"
+        }
+    }
+
     private fun loadCurrentPreferences() {
         val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
 
         // Notifications
         val notifEnabled = prefs.getBoolean("push_notifications_enabled", true)
         switchNotifications.isChecked = notifEnabled
+
+        // Draw Over Apps status
+        updateDrawOverAppsUI()
 
         // Visibility
         val visibility = prefs.getString("profile_visibility", "Community") ?: "Community"
@@ -178,6 +231,44 @@ class SettingsFragment : Fragment() {
             showNotificationSoundDialog()
         }
 
+        // Draw Over Apps Toggle & Row Click
+        switchDrawOverApps.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                if (!FloatingOverlayService.canDrawOverlays(requireContext())) {
+                    switchDrawOverApps.isChecked = false
+                    requestDrawOverAppsPermission()
+                } else {
+                    FloatingOverlayService.startService(requireContext())
+                    requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+                        .edit().putBoolean("draw_over_apps_enabled", true).apply()
+                    ModernToast.show(
+                        requireContext(),
+                        "Floating bubble active! Drag anywhere on screen.",
+                        view
+                    )
+                    updateDrawOverAppsUI()
+                }
+            } else {
+                FloatingOverlayService.stopService(requireContext())
+                requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+                    .edit().putBoolean("draw_over_apps_enabled", false).apply()
+                ModernToast.show(
+                    requireContext(),
+                    "Floating bubble deactivated.",
+                    view
+                )
+                updateDrawOverAppsUI()
+            }
+        }
+
+        rowDrawOverApps.setOnClickListener {
+            if (!FloatingOverlayService.canDrawOverlays(requireContext())) {
+                requestDrawOverAppsPermission()
+            } else {
+                switchDrawOverApps.isChecked = !switchDrawOverApps.isChecked
+            }
+        }
+
         // Edit Profile Dialog
         rowEditProfile.setOnClickListener {
             showEditProfileDialog()
@@ -222,6 +313,23 @@ class SettingsFragment : Fragment() {
         // Logout
         rowLogout.setOnClickListener {
             showLogoutConfirmationDialog()
+        }
+    }
+
+    private fun requestDrawOverAppsPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Allow Draw Over Other Apps")
+                .setMessage("Foundly requires permission to display over other apps so you can access floating chat heads and receive live lost & found alerts while multitasking.\n\nPlease enable 'Allow display over other apps' on the settings screen.")
+                .setPositiveButton("Open Settings") { _, _ ->
+                    val intent = Intent(
+                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        android.net.Uri.parse("package:${requireContext().packageName}")
+                    )
+                    overlayPermissionLauncher.launch(intent)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 

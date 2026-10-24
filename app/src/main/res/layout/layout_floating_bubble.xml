@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootFloatingBubble"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <!-- Main Draggable Floating Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardFloatingBubble"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center"
+        app:cardBackgroundColor="#0D2840"
+        app:cardCornerRadius="29dp"
+        app:cardElevation="8dp"
+        app:strokeColor="#FFFFFF"
+        app:strokeWidth="2dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/imgBubbleIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:contentDescription="Foundly Floating Chat Assistant"
+                android:src="@drawable/ic_nav_messages"
+                app:tint="#FFFFFF" />
+
+            <!-- Green Online / Active Pulse Dot -->
+            <View
+                android:id="@+id/viewActivePulse"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="6dp"
+                android:layout_marginBottom="6dp"
+                android:background="@drawable/bg_badge_dot" />
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Dismiss Button (Mini 'X' pill) -->
+    <FrameLayout
+        android:id="@+id/btnDismissBubble"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_gravity="top|end"
+        android:background="@drawable/bg_circle_black"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_gravity="center"
+            android:contentDescription="Close Bubble"
+            android:src="@drawable/ic_close"
+            app:tint="#FFFFFF" />
+    </FrameLayout>
+
+</FrameLayout>
