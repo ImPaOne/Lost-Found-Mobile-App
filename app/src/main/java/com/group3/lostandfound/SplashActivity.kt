@@ -83,3 +83,14 @@ class SplashActivity : AppCompatActivity() {
                 .setDuration(800)
                 .start()
         }
+
+        // Tap anywhere on the splash screen to skip wait
+        splashRootView.setOnClickListener {
+            openMainActivity()
+        }
+
+        // Automatically navigate after the extended splash delay
+        handler.postDelayed({
+            openMainActivity()
+        }, splashDelayMs)
+    }
