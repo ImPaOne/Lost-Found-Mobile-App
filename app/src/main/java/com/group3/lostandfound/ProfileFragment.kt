@@ -442,3 +442,19 @@ class ProfileFragment : Fragment() {
                                     Toast.makeText(requireContext(), "Support inquiry submitted. Administrator will respond shortly.", Toast.LENGTH_LONG).show()
                                 }
 
+                                }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+                    }
+                }
+            }
+            .setNegativeButton("Close", null)
+            .show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        profileListener?.let { userRef.removeEventListener(it) }
+        itemStatsListener?.let { FirebaseManager.itemsRef.removeEventListener(it) }
+    }
+
