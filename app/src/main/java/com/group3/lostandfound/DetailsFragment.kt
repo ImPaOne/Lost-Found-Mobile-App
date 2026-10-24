@@ -261,17 +261,17 @@ class DetailsFragment : Fragment() {
             }
             "FOUND" -> {
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
-                tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
+                tagStatus.setBackgroundResource(R.drawable.bg_tag_found_outlined)
                 btnLiveChat.text = "Chat Finder"
             }
             "RESOLVED" -> {
-                tagStatus.setTextColor(Color.parseColor("#4A7C59"))
-                tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
+                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
+                tagStatus.setBackgroundResource(R.drawable.bg_tag_found_outlined)
                 btnLiveChat.text = "Item Claimed"
             }
             else -> {
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-                tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
+                tagStatus.setBackgroundResource(R.drawable.bg_tag_found_outlined)
                 btnLiveChat.text = "Live Chat"
             }
         }
