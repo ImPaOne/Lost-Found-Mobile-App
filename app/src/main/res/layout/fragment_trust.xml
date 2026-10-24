@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-bold"
             android:text="Trust &amp; Achievements"
-            android:textColor="#3A2D28"
+            android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -97,7 +97,7 @@
                         android:fontFamily="sans-serif-bold"
                         android:includeFontPadding="false"
                         android:text="96"
-                        android:textColor="#3A2D28"
+                        android:textColor="@color/text_primary"
                         android:textSize="36sp"
                         android:textStyle="bold" />
 
@@ -107,7 +107,7 @@
                         android:layout_marginTop="-2dp"
                         android:fontFamily="sans-serif"
                         android:text="Excellent"
-                        android:textColor="#7C6E66"
+                        android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -141,7 +141,7 @@
                         android:layout_marginTop="8dp"
                         android:fontFamily="sans-serif-bold"
                         android:text="Highly trusted member"
-                        android:textColor="#3A2D28"
+                        android:textColor="@color/text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -154,7 +154,7 @@
                         android:fontFamily="sans-serif"
                         android:lineSpacingExtra="2dp"
                         android:text="Top 4% of the Foundly community in Colombo."
-                        android:textColor="#7C6E66"
+                        android:textColor="@color/text_secondary"
                         android:textSize="13sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -172,7 +172,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif"
                     android:text="Level 8"
-                    android:textColor="#7C6E66"
+                    android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
                 <TextView
@@ -180,7 +180,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
                     android:text="420 / 500 XP"
-                    android:textColor="#7C6E66"
+                    android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -203,7 +203,7 @@
                 android:fontFamily="sans-serif-bold"
                 android:letterSpacing="0.04"
                 android:text="VERIFICATION BADGES EARNED"
-                android:textColor="#4A3B32"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -238,7 +238,7 @@
                         android:layout_marginTop="8dp"
                         android:fontFamily="sans-serif-bold"
                         android:text="Phone Verified"
-                        android:textColor="#3A2D28"
+                        android:textColor="@color/text_primary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -268,7 +268,7 @@
                         android:layout_marginTop="8dp"
                         android:fontFamily="sans-serif-bold"
                         android:text="Email Verified"
-                        android:textColor="#3A2D28"
+                        android:textColor="@color/text_primary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -282,7 +282,7 @@
                 android:fontFamily="sans-serif-bold"
                 android:letterSpacing="0.04"
                 android:text="ACHIEVEMENTS"
-                android:textColor="#4A3B32"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -321,7 +321,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="First Find"
-                        android:textColor="#3A2D28"
+                        android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
@@ -331,7 +331,7 @@
                         android:layout_marginTop="2dp"
                         android:fontFamily="sans-serif"
                         android:text="Returned your first item"
-                        android:textColor="#7C6E66"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -345,7 +345,7 @@
                     android:paddingEnd="12dp"
                     android:paddingBottom="5dp"
                     android:text="Earned"
-                    android:textColor="#4A3B32"
+                    android:textColor="@color/text_primary"
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -385,7 +385,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="Community Helper"
-                        android:textColor="#3A2D28"
+                        android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
@@ -395,7 +395,7 @@
                         android:layout_marginTop="2dp"
                         android:fontFamily="sans-serif"
                         android:text="Helped 10 neighbours"
-                        android:textColor="#7C6E66"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -409,7 +409,7 @@
                     android:paddingEnd="12dp"
                     android:paddingBottom="5dp"
                     android:text="Earned"
-                    android:textColor="#4A3B32"
+                    android:textColor="@color/text_primary"
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -449,7 +449,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="Trusted Reporter"
-                        android:textColor="#3A2D28"
+                        android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
@@ -459,7 +459,7 @@
                         android:layout_marginTop="2dp"
                         android:fontFamily="sans-serif"
                         android:text="20 verified reports"
-                        android:textColor="#7C6E66"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -473,7 +473,7 @@
                     android:paddingEnd="12dp"
                     android:paddingBottom="5dp"
                     android:text="90%"
-                    android:textColor="#4A3B32"
+                    android:textColor="@color/text_primary"
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -486,7 +486,7 @@
                 android:fontFamily="sans-serif-bold"
                 android:letterSpacing="0.04"
                 android:text="ACTIVITY HISTORY"
-                android:textColor="#4A3B32"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -524,7 +524,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="Item Handover Completed"
-                        android:textColor="#3A2D28"
+                        android:textColor="@color/text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -534,7 +534,7 @@
                         android:layout_marginTop="2dp"
                         android:fontFamily="sans-serif"
                         android:text="Passport returned safely to owner · Oct 2026"
-                        android:textColor="#7C6E66"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -587,7 +587,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="Report Verified by Admin"
-                        android:textColor="#3A2D28"
+                        android:textColor="@color/text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -597,7 +597,7 @@
                         android:layout_marginTop="2dp"
                         android:fontFamily="sans-serif"
                         android:text="Listing validated with coordinates · Oct 2026"
-                        android:textColor="#7C6E66"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
