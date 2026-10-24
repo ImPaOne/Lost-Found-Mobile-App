@@ -1,55 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Adaptive icon foreground: recreates the provided logo with
+    two sky-blue rounded swoosh strokes (forming an F-like lettermark)
+    plus a solid royal-blue circle dot at the bottom-right.
+    White background is supplied by ic_launcher_background.xml.
+    Viewport is 108x108 (standard adaptive icon safe zone = 72x72 centred).
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Inner Glow Shadow -->
-    <path
-        android:fillColor="#22000000"
-        android:pathData="M54,30 C41.8,30 32,39.8 32,52 C32,67.5 54,83 54,83 C54,83 76,67.5 76,52 C76,39.8 66.2,30 54,30 Z" />
-
-    <!-- Main Pin Body (Warm Sand Gold Gradient) -->
-    <path android:pathData="M54,28 C41.8,28 32,37.8 32,50 C32,65.5 54,81 54,81 C54,81 76,65.5 76,50 C76,37.8 66.2,28 54,28 Z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:startX="32"
-                android:startY="28"
-                android:endX="76"
-                android:endY="81"
-                android:type="linear">
-                <item android:offset="0.0" android:color="#FFF5EFEA" />
-                <item android:offset="0.4" android:color="#FFCBAD8D" />
-                <item android:offset="1.0" android:color="#FFA48374" />
-            </gradient>
-        </aapt:attr>
-    </path>
-
-    <!-- Inner Circle in Pin -->
-    <path
-        android:fillColor="#FF003049"
-        android:pathData="M54,49m-14,0a14,14 0,1 1,28 0a14,14 0,1 1,-28 0" />
-
-    <!-- Reunited Heart / Sparkle in Center -->
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M54,44.5 C52.5,42.5 49,42.5 47.5,44.5 C46,46.5 47,49 54,54 C61,49 62,46.5 60.5,44.5 C59,42.5 55.5,42.5 54,44.5 Z" />
-
-    <!-- Magnifying Glass Search Ring overlay -->
+    <!-- ── Upper large swoosh (top-right → curves down-left) ───────────── -->
+    <!-- Rendered as a thick rounded stroke path -->
     <path
         android:fillColor="#00000000"
-        android:pathData="M64,36 A15,15 0 1,1 50,26"
-        android:strokeColor="#FFFFFFFF"
+        android:strokeColor="#29B6F6"
+        android:strokeWidth="13"
         android:strokeLineCap="round"
-        android:strokeWidth="2.5" />
+        android:strokeLineJoin="round"
+        android:pathData="M67,18 C67,18 67,18 67,18 C67,14 64,12 60,12 C56,12 44,12 36,12 C32,12 30,14 30,18 C30,22 30,30 30,36 C30,42 34,46 40,46" />
 
-    <!-- Magnifying Glass Handle -->
+    <!-- ── Lower smaller swoosh (middle → curves down toward dot) ─────── -->
     <path
         android:fillColor="#00000000"
-        android:pathData="M66,38 L72,44"
-        android:strokeColor="#FFFFFFFF"
+        android:strokeColor="#4FC3F7"
+        android:strokeWidth="11"
         android:strokeLineCap="round"
-        android:strokeWidth="2.5" />
+        android:strokeLineJoin="round"
+        android:pathData="M40,46 C40,46 40,46 40,46 C46,46 68,46 72,46 C76,46 78,49 78,53 C78,57 78,62 78,66 C78,70 76,73 72,74" />
+
+    <!-- ── Royal-blue circle dot at bottom-right ─────────────────────── -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M72,74 m-10,0 a10,10 0,1 1,20 0 a10,10 0,1 1,-20 0" />
 
 </vector>
