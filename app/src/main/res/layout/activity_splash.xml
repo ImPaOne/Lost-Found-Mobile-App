@@ -21,29 +21,23 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.46">
 
-        <!-- Logo Card: Brick Red outer, white inner -->
+        <!-- Logo Card: white rounded card with brand logo -->
         <FrameLayout
             android:id="@+id/logoOuterBox"
-            android:layout_width="110dp"
-            android:layout_height="110dp"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
             android:background="@drawable/bg_splash_outer_card"
-            android:elevation="6dp">
+            android:elevation="8dp"
+            android:padding="16dp">
 
-            <FrameLayout
-                android:id="@+id/logoInnerBox"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+            <ImageView
+                android:id="@+id/logoIcon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:background="@drawable/bg_splash_inner_card">
-
-                <ImageView
-                    android:id="@+id/logoIcon"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="center"
-                    android:contentDescription="Foundly Logo"
-                    android:src="@drawable/ic_splash_logo" />
-            </FrameLayout>
+                android:contentDescription="App Logo"
+                android:src="@drawable/ic_splash_logo"
+                android:scaleType="fitCenter" />
         </FrameLayout>
 
         <!-- App Name: Foundly — large, bold, white on deep blue -->
