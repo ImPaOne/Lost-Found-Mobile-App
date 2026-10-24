@@ -377,3 +377,30 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    private fun showHelpCenterDialog() {
+        val helpTopics = arrayOf(
+            "Frequently Asked Questions (FAQ)",
+            "Safety & Handover Guidelines",
+            "Emergency Community Helpline (1919)",
+            "Submit Support Request / Contact Us"
+        )
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Foundly Support Center")
+            .setItems(helpTopics) { _, which ->
+                when (which) {
+                    0 -> {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("Foundly FAQs")
+                            .setMessage("Q: How do I report a lost item?\nA: Tap 'Report Lost Item' on Home or '+ Post' tab, follow the 5 simple steps, and publish.\n\nQ: How do I contact a finder?\nA: Open the item details and tap 'Contact Reporter' to initiate real-time chat with photo attachments.\n\nQ: How does Trust Score work?\nA: You earn Trust Points by submitting verified reports and confirming reunifications.")
+                            .setPositiveButton("Got It", null)
+                            .show()
+                    }
+                    1 -> {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("Safety & Verification Guidelines")
+                            .setMessage("1. Always meet in well-lit public places (e.g. police stations, malls, transit hubs).\n2. Request verifiable proof of ownership before handing over items.\n3. Never share sensitive banking PINs or OTPs.")
+                            .setPositiveButton("I Understand", null)
+                            .show()
+                    }
+
