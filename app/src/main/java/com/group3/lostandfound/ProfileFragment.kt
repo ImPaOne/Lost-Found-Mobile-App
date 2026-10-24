@@ -118,3 +118,23 @@ class ProfileFragment : Fragment() {
         rowReports.setOnClickListener {
             navigateTo(ReportsFragment.newInstance())
         }
+
+        rowSavedItems.setOnClickListener {
+            navigateTo(SavedItemsFragment.newInstance())
+        }
+
+        rowTrustScore.setOnClickListener {
+            try {
+                navigateTo(TrustFragment.newInstance())
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Trust screen error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        rowSettings.setOnClickListener {
+            try {
+                navigateTo(SettingsFragment.newInstance())
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Settings screen error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
