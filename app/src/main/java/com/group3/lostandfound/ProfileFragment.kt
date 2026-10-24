@@ -339,3 +339,15 @@ class ProfileFragment : Fragment() {
             return
         }
 
+        FirebaseManager.itemsRef.get().addOnSuccessListener { snapshot ->
+            val matchingItems = mutableListOf<com.group3.lostandfound.model.ItemReport>()
+            for (child in snapshot.children) {
+                val id = child.child("itemId").getValue(String::class.java) ?: child.key.orEmpty()
+                if (savedIds.contains(id)) {
+                    val report = child.getValue(com.group3.lostandfound.model.ItemReport::class.java)
+                    if (report != null) {
+                        matchingItems.add(report.copy(itemId = id))
+                    }
+                }
+            }
+
