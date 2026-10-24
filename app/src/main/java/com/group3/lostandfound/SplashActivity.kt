@@ -74,3 +74,12 @@ class SplashActivity : AppCompatActivity() {
                 .setDuration(1000)
                 .start()
         }
+
+        indicatorDotsRow?.apply {
+            alpha = 0f
+            animate()
+                .alpha(1f)
+                .setStartDelay(900)
+                .setDuration(800)
+                .start()
+        }
