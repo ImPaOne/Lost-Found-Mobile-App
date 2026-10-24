@@ -230,6 +230,9 @@ class SavedItemsFragment : Fragment() {
             holder.tagStatus.setTextColor(
                 ContextCompat.getColor(holder.itemView.context, if (isLost) R.color.tag_lost_color else R.color.tag_found_color)
             )
+            holder.tagStatus.setBackgroundResource(
+                if (isLost) R.drawable.bg_tag_lost_outlined else R.drawable.bg_tag_found_outlined
+            )
 
             ImageLoader.load(holder.imgItemThumb, item.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
 
