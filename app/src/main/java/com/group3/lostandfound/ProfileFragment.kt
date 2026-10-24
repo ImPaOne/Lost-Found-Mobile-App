@@ -241,3 +241,27 @@ class ProfileFragment : Fragment() {
                 try {
                     uploadedUrl = com.group3.lostandfound.util.CloudinaryManager.uploadImage(compressedBytes) {}
                 } catch (_: Exception) {}
+
+                
+                if (!uploadedUrl.startsWith("http://") && !uploadedUrl.startsWith("https://")) {
+                    val b64 = android.util.Base64.encodeToString(compressedBytes, android.util.Base64.NO_WRAP)
+                    uploadedUrl = "data:image/jpeg;base64,$b64"
+                }
+
+                val updates = mapOf<String, Any>(
+                    "photoUrl" to uploadedUrl,
+                    "avatarUrl" to uploadedUrl
+                )
+                userRef.updateChildren(updates)
+                currentPhotoUrl = uploadedUrl
+                ImageLoader.load(userAvatar, uploadedUrl, R.drawable.ic_user_avatar, viewLifecycleOwner.lifecycleScope)
+                activeDialogAvatarPreview?.let {
+                    ImageLoader.load(it, uploadedUrl, R.drawable.ic_user_avatar, viewLifecycleOwner.lifecycleScope)
+                }
+                ModernToast.show(requireContext(), "Profile photo updated successfully!", view)
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Photo upload error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
