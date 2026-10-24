@@ -351,3 +351,29 @@ class ProfileFragment : Fragment() {
                 }
             }
 
+             if (matchingItems.isEmpty()) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Saved Items")
+                    .setMessage("Saved reports are no longer available in the active directory.")
+                    .setPositiveButton("OK", null)
+                    .show()
+            } else {
+                val itemTitles = matchingItems.map { "${it.title} (${it.status}) · ${it.location}" }.toTypedArray()
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Saved Items (${matchingItems.size})")
+                    .setItems(itemTitles) { _, which ->
+                        val selected = matchingItems[which]
+                        navigateTo(DetailsFragment.newInstance(selected.itemId, selected.title, selected.description, selected.status, selected.location, selected.imageUrl, selected.userId, selected.authorName))
+                    }
+                    .setNeutralButton("Clear All") { _, _ ->
+                        prefs.edit().remove("bookmarked_ids").apply()
+                        Toast.makeText(requireContext(), "Saved bookmarks cleared", Toast.LENGTH_SHORT).show()
+                    }
+                    .setNegativeButton("Close", null)
+                    .show()
+            }
+        }.addOnFailureListener {
+            Toast.makeText(requireContext(), "Failed to load saved items: ${it.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
