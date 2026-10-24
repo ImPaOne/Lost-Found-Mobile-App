@@ -9,7 +9,7 @@
     app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
-    app:strokeColor="#EAE3E0"
+    app:strokeColor="@color/component_stroke"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -24,7 +24,7 @@
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp"
             app:strokeWidth="0.5dp"
-            app:strokeColor="#EAE3E0">
+            app:strokeColor="@color/component_stroke">
 
             <ImageView
                 android:id="@+id/imgItem"
@@ -39,10 +39,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:fontFamily="sans-serif-medium"
+            android:background="@drawable/bg_tag_lost_outlined"
+            android:fontFamily="sans-serif-bold"
+            android:paddingStart="8dp"
+            android:paddingTop="2dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="2dp"
             android:text="LOST"
-            android:textColor="#D43838"
-            android:textSize="11sp" />
+            android:textColor="@color/tag_lost_color"
+            android:textSize="10.5sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvTitle"
@@ -51,7 +57,7 @@
             android:layout_marginTop="2dp"
             android:fontFamily="sans-serif-bold"
             android:text="Item Title"
-            android:textColor="#3A2D28"
+            android:textColor="@color/text_primary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -74,7 +80,7 @@
                 android:layout_marginStart="4dp"
                 android:fontFamily="sans-serif"
                 android:text="Location"
-                android:textColor="#7D6F67"
+                android:textColor="@color/text_secondary"
                 android:textSize="11sp" />
         </LinearLayout>
     </LinearLayout>
