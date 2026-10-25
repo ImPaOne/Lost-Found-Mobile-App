@@ -183,77 +183,10 @@ class MessagesFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             messagesViewModel.uiState.collect { state ->
-                allConversations = if (state.conversations.isEmpty()) {
-                    getDefaultDemonstrationConversations()
-                } else {
-                    state.conversations
-                }
+                allConversations = state.conversations
                 filterConversations()
             }
         }
-    }
-
-    private fun getDefaultDemonstrationConversations(): List<ConversationMetadata> {
-        val calendar = java.util.Calendar.getInstance()
-        calendar.set(java.util.Calendar.HOUR_OF_DAY, 9)
-        calendar.set(java.util.Calendar.MINUTE, 41)
-        val time1 = calendar.timeInMillis
-
-        calendar.set(java.util.Calendar.HOUR_OF_DAY, 8)
-        calendar.set(java.util.Calendar.MINUTE, 15)
-        val time2 = calendar.timeInMillis
-
-        return listOf(
-            ConversationMetadata(
-                chatConversationId = "conv_kasun_wallet",
-                otherUserId = "user_kasun",
-                otherUserName = "Kasun Jayasinghe",
-                relatedItemTitle = "Black leather wallet",
-                lastMessageTextContent = "Could you describe a detail that isn't in the report?",
-                lastUpdatedTimestamp = time1,
-                unreadCount = 2,
-                itemType = "LOST",
-                relatedItemId = "item_wallet",
-                itemImageUrl = "drawable://img_wallet"
-            ),
-            ConversationMetadata(
-                chatConversationId = "conv_ama_passport",
-                otherUserId = "user_ama",
-                otherUserName = "Ama Fernando",
-                relatedItemTitle = "Sri Lankan passport",
-                lastMessageTextContent = "Please use the secure verification request.",
-                lastUpdatedTimestamp = time2,
-                unreadCount = 1,
-                itemType = "FOUND",
-                relatedItemId = "item_passport",
-                itemImageUrl = "drawable://img_passport"
-            ),
-            ConversationMetadata(
-                chatConversationId = "conv_dinuka_airpods",
-                otherUserId = "user_dinuka",
-                otherUserName = "Dinuka Perera",
-                relatedItemTitle = "AirPods Pro case",
-                lastMessageTextContent = "You: So glad it's back with you. Take care!",
-                lastUpdatedTimestamp = System.currentTimeMillis() - 1000 * 60 * 60 * 24, // Yesterday
-                unreadCount = 0,
-                isResolved = true,
-                isOutgoingRead = true,
-                relatedItemId = "item_airpods",
-                itemImageUrl = "drawable://img_airpods_bench"
-            ),
-            ConversationMetadata(
-                chatConversationId = "conv_sewwandi_laptop",
-                otherUserId = "user_sewwandi",
-                otherUserName = "Sewwandi Fernando",
-                relatedItemTitle = "Red laptop sleeve",
-                lastMessageTextContent = "You: I'll check with the reception desk.",
-                lastUpdatedTimestamp = System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 3, // 11 Sep
-                unreadCount = 0,
-                isOutgoingRead = true,
-                relatedItemId = "item_laptop",
-                itemImageUrl = "drawable://img_laptop"
-            )
-        )
     }
 
     companion object {
