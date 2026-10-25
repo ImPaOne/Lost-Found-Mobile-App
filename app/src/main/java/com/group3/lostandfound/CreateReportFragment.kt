@@ -398,9 +398,6 @@ class CreateReportFragment : Fragment() {
         imgRadioLost = view.findViewById(R.id.imgRadioLost)
         imgRadioFound = view.findViewById(R.id.imgRadioFound)
         tvNextStepHint = view.findViewById(R.id.tvNextStepHint)
-        chipDateToday = view.findViewById(R.id.chipDateToday)
-        chipDateYesterday = view.findViewById(R.id.chipDateYesterday)
-        chipDateEarlier = view.findViewById(R.id.chipDateEarlier)
 
         // Step 2
         boxCategory = view.findViewById(R.id.boxCategory)
@@ -491,22 +488,6 @@ class CreateReportFragment : Fragment() {
         // Step 1: Type Selection
         cardLostItem.setOnClickListener { setItemType(true) }
         cardFoundItem.setOnClickListener { setItemType(false) }
-
-        val dateChips = listOfNotNull(chipDateToday, chipDateYesterday, chipDateEarlier)
-        for (chip in dateChips) {
-            chip.setOnClickListener {
-                for (c in dateChips) {
-                    if (c == chip) {
-                        c.setBackgroundResource(R.drawable.bg_chip_selected)
-                        c.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                        selectedDate = c.text.toString()
-                    } else {
-                        c.setBackgroundResource(R.drawable.bg_chip_unselected)
-                        c.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-                    }
-                }
-            }
-        }
 
         // Step 2: Category dialog
         boxCategory.setOnClickListener {
