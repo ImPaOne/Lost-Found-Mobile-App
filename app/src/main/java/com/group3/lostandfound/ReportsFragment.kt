@@ -224,26 +224,7 @@ class ReportsFragment : Fragment() {
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> openItemDetails(item)
-                    1 -> {
-                        reportsViewModel.markItemResolved(item.itemId) { success ->
-                            if (success) {
-                                val idx = userReports.indexOfFirst { it.itemId == item.itemId }
-                                if (idx != -1) {
-                                    userReports[idx] = userReports[idx].copy(status = "RESOLVED")
-                                    updateReportsListUI()
-                                }
-                                com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                                    requireContext(),
-                                    "Item Resolved & Reunited!",
-                                    "'${item.title}' has been marked as resolved and safely reunited.",
-                                    item.itemId
-                                )
-                                ModernToast.show(requireContext(), "'${item.title}' marked as RESOLVED.", view)
-                            } else {
-                                ModernToast.show(requireContext(), "Update failed.", view, durationLong = true)
-                            }
-                        }
-                    }
+                    1 -> promptResolveItemWithChattedUser(item)
                     2 -> {
                         AlertDialog.Builder(requireContext())
                             .setTitle("Delete Listing")
@@ -292,6 +273,141 @@ class ReportsFragment : Fragment() {
             } else {
                 tab.background = null
                 tab.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+            }
+        }
+    }
+
+    private fun promptResolveItemWithChattedUser(item: ItemReport) {
+        val currentUid = FirebaseManager.currentUid
+        val convRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+            .getReference("user_conversations")
+            .child(currentUid)
+
+        convRef.addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                val chattedUsers = mutableListOf<Pair<String, String>>()
+                for (child in snapshot.children) {
+                    val relatedId = child.child("relatedItemId").getValue(String::class.java) ?: ""
+                    val otherUid = child.child("otherUserId").getValue(String::class.java) ?: ""
+                    val otherName = child.child("otherUserName").getValue(String::class.java) ?: "Chat Contact"
+                    if (otherUid.isNotEmpty() && otherUid != currentUid) {
+                        if (relatedId == item.itemId || relatedId.isEmpty()) {
+                            if (!chattedUsers.any { it.first == otherUid }) {
+                                chattedUsers.add(Pair(otherUid, otherName))
+                            }
+                        }
+                    }
+                }
+
+                if (chattedUsers.isNotEmpty() && isAdded) {
+                    val options = mutableListOf<String>()
+                    chattedUsers.forEach { user ->
+                        options.add("👤 ${user.second} (Award Reunited Hero Achievement)")
+                    }
+                    options.add("🤝 Resolved offline without chat contact")
+
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Select Who Helped Reunited '${item.title}'")
+                        .setItems(options.toTypedArray()) { _, which ->
+                            if (which < chattedUsers.size) {
+                                val selectedUser = chattedUsers[which]
+                                executeResolveReport(item, selectedUser.first, selectedUser.second)
+                            } else {
+                                executeResolveReport(item, null, null)
+                            }
+                        }
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                } else if (isAdded) {
+                    executeResolveReport(item, null, null)
+                }
+            }
+
+            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
+                if (isAdded) executeResolveReport(item, null, null)
+            }
+        })
+    }
+
+    private fun executeResolveReport(item: ItemReport, targetUserId: String?, targetUserName: String?) {
+        val currentUid = FirebaseManager.currentUid
+        val updateData = mutableMapOf<String, Any>(
+            "status" to "RESOLVED",
+            "resolvedTimestamp" to System.currentTimeMillis()
+        )
+        if (targetUserId != null && targetUserName != null) {
+            updateData["resolvedWithUserId"] = targetUserId
+            updateData["resolvedWithUserName"] = targetUserName
+            updateData["resolvedByUserId"] = currentUid
+        }
+
+        FirebaseManager.itemsRef.child(item.itemId).updateChildren(updateData).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val idx = userReports.indexOfFirst { it.itemId == item.itemId }
+                if (idx != -1) {
+                    userReports[idx] = userReports[idx].copy(status = "RESOLVED")
+                    updateReportsListUI()
+                }
+
+                // Award chatted user if chosen
+                if (targetUserId != null && targetUserName != null) {
+                    val userDbRef = FirebaseManager.usersRef.child(targetUserId)
+                    userDbRef.child("itemsReturned").setValue(com.google.firebase.database.ServerValue.increment(1))
+                    userDbRef.child("trustScore").setValue(com.google.firebase.database.ServerValue.increment(20))
+
+                    val achievementKey = "reunited_hero_${System.currentTimeMillis()}"
+                    val achievement = mapOf(
+                        "id" to achievementKey,
+                        "title" to "🤝 Reunited Hero",
+                        "description" to "Helped resolve '${item.title}' and safely returned to owner!",
+                        "timestamp" to System.currentTimeMillis(),
+                        "badge" to "HERO_REUNITED",
+                        "xpAwarded" to 20
+                    )
+                    userDbRef.child("achievements").child(achievementKey).setValue(achievement)
+
+                    val notif = mapOf(
+                        "id" to "notif_${System.currentTimeMillis()}",
+                        "title" to "🏆 Achievement Unlocked: Reunited Hero!",
+                        "message" to "You were selected as the hero who helped reunite '${item.title}'. +20 Trust Points awarded!",
+                        "timestamp" to System.currentTimeMillis(),
+                        "type" to "ACHIEVEMENT",
+                        "itemId" to item.itemId,
+                        "senderUserId" to currentUid,
+                        "read" to false
+                    )
+                    FirebaseManager.database.getReference("notifications").child(targetUserId).push().setValue(notif)
+                }
+
+                // Award reporting user
+                if (currentUid.isNotEmpty()) {
+                    val reporterRef = FirebaseManager.usersRef.child(currentUid)
+                    reporterRef.child("itemsReturned").setValue(com.google.firebase.database.ServerValue.increment(1))
+                    reporterRef.child("trustScore").setValue(com.google.firebase.database.ServerValue.increment(15))
+                    val reporterAch = mapOf(
+                        "id" to "case_resolved_${System.currentTimeMillis()}",
+                        "title" to "Honest Finder & Case Closed",
+                        "description" to "Successfully resolved '${item.title}' and reunited with owner!",
+                        "timestamp" to System.currentTimeMillis()
+                    )
+                    reporterRef.child("achievements").push().setValue(reporterAch)
+                }
+
+                com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                    requireContext(),
+                    "Item Resolved & Reunited!",
+                    "'${item.title}' has been marked as resolved and safely reunited.",
+                    item.itemId
+                )
+
+                val msg = if (targetUserName != null) {
+                    "'${item.title}' marked as RESOLVED with $targetUserName! Achievements awarded."
+                } else {
+                    "'${item.title}' marked as RESOLVED."
+                }
+                ModernToast.show(requireContext(), msg, view)
+            } else {
+                ModernToast.show(requireContext(), "Update failed: ${task.exception?.message}", view, durationLong = true)
             }
         }
     }

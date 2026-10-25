@@ -423,8 +423,8 @@ class DetailsFragment : Fragment() {
                                     userDbRef.child("achievements").push().setValue(achievement)
                                 }
                                 androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                                    .setTitle("🎉 Congratulations!")
-                                    .setMessage("'$itemTitle' has been marked as RESOLVED and reunited with its owner!\n\n🏆 You earned +15 Trust Score and unlocked the 'Honest Finder' achievement badge!")
+                                    .setTitle("Congratulations!")
+                                    .setMessage("'$itemTitle' has been marked as RESOLVED and reunited with its owner!\n\nYou earned +15 Trust Score and unlocked the 'Honest Finder' achievement badge!")
                                     .setPositiveButton("Awesome!", null)
                                     .show()
                             }
@@ -471,47 +471,169 @@ class DetailsFragment : Fragment() {
     private fun markItemAsResolved() {
         val currentItemId = itemId ?: return
         val itemTitle = tvItemTitle.text.toString()
-        val resolverUid = FirebaseManager.currentUid
+        val currentUid = FirebaseManager.currentUid
+
+        // Check if there are chatted users for this item
+        val convRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+            .getReference("user_conversations")
+            .child(currentUid)
+
+        convRef.addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                val chattedUsers = mutableListOf<Pair<String, String>>()
+                for (child in snapshot.children) {
+                    val relatedId = child.child("relatedItemId").getValue(String::class.java) ?: ""
+                    val otherUid = child.child("otherUserId").getValue(String::class.java) ?: ""
+                    val otherName = child.child("otherUserName").getValue(String::class.java) ?: "Chat Contact"
+                    if (otherUid.isNotEmpty() && otherUid != currentUid) {
+                        if (relatedId == currentItemId || relatedId.isEmpty()) {
+                            if (!chattedUsers.any { it.first == otherUid }) {
+                                chattedUsers.add(Pair(otherUid, otherName))
+                            }
+                        }
+                    }
+                }
+
+                if (chattedUsers.isNotEmpty() && isAdded) {
+                    showChattedUserSelectionDialog(currentItemId, itemTitle, chattedUsers)
+                } else if (isAdded) {
+                    promptDirectResolution(currentItemId, itemTitle, null, null)
+                }
+            }
+
+            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
+                if (isAdded) promptDirectResolution(currentItemId, itemTitle, null, null)
+            }
+        })
+    }
+
+    private fun showChattedUserSelectionDialog(
+        currentItemId: String,
+        itemTitle: String,
+        chattedUsers: List<Pair<String, String>>
+    ) {
+        val options = mutableListOf<String>()
+        chattedUsers.forEach { user ->
+            options.add("${user.second} (Award Reunited Hero Achievement)")
+        }
+        options.add("Resolved offline without chat contact")
 
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("🎉 Confirm Resolution")
-            .setMessage("Has '$itemTitle' been successfully reunited with its rightful owner?")
+            .setTitle("Select Who Helped Reunited '$itemTitle'")
+            .setItems(options.toTypedArray()) { _, which ->
+                if (which < chattedUsers.size) {
+                    val selectedUser = chattedUsers[which]
+                    promptDirectResolution(currentItemId, itemTitle, selectedUser.first, selectedUser.second)
+                } else {
+                    promptDirectResolution(currentItemId, itemTitle, null, null)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun promptDirectResolution(
+        currentItemId: String,
+        itemTitle: String,
+        targetUserId: String?,
+        targetUserName: String?
+    ) {
+        val currentUid = FirebaseManager.currentUid
+        val message = if (targetUserName != null) {
+            "Confirm resolution with $targetUserName?\n\n" +
+            "$targetUserName will receive the 'Reunited Hero' achievement badge and +20 Trust Score points.\n" +
+            "You will receive +15 Trust Score points."
+        } else {
+            "Has '$itemTitle' been successfully reunited with its rightful owner?"
+        }
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Confirm Resolution")
+            .setMessage(message)
             .setPositiveButton("Yes, Reunited!") { _, _ ->
-                FirebaseManager.updateItemStatus(
-                    itemId = currentItemId,
-                    newStatus = "RESOLVED",
-                    onSuccess = {
+                val updateData = mutableMapOf<String, Any>(
+                    "status" to "RESOLVED",
+                    "resolvedTimestamp" to System.currentTimeMillis()
+                )
+                if (targetUserId != null && targetUserName != null) {
+                    updateData["resolvedWithUserId"] = targetUserId
+                    updateData["resolvedWithUserName"] = targetUserName
+                    updateData["resolvedByUserId"] = currentUid
+                }
+
+                FirebaseManager.itemsRef.child(currentItemId).updateChildren(updateData).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
                         updateStatusTag("RESOLVED")
                         btnMarkResolved.visibility = View.GONE
-                        if (resolverUid.isNotEmpty()) {
-                            val userDbRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("users").child(resolverUid)
+
+                        // 1. Award Chatted User if selected
+                        if (targetUserId != null && targetUserName != null) {
+                            val userDbRef = FirebaseManager.usersRef.child(targetUserId)
                             userDbRef.child("itemsReturned").setValue(com.google.firebase.database.ServerValue.increment(1))
-                            userDbRef.child("trustScore").setValue(com.google.firebase.database.ServerValue.increment(15))
+                            userDbRef.child("trustScore").setValue(com.google.firebase.database.ServerValue.increment(20))
+
+                            val achievementKey = "reunited_hero_${System.currentTimeMillis()}"
                             val achievement = mapOf(
-                                "id" to "honest_finder_${System.currentTimeMillis()}",
-                                "title" to "Honest Finder Badge",
+                                "id" to achievementKey,
+                                "title" to "Reunited Hero",
+                                "description" to "Helped resolve '$itemTitle' and safely returned to owner!",
+                                "timestamp" to System.currentTimeMillis(),
+                                "badge" to "HERO_REUNITED",
+                                "xpAwarded" to 20
+                            )
+                            userDbRef.child("achievements").child(achievementKey).setValue(achievement)
+
+                            val notif = mapOf(
+                                "id" to "notif_${System.currentTimeMillis()}",
+                                "title" to "Achievement Unlocked: Reunited Hero!",
+                                "message" to "You were selected as the hero who helped reunite '$itemTitle'. +20 Trust Points awarded!",
+                                "timestamp" to System.currentTimeMillis(),
+                                "type" to "ACHIEVEMENT",
+                                "itemId" to currentItemId,
+                                "senderUserId" to currentUid,
+                                "read" to false
+                            )
+                            FirebaseManager.database.getReference("notifications").child(targetUserId).push().setValue(notif)
+                        }
+
+                        // 2. Award Reporting User
+                        if (currentUid.isNotEmpty()) {
+                            val reporterRef = FirebaseManager.usersRef.child(currentUid)
+                            reporterRef.child("itemsReturned").setValue(com.google.firebase.database.ServerValue.increment(1))
+                            reporterRef.child("trustScore").setValue(com.google.firebase.database.ServerValue.increment(15))
+                            val achievement = mapOf(
+                                "id" to "case_resolved_${System.currentTimeMillis()}",
+                                "title" to "Honest Finder & Case Closed",
                                 "description" to "Successfully resolved '$itemTitle' and reunited with owner!",
                                 "timestamp" to System.currentTimeMillis()
                             )
-                            userDbRef.child("achievements").push().setValue(achievement)
+                            reporterRef.child("achievements").push().setValue(achievement)
                         }
-                        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                            .setTitle("🎉 Congratulations!")
-                            .setMessage("'$itemTitle' has been marked as RESOLVED and reunited!\n\n🏆 You earned +15 Trust Score and unlocked the 'Honest Finder' achievement badge!")
-                            .setPositiveButton("Awesome!", null)
-                            .show()
 
-                        com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                            requireContext(),
-                            "🎉 Item Reunited & Resolved!",
-                            "'$itemTitle' has been returned and marked RESOLVED in Foundly community.",
-                            currentItemId
-                        )
-                    },
-                    onError = { error ->
-                        Toast.makeText(requireContext(), "Failed to update: $error", Toast.LENGTH_SHORT).show()
+                        val congratsMessage = if (targetUserName != null) {
+                            "'$itemTitle' has been marked as RESOLVED and reunited!\n\n$targetUserName earned the 'Reunited Hero' achievement and +20 Trust Score!\nYou earned +15 Trust Score!"
+                        } else {
+                            "'$itemTitle' has been marked as RESOLVED and reunited!\n\nYou earned +15 Trust Score and unlocked an achievement badge!"
+                        }
+
+                        if (isAdded) {
+                            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                                .setTitle("Congratulations!")
+                                .setMessage(congratsMessage)
+                                .setPositiveButton("Awesome!", null)
+                                .show()
+
+                            com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                                requireContext(),
+                                "Item Reunited & Resolved!",
+                                "'$itemTitle' has been returned and marked RESOLVED in Foundly community.",
+                                currentItemId
+                            )
+                        }
+                    } else if (isAdded) {
+                        Toast.makeText(requireContext(), "Failed to update: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }
-                )
+                }
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -624,7 +746,7 @@ class DetailsFragment : Fragment() {
     private fun showReporterProfileDialog() {
         resolveReporterAndProceed { _, targetName ->
             val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            val phoneText = if (reporterPhone.isNotBlank()) "📞 ${reporterPhone}" else "🔒 Contact via Live Chat"
+            val phoneText = if (reporterPhone.isNotBlank()) reporterPhone else "Contact via Live Chat"
             val message = "Reporter: $targetName\n$phoneText"
 
             val dialogBuilder = builder.setTitle("Reporter Profile")
@@ -641,10 +763,10 @@ class DetailsFragment : Fragment() {
     private fun showContactOptions() {
         val itemTitle = tvItemTitle.text.toString()
         val contactOptions = arrayOf(
-            "💬 Open Live Chat (Instant Messaging)",
-            "📝 Send Direct Note to Inbox",
-            "💰 Offer Return Reward (LKR)",
-            "📞 Call Reporter Verified Line"
+            "Open Live Chat (Instant Messaging)",
+            "Send Direct Note to Inbox",
+            "Offer Return Reward (LKR)",
+            "Call Reporter Verified Line"
         )
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Contact Reporter · $itemTitle")
@@ -738,7 +860,7 @@ class DetailsFragment : Fragment() {
 
                                         val rewardNotif = NotificationItem(
                                             id = System.currentTimeMillis().toString(),
-                                            title = "💰 Reward Offer: LKR $amount",
+                                            title = "Reward Offer: LKR $amount",
                                             message = "Someone offered a reward of LKR $amount for your item: $itemTitle",
                                             timestamp = System.currentTimeMillis(),
                                             read = false,

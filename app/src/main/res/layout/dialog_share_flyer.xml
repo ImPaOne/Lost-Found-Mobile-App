@@ -88,7 +88,7 @@
             android:focusable="true"
             android:gravity="center"
             android:fontFamily="sans-serif-bold"
-            android:text="🔗 Copy Link"
+            android:text="Copy Link"
             android:textColor="@color/text_primary"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -106,7 +106,7 @@
             android:focusable="true"
             android:gravity="center"
             android:fontFamily="sans-serif-bold"
-            android:text="📤 Share Flyer"
+            android:text="Share Flyer"
             android:textColor="@color/white"
             android:textSize="14sp"
             android:textStyle="bold" />

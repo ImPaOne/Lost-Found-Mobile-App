@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- Camera & storage: declared here, requested at runtime ONLY when user picks images -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -15,6 +16,11 @@
 
     <!-- Contacts: declared here, requested only when user opts into contact matching -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <!-- Draw over other apps (System Alert Window / Floating Chat & Assistant Overlay) -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
         android:allowBackup="true"
@@ -84,6 +90,21 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <service
+            android:name=".service.FloatingOverlayService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Floating head overlay for lost and found live chat and heads-up updates" />
+        </service>
+
+        <service
+            android:name=".service.AppNotificationService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>

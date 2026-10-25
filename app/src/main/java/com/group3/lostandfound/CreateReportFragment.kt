@@ -91,7 +91,12 @@ class CreateReportFragment : Fragment() {
     private lateinit var cardUploadDropzone: View
     private lateinit var tvPhotosCountStatus: TextView
     private lateinit var rowThumbnails: View
+    private lateinit var cardThumbnail1: View
+    private lateinit var cardThumbnail2: View
+    private lateinit var cardThumbnail3: View
     private lateinit var imgThumbnail1: ImageView
+    private lateinit var imgThumbnail2: ImageView
+    private lateinit var imgThumbnail3: ImageView
 
     // Step 5 Review Views
     private lateinit var badgeReviewStatus: TextView
@@ -121,6 +126,8 @@ class CreateReportFragment : Fragment() {
     private var selectedLongitude = 79.8530
     private var photosCount = 0
     private var selectedImageUri: Uri? = null
+    private val attachedImagesList = ArrayList<Uri>()
+    private var tempCameraUri: Uri? = null
 
     // Persisted form inputs across fragment backstack/step navigation
     private var savedTitle: String = ""
@@ -147,26 +154,63 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    private fun addImageToSelection(uri: Uri) {
+        if (!attachedImagesList.contains(uri)) {
+            attachedImagesList.add(uri)
+        }
+        selectedImageUri = attachedImagesList.firstOrNull()
+        photosCount = attachedImagesList.size
+        currentStep = 4
+        if (::flipperSteps.isInitialized) {
+            flipperSteps.displayedChild = 3
+        }
+        updateThumbnailsUI()
+        updateStepHeader()
+    }
+
+    private fun updateThumbnailsUI() {
+        if (!::rowThumbnails.isInitialized) return
+        if (attachedImagesList.isEmpty()) {
+            rowThumbnails.visibility = View.GONE
+            if (::tvPhotosCountStatus.isInitialized) {
+                tvPhotosCountStatus.text = "Tap to attach photos"
+            }
+            return
+        }
+
+        rowThumbnails.visibility = View.VISIBLE
+        if (::tvPhotosCountStatus.isInitialized) {
+            tvPhotosCountStatus.text = "${attachedImagesList.size} photo(s) attached"
+        }
+
+        if (attachedImagesList.size > 0 && ::imgThumbnail1.isInitialized) {
+            com.group3.lostandfound.util.ImageLoader.load(requireContext(), attachedImagesList[0].toString(), imgThumbnail1)
+            if (::cardThumbnail1.isInitialized) cardThumbnail1.visibility = View.VISIBLE
+        }
+        if (attachedImagesList.size > 1 && ::imgThumbnail2.isInitialized) {
+            com.group3.lostandfound.util.ImageLoader.load(requireContext(), attachedImagesList[1].toString(), imgThumbnail2)
+            if (::cardThumbnail2.isInitialized) cardThumbnail2.visibility = View.VISIBLE
+        } else if (::cardThumbnail2.isInitialized) {
+            cardThumbnail2.visibility = View.GONE
+        }
+        if (attachedImagesList.size > 2 && ::imgThumbnail3.isInitialized) {
+            com.group3.lostandfound.util.ImageLoader.load(requireContext(), attachedImagesList[2].toString(), imgThumbnail3)
+            if (::cardThumbnail3.isInitialized) cardThumbnail3.visibility = View.VISIBLE
+        } else if (::cardThumbnail3.isInitialized) {
+            cardThumbnail3.visibility = View.GONE
+        }
+
+        if (imgReviewThumbnail != null && attachedImagesList.isNotEmpty()) {
+            com.group3.lostandfound.util.ImageLoader.load(requireContext(), attachedImagesList[0].toString(), imgReviewThumbnail!!)
+            cardReviewThumbnail?.visibility = View.VISIBLE
+        }
+    }
+
     // Gallery Picker Launcher
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
             val persistentUri = copyUriToInternalStorage(uri) ?: uri
-            selectedImageUri = persistentUri
-            photosCount = 1
-            currentStep = 4
-            if (::flipperSteps.isInitialized) {
-                flipperSteps.displayedChild = 3
-            }
-            if (::tvPhotosCountStatus.isInitialized) {
-                tvPhotosCountStatus.text = "1 photo attached from gallery"
-            }
-            if (::imgThumbnail1.isInitialized) {
-                com.group3.lostandfound.util.ImageLoader.load(requireContext(), persistentUri.toString(), imgThumbnail1)
-            }
-            if (::rowThumbnails.isInitialized) {
-                rowThumbnails.visibility = View.VISIBLE
-            }
-            updateStepHeader()
+            addImageToSelection(persistentUri)
             Toast.makeText(requireContext(), "Photo selected from gallery", Toast.LENGTH_SHORT).show()
         }
     }
@@ -176,7 +220,7 @@ class CreateReportFragment : Fragment() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            takePictureLauncher.launch(null)
+            launchCamera()
         } else {
             Toast.makeText(
                 requireContext(),
@@ -186,29 +230,25 @@ class CreateReportFragment : Fragment() {
         }
     }
 
-    // Camera Capture Launcher
-    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-        if (bitmap != null) {
-            val uri = saveBitmapToTempUri(bitmap)
-            if (uri != null) {
-                selectedImageUri = uri
-                photosCount = 1
-                currentStep = 4
-                if (::flipperSteps.isInitialized) {
-                    flipperSteps.displayedChild = 3
-                }
-                if (::tvPhotosCountStatus.isInitialized) {
-                    tvPhotosCountStatus.text = "1 photo captured with camera"
-                }
-                if (::imgThumbnail1.isInitialized) {
-                    imgThumbnail1.setImageBitmap(bitmap)
-                }
-                if (::rowThumbnails.isInitialized) {
-                    rowThumbnails.visibility = View.VISIBLE
-                }
-                updateStepHeader()
-                Toast.makeText(requireContext(), "Camera photo captured successfully", Toast.LENGTH_SHORT).show()
-            }
+    // Camera Capture Launcher for Real High Quality photo
+    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success && tempCameraUri != null) {
+            addImageToSelection(tempCameraUri!!)
+            Toast.makeText(requireContext(), "Camera photo captured successfully", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun launchCamera() {
+        try {
+            val cacheImagesDir = File(requireContext().cacheDir, "images")
+            if (!cacheImagesDir.exists()) cacheImagesDir.mkdirs()
+            val photoFile = File(cacheImagesDir, "captured_${System.currentTimeMillis()}.jpg")
+            val authority = "${requireContext().packageName}.fileprovider"
+            val uri = androidx.core.content.FileProvider.getUriForFile(requireContext(), authority, photoFile)
+            tempCameraUri = uri
+            takePictureLauncher.launch(uri)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Camera launch error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -388,7 +428,12 @@ class CreateReportFragment : Fragment() {
         cardUploadDropzone = view.findViewById(R.id.cardUploadDropzone)
         tvPhotosCountStatus = view.findViewById(R.id.tvPhotosCountStatus)
         rowThumbnails = view.findViewById(R.id.rowThumbnails)
+        cardThumbnail1 = view.findViewById(R.id.cardThumbnail1)
+        cardThumbnail2 = view.findViewById(R.id.cardThumbnail2)
+        cardThumbnail3 = view.findViewById(R.id.cardThumbnail3)
         imgThumbnail1 = view.findViewById(R.id.imgThumbnail1)
+        imgThumbnail2 = view.findViewById(R.id.imgThumbnail2)
+        imgThumbnail3 = view.findViewById(R.id.imgThumbnail3)
 
         // Step 5
         badgeReviewStatus = view.findViewById(R.id.badgeReviewStatus)
@@ -550,7 +595,7 @@ class CreateReportFragment : Fragment() {
                             android.Manifest.permission.CAMERA
                         ) == android.content.pm.PackageManager.PERMISSION_GRANTED
                     ) {
-                        takePictureLauncher.launch(null)
+                        launchCamera()
                     } else {
                         requestCameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
                     }

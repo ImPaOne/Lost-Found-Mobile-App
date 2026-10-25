@@ -33,7 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:maxWidth="280dp"
+        android:maxWidth="320dp"
         android:orientation="vertical"
         android:visibility="gone">
 
@@ -55,6 +55,7 @@
                     android:id="@+id/layoutOutgoingReplyBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minWidth="270dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
@@ -64,30 +65,33 @@
                     android:visibility="gone">
 
                     <View
-                        android:layout_width="3dp"
+                        android:layout_width="3.5dp"
                         android:layout_height="match_parent"
                         android:background="@color/accent_blue" />
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
+                        android:layout_weight="1"
                         android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/tvOutgoingReplyName"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
                             android:textColor="@color/white"
                             android:textSize="11sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tvOutgoingReplyText"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
-                            android:maxLines="1"
+                            android:maxLines="2"
                             android:textColor="#CBD5E1"
                             android:textSize="11sp" />
                     </LinearLayout>
@@ -138,7 +142,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
-        android:maxWidth="280dp"
+        android:maxWidth="320dp"
         android:orientation="vertical"
         android:visibility="gone">
 
@@ -162,6 +166,7 @@
                     android:id="@+id/layoutIncomingReplyBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minWidth="270dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
@@ -171,30 +176,33 @@
                     android:visibility="gone">
 
                     <View
-                        android:layout_width="3dp"
+                        android:layout_width="3.5dp"
                         android:layout_height="match_parent"
                         android:background="@color/deep_blue" />
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
+                        android:layout_weight="1"
                         android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/tvIncomingReplyName"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
                             android:textColor="@color/deep_blue"
                             android:textSize="11sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tvIncomingReplyText"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
-                            android:maxLines="1"
+                            android:maxLines="2"
                             android:textColor="@color/text_secondary"
                             android:textSize="11sp" />
                     </LinearLayout>

@@ -29,12 +29,12 @@
             android:background="@drawable/bg_circle_avatar">
 
             <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_gravity="center"
-                android:contentDescription="Avatar"
-                android:src="@drawable/ic_user_avatar"
-                app:tint="@color/text_primary" />
+                android:contentDescription="App Logo"
+                android:src="@drawable/logoo"
+                android:scaleType="fitCenter" />
         </FrameLayout>
 
         <!-- Conversation Details -->

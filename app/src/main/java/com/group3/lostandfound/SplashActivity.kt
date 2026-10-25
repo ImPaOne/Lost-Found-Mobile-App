@@ -26,9 +26,6 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
 
         val splashRootView = findViewById<View>(R.id.splashRoot)
-        val centerBrandingBox = findViewById<View>(R.id.centerBrandingBox)
-        val taglineText = findViewById<View>(R.id.taglineText)
-        val indicatorDotsRow = findViewById<View>(R.id.indicatorDotsRow)
 
         ViewCompat.setOnApplyWindowInsetsListener(splashRootView) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -36,63 +33,19 @@ class SplashActivity : AppCompatActivity() {
             insets
         }
 
-        // Smooth branding entry animation lasting longer
-        centerBrandingBox?.apply {
-            alpha = 0f
-            scaleX = 0.82f
-            scaleY = 0.82f
-            animate()
-                .alpha(1f)
-                .scaleX(1f)
-                .scaleY(1f)
-                .setDuration(1200)
-                .withEndAction {
-                    // Subtle gentle breathing pulse
-                    centerBrandingBox.animate()
-                        .scaleX(1.03f)
-                        .scaleY(1.03f)
-                        .setDuration(900)
-                        .withEndAction {
-                            centerBrandingBox.animate()
-                                .scaleX(1f)
-                                .scaleY(1f)
-                                .setDuration(900)
-                                .start()
-                        }
-                        .start()
-                }
-                .start()
-        }
-
-        taglineText?.apply {
-            alpha = 0f
-            translationY = 20f
-            animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setStartDelay(600)
-                .setDuration(1000)
-                .start()
-        }
-
-        indicatorDotsRow?.apply {
-            alpha = 0f
-            animate()
-                .alpha(1f)
-                .setStartDelay(900)
-                .setDuration(800)
-                .start()
-        }
-
         // Tap anywhere on the splash screen to skip wait
         splashRootView.setOnClickListener {
             openMainActivity()
         }
 
-        // Automatically navigate after the extended splash delay
+        try {
+            startService(Intent(this, com.group3.lostandfound.service.AppNotificationService::class.java))
+        } catch (e: Exception) {}
+
+        // Automatically navigate after brief delay without animations
         handler.postDelayed({
             openMainActivity()
-        }, splashDelayMs)
+        }, 1800L)
     }
 
     private fun openMainActivity() {

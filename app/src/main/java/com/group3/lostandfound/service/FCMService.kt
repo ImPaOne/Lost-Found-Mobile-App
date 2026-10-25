@@ -189,6 +189,18 @@ class FCMService : FirebaseMessagingService() {
 
                 NotificationManagerCompat.from(context)
                     .notify(System.currentTimeMillis().toInt(), notification)
+
+                try {
+                    val pm = context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
+                    if (pm != null && !pm.isInteractive) {
+                        @Suppress("DEPRECATION")
+                        val wl = pm.newWakeLock(
+                            android.os.PowerManager.SCREEN_BRIGHT_WAKE_LOCK or android.os.PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                            "foundly:wake_screen_notification"
+                        )
+                        wl.acquire(3000)
+                    }
+                } catch (e: Throwable) {}
             } catch (e: Throwable) {
                 Log.e(TAG, "triggerPushNotification failed: ${e.message}")
             }

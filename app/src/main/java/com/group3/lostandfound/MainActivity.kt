@@ -71,9 +71,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             val initialFragment = when {
+                !onboardingCompleted -> OnboardingFragment.newInstance()
                 isLoggedIn && isExplicitAdmin -> AdminFragment.newInstance()
                 isLoggedIn -> HomeFragment.newInstance()
-                !onboardingCompleted -> OnboardingFragment.newInstance()
                 else -> LoginFragment.newInstance()
             }
 
@@ -123,6 +123,10 @@ class MainActivity : AppCompatActivity() {
 
     fun setupIncomingMessageNotifications() {
         val uid = FirebaseManager.currentUid
+        try {
+            startService(android.content.Intent(this, com.group3.lostandfound.service.AppNotificationService::class.java))
+        } catch (e: Exception) {}
+
         if (uid.isEmpty() || isMessageListenerAttached) return
         isMessageListenerAttached = true
 
@@ -153,9 +157,9 @@ class MainActivity : AppCompatActivity() {
                     if (notifEnabled) {
                         val senderTitle = if (metadata.otherUserName.isNotEmpty()) metadata.otherUserName else "Foundly Community"
                         val notifTitle = if (metadata.relatedItemTitle.isNotBlank()) {
-                            "💬 $senderTitle: '${metadata.relatedItemTitle}'"
+                            "$senderTitle: '${metadata.relatedItemTitle}'"
                         } else {
-                            "💬 Message from $senderTitle"
+                            "Message from $senderTitle"
                         }
                         FCMService.triggerPushNotification(
                             this@MainActivity,

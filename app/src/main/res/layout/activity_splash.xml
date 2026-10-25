@@ -5,7 +5,7 @@
     android:id="@+id/splashRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FF003049"
+    android:background="#FFFFFFFF"
     tools:context=".SplashActivity">
 
     <!-- Center Branding Container -->
@@ -21,14 +21,11 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.46">
 
-        <!-- Logo Card: white rounded card with brand logo -->
+        <!-- Logo Container without background shapes -->
         <FrameLayout
             android:id="@+id/logoOuterBox"
             android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:background="@drawable/bg_splash_outer_card"
-            android:elevation="8dp"
-            android:padding="16dp">
+            android:layout_height="120dp">
 
             <ImageView
                 android:id="@+id/logoIcon"
@@ -40,7 +37,7 @@
                 android:scaleType="fitCenter" />
         </FrameLayout>
 
-        <!-- App Name: Foundly — large, bold, white on deep blue -->
+        <!-- App Name: Foundly in black -->
         <TextView
             android:id="@+id/appNameText"
             android:layout_width="wrap_content"
@@ -48,20 +45,20 @@
             android:layout_marginTop="24dp"
             android:fontFamily="sans-serif-black"
             android:text="Foundly"
-            android:textColor="#FFFFFFFF"
+            android:textColor="#FF000000"
             android:textSize="40sp"
             android:textStyle="bold"
             android:letterSpacing="0.02" />
 
-        <!-- Accent Divider: Brick Red -->
+        <!-- Accent Divider -->
         <View
             android:id="@+id/brandDivider"
             android:layout_width="40dp"
             android:layout_height="3dp"
             android:layout_marginTop="10dp"
-            android:background="@drawable/bg_splash_divider" />
+            android:background="#FF000000" />
 
-        <!-- Tagline -->
+        <!-- Tagline: black text -->
         <TextView
             android:id="@+id/taglineText"
             android:layout_width="wrap_content"
@@ -70,38 +67,8 @@
             android:fontFamily="sans-serif-medium"
             android:letterSpacing="0.04"
             android:text="Lost less. Found faster."
-            android:textColor="#AACBDF"
+            android:textColor="#FF333333"
             android:textSize="15sp" />
-
-        <!-- Loading dots -->
-        <LinearLayout
-            android:id="@+id/indicatorDotsRow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <View
-                android:id="@+id/dotFirst"
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:background="@drawable/bg_dot_active" />
-
-            <View
-                android:id="@+id/dotSecond"
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_dot_inactive_1" />
-
-            <View
-                android:id="@+id/dotThird"
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_dot_inactive_2" />
-        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

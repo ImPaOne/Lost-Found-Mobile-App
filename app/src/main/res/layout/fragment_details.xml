@@ -342,7 +342,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:fontFamily="sans-serif-medium"
-                                    android:text="📍 6.9140° N, 79.8630° E · Tap to explore"
+                                    android:text="6.9140° N, 79.8630° E · Tap to explore"
                                     android:textColor="@color/text_primary"
                                     android:textSize="11sp" />
                             </LinearLayout>
@@ -434,12 +434,12 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <TextView
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLiveChat"
                         android:layout_width="0dp"
                         android:layout_height="52dp"
                         android:layout_weight="1"
-                        android:background="@drawable/bg_btn_contact"
+                        android:backgroundTint="@color/deep_blue"
                         android:clickable="true"
                         android:elevation="2dp"
                         android:focusable="true"
@@ -449,17 +449,20 @@
                         android:textColor="@color/white"
                         android:textSize="15sp"
                         android:textStyle="bold"
-                        app:drawableStartCompat="@drawable/ic_nav_messages"
-                        app:drawableTint="@color/white"
-                        android:drawablePadding="8dp" />
+                        app:cornerRadius="14dp"
+                        app:icon="@drawable/ic_nav_messages"
+                        app:iconGravity="textStart"
+                        app:iconPadding="10dp"
+                        app:iconSize="20dp"
+                        app:iconTint="@color/white" />
 
-                    <TextView
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnWhatsApp"
                         android:layout_width="0dp"
                         android:layout_height="52dp"
                         android:layout_marginStart="10dp"
                         android:layout_weight="1"
-                        android:background="@drawable/bg_btn_whatsapp"
+                        android:backgroundTint="#25D366"
                         android:clickable="true"
                         android:elevation="2dp"
                         android:focusable="true"
@@ -470,8 +473,12 @@
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:visibility="gone"
-                        app:drawableStartCompat="@drawable/ic_whatsapp"
-                        android:drawablePadding="8dp" />
+                        app:cornerRadius="14dp"
+                        app:icon="@drawable/ic_whatsapp"
+                        app:iconGravity="textStart"
+                        app:iconPadding="10dp"
+                        app:iconSize="20dp"
+                        app:iconTint="@null" />
 
                     <!-- btnContactMore removed: only Live Chat and WhatsApp shown -->
                 </LinearLayout>
@@ -488,7 +495,7 @@
                     android:focusable="true"
                     android:fontFamily="sans-serif-bold"
                     android:gravity="center"
-                    android:text="🎉 Mark as Resolved &amp; Reunited"
+                    android:text="Mark as Resolved &amp; Reunited"
                     android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textStyle="bold"

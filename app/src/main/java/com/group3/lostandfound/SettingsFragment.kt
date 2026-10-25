@@ -22,6 +22,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.group3.lostandfound.service.FCMService
+import com.group3.lostandfound.service.FloatingOverlayService
 import com.group3.lostandfound.util.ImageLoader
 import com.group3.lostandfound.util.ModernToast
 import kotlinx.coroutines.Dispatchers
@@ -54,22 +55,41 @@ class SettingsFragment : Fragment() {
     private lateinit var rowChangePassword: LinearLayout
     private lateinit var rowNotificationPrefs: LinearLayout
 
+    private lateinit var rowDrawOverApps: LinearLayout
+    private lateinit var textDrawOverAppsStatus: TextView
+    private lateinit var switchDrawOverApps: SwitchCompat
+
     private lateinit var rowProfileVisibility: LinearLayout
     private lateinit var textProfileVisibilityValue: TextView
 
     private lateinit var rowBlockList: LinearLayout
     private lateinit var textBlockListValue: TextView
 
-
-    private lateinit var rowLanguage: LinearLayout
-    private lateinit var textLanguageValue: TextView
-
-    private lateinit var rowTheme: LinearLayout
-    private lateinit var textThemeValue: TextView
-
     private lateinit var rowAbout: LinearLayout
     private lateinit var rowRateApp: LinearLayout
     private lateinit var rowLogout: LinearLayout
+
+    private val overlayPermissionLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (FloatingOverlayService.canDrawOverlays(requireContext())) {
+            FloatingOverlayService.startService(requireContext())
+            requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+                .edit().putBoolean("draw_over_apps_enabled", true).apply()
+            ModernToast.show(
+                requireContext(),
+                "Draw over apps enabled! Floating bubble active.",
+                view
+            )
+        } else {
+            ModernToast.show(
+                requireContext(),
+                "Draw over apps permission was not granted.",
+                view
+            )
+        }
+        updateDrawOverAppsUI()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -88,6 +108,11 @@ class SettingsFragment : Fragment() {
         setupListeners()
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateDrawOverAppsUI()
+    }
+
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         btnHeaderMenu = view.findViewById(R.id.btnHeaderMenu)
@@ -97,22 +122,35 @@ class SettingsFragment : Fragment() {
         rowChangePassword = view.findViewById(R.id.rowChangePassword)
         rowNotificationPrefs = view.findViewById(R.id.rowNotificationPrefs)
 
+        rowDrawOverApps = view.findViewById(R.id.rowDrawOverApps)
+        textDrawOverAppsStatus = view.findViewById(R.id.textDrawOverAppsStatus)
+        switchDrawOverApps = view.findViewById(R.id.switchDrawOverApps)
+
         rowProfileVisibility = view.findViewById(R.id.rowProfileVisibility)
         textProfileVisibilityValue = view.findViewById(R.id.textProfileVisibilityValue)
 
         rowBlockList = view.findViewById(R.id.rowBlockList)
         textBlockListValue = view.findViewById(R.id.textBlockListValue)
 
-
-        rowLanguage = view.findViewById(R.id.rowLanguage)
-        textLanguageValue = view.findViewById(R.id.textLanguageValue)
-
-        rowTheme = view.findViewById(R.id.rowTheme)
-        textThemeValue = view.findViewById(R.id.textThemeValue)
-
         rowAbout = view.findViewById(R.id.rowAbout)
         rowRateApp = view.findViewById(R.id.rowRateApp)
         rowLogout = view.findViewById(R.id.rowLogout)
+    }
+
+    private fun updateDrawOverAppsUI() {
+        if (!isAdded) return
+        val hasOverlayPermission = FloatingOverlayService.canDrawOverlays(requireContext())
+        val isServiceRunning = FloatingOverlayService.isServiceRunning
+        val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+        val userEnabled = prefs.getBoolean("draw_over_apps_enabled", false)
+
+        switchDrawOverApps.isChecked = hasOverlayPermission && (isServiceRunning || userEnabled)
+        textDrawOverAppsStatus.text = when {
+            !hasOverlayPermission -> "Permission required · Tap to enable"
+            isServiceRunning -> "Floating bubble active on screen"
+            userEnabled -> "Active · Tap bubble to multitask"
+            else -> "Permission granted · Ready to float"
+        }
     }
 
     private fun loadCurrentPreferences() {
@@ -122,17 +160,14 @@ class SettingsFragment : Fragment() {
         val notifEnabled = prefs.getBoolean("push_notifications_enabled", true)
         switchNotifications.isChecked = notifEnabled
 
+        // Draw Over Apps status
+        updateDrawOverAppsUI()
+
         // Visibility
         val visibility = prefs.getString("profile_visibility", "Community") ?: "Community"
         textProfileVisibilityValue.text = visibility
 
-        // Language
-        val langCode = com.group3.lostandfound.util.LocaleHelper.getLanguageCode(requireContext())
-        textLanguageValue.text = com.group3.lostandfound.util.LocaleHelper.getLanguageLabel(langCode).substringBefore(" ")
 
-        // Theme
-        val theme = prefs.getString("selected_theme_label", "System") ?: "System"
-        textThemeValue.text = theme
 
         // Header Menu: Show admin only if currently signed in as admin
         val isExplicitAdmin = FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
@@ -165,7 +200,7 @@ class SettingsFragment : Fragment() {
             if (isChecked) {
                 FCMService.triggerPushNotification(
                     requireContext(),
-                    "🔔 Notifications Enabled",
+                    "Notifications Enabled",
                     "You will now receive modern push alerts with sound when someone messages you or matches your reports."
                 )
                 ModernToast.show(requireContext(), "Notifications & sounds activated", view)
@@ -176,6 +211,44 @@ class SettingsFragment : Fragment() {
 
         rowNotificationPrefs.setOnClickListener {
             showNotificationSoundDialog()
+        }
+
+        // Draw Over Apps Toggle & Row Click
+        switchDrawOverApps.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                if (!FloatingOverlayService.canDrawOverlays(requireContext())) {
+                    switchDrawOverApps.isChecked = false
+                    requestDrawOverAppsPermission()
+                } else {
+                    FloatingOverlayService.startService(requireContext())
+                    requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+                        .edit().putBoolean("draw_over_apps_enabled", true).apply()
+                    ModernToast.show(
+                        requireContext(),
+                        "Floating bubble active! Drag anywhere on screen.",
+                        view
+                    )
+                    updateDrawOverAppsUI()
+                }
+            } else {
+                FloatingOverlayService.stopService(requireContext())
+                requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+                    .edit().putBoolean("draw_over_apps_enabled", false).apply()
+                ModernToast.show(
+                    requireContext(),
+                    "Floating bubble deactivated.",
+                    view
+                )
+                updateDrawOverAppsUI()
+            }
+        }
+
+        rowDrawOverApps.setOnClickListener {
+            if (!FloatingOverlayService.canDrawOverlays(requireContext())) {
+                requestDrawOverAppsPermission()
+            } else {
+                switchDrawOverApps.isChecked = !switchDrawOverApps.isChecked
+            }
         }
 
         // Edit Profile Dialog
@@ -199,15 +272,7 @@ class SettingsFragment : Fragment() {
         }
 
 
-        // Language Selection
-        rowLanguage.setOnClickListener {
-            showLanguageDialog()
-        }
 
-        // Theme Toggle
-        rowTheme.setOnClickListener {
-            showThemeDialog()
-        }
 
         // About Foundly
         rowAbout.setOnClickListener {
@@ -222,6 +287,23 @@ class SettingsFragment : Fragment() {
         // Logout
         rowLogout.setOnClickListener {
             showLogoutConfirmationDialog()
+        }
+    }
+
+    private fun requestDrawOverAppsPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Allow Draw Over Other Apps")
+                .setMessage("Foundly requires permission to display over other apps so you can access floating chat heads and receive live lost & found alerts while multitasking.\n\nPlease enable 'Allow display over other apps' on the settings screen.")
+                .setPositiveButton("Open Settings") { _, _ ->
+                    val intent = Intent(
+                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        android.net.Uri.parse("package:${requireContext().packageName}")
+                    )
+                    overlayPermissionLauncher.launch(intent)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 
@@ -409,7 +491,7 @@ class SettingsFragment : Fragment() {
         var previewPlayer: android.media.MediaPlayer? = null
 
         AlertDialog.Builder(requireContext())
-            .setTitle("🔔 Notification Tone & Alerts")
+            .setTitle("Notification Tone & Alerts")
             .setSingleChoiceItems(soundNames, selectedIndex) { _, which ->
                 selectedIndex = which
                 try {
@@ -435,51 +517,7 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
-    private fun showLanguageDialog() {
-        val languages = arrayOf("English", "සිංහල (Sinhala)", "தமிழ் (Tamil)")
-        val codes = arrayOf("en", "si", "ta")
-        val currentCode = com.group3.lostandfound.util.LocaleHelper.getLanguageCode(requireContext())
-        val selectedIndex = codes.indexOf(currentCode).coerceAtLeast(0)
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("Select App Language")
-            .setSingleChoiceItems(languages, selectedIndex) { dialog, which ->
-                val code = codes[which]
-                val selected = languages[which]
-                textLanguageValue.text = selected.substringBefore(" ")
-                com.group3.lostandfound.util.LocaleHelper.setLocale(requireContext(), code)
-
-                val uid = FirebaseManager.currentUid
-                if (uid.isNotEmpty()) {
-                    FirebaseManager.usersRef.child(uid).child("preferredLanguage").setValue(code)
-                }
-                dialog.dismiss()
-                ModernToast.show(requireContext(), "Language changed to $selected", view)
-                activity?.recreate()
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun showThemeDialog() {
-        val themes = arrayOf("System Default", "Light Mode", "Dark Mode")
-        AlertDialog.Builder(requireContext())
-            .setTitle("Select Appearance Theme")
-            .setItems(themes) { _, which ->
-                val selected = themes[which]
-                textThemeValue.text = selected
-                val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
-                prefs.edit().putString("selected_theme_label", selected).apply()
-
-                when (which) {
-                    0 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                    1 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    2 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                }
-                ModernToast.show(requireContext(), "Theme set to $selected", view)
-            }
-            .show()
-    }
 
     private fun showAboutDialog() {
         AlertDialog.Builder(requireContext())

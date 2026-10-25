@@ -34,6 +34,7 @@ class TrustFragment : Fragment() {
     private lateinit var itemFirstFind: View
     private lateinit var itemCommunityHelper: View
     private lateinit var itemTrustedReporter: View
+    private lateinit var itemReunitedHero: View
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,6 +72,7 @@ class TrustFragment : Fragment() {
                 }
 
                 val isTrusted = snapshot.child("isTrustedFinder").getValue(Boolean::class.java) ?: false
+                val itemsReturned = snapshot.child("itemsReturned").getValue(Long::class.java) ?: 0L
 
                 textScore.text = trustScore.toString()
 
@@ -83,6 +85,21 @@ class TrustFragment : Fragment() {
                 textLevel.text = levelText
                 textRank.text = rankText
                 progressXp.progress = xpVal.coerceIn(15, 95)
+
+                // Reunited Hero badge status
+                val hasReunitedBadge = snapshot.child("achievements").children.any {
+                    it.child("badge").getValue(String::class.java) == "HERO_REUNITED" ||
+                    (it.child("title").getValue(String::class.java) ?: "").contains("Reunited Hero", ignoreCase = true)
+                } || itemsReturned > 0L
+
+                val tagHero = view?.findViewById<TextView>(R.id.tagReunitedHero)
+                if (hasReunitedBadge) {
+                    tagHero?.text = "Earned (+20 XP)"
+                    tagHero?.setBackgroundResource(R.drawable.bg_tag_earned)
+                } else {
+                    tagHero?.text = "In Progress"
+                    tagHero?.setBackgroundResource(R.drawable.bg_pill_inactive)
+                }
             }
 
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
@@ -104,6 +121,7 @@ class TrustFragment : Fragment() {
         itemFirstFind = view.findViewById(R.id.itemFirstFind)
         itemCommunityHelper = view.findViewById(R.id.itemCommunityHelper)
         itemTrustedReporter = view.findViewById(R.id.itemTrustedReporter)
+        itemReunitedHero = view.findViewById(R.id.itemReunitedHero)
     }
 
     private fun setupListeners() {
@@ -156,6 +174,14 @@ class TrustFragment : Fragment() {
                 .setTitle("Achievement: Trusted Reporter")
                 .setMessage("Status: IN PROGRESS (18 / 20 reports verified)\nMaintain 90%+ accuracy across 20 reports to earn the permanent Community Gold Shield badge.")
                 .setPositiveButton("Keep Going", null)
+                .show()
+        }
+
+        itemReunitedHero.setOnClickListener {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Achievement: Reunited Hero")
+                .setMessage("✓ EARNED (+20 Trust XP)\nRecognized and selected by reporting persons for safely returning missing items and completing case resolution.")
+                .setPositiveButton("Honor Badge", null)
                 .show()
         }
     }
