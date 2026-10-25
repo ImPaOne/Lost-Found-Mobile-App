@@ -70,9 +70,6 @@ class CreateReportFragment : Fragment() {
     private var imgRadioLost: ImageView? = null
     private var imgRadioFound: ImageView? = null
     private var tvNextStepHint: TextView? = null
-    private var chipDateToday: TextView? = null
-    private var chipDateYesterday: TextView? = null
-    private var chipDateEarlier: TextView? = null
 
     // Step 2 Views
     private lateinit var boxCategory: View
@@ -351,18 +348,6 @@ class CreateReportFragment : Fragment() {
             com.group3.lostandfound.util.ImageLoader.load(requireContext(), selectedImageUri.toString(), imgThumbnail1)
             rowThumbnails.visibility = View.VISIBLE
             tvPhotosCountStatus.text = "$photosCount photo attached"
-        }
-
-        // Restore date chips if present
-        val dateChips = listOfNotNull(chipDateToday, chipDateYesterday, chipDateEarlier)
-        for (c in dateChips) {
-            if (c.text.toString().equals(selectedDate, ignoreCase = true)) {
-                c.setBackgroundResource(R.drawable.bg_chip_selected)
-                c.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-            } else {
-                c.setBackgroundResource(R.drawable.bg_chip_unselected)
-                c.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-            }
         }
 
         // Initialize report type UI
