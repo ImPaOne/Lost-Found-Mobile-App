@@ -67,9 +67,9 @@ class CreateReportFragment : Fragment() {
     private lateinit var cardFoundItem: View
     private lateinit var iconLost: ImageView
     private lateinit var iconFound: ImageView
-    private lateinit var chipDateToday: TextView
-    private lateinit var chipDateYesterday: TextView
-    private lateinit var chipDateEarlier: TextView
+    private var imgRadioLost: ImageView? = null
+    private var imgRadioFound: ImageView? = null
+    private var tvNextStepHint: TextView? = null
 
     // Step 2 Views
     private lateinit var boxCategory: View
@@ -350,17 +350,8 @@ class CreateReportFragment : Fragment() {
             tvPhotosCountStatus.text = "$photosCount photo attached"
         }
 
-        // Restore date chips
-        val dateChips = listOf(chipDateToday, chipDateYesterday, chipDateEarlier)
-        for (c in dateChips) {
-            if (c.text.toString().equals(selectedDate, ignoreCase = true)) {
-                c.setBackgroundResource(R.drawable.bg_chip_selected)
-                c.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-            } else {
-                c.setBackgroundResource(R.drawable.bg_chip_unselected)
-                c.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-            }
-        }
+        // Initialize report type UI
+        setItemType(isLostSelected)
 
         // Restore ViewFlipper step without animation
         flipperSteps.displayedChild = (currentStep - 1).coerceIn(0, 4)
@@ -404,9 +395,9 @@ class CreateReportFragment : Fragment() {
         cardFoundItem = view.findViewById(R.id.cardFoundItem)
         iconLost = view.findViewById(R.id.iconLost)
         iconFound = view.findViewById(R.id.iconFound)
-        chipDateToday = view.findViewById(R.id.chipDateToday)
-        chipDateYesterday = view.findViewById(R.id.chipDateYesterday)
-        chipDateEarlier = view.findViewById(R.id.chipDateEarlier)
+        imgRadioLost = view.findViewById(R.id.imgRadioLost)
+        imgRadioFound = view.findViewById(R.id.imgRadioFound)
+        tvNextStepHint = view.findViewById(R.id.tvNextStepHint)
 
         // Step 2
         boxCategory = view.findViewById(R.id.boxCategory)
@@ -457,17 +448,17 @@ class CreateReportFragment : Fragment() {
     private fun setItemType(isLost: Boolean) {
         isLostSelected = isLost
         if (isLost) {
-            cardLostItem.setBackgroundResource(R.drawable.bg_card_select_lost)
-            iconLost.setColorFilter(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
+            cardLostItem.setBackgroundResource(R.drawable.bg_card_create_selected_lost)
+            imgRadioLost?.setImageResource(R.drawable.ic_radio_checked_red)
 
-            cardFoundItem.setBackgroundResource(R.drawable.bg_card_select_unselected)
-            iconFound.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            cardFoundItem.setBackgroundResource(R.drawable.bg_card_create_unselected)
+            imgRadioFound?.setImageResource(R.drawable.ic_radio_unchecked_grey)
         } else {
-            cardFoundItem.setBackgroundResource(R.drawable.bg_card_select_found)
-            iconFound.setColorFilter(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
+            cardFoundItem.setBackgroundResource(R.drawable.bg_card_create_selected_found)
+            imgRadioFound?.setImageResource(R.drawable.ic_radio_checked_red)
 
-            cardLostItem.setBackgroundResource(R.drawable.bg_card_select_unselected)
-            iconLost.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            cardLostItem.setBackgroundResource(R.drawable.bg_card_create_unselected)
+            imgRadioLost?.setImageResource(R.drawable.ic_radio_unchecked_grey)
         }
     }
 
@@ -497,22 +488,6 @@ class CreateReportFragment : Fragment() {
         // Step 1: Type Selection
         cardLostItem.setOnClickListener { setItemType(true) }
         cardFoundItem.setOnClickListener { setItemType(false) }
-
-        val dateChips = listOf(chipDateToday, chipDateYesterday, chipDateEarlier)
-        for (chip in dateChips) {
-            chip.setOnClickListener {
-                for (c in dateChips) {
-                    if (c == chip) {
-                        c.setBackgroundResource(R.drawable.bg_chip_selected)
-                        c.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                        selectedDate = c.text.toString()
-                    } else {
-                        c.setBackgroundResource(R.drawable.bg_chip_unselected)
-                        c.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-                    }
-                }
-            }
-        }
 
         // Step 2: Category dialog
         boxCategory.setOnClickListener {
@@ -718,27 +693,37 @@ class CreateReportFragment : Fragment() {
         when (currentStep) {
             1 -> {
                 tvStepTitle.text = "What happened?"
-                tvStepSubtitle.text = "Select whether you lost or found an item."
-                btnContinue.text = "Continue"
+                tvStepSubtitle.text = "Choose a report type. We'll help you with the next steps."
+                tvNextStepHint?.text = "➔ Next: Category & details"
+                btnBackBottom.text = "Cancel"
+                btnContinue.text = "Continue ➔"
             }
             2 -> {
                 tvStepTitle.text = "Category & details"
                 tvStepSubtitle.text = "Tell the community what to look for."
-                btnContinue.text = "Continue"
+                tvNextStepHint?.text = "➔ Next: Where was it?"
+                btnBackBottom.text = "Back"
+                btnContinue.text = "Continue ➔"
             }
             3 -> {
                 tvStepTitle.text = "Where was it?"
                 tvStepSubtitle.text = "Pin the neighborhood or specific spot."
-                btnContinue.text = "Continue"
+                tvNextStepHint?.text = "➔ Next: Add photos"
+                btnBackBottom.text = "Back"
+                btnContinue.text = "Continue ➔"
             }
             4 -> {
                 tvStepTitle.text = "Add photos"
                 tvStepSubtitle.text = "Clear photos increase reunion chances by 85%."
-                btnContinue.text = "Continue"
+                tvNextStepHint?.text = "➔ Next: Review & publish"
+                btnBackBottom.text = "Back"
+                btnContinue.text = "Continue ➔"
             }
             5 -> {
                 tvStepTitle.text = "Review & publish"
                 tvStepSubtitle.text = "Double-check your report before publishing."
+                tvNextStepHint?.text = "➔ Ready to publish"
+                btnBackBottom.text = "Back"
                 btnContinue.text = "Publish Report"
 
                 // Populate Step 5 Review

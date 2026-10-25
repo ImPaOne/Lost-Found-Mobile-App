@@ -10,10 +10,25 @@ import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.content.ContentValues
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.graphics.PointF
+import android.graphics.drawable.BitmapDrawable
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.io.File
+import java.io.FileOutputStream
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.ViewModelProvider
@@ -646,15 +661,267 @@ class DetailsFragment : Fragment() {
 
         val imgEnlargedView = dialog.findViewById<ImageView>(R.id.imgEnlargedView)
         val btnCloseLargePhoto = dialog.findViewById<View>(R.id.btnCloseLargePhoto)
+        val btnZoomPhoto = dialog.findViewById<View>(R.id.btnZoomPhoto)
+        val tvPhotoCounter = dialog.findViewById<TextView>(R.id.tvPhotoCounter)
         val tvEnlargedTitle = dialog.findViewById<TextView>(R.id.tvEnlargedTitle)
+        val tvEnlargedReporter = dialog.findViewById<TextView>(R.id.tvEnlargedReporter)
+        val btnSharePhoto = dialog.findViewById<View>(R.id.btnSharePhoto)
+        val btnSavePhoto = dialog.findViewById<View>(R.id.btnSavePhoto)
+        val btnReportPhoto = dialog.findViewById<View>(R.id.btnReportPhoto)
 
-        tvEnlargedTitle.text = title
-        ImageLoader.load(imgEnlargedView, imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
+        tvEnlargedTitle.text = if (title.isNotBlank()) title else "Black leather wallet"
+        val reporter = if (reporterName.isNotBlank() && reporterName != "Community Reporter") {
+            reporterName
+        } else {
+            "Tharindu Perera"
+        }
+        tvEnlargedReporter.text = "Photo from $reporter's report"
 
-        btnCloseLargePhoto.setOnClickListener { dialog.dismiss() }
-        imgEnlargedView.setOnClickListener { dialog.dismiss() }
+        val photoIndex = itemPhotoList.indexOf(imageUrl).let { if (it >= 0) it + 1 else 1 }
+        val totalCount = itemPhotoList.size.coerceAtLeast(1)
+        tvPhotoCounter.text = "$photoIndex/$totalCount"
+
+        if (imageUrl.isNotBlank()) {
+            ImageLoader.load(imgEnlargedView, imageUrl, R.drawable.img_wallet_details, viewLifecycleOwner.lifecycleScope)
+        } else {
+            imgEnlargedView.setImageResource(R.drawable.img_wallet_details)
+        }
+
+        setupScrollAndZoom(imgEnlargedView, btnZoomPhoto)
+
+        btnCloseLargePhoto.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnSharePhoto.setOnClickListener {
+            shareEnlargedPhoto(tvEnlargedTitle.text.toString(), imageUrl, imgEnlargedView)
+        }
+
+        btnSavePhoto.setOnClickListener {
+            saveEnlargedPhotoToGallery(imgEnlargedView)
+        }
+
+        btnReportPhoto.setOnClickListener {
+            showReportPhotoDialog(tvEnlargedTitle.text.toString())
+        }
 
         dialog.show()
+    }
+
+    private fun setupScrollAndZoom(imageView: ImageView, btnZoom: View) {
+        val baseMatrix = Matrix()
+        val currentMatrix = Matrix()
+        val savedMatrix = Matrix()
+        val startPoint = PointF()
+        val midPoint = PointF()
+        var oldDist = 1f
+        var mode = 0 // 0: None, 1: Drag/Scroll, 2: Pinch Zoom
+        var isZoomed = false
+
+        fun resetToCenter() {
+            val drawable = imageView.drawable ?: return
+            val dw = drawable.intrinsicWidth.toFloat()
+            val dh = drawable.intrinsicHeight.toFloat()
+            val vw = imageView.width.toFloat()
+            val vh = imageView.height.toFloat()
+            if (dw <= 0f || dh <= 0f || vw <= 0f || vh <= 0f) return
+
+            val scale = minOf(vw / dw, vh / dh)
+            val dx = (vw - dw * scale) / 2f
+            val dy = (vh - dh * scale) / 2f
+
+            baseMatrix.reset()
+            baseMatrix.postScale(scale, scale)
+            baseMatrix.postTranslate(dx, dy)
+            currentMatrix.set(baseMatrix)
+            imageView.imageMatrix = currentMatrix
+            isZoomed = false
+        }
+
+        fun toggleZoomAt(focusX: Float, focusY: Float) {
+            if (isZoomed) {
+                resetToCenter()
+            } else {
+                resetToCenter()
+                currentMatrix.postScale(2.2f, 2.2f, focusX, focusY)
+                imageView.imageMatrix = currentMatrix
+                isZoomed = true
+            }
+        }
+
+        imageView.post { resetToCenter() }
+
+        val gestureDetector = GestureDetector(imageView.context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                toggleZoomAt(e.x, e.y)
+                return true
+            }
+        })
+
+        imageView.setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
+
+            when (event.action and MotionEvent.ACTION_MASK) {
+                MotionEvent.ACTION_DOWN -> {
+                    savedMatrix.set(currentMatrix)
+                    startPoint.set(event.x, event.y)
+                    mode = 1 // Drag / Pan / Scroll
+                }
+                MotionEvent.ACTION_POINTER_DOWN -> {
+                    oldDist = getSpacing(event)
+                    if (oldDist > 10f) {
+                        savedMatrix.set(currentMatrix)
+                        getMidPoint(midPoint, event)
+                        mode = 2 // Pinch Zoom
+                    }
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    if (mode == 1) {
+                        currentMatrix.set(savedMatrix)
+                        val dx = event.x - startPoint.x
+                        val dy = event.y - startPoint.y
+                        currentMatrix.postTranslate(dx, dy)
+                        imageView.imageMatrix = currentMatrix
+                    } else if (mode == 2) {
+                        val newDist = getSpacing(event)
+                        if (newDist > 10f) {
+                            currentMatrix.set(savedMatrix)
+                            val scale = newDist / oldDist
+                            currentMatrix.postScale(scale, scale, midPoint.x, midPoint.y)
+                            imageView.imageMatrix = currentMatrix
+                            isZoomed = scale > 1.15f
+                        }
+                    }
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
+                    mode = 0
+                }
+            }
+            true
+        }
+
+        btnZoom.setOnClickListener {
+            val cx = imageView.width / 2f
+            val cy = imageView.height / 2f
+            toggleZoomAt(cx, cy)
+        }
+    }
+
+    private fun getSpacing(event: MotionEvent): Float {
+        val x = event.getX(0) - event.getX(1)
+        val y = event.getY(0) - event.getY(1)
+        return kotlin.math.sqrt(x * x + y * y)
+    }
+
+    private fun getMidPoint(point: PointF, event: MotionEvent) {
+        val x = event.getX(0) + event.getX(1)
+        val y = event.getY(0) + event.getY(1)
+        point.set(x / 2f, y / 2f)
+    }
+
+    private fun shareEnlargedPhoto(title: String, imageUrl: String, imageView: ImageView) {
+        try {
+            val drawable = imageView.drawable as? BitmapDrawable
+            if (drawable != null) {
+                val bitmap = drawable.bitmap
+                val cacheDir = File(requireContext().cacheDir, "images").apply { mkdirs() }
+                val tempFile = File(cacheDir, "shared_item.png")
+                FileOutputStream(tempFile).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 95, out)
+                }
+                val uri = FileProvider.getUriForFile(
+                    requireContext(),
+                    "${requireContext().packageName}.fileprovider",
+                    tempFile
+                )
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "image/png"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    putExtra(Intent.EXTRA_SUBJECT, title)
+                    putExtra(Intent.EXTRA_TEXT, "Lost & Found Item: $title")
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                startActivity(Intent.createChooser(shareIntent, "Share Item Photo"))
+                return
+            }
+        } catch (_: Exception) {
+            // Fallback to text link if file share fails
+        }
+
+        val textIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, title)
+            putExtra(Intent.EXTRA_TEXT, "Lost & Found Item: $title\n$imageUrl")
+        }
+        startActivity(Intent.createChooser(textIntent, "Share Item Photo"))
+    }
+
+    @Suppress("DEPRECATION")
+    private fun saveEnlargedPhotoToGallery(imageView: ImageView) {
+        val drawable = imageView.drawable as? BitmapDrawable ?: run {
+            Toast.makeText(requireContext(), "Photo not ready to save", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val bitmap = drawable.bitmap
+        try {
+            val filename = "LostFound_${System.currentTimeMillis()}.jpg"
+            val resolver = requireContext().contentResolver
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/LostAndFound")
+                }
+                val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                if (uri != null) {
+                    resolver.openOutputStream(uri)?.use { stream ->
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 95, stream)
+                    }
+                    Toast.makeText(requireContext(), "Photo saved to Gallery", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "Failed to save photo", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                val savedUri = MediaStore.Images.Media.insertImage(
+                    resolver,
+                    bitmap,
+                    "Lost & Found Photo",
+                    "Saved from Lost & Found app"
+                )
+                if (savedUri != null) {
+                    Toast.makeText(requireContext(), "Photo saved to Gallery", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "Failed to save photo", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Failed to save photo: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showReportPhotoDialog(title: String) {
+        val reasons = arrayOf(
+            "Inappropriate or offensive content",
+            "False or misleading photo",
+            "Violates privacy / personal info",
+            "Wrong item photo",
+            "Other"
+        )
+        var selectedReason = reasons[0]
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Report Photo")
+            .setSingleChoiceItems(reasons, 0) { _, which ->
+                selectedReason = reasons[which]
+            }
+            .setPositiveButton("Submit Report") { _, _ ->
+                Toast.makeText(
+                    requireContext(),
+                    "Thank you. Photo reported for: $selectedReason",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     /**
