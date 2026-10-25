@@ -326,12 +326,11 @@
                         android:background="@drawable/bg_icon_squircle_white">
 
                         <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
                             android:layout_gravity="center"
                             android:contentDescription="Info"
-                            android:src="@drawable/ic_report_hand_heart"
-                            app:tint="#2563EB" />
+                            android:src="@drawable/ic_heart_hands_info" />
                     </FrameLayout>
 
                     <!-- Text Details -->
