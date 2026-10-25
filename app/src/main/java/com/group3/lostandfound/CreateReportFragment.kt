@@ -353,8 +353,8 @@ class CreateReportFragment : Fragment() {
             tvPhotosCountStatus.text = "$photosCount photo attached"
         }
 
-        // Restore date chips
-        val dateChips = listOf(chipDateToday, chipDateYesterday, chipDateEarlier)
+        // Restore date chips if present
+        val dateChips = listOfNotNull(chipDateToday, chipDateYesterday, chipDateEarlier)
         for (c in dateChips) {
             if (c.text.toString().equals(selectedDate, ignoreCase = true)) {
                 c.setBackgroundResource(R.drawable.bg_chip_selected)
@@ -364,6 +364,9 @@ class CreateReportFragment : Fragment() {
                 c.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
             }
         }
+
+        // Initialize report type UI
+        setItemType(isLostSelected)
 
         // Restore ViewFlipper step without animation
         flipperSteps.displayedChild = (currentStep - 1).coerceIn(0, 4)
