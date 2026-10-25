@@ -466,6 +466,7 @@ class ChatFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
+                    chatViewModel.chatMessagesListState.collect { messageList ->
                         val effectiveList = if (messageList.isEmpty()) {
                             getDefaultDemonstrationMessages()
                         } else {
