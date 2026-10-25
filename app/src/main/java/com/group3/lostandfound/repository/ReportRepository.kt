@@ -147,7 +147,7 @@ class ReportRepository {
                 if (imageUri != null) {
                     onProgress(10)
                     try {
-                        val compressedBytes = compressImageUri(context, imageUri, maxWidth = 800, maxHeight = 800, quality = 70)
+                        val compressedBytes = compressImageUri(context, imageUri, maxWidth = 2048, maxHeight = 2048, quality = 92)
                         var uploaded = false
 
                         // Tier 1: Try Cloudinary direct upload
