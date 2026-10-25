@@ -123,6 +123,10 @@ class MainActivity : AppCompatActivity() {
 
     fun setupIncomingMessageNotifications() {
         val uid = FirebaseManager.currentUid
+        try {
+            startService(android.content.Intent(this, com.group3.lostandfound.service.AppNotificationService::class.java))
+        } catch (e: Exception) {}
+
         if (uid.isEmpty() || isMessageListenerAttached) return
         isMessageListenerAttached = true
 
