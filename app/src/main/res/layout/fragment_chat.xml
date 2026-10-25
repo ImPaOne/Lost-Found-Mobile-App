@@ -3,100 +3,262 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_screen">
+    android:background="#F8FAFC">
 
-    <!-- Top App Bar / Chat Header -->
+    <!-- Top App Bar / Header -->
     <LinearLayout
         android:id="@+id/layoutChatHeader"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:elevation="2dp"
+        android:elevation="1dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="16dp"
-        android:paddingTop="12dp"
+        android:paddingTop="10dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="12dp"
+        android:paddingBottom="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- Back Button -->
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_circle_icon_button"
             android:contentDescription="Back"
+            android:padding="8dp"
             android:src="@drawable/ic_back_chevron"
             app:tint="@color/text_primary" />
 
-        <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginStart="4dp"
-            android:contentDescription="App Logo"
-            android:src="@drawable/logoo"
-            android:scaleType="fitCenter" />
-
+        <!-- User Name & Active Status -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
             android:layout_weight="1"
+            android:gravity="center"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvChatTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Chat"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-bold"
+                android:maxLines="1"
+                android:text="Kasun Jayasinghe"
                 android:textColor="@color/text_primary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tvChatSubtitle"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Item Discussion"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:layout_marginTop="2dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/dotActiveStatus"
+                    android:layout_width="7dp"
+                    android:layout_height="7dp"
+                    android:layout_marginEnd="5dp"
+                    android:background="@drawable/bg_badge_dot" />
+
+                <TextView
+                    android:id="@+id/tvChatSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Active now"
+                    android:textColor="#0D9488"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
+        <!-- More Options Menu Button -->
         <ImageButton
             android:id="@+id/btnChatMenu"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Chat Options"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_circle_icon_button"
+            android:contentDescription="Chat options"
+            android:padding="8dp"
             android:src="@drawable/ic_more_vertical"
-            app:tint="@color/text_primary" />
+            app:tint="@color/text_secondary" />
     </LinearLayout>
 
-    <!-- Resolution Banner for Reporting Person to select chatted user -->
-    <LinearLayout
-        android:id="@+id/layoutResolveReportBanner"
+    <!-- Pinned Item Report Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardPinnedItem"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#EBF5FF"
-        android:elevation="1dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="14dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="14dp"
-        android:paddingBottom="8dp"
-        android:visibility="gone"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="2dp"
+        app:strokeColor="#F1F5F9"
+        app:strokeWidth="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layoutChatHeader">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <!-- Item Thumbnail Image -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="0dp">
+
+                <ImageView
+                    android:id="@+id/imgPinnedReport"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="Reported Item"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/img_wallet" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Item Report Details -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <!-- Red/Pink Badge -->
+                <TextView
+                    android:id="@+id/tvReportTag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_badge_lost_report"
+                    android:letterSpacing="0.04"
+                    android:paddingStart="8dp"
+                    android:paddingTop="2dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="2dp"
+                    android:text="YOUR LOST REPORT"
+                    android:textColor="#C1121F"
+                    android:textSize="9.5sp"
+                    android:textStyle="bold" />
+
+                <!-- Item Title -->
+                <TextView
+                    android:id="@+id/tvPinnedItemTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-bold"
+                    android:maxLines="1"
+                    android:text="Black leather wallet"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <!-- Location & Date Subtitle -->
+                <TextView
+                    android:id="@+id/tvPinnedItemSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Colombo 03 · 12 Sep"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- View Item Chevron -->
+            <ImageView
+                android:id="@+id/btnViewItemDetails"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_circle_icon_button"
+                android:contentDescription="Open details"
+                android:padding="8dp"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="@color/text_secondary" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Safety Notice Box -->
+    <LinearLayout
+        android:id="@+id/layoutSafetyNotice"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/bg_safety_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardPinnedItem">
+
         <ImageView
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:contentDescription="Safety icon"
+            android:src="@drawable/ic_shield_check"
+            app:tint="#0D9488" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif"
+            android:lineSpacingExtra="2dp"
+            android:text="Never send ID numbers, card details or money. Verify ownership before arranging a public handover."
+            android:textColor="#334155"
+            android:textSize="11.5sp" />
+    </LinearLayout>
+
+    <!-- Case Resolution Banner -->
+    <LinearLayout
+        android:id="@+id/layoutResolveReportBanner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:background="#EBF5FF"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutSafetyNotice">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="Verified check"
             android:src="@drawable/ic_verified_check"
             app:tint="@color/deep_blue" />
 
@@ -134,15 +296,15 @@
             android:id="@+id/btnResolveWithChatUser"
             style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
+            android:layout_height="34dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:text="Resolve Case"
+            android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="11sp"
-            android:textAllCaps="false"
-            app:cornerRadius="18dp"
-            app:backgroundTint="@color/deep_blue" />
+            app:backgroundTint="@color/deep_blue"
+            app:cornerRadius="17dp" />
     </LinearLayout>
 
     <!-- Empty State -->
@@ -152,41 +314,43 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="32dp"
+        android:padding="28dp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/layoutBottomControls"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutResolveReportBanner">
+        app:layout_constraintTop_toBottomOf="@id/layoutSafetyNotice">
 
         <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:contentDescription="Messages icon"
             android:src="@drawable/ic_nav_messages"
             app:tint="@color/text_hint" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="sans-serif-bold"
             android:text="No messages yet"
             android:textColor="@color/text_primary"
-            android:textSize="16sp"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="4dp"
             android:gravity="center"
             android:text="Say hello to coordinate item handover and verification securely."
             android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:textSize="12.5sp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="14dp"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -197,45 +361,45 @@
                 android:background="@drawable/bg_search_box"
                 android:clickable="true"
                 android:focusable="true"
-                android:paddingStart="16dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="8dp"
+                android:paddingStart="14dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="6dp"
                 android:text="Hi, is this item still available?"
                 android:textColor="@color/text_primary"
-                android:textSize="13sp" />
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/btnQuickReply2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:background="@drawable/bg_search_box"
                 android:clickable="true"
                 android:focusable="true"
-                android:paddingStart="16dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="8dp"
+                android:paddingStart="14dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="6dp"
                 android:text="Can we arrange a safe handover?"
                 android:textColor="@color/text_primary"
-                android:textSize="13sp" />
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/btnQuickReply3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:background="@drawable/bg_search_box"
                 android:clickable="true"
                 android:focusable="true"
-                android:paddingStart="16dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="8dp"
+                android:paddingStart="14dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="6dp"
                 android:text="I have verification proof for this item"
                 android:textColor="@color/text_primary"
-                android:textSize="13sp" />
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -245,48 +409,54 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingTop="8dp"
+        android:overScrollMode="never"
+        android:paddingTop="6dp"
         android:paddingBottom="8dp"
         app:layout_constraintBottom_toTopOf="@id/layoutBottomControls"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutResolveReportBanner" />
+        app:layout_constraintTop_toBottomOf="@id/layoutSafetyNotice" />
 
-    <!-- Bottom Container holding Reply, Attachment, and Input Bar -->
+    <!-- Bottom Controls Container (Action Button, Reply, Input Bar) -->
     <LinearLayout
         android:id="@+id/layoutBottomControls"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:background="@color/white"
         android:elevation="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:orientation="vertical"
+        android:paddingTop="8dp"
+        android:paddingBottom="6dp"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- WhatsApp Quote Reply Bar -->
+        <!-- Reply Preview Banner -->
         <LinearLayout
             android:id="@+id/layoutReplyPreview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#F5EFE6"
-            android:orientation="horizontal"
-            android:paddingStart="12dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="6dp"
+            android:background="#F1F5F9"
             android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="10dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="6dp"
             android:visibility="gone">
 
             <View
-                android:layout_width="3.5dp"
-                android:layout_height="32dp"
+                android:layout_width="3dp"
+                android:layout_height="28dp"
                 android:background="@color/deep_blue" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -298,7 +468,7 @@
                     android:maxLines="1"
                     android:text="Replying to Message"
                     android:textColor="@color/deep_blue"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -306,20 +476,20 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:maxLines="2"
+                    android:maxLines="1"
                     android:text="Quoted text preview"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    android:textSize="11sp" />
             </LinearLayout>
 
             <ImageView
                 android:id="@+id/btnCloseReply"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:padding="4dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
                 android:clickable="true"
-                android:focusable="true"
                 android:contentDescription="Cancel reply"
+                android:focusable="true"
+                android:padding="4dp"
                 android:src="@drawable/ic_close"
                 app:tint="@color/text_secondary" />
         </LinearLayout>
@@ -329,15 +499,18 @@
             android:id="@+id/layoutAttachmentPreview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="6dp"
             android:background="#F8FAFC"
-            android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="8dp"
+            android:orientation="horizontal"
+            android:padding="6dp"
             android:visibility="gone">
 
             <com.google.android.material.card.MaterialCardView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 app:cardCornerRadius="8dp"
                 app:cardElevation="0dp">
 
@@ -345,8 +518,8 @@
                     android:id="@+id/imgAttachedPreview"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="Attached photo preview" />
+                    android:contentDescription="Attached photo"
+                    android:scaleType="centerCrop" />
             </com.google.android.material.card.MaterialCardView>
 
             <TextView
@@ -357,81 +530,121 @@
                 android:layout_weight="1"
                 android:text="Photo attached (ready to send)"
                 android:textColor="@color/text_primary"
-                android:textSize="12sp"
-                android:fontFamily="sans-serif-medium" />
+                android:textSize="12sp" />
 
             <ImageView
                 android:id="@+id/btnRemoveAttachment"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:padding="6dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:clickable="true"
+                android:contentDescription="Remove photo"
                 android:focusable="true"
-                android:contentDescription="Remove attachment"
+                android:padding="6dp"
                 android:src="@drawable/ic_close"
                 app:tint="@color/text_secondary" />
         </LinearLayout>
 
-        <!-- Bottom Message Input Bar -->
+        <!-- Outlined Action Button: "Start secure ownership check" -->
+        <LinearLayout
+            android:id="@+id/btnStartOwnershipCheck"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_ownership_check_btn"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:contentDescription="Ownership check"
+                android:src="@drawable/ic_shield_check"
+                app:tint="#0D9488" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="sans-serif-bold"
+                android:text="Start secure ownership check"
+                android:textColor="#0D9488"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Message Input Bar -->
         <LinearLayout
             android:id="@+id/layoutChatInputBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="8dp"
-            android:paddingTop="6dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="6dp">
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp">
 
+            <!-- Paperclip attachment icon -->
             <ImageView
                 android:id="@+id/btnAttachPhoto"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:clickable="true"
+                android:contentDescription="Attach file"
                 android:focusable="true"
                 android:padding="8dp"
-                android:contentDescription="Attach photo"
-                android:src="@drawable/ic_nav_plus"
-                app:tint="@color/text_primary" />
+                android:src="@drawable/ic_paperclip"
+                app:tint="#64748B" />
 
+            <!-- Pill Input Box -->
             <EditText
                 android:id="@+id/etChatMessageInput"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:background="@drawable/bg_search_box"
-                android:hint="Type a message..."
+                android:background="@drawable/bg_chat_input"
+                android:hint="Write a message..."
                 android:importantForAutofill="no"
                 android:inputType="textCapSentences|textMultiLine"
-                android:maxLines="4"
+                android:maxLines="3"
                 android:paddingStart="16dp"
-                android:paddingTop="10dp"
                 android:paddingEnd="16dp"
-                android:paddingBottom="10dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_hint"
-                android:textSize="14sp" />
+                android:textColor="#0F172A"
+                android:textColorHint="#94A3B8"
+                android:textSize="13.5sp" />
 
+            <!-- Circular Navy Send Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSendChatMessage"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="8dp"
-                android:contentDescription="Send"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:contentDescription="Send message"
                 android:insetLeft="0dp"
                 android:insetTop="0dp"
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
                 android:padding="0dp"
                 app:backgroundTint="@color/deep_blue"
-                app:cornerRadius="24dp"
+                app:cornerRadius="22dp"
                 app:icon="@drawable/ic_send"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp"
                 app:iconTint="@color/white" />
         </LinearLayout>
     </LinearLayout>
+
+    <!-- Bottom Navigation Bar -->
+    <include
+        android:id="@+id/bottomNav"
+        layout="@layout/fragment_bottom_nav"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
