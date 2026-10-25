@@ -423,8 +423,8 @@ class DetailsFragment : Fragment() {
                                     userDbRef.child("achievements").push().setValue(achievement)
                                 }
                                 androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                                    .setTitle("🎉 Congratulations!")
-                                    .setMessage("'$itemTitle' has been marked as RESOLVED and reunited with its owner!\n\n🏆 You earned +15 Trust Score and unlocked the 'Honest Finder' achievement badge!")
+                                    .setTitle("Congratulations!")
+                                    .setMessage("'$itemTitle' has been marked as RESOLVED and reunited with its owner!\n\nYou earned +15 Trust Score and unlocked the 'Honest Finder' achievement badge!")
                                     .setPositiveButton("Awesome!", null)
                                     .show()
                             }
@@ -514,9 +514,9 @@ class DetailsFragment : Fragment() {
     ) {
         val options = mutableListOf<String>()
         chattedUsers.forEach { user ->
-            options.add("👤 ${user.second} (Award Reunited Hero Achievement)")
+            options.add("${user.second} (Award Reunited Hero Achievement)")
         }
-        options.add("🤝 Resolved offline without chat contact")
+        options.add("Resolved offline without chat contact")
 
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Select Who Helped Reunited '$itemTitle'")
@@ -541,14 +541,14 @@ class DetailsFragment : Fragment() {
         val currentUid = FirebaseManager.currentUid
         val message = if (targetUserName != null) {
             "Confirm resolution with $targetUserName?\n\n" +
-            "🏆 $targetUserName will receive the 'Reunited Hero' achievement badge and +20 Trust Score points.\n" +
-            "🌟 You will receive +15 Trust Score points."
+            "$targetUserName will receive the 'Reunited Hero' achievement badge and +20 Trust Score points.\n" +
+            "You will receive +15 Trust Score points."
         } else {
             "Has '$itemTitle' been successfully reunited with its rightful owner?"
         }
 
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("🎉 Confirm Resolution")
+            .setTitle("Confirm Resolution")
             .setMessage(message)
             .setPositiveButton("Yes, Reunited!") { _, _ ->
                 val updateData = mutableMapOf<String, Any>(
@@ -575,7 +575,7 @@ class DetailsFragment : Fragment() {
                             val achievementKey = "reunited_hero_${System.currentTimeMillis()}"
                             val achievement = mapOf(
                                 "id" to achievementKey,
-                                "title" to "🤝 Reunited Hero",
+                                "title" to "Reunited Hero",
                                 "description" to "Helped resolve '$itemTitle' and safely returned to owner!",
                                 "timestamp" to System.currentTimeMillis(),
                                 "badge" to "HERO_REUNITED",
@@ -585,7 +585,7 @@ class DetailsFragment : Fragment() {
 
                             val notif = mapOf(
                                 "id" to "notif_${System.currentTimeMillis()}",
-                                "title" to "🏆 Achievement Unlocked: Reunited Hero!",
+                                "title" to "Achievement Unlocked: Reunited Hero!",
                                 "message" to "You were selected as the hero who helped reunite '$itemTitle'. +20 Trust Points awarded!",
                                 "timestamp" to System.currentTimeMillis(),
                                 "type" to "ACHIEVEMENT",
@@ -611,21 +611,21 @@ class DetailsFragment : Fragment() {
                         }
 
                         val congratsMessage = if (targetUserName != null) {
-                            "'$itemTitle' has been marked as RESOLVED and reunited!\n\n🏆 $targetUserName earned the 'Reunited Hero' achievement and +20 Trust Score!\n🌟 You earned +15 Trust Score!"
+                            "'$itemTitle' has been marked as RESOLVED and reunited!\n\n$targetUserName earned the 'Reunited Hero' achievement and +20 Trust Score!\nYou earned +15 Trust Score!"
                         } else {
-                            "'$itemTitle' has been marked as RESOLVED and reunited!\n\n🏆 You earned +15 Trust Score and unlocked an achievement badge!"
+                            "'$itemTitle' has been marked as RESOLVED and reunited!\n\nYou earned +15 Trust Score and unlocked an achievement badge!"
                         }
 
                         if (isAdded) {
                             androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                                .setTitle("🎉 Congratulations!")
+                                .setTitle("Congratulations!")
                                 .setMessage(congratsMessage)
                                 .setPositiveButton("Awesome!", null)
                                 .show()
 
                             com.group3.lostandfound.service.FCMService.triggerPushNotification(
                                 requireContext(),
-                                "🎉 Item Reunited & Resolved!",
+                                "Item Reunited & Resolved!",
                                 "'$itemTitle' has been returned and marked RESOLVED in Foundly community.",
                                 currentItemId
                             )
@@ -746,7 +746,7 @@ class DetailsFragment : Fragment() {
     private fun showReporterProfileDialog() {
         resolveReporterAndProceed { _, targetName ->
             val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            val phoneText = if (reporterPhone.isNotBlank()) "📞 ${reporterPhone}" else "🔒 Contact via Live Chat"
+            val phoneText = if (reporterPhone.isNotBlank()) reporterPhone else "Contact via Live Chat"
             val message = "Reporter: $targetName\n$phoneText"
 
             val dialogBuilder = builder.setTitle("Reporter Profile")
@@ -763,10 +763,10 @@ class DetailsFragment : Fragment() {
     private fun showContactOptions() {
         val itemTitle = tvItemTitle.text.toString()
         val contactOptions = arrayOf(
-            "💬 Open Live Chat (Instant Messaging)",
-            "📝 Send Direct Note to Inbox",
-            "💰 Offer Return Reward (LKR)",
-            "📞 Call Reporter Verified Line"
+            "Open Live Chat (Instant Messaging)",
+            "Send Direct Note to Inbox",
+            "Offer Return Reward (LKR)",
+            "Call Reporter Verified Line"
         )
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Contact Reporter · $itemTitle")
@@ -860,7 +860,7 @@ class DetailsFragment : Fragment() {
 
                                         val rewardNotif = NotificationItem(
                                             id = System.currentTimeMillis().toString(),
-                                            title = "💰 Reward Offer: LKR $amount",
+                                            title = "Reward Offer: LKR $amount",
                                             message = "Someone offered a reward of LKR $amount for your item: $itemTitle",
                                             timestamp = System.currentTimeMillis(),
                                             read = false,
