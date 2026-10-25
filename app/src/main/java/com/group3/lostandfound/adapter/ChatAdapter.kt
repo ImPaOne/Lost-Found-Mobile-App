@@ -83,7 +83,7 @@ class ChatAdapter(
             val isOutgoing = chatMessage.senderUserId == currentUserId
 
             val displayContent = if (isDeleted) {
-                "🚫 This message was deleted"
+                "This message was deleted"
             } else {
                 chatMessage.chatMessageTextContent
             }
