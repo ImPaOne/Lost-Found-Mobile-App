@@ -282,11 +282,32 @@ class ChatFragment : Fragment() {
             binding.layoutReplyPreview.visibility = View.GONE
         }
 
+        binding.rvChatMessages.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
+            if (bottom < oldBottom && chatAdapter.itemCount > 0) {
+                binding.rvChatMessages.post {
+                    binding.rvChatMessages.smoothScrollToPosition(chatAdapter.itemCount - 1)
+                }
+            }
+        }
+
+        binding.etChatMessageInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && chatAdapter.itemCount > 0) {
+                binding.rvChatMessages.postDelayed({
+                    binding.rvChatMessages.smoothScrollToPosition(chatAdapter.itemCount - 1)
+                }, 100)
+            }
+        }
+
         binding.etChatMessageInput.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val hasText = !s.isNullOrBlank()
                 if (hasText) {
+                    if (chatAdapter.itemCount > 0) {
+                        binding.rvChatMessages.post {
+                            binding.rvChatMessages.smoothScrollToPosition(chatAdapter.itemCount - 1)
+                        }
+                    }
                     chatViewModel.setTyping(chatConversationId, currentUserId, true)
                     typingDebounceJob?.cancel()
                     typingDebounceJob = viewLifecycleOwner.lifecycleScope.launch {
@@ -546,7 +567,7 @@ class ChatFragment : Fragment() {
                         val resolvedWithName = snapshot.child("resolvedWithUserName").getValue(String::class.java)
                             ?: recipientUserName
                         binding.layoutResolveReportBanner.visibility = View.VISIBLE
-                        binding.tvResolveBannerTitle.text = "✓ Report RESOLVED & Reunited"
+                        binding.tvResolveBannerTitle.text = "Report RESOLVED & Reunited"
                         binding.tvResolveBannerSub.text = "Resolved with $resolvedWithName"
                         binding.btnResolveWithChatUser.visibility = View.GONE
                     } else {
@@ -560,13 +581,13 @@ class ChatFragment : Fragment() {
 
     private fun confirmResolveReportWithUser(targetUserId: String, targetUserName: String) {
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("🤝 Resolve Case with $targetUserName")
+            .setTitle("Resolve Case with $targetUserName")
             .setMessage(
                 "Did $targetUserName help safely return or reunite '$relatedItemTitle'?\n\n" +
-                "🎉 Recognition & Rewards:\n" +
-                "• 🏆 $targetUserName will earn the 'Reunited Hero' Achievement Badge\n" +
-                "• 🌟 +20 Trust Score points for $targetUserName\n" +
-                "• 🌟 +15 Trust Score points for you\n" +
+                "Recognition & Rewards:\n" +
+                "• $targetUserName will earn the 'Reunited Hero' Achievement Badge\n" +
+                "• +20 Trust Score points for $targetUserName\n" +
+                "• +15 Trust Score points for you\n" +
                 "• Case status will be permanently marked as RESOLVED"
             )
             .setPositiveButton("Yes, Resolve & Award!") { _, _ ->
@@ -601,7 +622,7 @@ class ChatFragment : Fragment() {
             val achievementKey = "reunited_hero_${System.currentTimeMillis()}"
             val recipientAchievement = mapOf(
                 "id" to achievementKey,
-                "title" to "🤝 Reunited Hero",
+                "title" to "Reunited Hero",
                 "description" to "Helped resolve '$itemTitle' with $reporterName! Safely returned to owner.",
                 "timestamp" to System.currentTimeMillis(),
                 "badge" to "HERO_REUNITED",
@@ -612,7 +633,7 @@ class ChatFragment : Fragment() {
             // Notification for recipient
             val notif = mapOf(
                 "id" to "notif_${System.currentTimeMillis()}",
-                "title" to "🏆 Achievement Unlocked: Reunited Hero!",
+                "title" to "Achievement Unlocked: Reunited Hero!",
                 "message" to "$reporterName confirmed you helped reunite '$itemTitle'. You earned +20 Trust Points!",
                 "timestamp" to System.currentTimeMillis(),
                 "type" to "ACHIEVEMENT",
@@ -631,7 +652,7 @@ class ChatFragment : Fragment() {
 
             val reporterAchievement = mapOf(
                 "id" to "case_resolved_${System.currentTimeMillis()}",
-                "title" to "🎉 Case Resolved",
+                "title" to "Case Resolved",
                 "description" to "Successfully resolved '$itemTitle' with $targetUserName!",
                 "timestamp" to System.currentTimeMillis()
             )
@@ -643,7 +664,7 @@ class ChatFragment : Fragment() {
             chatConversationId = chatConversationId,
             senderUserId = currentUserId,
             recipientUserId = targetUserId,
-            chatMessageTextContent = "🎉 [Case Resolved] '$itemTitle' has been marked as RESOLVED! Congratulations to $targetUserName for safely reuniting this item! 🏆 (+20 Trust XP & Reunited Hero badge awarded)",
+            chatMessageTextContent = "[Case Resolved] '$itemTitle' has been marked as RESOLVED! Congratulations to $targetUserName for safely reuniting this item! (+20 Trust XP & Reunited Hero badge awarded)",
             relatedItemId = relatedItemId,
             otherUserName = targetUserName,
             relatedItemTitle = itemTitle
@@ -652,19 +673,19 @@ class ChatFragment : Fragment() {
         // 5. Trigger local push notification & update banner
         com.group3.lostandfound.service.FCMService.triggerPushNotification(
             currentContext,
-            "🎉 Item Reunited & Resolved!",
+            "Item Reunited & Resolved!",
             "'$itemTitle' marked RESOLVED with $targetUserName. Achievements awarded!",
             relatedItemId
         )
 
         isItemAlreadyResolved = true
-        binding.tvResolveBannerTitle.text = "✓ Report RESOLVED & Reunited"
+        binding.tvResolveBannerTitle.text = "Report RESOLVED & Reunited"
         binding.tvResolveBannerSub.text = "Resolved with $targetUserName"
         binding.btnResolveWithChatUser.visibility = View.GONE
 
         androidx.appcompat.app.AlertDialog.Builder(currentContext)
-            .setTitle("🎉 Congratulations!")
-            .setMessage("'$itemTitle' has been marked as RESOLVED!\n\n🏆 $targetUserName was awarded the 'Reunited Hero' achievement and +20 Trust Score points.\nYou received +15 Trust Score points.")
+            .setTitle("Congratulations!")
+            .setMessage("'$itemTitle' has been marked as RESOLVED!\n\n$targetUserName was awarded the 'Reunited Hero' achievement and +20 Trust Score points.\nYou received +15 Trust Score points.")
             .setPositiveButton("Awesome!", null)
             .show()
     }
@@ -709,9 +730,9 @@ class ChatFragment : Fragment() {
     private fun showChatOptionsMenu() {
         val optionsList = mutableListOf<String>()
         if (isCurrentUserReporter && !isItemAlreadyResolved && relatedItemId.isNotBlank()) {
-            optionsList.add("🤝 Mark RESOLVED with $recipientUserName")
+            optionsList.add("Mark RESOLVED with $recipientUserName")
         }
-        optionsList.add("🫧 Pop out Floating Chat Bubble")
+        optionsList.add("Pop out Floating Chat Bubble")
         optionsList.add("Block $recipientUserName")
         optionsList.add("Report Inappropriate Activity")
         optionsList.add("Clear Local View")
@@ -721,10 +742,10 @@ class ChatFragment : Fragment() {
             .setTitle("Chat Options · $recipientUserName")
             .setItems(options) { _, which ->
                 when (options[which]) {
-                    "🤝 Mark RESOLVED with $recipientUserName" -> {
+                    "Mark RESOLVED with $recipientUserName" -> {
                         confirmResolveReportWithUser(recipientUserId, recipientUserName)
                     }
-                    "🫧 Pop out Floating Chat Bubble" -> {
+                    "Pop out Floating Chat Bubble" -> {
                         launchFloatingBubble()
                     }
                     "Block $recipientUserName" -> confirmBlockUser()
