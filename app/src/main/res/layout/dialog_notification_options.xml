@@ -42,7 +42,7 @@
             android:layout_height="34dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:background="@drawable/bg_dialog_close"
+            android:background="@drawable/bg_circle_icon_button"
             android:clickable="true"
             android:contentDescription="Close"
             android:focusable="true"
@@ -111,8 +111,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                app:thumbTint="@color/white"
-                app:trackTint="#002B3D" />
+                android:thumb="@drawable/bg_switch_thumb"
+                android:track="@drawable/bg_switch_track" />
         </LinearLayout>
 
         <View
@@ -159,8 +159,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                app:thumbTint="@color/white"
-                app:trackTint="#002B3D" />
+                android:thumb="@drawable/bg_switch_thumb"
+                android:track="@drawable/bg_switch_track" />
         </LinearLayout>
 
         <View
@@ -207,8 +207,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                app:thumbTint="@color/white"
-                app:trackTint="#002B3D" />
+                android:thumb="@drawable/bg_switch_thumb"
+                android:track="@drawable/bg_switch_track" />
         </LinearLayout>
 
     </LinearLayout>
