@@ -27,7 +27,7 @@ class ChatAdapter(
     private val onReplyClicked: ((ChatMessage) -> Unit)? = null
 ) : ListAdapter<ChatMessage, ChatAdapter.ChatMessageViewHolder>(DiffCallback) {
 
-    private val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     private val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault())
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatMessageViewHolder {
@@ -66,10 +66,10 @@ class ChatAdapter(
             // Calendar Date Header Check
             val showDateHeader = shouldDisplayDateHeader(chatMessage, previousMessage)
             if (showDateHeader) {
-                binding.tvDateHeader.visibility = View.VISIBLE
+                binding.layoutDateHeader.visibility = View.VISIBLE
                 binding.tvDateHeader.text = formatCalendarHeaderDate(chatMessage.messageSentTimestamp)
             } else {
-                binding.tvDateHeader.visibility = View.GONE
+                binding.layoutDateHeader.visibility = View.GONE
             }
 
             val formattedTime = if (chatMessage.messageSentTimestamp > 0L) {
@@ -122,7 +122,7 @@ class ChatAdapter(
                     else ContextCompat.getColor(binding.root.context, R.color.white)
                 )
 
-                binding.tvOutgoingTime.text = formattedTime
+                binding.tvOutgoingTime.text = if (formattedTime.isNotEmpty()) "$formattedTime · Read \u2713\u2713" else ""
 
                 binding.cardOutgoingBubble.setOnLongClickListener {
                     onMessageLongClicked?.invoke(chatMessage)
@@ -185,14 +185,17 @@ class ChatAdapter(
                     cal1.get(Calendar.DAY_OF_YEAR) != cal2.get(Calendar.DAY_OF_YEAR)
         }
 
+        private val dayMonthFormat = SimpleDateFormat("d MMM", Locale.ENGLISH)
+
         private fun formatCalendarHeaderDate(timestamp: Long): String {
-            if (timestamp <= 0L) return "Recent"
+            if (timestamp <= 0L) return "TODAY"
+            val dayMonth = dayMonthFormat.format(Date(timestamp)).uppercase()
             return if (DateUtils.isToday(timestamp)) {
-                "Today"
+                "TODAY · $dayMonth"
             } else if (DateUtils.isToday(timestamp + DateUtils.DAY_IN_MILLIS)) {
-                "Yesterday"
+                "YESTERDAY · $dayMonth"
             } else {
-                dateFormat.format(Date(timestamp))
+                SimpleDateFormat("d MMM yyyy", Locale.ENGLISH).format(Date(timestamp)).uppercase()
             }
         }
     }

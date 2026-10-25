@@ -345,31 +345,57 @@ class HomeFragment : Fragment() {
             val bottomSheet = com.google.android.material.bottomsheet.BottomSheetDialog(requireContext())
             val sheetView = layoutInflater.inflate(R.layout.dialog_notification_options, null)
             bottomSheet.setContentView(sheetView)
+            bottomSheet.setOnShowListener { dialogInterface ->
+                val dialog = dialogInterface as? com.google.android.material.bottomsheet.BottomSheetDialog
+                dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                    ?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+            }
 
-            sheetView.findViewById<View>(R.id.btnViewInbox).setOnClickListener {
+            val btnClose = sheetView.findViewById<View>(R.id.btnCloseNotificationOptions)
+            val btnSave = sheetView.findViewById<View>(R.id.btnSavePreferences)
+            val chip1 = sheetView.findViewById<TextView>(R.id.chipRadius1km)
+            val chip5 = sheetView.findViewById<TextView>(R.id.chipRadius5km)
+            val chip10 = sheetView.findViewById<TextView>(R.id.chipRadius10km)
+            val tabInstant = sheetView.findViewById<TextView>(R.id.tabInstant)
+            val tabDaily = sheetView.findViewById<TextView>(R.id.tabDailyDigest)
+
+            var selectedRadius = 5
+            fun updateRadiusChips(radius: Int) {
+                selectedRadius = radius
+                chip1?.setBackgroundResource(if (radius == 1) R.drawable.bg_btn_save_profile else R.drawable.bg_btn_cancel_edit)
+                chip1?.setTextColor(if (radius == 1) android.graphics.Color.WHITE else android.graphics.Color.parseColor("#002B3D"))
+
+                chip5?.setBackgroundResource(if (radius == 5) R.drawable.bg_btn_save_profile else R.drawable.bg_btn_cancel_edit)
+                chip5?.setTextColor(if (radius == 5) android.graphics.Color.WHITE else android.graphics.Color.parseColor("#002B3D"))
+
+                chip10?.setBackgroundResource(if (radius == 10) R.drawable.bg_btn_save_profile else R.drawable.bg_btn_cancel_edit)
+                chip10?.setTextColor(if (radius == 10) android.graphics.Color.WHITE else android.graphics.Color.parseColor("#002B3D"))
+            }
+
+            chip1?.setOnClickListener { updateRadiusChips(1) }
+            chip5?.setOnClickListener { updateRadiusChips(5) }
+            chip10?.setOnClickListener { updateRadiusChips(10) }
+
+            tabInstant?.setOnClickListener {
+                tabInstant.setBackgroundResource(R.drawable.bg_segment_active)
+                tabInstant.setTextColor(android.graphics.Color.parseColor("#002B3D"))
+                tabDaily?.setBackgroundResource(0)
+                tabDaily?.setTextColor(android.graphics.Color.parseColor("#64748B"))
+            }
+
+            tabDaily?.setOnClickListener {
+                tabDaily.setBackgroundResource(R.drawable.bg_segment_active)
+                tabDaily.setTextColor(android.graphics.Color.parseColor("#002B3D"))
+                tabInstant?.setBackgroundResource(0)
+                tabInstant?.setTextColor(android.graphics.Color.parseColor("#64748B"))
+            }
+
+            btnClose?.setOnClickListener {
                 bottomSheet.dismiss()
-                parentFragmentManager.beginTransaction()
-                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                    .replace(R.id.screenBox, NotificationsFragment.newInstance())
-                    .addToBackStack(null)
-                    .commit()
             }
 
-            sheetView.findViewById<View>(R.id.btnTestSound).setOnClickListener {
-                FCMService.triggerPushNotification(
-                    context = requireContext(),
-                    title = "Urgent Match Alert",
-                    body = "Live community update for your reported item with audible chime.",
-                    itemId = currentReportsList.firstOrNull()?.itemId
-                )
-                com.group3.lostandfound.util.ModernToast.show(
-                    requireContext(),
-                    "Sound & vibration alert triggered successfully.",
-                    view
-                )
-            }
-
-            sheetView.findViewById<View>(R.id.btnDismissNotifDialog).setOnClickListener {
+            btnSave?.setOnClickListener {
+                com.group3.lostandfound.util.ModernToast.show(requireContext(), "Preferences saved!", view)
                 bottomSheet.dismiss()
             }
 

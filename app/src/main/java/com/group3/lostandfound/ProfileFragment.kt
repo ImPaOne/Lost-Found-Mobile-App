@@ -45,6 +45,8 @@ class ProfileFragment : Fragment() {
     private var itemStatsListener: ValueEventListener? = null
     private var currentDisplayName = "Community Member"
     private var currentLanguage = "en"
+    private var currentLocation = ""
+    private var currentEmail = ""
     private var currentPhone = ""
     private var currentPhotoUrl = ""
     private var activeDialogAvatarPreview: ImageView? = null
@@ -173,6 +175,11 @@ class ProfileFragment : Fragment() {
                         ?: snapshot.child("fullName").getValue(String::class.java)
                         ?: "Community Member"
                     currentLanguage = snapshot.child("preferredLanguage").getValue(String::class.java) ?: "en"
+                    currentLocation = snapshot.child("location").getValue(String::class.java)
+                        ?: snapshot.child("city").getValue(String::class.java)
+                        ?: ""
+                    currentEmail = snapshot.child("email").getValue(String::class.java)
+                        ?: FirebaseManager.currentUserEmail
                     currentPhone = snapshot.child("phone").getValue(String::class.java)
                         ?: snapshot.child("phoneNumber").getValue(String::class.java)
                         ?: ""
@@ -271,10 +278,18 @@ class ProfileFragment : Fragment() {
         val bottomSheet = BottomSheetDialog(requireContext())
         val sheetView = layoutInflater.inflate(R.layout.dialog_edit_profile, null)
         bottomSheet.setContentView(sheetView)
+        bottomSheet.setOnShowListener { dialogInterface ->
+            val dialog = dialogInterface as? BottomSheetDialog
+            dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                ?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        }
 
+        val btnCloseEditProfile = sheetView.findViewById<ImageView>(R.id.btnCloseEditProfile)
         val dialogAvatarPreview = sheetView.findViewById<ImageView>(R.id.dialogAvatarPreview)
         val rowChangeAvatar = sheetView.findViewById<View>(R.id.rowChangeAvatar)
         val etProfileName = sheetView.findViewById<EditText>(R.id.etProfileName)
+        val etProfileLocation = sheetView.findViewById<EditText>(R.id.etProfileLocation)
+        val etProfileEmail = sheetView.findViewById<EditText>(R.id.etProfileEmail)
         val etProfilePhone = sheetView.findViewById<EditText>(R.id.etProfilePhone)
         val btnCancelEdit = sheetView.findViewById<View>(R.id.btnCancelEdit)
         val btnSaveProfile = sheetView.findViewById<View>(R.id.btnSaveProfile)
@@ -284,8 +299,22 @@ class ProfileFragment : Fragment() {
             ImageLoader.load(dialogAvatarPreview, currentPhotoUrl, R.drawable.ic_user_avatar, viewLifecycleOwner.lifecycleScope)
         }
 
-        etProfileName.setText(currentDisplayName)
-        etProfilePhone.setText(currentPhone)
+        if (currentDisplayName.isNotEmpty() && currentDisplayName != "Community Member") {
+            etProfileName.setText(currentDisplayName)
+        }
+        if (currentLocation.isNotEmpty()) {
+            etProfileLocation.setText(currentLocation)
+        }
+        if (currentEmail.isNotEmpty()) {
+            etProfileEmail.setText(currentEmail)
+        }
+        if (currentPhone.isNotEmpty()) {
+            etProfilePhone.setText(currentPhone)
+        }
+
+        btnCloseEditProfile?.setOnClickListener {
+            bottomSheet.dismiss()
+        }
 
         rowChangeAvatar.setOnClickListener {
             pickProfileAvatarLauncher.launch("image/*")
@@ -296,13 +325,22 @@ class ProfileFragment : Fragment() {
         }
 
         btnSaveProfile.setOnClickListener {
-            val newName = etProfileName.text.toString().trim().ifEmpty { currentDisplayName }
+            val enteredName = etProfileName.text.toString().trim()
+            val newName = if (enteredName.isNotEmpty()) enteredName else currentDisplayName
+            val newLocation = etProfileLocation.text.toString().trim()
+            val newEmail = etProfileEmail.text.toString().trim()
             val newPhone = etProfilePhone.text.toString().trim()
 
             val updates = mutableMapOf<String, Any>(
                 "displayName" to newName,
                 "fullName" to newName
             )
+            if (newLocation.isNotEmpty()) {
+                updates["location"] = newLocation
+            }
+            if (newEmail.isNotEmpty()) {
+                updates["email"] = newEmail
+            }
             if (newPhone.isNotEmpty()) {
                 updates["phone"] = newPhone
                 updates["phoneNumber"] = newPhone
@@ -310,12 +348,14 @@ class ProfileFragment : Fragment() {
 
             userRef.updateChildren(updates).addOnSuccessListener {
                 currentDisplayName = newName
-                currentPhone = newPhone
+                if (newLocation.isNotEmpty()) currentLocation = newLocation
+                if (newEmail.isNotEmpty()) currentEmail = newEmail
+                if (newPhone.isNotEmpty()) currentPhone = newPhone
                 userName.text = newName
-                ModernToast.show(requireContext(), "Profile updated in Firebase!", view)
+                ModernToast.show(requireContext(), "Profile updated successfully!", view)
                 bottomSheet.dismiss()
-            }.addOnFailureListener {
-                Toast.makeText(requireContext(), "Update failed: ${it.message}", Toast.LENGTH_SHORT).show()
+            }.addOnFailureListener { error ->
+                Toast.makeText(requireContext(), "Update failed: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         }
 

@@ -46,10 +46,10 @@ class ChatFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let { bundle ->
-            recipientUserId = bundle.getString(ARG_RECIPIENT_USER_ID, "user_perera")
-            recipientUserName = bundle.getString(ARG_RECIPIENT_NAME, "Item Contact")
-            relatedItemId = bundle.getString(ARG_ITEM_ID, "")
-            relatedItemTitle = bundle.getString(ARG_ITEM_TITLE, "Item Discussion")
+            recipientUserId = bundle.getString(ARG_RECIPIENT_USER_ID, "user_kasun")
+            recipientUserName = bundle.getString(ARG_RECIPIENT_NAME, "Kasun Jayasinghe")
+            relatedItemId = bundle.getString(ARG_ITEM_ID, "item_wallet")
+            relatedItemTitle = bundle.getString(ARG_ITEM_TITLE, "Black leather wallet")
 
             val passedConversationId = bundle.getString(ARG_CONVERSATION_ID, "")
             chatConversationId = if (passedConversationId.isNotEmpty()) {
@@ -62,8 +62,10 @@ class ChatFragment : Fragment() {
                 )
             }
         } ?: run {
-            recipientUserId = "user_perera"
-            recipientUserName = "Dilshan Perera"
+            recipientUserId = "user_kasun"
+            recipientUserName = "Kasun Jayasinghe"
+            relatedItemId = "item_wallet"
+            relatedItemTitle = "Black leather wallet"
             chatConversationId = chatRepository.generateChatConversationId(currentUserId, recipientUserId)
         }
 
@@ -87,16 +89,50 @@ class ChatFragment : Fragment() {
         setupListeners()
         observeViewModel()
         checkReportResolutionStatus()
+        NavigationHelper.setup(this, binding.root, NavigationHelper.Tab.MESSAGES)
 
         chatViewModel.initializeChatConversation(chatConversationId)
     }
 
     private fun setupHeader() {
-        binding.tvChatTitle.text = recipientUserName
-        binding.tvChatSubtitle.text = if (relatedItemTitle.isNotEmpty()) {
-            "Regarding: $relatedItemTitle"
-        } else {
-            "Direct Discussion"
+        val displayName = recipientUserName.ifEmpty { "Kasun Jayasinghe" }
+        binding.tvChatTitle.text = displayName
+        updateChatSubtitle()
+        setupPinnedReport()
+    }
+
+    private fun setupPinnedReport() {
+        val defaultTitle = if (relatedItemTitle.isNotBlank()) relatedItemTitle else "Black leather wallet"
+        binding.tvPinnedItemTitle.text = defaultTitle
+        binding.tvPinnedItemSubtitle.text = "Colombo 03 · 12 Sep"
+        binding.tvReportTag.text = "YOUR LOST REPORT"
+
+        if (relatedItemId.isNotBlank()) {
+            FirebaseManager.itemsRef.child(relatedItemId).get().addOnSuccessListener { snapshot ->
+                if (_binding == null || !isAdded) return@addOnSuccessListener
+                val title = snapshot.child("title").getValue(String::class.java) ?: defaultTitle
+                val location = snapshot.child("location").getValue(String::class.java) ?: "Colombo 03"
+                val type = snapshot.child("type").getValue(String::class.java) ?: "LOST"
+                val photoUrl = snapshot.child("imageUrl").getValue(String::class.java) ?: ""
+
+                binding.tvPinnedItemTitle.text = title.ifEmpty { defaultTitle }
+                binding.tvReportTag.text = if (type.equals("LOST", ignoreCase = true)) "YOUR LOST REPORT" else "FOUND REPORT"
+                binding.tvPinnedItemSubtitle.text = "$location · 12 Sep"
+
+                if (photoUrl.isNotEmpty()) {
+                    com.group3.lostandfound.util.ImageLoader.load(requireContext(), photoUrl, binding.imgPinnedReport)
+                }
+            }
+
+            val openDetails = View.OnClickListener {
+                parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                    .replace(R.id.screenBox, DetailsFragment.newInstance(relatedItemId))
+                    .addToBackStack(null)
+                    .commit()
+            }
+            binding.cardPinnedItem.setOnClickListener(openDetails)
+            binding.btnViewItemDetails.setOnClickListener(openDetails)
         }
     }
 
@@ -339,6 +375,13 @@ class ChatFragment : Fragment() {
             binding.etChatMessageInput.requestFocus()
         }
 
+        binding.btnStartOwnershipCheck.setOnClickListener {
+            val ownershipPrompt = "Could you describe a detail that isn't in the report? You can use Foundly's secure ownership check."
+            binding.etChatMessageInput.setText(ownershipPrompt)
+            binding.etChatMessageInput.setSelection(ownershipPrompt.length)
+            binding.etChatMessageInput.requestFocus()
+        }
+
         binding.btnSendChatMessage.setOnClickListener {
             val chatMessageTextContent = binding.etChatMessageInput.text.toString().trim()
             val uriToSend = attachedImageUri
@@ -501,13 +544,13 @@ class ChatFragment : Fragment() {
                 androidx.core.content.ContextCompat.getColor(requireContext(), R.color.primary)
             )
             binding.tvChatSubtitle.setTypeface(null, android.graphics.Typeface.BOLD_ITALIC)
+            binding.dotActiveStatus.visibility = View.VISIBLE
         } else {
             binding.tvChatSubtitle.setTypeface(null, android.graphics.Typeface.NORMAL)
-            binding.tvChatSubtitle.setTextColor(
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.text_secondary)
-            )
             if (recipientPresence.first) {
-                binding.tvChatSubtitle.text = "Online"
+                binding.tvChatSubtitle.text = "Active now"
+                binding.tvChatSubtitle.setTextColor(android.graphics.Color.parseColor("#0D9488"))
+                binding.dotActiveStatus.visibility = View.VISIBLE
             } else if (recipientPresence.second > 0L) {
                 val formatted = android.text.format.DateUtils.getRelativeTimeSpanString(
                     recipientPresence.second,
@@ -515,10 +558,14 @@ class ChatFragment : Fragment() {
                     android.text.format.DateUtils.MINUTE_IN_MILLIS
                 )
                 binding.tvChatSubtitle.text = "Last seen $formatted"
-            } else if (relatedItemTitle.isNotEmpty()) {
-                binding.tvChatSubtitle.text = "Regarding: $relatedItemTitle"
+                binding.tvChatSubtitle.setTextColor(
+                    androidx.core.content.ContextCompat.getColor(requireContext(), R.color.text_secondary)
+                )
+                binding.dotActiveStatus.visibility = View.GONE
             } else {
-                binding.tvChatSubtitle.text = "Direct Discussion"
+                binding.tvChatSubtitle.text = "Active now"
+                binding.tvChatSubtitle.setTextColor(android.graphics.Color.parseColor("#0D9488"))
+                binding.dotActiveStatus.visibility = View.VISIBLE
             }
         }
     }

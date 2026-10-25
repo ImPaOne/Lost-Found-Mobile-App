@@ -210,7 +210,7 @@ class SettingsFragment : Fragment() {
         }
 
         rowNotificationPrefs.setOnClickListener {
-            showNotificationSoundDialog()
+            showNotificationOptionsDialog()
         }
 
         // Draw Over Apps Toggle & Row Click
@@ -519,6 +519,67 @@ class SettingsFragment : Fragment() {
 
 
 
+    private fun showNotificationOptionsDialog() {
+        val bottomSheet = com.google.android.material.bottomsheet.BottomSheetDialog(requireContext())
+        val sheetView = layoutInflater.inflate(R.layout.dialog_notification_options, null)
+        bottomSheet.setContentView(sheetView)
+        bottomSheet.setOnShowListener { dialogInterface ->
+            val dialog = dialogInterface as? com.google.android.material.bottomsheet.BottomSheetDialog
+            dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                ?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        }
+
+        val btnClose = sheetView.findViewById<View>(R.id.btnCloseNotificationOptions)
+        val btnSave = sheetView.findViewById<View>(R.id.btnSavePreferences)
+        val chip1 = sheetView.findViewById<TextView>(R.id.chipRadius1km)
+        val chip5 = sheetView.findViewById<TextView>(R.id.chipRadius5km)
+        val chip10 = sheetView.findViewById<TextView>(R.id.chipRadius10km)
+        val tabInstant = sheetView.findViewById<TextView>(R.id.tabInstant)
+        val tabDaily = sheetView.findViewById<TextView>(R.id.tabDailyDigest)
+
+        var selectedRadius = 5
+        fun updateRadiusChips(radius: Int) {
+            selectedRadius = radius
+            chip1?.setBackgroundResource(if (radius == 1) R.drawable.bg_btn_save_profile else R.drawable.bg_btn_cancel_edit)
+            chip1?.setTextColor(if (radius == 1) android.graphics.Color.WHITE else android.graphics.Color.parseColor("#002B3D"))
+
+            chip5?.setBackgroundResource(if (radius == 5) R.drawable.bg_btn_save_profile else R.drawable.bg_btn_cancel_edit)
+            chip5?.setTextColor(if (radius == 5) android.graphics.Color.WHITE else android.graphics.Color.parseColor("#002B3D"))
+
+            chip10?.setBackgroundResource(if (radius == 10) R.drawable.bg_btn_save_profile else R.drawable.bg_btn_cancel_edit)
+            chip10?.setTextColor(if (radius == 10) android.graphics.Color.WHITE else android.graphics.Color.parseColor("#002B3D"))
+        }
+
+        chip1?.setOnClickListener { updateRadiusChips(1) }
+        chip5?.setOnClickListener { updateRadiusChips(5) }
+        chip10?.setOnClickListener { updateRadiusChips(10) }
+
+        tabInstant?.setOnClickListener {
+            tabInstant.setBackgroundResource(R.drawable.bg_segment_active)
+            tabInstant.setTextColor(android.graphics.Color.parseColor("#002B3D"))
+            tabDaily?.setBackgroundResource(0)
+            tabDaily?.setTextColor(android.graphics.Color.parseColor("#64748B"))
+        }
+
+        tabDaily?.setOnClickListener {
+            tabDaily.setBackgroundResource(R.drawable.bg_segment_active)
+            tabDaily.setTextColor(android.graphics.Color.parseColor("#002B3D"))
+            tabInstant?.setBackgroundResource(0)
+            tabInstant?.setTextColor(android.graphics.Color.parseColor("#64748B"))
+        }
+
+        btnClose?.setOnClickListener {
+            bottomSheet.dismiss()
+        }
+
+        btnSave?.setOnClickListener {
+            ModernToast.show(requireContext(), "Preferences saved!", view)
+            bottomSheet.dismiss()
+        }
+
+        bottomSheet.show()
+    }
+
     private fun showAboutDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle("Foundly - Reconnecting Communities")
@@ -549,28 +610,37 @@ class SettingsFragment : Fragment() {
             sheetView.findViewById<ImageView>(R.id.star4),
             sheetView.findViewById<ImageView>(R.id.star5)
         )
-        val tvRatingLabel = sheetView.findViewById<TextView>(R.id.tvRatingLabel)
-        val etFeedback = sheetView.findViewById<EditText>(R.id.etFeedback)
-        val btnDismissRating = sheetView.findViewById<View>(R.id.btnDismissRating)
-        val btnSubmitRating = sheetView.findViewById<View>(R.id.btnSubmitRating)
+        val badgeRatingPill = sheetView.findViewById<TextView>(R.id.badgeRatingPill)
+        val etFeedbackComment = sheetView.findViewById<EditText>(R.id.etFeedbackComment)
+        val btnCloseRateDialog = sheetView.findViewById<View>(R.id.btnCloseRateDialog)
+        val btnMaybeLater = sheetView.findViewById<View>(R.id.btnMaybeLater)
+        val btnSubmitFeedback = sheetView.findViewById<View>(R.id.btnSubmitFeedback)
 
-        var selectedRating = 5
+        var selectedRating = 4
+
+        bottomSheet.setOnShowListener { dialogInterface ->
+            val dialog = dialogInterface as? com.google.android.material.bottomsheet.BottomSheetDialog
+            dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                ?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        }
 
         fun updateStars(rating: Int) {
             selectedRating = rating
             for (i in 0 until 5) {
                 if (i < rating) {
                     starViews[i].setImageResource(R.drawable.ic_star_filled)
+                    starViews[i].setColorFilter(android.graphics.Color.parseColor("#F59E0B"))
                 } else {
                     starViews[i].setImageResource(R.drawable.ic_star_outline)
+                    starViews[i].setColorFilter(android.graphics.Color.parseColor("#CBD5E1"))
                 }
             }
-            tvRatingLabel.text = when (rating) {
-                5 -> "Outstanding · 5.0"
-                4 -> "Very Good · 4.0"
-                3 -> "Good · 3.0"
-                2 -> "Needs Improvement · 2.0"
-                else -> "Poor · 1.0"
+            badgeRatingPill?.text = when (rating) {
+                5 -> "5 out of 5 · Outstanding"
+                4 -> "4 out of 5 · Good"
+                3 -> "3 out of 5 · Average"
+                2 -> "2 out of 5 · Needs Work"
+                else -> "1 out of 5 · Poor"
             }
         }
 
@@ -580,12 +650,16 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        btnDismissRating.setOnClickListener {
+        btnCloseRateDialog?.setOnClickListener {
             bottomSheet.dismiss()
         }
 
-        btnSubmitRating.setOnClickListener {
-            val feedback = etFeedback.text.toString().trim()
+        btnMaybeLater?.setOnClickListener {
+            bottomSheet.dismiss()
+        }
+
+        btnSubmitFeedback.setOnClickListener {
+            val feedback = etFeedbackComment?.text?.toString()?.trim().orEmpty()
             val uid = FirebaseManager.currentUid
             if (uid.isNotEmpty()) {
                 val review = mapOf(
