@@ -38,6 +38,10 @@ class SplashActivity : AppCompatActivity() {
             openMainActivity()
         }
 
+        try {
+            startService(Intent(this, com.group3.lostandfound.service.AppNotificationService::class.java))
+        } catch (e: Exception) {}
+
         // Automatically navigate after brief delay without animations
         handler.postDelayed({
             openMainActivity()
