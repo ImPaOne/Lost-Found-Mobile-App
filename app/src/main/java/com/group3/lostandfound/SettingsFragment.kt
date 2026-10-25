@@ -618,6 +618,12 @@ class SettingsFragment : Fragment() {
 
         var selectedRating = 4
 
+        bottomSheet.setOnShowListener { dialogInterface ->
+            val dialog = dialogInterface as? com.google.android.material.bottomsheet.BottomSheetDialog
+            dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                ?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        }
+
         fun updateStars(rating: Int) {
             selectedRating = rating
             for (i in 0 until 5) {
@@ -630,11 +636,11 @@ class SettingsFragment : Fragment() {
                 }
             }
             badgeRatingPill?.text = when (rating) {
-                5 -> "5 out of 5 - Outstanding!"
-                4 -> "4 out of 5 - Great!"
-                3 -> "3 out of 5 - Good"
-                2 -> "2 out of 5 - Needs Work"
-                else -> "1 out of 5 - Poor"
+                5 -> "5 out of 5 · Outstanding"
+                4 -> "4 out of 5 · Good"
+                3 -> "3 out of 5 · Average"
+                2 -> "2 out of 5 · Needs Work"
+                else -> "1 out of 5 · Poor"
             }
         }
 
