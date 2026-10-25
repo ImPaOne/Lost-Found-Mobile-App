@@ -20,12 +20,13 @@
 
         <ImageView
             android:id="@+id/btnBack"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_circle_button"
             android:clickable="true"
             android:contentDescription="Back"
             android:focusable="true"
-            android:padding="8dp"
+            android:padding="10dp"
             android:src="@drawable/ic_back_chevron"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -112,30 +113,30 @@
             android:fontFamily="sans-serif-bold"
             android:letterSpacing="0.05"
             android:text="STEP 1 OF 5"
-            android:textColor="#624E43"
-            android:textSize="11sp"
+            android:textColor="#64748B"
+            android:textSize="12sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvStepTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
+            android:layout_marginTop="4dp"
             android:fontFamily="sans-serif-bold"
             android:text="What happened?"
-            android:textColor="@color/text_primary"
-            android:textSize="22sp"
+            android:textColor="#0F172A"
+            android:textSize="26sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvStepSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="4dp"
             android:fontFamily="sans-serif"
-            android:text="Select whether you lost or found an item."
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:text="Choose a report type. We'll help you with the next steps."
+            android:textColor="#64748B"
+            android:textSize="14sp" />
     </LinearLayout>
 
     <!-- Scrollable Steps Content Area (Sliding Steps Container) -->
