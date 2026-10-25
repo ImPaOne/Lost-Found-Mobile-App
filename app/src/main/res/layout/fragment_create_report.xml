@@ -742,6 +742,7 @@
                     android:visibility="gone">
 
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardThumbnail1"
                         android:layout_width="74dp"
                         android:layout_height="74dp"
                         app:cardCornerRadius="12dp"
@@ -759,18 +760,41 @@
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardThumbnail2"
                         android:layout_width="74dp"
                         android:layout_height="74dp"
                         android:layout_marginStart="10dp"
+                        android:visibility="gone"
                         app:cardCornerRadius="12dp"
                         app:cardElevation="0dp"
                         app:strokeColor="@color/stroke_light"
                         app:strokeWidth="1dp">
 
                         <ImageView
+                            android:id="@+id/imgThumbnail2"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:contentDescription="Photo 2"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/ic_item_placeholder" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardThumbnail3"
+                        android:layout_width="74dp"
+                        android:layout_height="74dp"
+                        android:layout_marginStart="10dp"
+                        android:visibility="gone"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/stroke_light"
+                        app:strokeWidth="1dp">
+
+                        <ImageView
+                            android:id="@+id/imgThumbnail3"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="Photo 3"
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_item_placeholder" />
                     </com.google.android.material.card.MaterialCardView>
@@ -907,7 +931,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
-                        android:text="✓ Verified Community Pledge: Your post will be immediately visible across nearby members."
+                        android:text="Verified Community Pledge: Your post will be immediately visible across nearby members."
                         android:textColor="@color/text_primary"
                         android:textSize="12sp" />
                 </LinearLayout>
