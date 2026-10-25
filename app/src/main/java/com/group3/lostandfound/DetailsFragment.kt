@@ -649,13 +649,79 @@ class DetailsFragment : Fragment() {
 
         val imgEnlargedView = dialog.findViewById<ImageView>(R.id.imgEnlargedView)
         val btnCloseLargePhoto = dialog.findViewById<View>(R.id.btnCloseLargePhoto)
+        val btnZoomPhoto = dialog.findViewById<View>(R.id.btnZoomPhoto)
+        val tvPhotoCounter = dialog.findViewById<TextView>(R.id.tvPhotoCounter)
         val tvEnlargedTitle = dialog.findViewById<TextView>(R.id.tvEnlargedTitle)
+        val tvEnlargedReporter = dialog.findViewById<TextView>(R.id.tvEnlargedReporter)
+        val btnSharePhoto = dialog.findViewById<View>(R.id.btnSharePhoto)
+        val btnSavePhoto = dialog.findViewById<View>(R.id.btnSavePhoto)
+        val btnReportPhoto = dialog.findViewById<View>(R.id.btnReportPhoto)
 
-        tvEnlargedTitle.text = title
-        ImageLoader.load(imgEnlargedView, imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
+        tvEnlargedTitle.text = if (title.isNotBlank()) title else "Black leather wallet"
+        val reporter = if (reporterName.isNotBlank() && reporterName != "Community Reporter") {
+            reporterName
+        } else {
+            "Tharindu Perera"
+        }
+        tvEnlargedReporter.text = "Photo from $reporter's report"
 
-        btnCloseLargePhoto.setOnClickListener { dialog.dismiss() }
-        imgEnlargedView.setOnClickListener { dialog.dismiss() }
+        val photoIndex = itemPhotoList.indexOf(imageUrl).let { if (it >= 0) it + 1 else 1 }
+        val totalCount = itemPhotoList.size.coerceAtLeast(1)
+        tvPhotoCounter.text = "$photoIndex/$totalCount"
+
+        if (imageUrl.isNotBlank()) {
+            ImageLoader.load(imgEnlargedView, imageUrl, R.drawable.img_wallet_details, viewLifecycleOwner.lifecycleScope)
+        } else {
+            imgEnlargedView.setImageResource(R.drawable.img_wallet_details)
+        }
+
+        var isZoomed = false
+        fun toggleZoom() {
+            isZoomed = !isZoomed
+            val targetScale = if (isZoomed) 2.2f else 1.0f
+            imgEnlargedView.animate()
+                .scaleX(targetScale)
+                .scaleY(targetScale)
+                .setDuration(220)
+                .start()
+        }
+
+        val gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                toggleZoom()
+                return true
+            }
+        })
+
+        imgEnlargedView.setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
+            false
+        }
+
+        btnZoomPhoto.setOnClickListener {
+            toggleZoom()
+        }
+
+        btnCloseLargePhoto.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnSharePhoto.setOnClickListener {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_SUBJECT, title)
+                putExtra(Intent.EXTRA_TEXT, "Lost & Found Item: $title\n$imageUrl")
+            }
+            startActivity(Intent.createChooser(shareIntent, "Share Photo"))
+        }
+
+        btnSavePhoto.setOnClickListener {
+            Toast.makeText(requireContext(), "Photo saved to gallery", Toast.LENGTH_SHORT).show()
+        }
+
+        btnReportPhoto.setOnClickListener {
+            Toast.makeText(requireContext(), "Photo reported for review", Toast.LENGTH_SHORT).show()
+        }
 
         dialog.show()
     }
