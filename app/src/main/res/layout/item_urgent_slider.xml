@@ -31,7 +31,7 @@
             android:paddingTop="3dp"
             android:paddingEnd="8dp"
             android:paddingBottom="3dp"
-            android:text="🚨 URGENT LOST"
+            android:text="URGENT LOST"
             android:textColor="@color/tag_lost_color"
             android:textSize="10.5sp"
             android:textStyle="bold"
