@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A0D14"
-    android:orientation="vertical">
+    android:background="#000000">
 
     <!-- Top Navigation Bar -->
     <RelativeLayout
         android:id="@+id/topBarEnlarged"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:paddingStart="20dp"
-        android:paddingTop="36dp"
+        android:paddingTop="42dp"
         android:paddingEnd="20dp"
         android:paddingBottom="12dp">
 
         <!-- Close Button (Left) -->
         <FrameLayout
             android:id="@+id/btnCloseLargePhoto"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:background="@drawable/bg_dark_circle_button"
@@ -40,12 +40,12 @@
         <LinearLayout
             android:id="@+id/pillPhotoCounter"
             android:layout_width="wrap_content"
-            android:layout_height="28dp"
+            android:layout_height="30dp"
             android:layout_centerInParent="true"
             android:background="@drawable/bg_photo_counter_pill"
             android:gravity="center"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
             <TextView
                 android:id="@+id/tvPhotoCounter"
@@ -54,15 +54,15 @@
                 android:fontFamily="sans-serif-bold"
                 android:text="1/1"
                 android:textColor="#FFFFFF"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <!-- Zoom Toggle Button (Right) -->
         <FrameLayout
             android:id="@+id/btnZoomPhoto"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:background="@drawable/bg_dark_circle_button"
@@ -78,73 +78,58 @@
         </FrameLayout>
     </RelativeLayout>
 
-    <!-- Scrollable Center Photo Area -->
-    <ScrollView
-        android:id="@+id/photoVerticalScroll"
+    <!-- Center Scrollable & Zoomable Photo View -->
+    <FrameLayout
+        android:id="@+id/photoContainer"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true"
-        android:scrollbars="none">
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomInfoCard"
+        android:layout_below="@+id/topBarEnlarged"
+        android:background="#000000">
 
-        <HorizontalScrollView
-            android:id="@+id/photoHorizontalScroll"
+        <ImageView
+            android:id="@+id/imgEnlargedView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true"
-            android:scrollbars="none">
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center">
-
-                <ImageView
-                    android:id="@+id/imgEnlargedView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:adjustViewBounds="true"
-                    android:contentDescription="Enlarged photo"
-                    android:maxHeight="420dp"
-                    android:scaleType="fitCenter"
-                    tools:src="@drawable/img_wallet_details" />
-            </FrameLayout>
-        </HorizontalScrollView>
-    </ScrollView>
+            android:layout_gravity="center"
+            android:contentDescription="Enlarged photo"
+            android:scaleType="matrix"
+            tools:src="@drawable/img_wallet_details" />
+    </FrameLayout>
 
     <!-- Bottom Information Card -->
     <LinearLayout
         android:id="@+id/bottomInfoCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:background="@drawable/bg_enlarged_bottom_sheet"
         android:elevation="8dp"
         android:orientation="vertical"
         android:paddingStart="20dp"
         android:paddingTop="12dp"
         android:paddingEnd="20dp"
-        android:paddingBottom="28dp">
+        android:paddingBottom="12dp">
 
-        <!-- Handle bar -->
+        <!-- Drag handle bar -->
         <View
-            android:layout_width="38dp"
+            android:layout_width="40dp"
             android:layout_height="4dp"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/bg_photo_counter_pill"
-            android:backgroundTint="#334155" />
+            android:backgroundTint="#323846" />
 
         <!-- Item Title -->
         <TextView
             android:id="@+id/tvEnlargedTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
+            android:layout_marginTop="16dp"
             android:fontFamily="sans-serif-bold"
             android:gravity="center"
             android:text="Black leather wallet"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="22sp"
             android:textStyle="bold" />
 
         <!-- Reporter Row -->
@@ -177,7 +162,7 @@
                 android:layout_marginStart="8dp"
                 android:fontFamily="sans-serif"
                 android:text="Photo from Tharindu Perera's report"
-                android:textColor="#94A3B8"
+                android:textColor="#9CA3AF"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -186,7 +171,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="12dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -203,21 +188,22 @@
                 android:fontFamily="sans-serif"
                 android:text="Pinch or double-tap to zoom"
                 android:textColor="#64748B"
-                android:textSize="11sp" />
+                android:textSize="12sp" />
         </LinearLayout>
 
         <!-- Action Buttons: Share, Save, Report -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
             <!-- Share Button -->
             <LinearLayout
                 android:id="@+id/btnSharePhoto"
                 android:layout_width="0dp"
-                android:layout_height="64dp"
+                android:layout_height="66dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_enlarged_action_button"
                 android:clickable="true"
@@ -234,10 +220,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="5dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Share"
-                    android:textColor="#E2E8F0"
+                    android:textColor="#F3F4F6"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -245,7 +231,7 @@
             <LinearLayout
                 android:id="@+id/btnSavePhoto"
                 android:layout_width="0dp"
-                android:layout_height="64dp"
+                android:layout_height="66dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 android:layout_weight="1"
@@ -264,10 +250,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="5dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Save"
-                    android:textColor="#E2E8F0"
+                    android:textColor="#F3F4F6"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -275,7 +261,7 @@
             <LinearLayout
                 android:id="@+id/btnReportPhoto"
                 android:layout_width="0dp"
-                android:layout_height="64dp"
+                android:layout_height="66dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_enlarged_action_button"
                 android:clickable="true"
@@ -292,13 +278,22 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="5dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Report"
-                    android:textColor="#E2E8F0"
+                    android:textColor="#F3F4F6"
                     android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
+
+        <!-- Home Bar Indicator -->
+        <View
+            android:layout_width="134dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/bg_photo_counter_pill"
+            android:backgroundTint="#475569" />
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>
