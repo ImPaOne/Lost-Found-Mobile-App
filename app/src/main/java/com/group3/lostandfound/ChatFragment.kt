@@ -853,6 +853,45 @@ class ChatFragment : Fragment() {
             .show()
     }
 
+    private fun getDefaultDemonstrationMessages(): List<ChatMessage> {
+        val calendar = java.util.Calendar.getInstance()
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, 9)
+        calendar.set(java.util.Calendar.MINUTE, 36)
+        val time1 = calendar.timeInMillis
+
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, 9)
+        calendar.set(java.util.Calendar.MINUTE, 38)
+        val time2 = calendar.timeInMillis
+
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, 9)
+        calendar.set(java.util.Calendar.MINUTE, 41)
+        val time3 = calendar.timeInMillis
+
+        return listOf(
+            ChatMessage(
+                chatMessageId = "demo_msg_1",
+                senderUserId = recipientUserId,
+                recipientUserId = currentUserId,
+                chatMessageTextContent = "Hi Nadeesha, I found a wallet near Duplication Road yesterday evening. It may be yours.",
+                messageSentTimestamp = time1
+            ),
+            ChatMessage(
+                chatMessageId = "demo_msg_2",
+                senderUserId = currentUserId,
+                recipientUserId = recipientUserId,
+                chatMessageTextContent = "Thank you for reaching out! I'd like to check whether it's mine without sharing private details.",
+                messageSentTimestamp = time2
+            ),
+            ChatMessage(
+                chatMessageId = "demo_msg_3",
+                senderUserId = recipientUserId,
+                recipientUserId = currentUserId,
+                chatMessageTextContent = "Could you describe a detail that isn't in the report? You can use Foundly's secure ownership check.",
+                messageSentTimestamp = time3
+            )
+        )
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
