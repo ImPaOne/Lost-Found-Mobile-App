@@ -59,7 +59,7 @@
                     android:ellipsize="end"
                     android:fontFamily="sans-serif-black"
                     android:maxLines="1"
-                    android:text="User Contact"
+                    android:text="Kasun Jayasinghe"
                     android:textColor="@color/text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -69,7 +69,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="Just now"
+                    android:text="09:41"
                     android:textColor="@color/text_secondary"
                     android:textSize="11sp" />
             </LinearLayout>
@@ -82,7 +82,7 @@
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
-                android:text="Item Discussion"
+                android:text="Re: Black leather wallet"
                 android:textColor="@color/tag_found_color"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -95,7 +95,7 @@
                 android:ellipsize="end"
                 android:fontFamily="sans-serif"
                 android:maxLines="1"
-                android:text="Latest message text..."
+                android:text="Could you describe a detail that isn't in the report? You can use Foundly's secure check."
                 android:textColor="@color/text_secondary"
                 android:textSize="13sp" />
         </LinearLayout>
