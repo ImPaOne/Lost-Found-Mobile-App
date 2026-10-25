@@ -65,12 +65,6 @@ class SettingsFragment : Fragment() {
     private lateinit var rowBlockList: LinearLayout
     private lateinit var textBlockListValue: TextView
 
-    private lateinit var rowLanguage: LinearLayout
-    private lateinit var textLanguageValue: TextView
-
-    private lateinit var rowTheme: LinearLayout
-    private lateinit var textThemeValue: TextView
-
     private lateinit var rowAbout: LinearLayout
     private lateinit var rowRateApp: LinearLayout
     private lateinit var rowLogout: LinearLayout
@@ -138,12 +132,6 @@ class SettingsFragment : Fragment() {
         rowBlockList = view.findViewById(R.id.rowBlockList)
         textBlockListValue = view.findViewById(R.id.textBlockListValue)
 
-        rowLanguage = view.findViewById(R.id.rowLanguage)
-        textLanguageValue = view.findViewById(R.id.textLanguageValue)
-
-        rowTheme = view.findViewById(R.id.rowTheme)
-        textThemeValue = view.findViewById(R.id.textThemeValue)
-
         rowAbout = view.findViewById(R.id.rowAbout)
         rowRateApp = view.findViewById(R.id.rowRateApp)
         rowLogout = view.findViewById(R.id.rowLogout)
@@ -179,13 +167,7 @@ class SettingsFragment : Fragment() {
         val visibility = prefs.getString("profile_visibility", "Community") ?: "Community"
         textProfileVisibilityValue.text = visibility
 
-        // Language
-        val langCode = com.group3.lostandfound.util.LocaleHelper.getLanguageCode(requireContext())
-        textLanguageValue.text = com.group3.lostandfound.util.LocaleHelper.getLanguageLabel(langCode).substringBefore(" ")
 
-        // Theme
-        val theme = prefs.getString("selected_theme_label", "System") ?: "System"
-        textThemeValue.text = theme
 
         // Header Menu: Show admin only if currently signed in as admin
         val isExplicitAdmin = FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
@@ -218,7 +200,7 @@ class SettingsFragment : Fragment() {
             if (isChecked) {
                 FCMService.triggerPushNotification(
                     requireContext(),
-                    "🔔 Notifications Enabled",
+                    "Notifications Enabled",
                     "You will now receive modern push alerts with sound when someone messages you or matches your reports."
                 )
                 ModernToast.show(requireContext(), "Notifications & sounds activated", view)
@@ -290,15 +272,7 @@ class SettingsFragment : Fragment() {
         }
 
 
-        // Language Selection
-        rowLanguage.setOnClickListener {
-            showLanguageDialog()
-        }
 
-        // Theme Toggle
-        rowTheme.setOnClickListener {
-            showThemeDialog()
-        }
 
         // About Foundly
         rowAbout.setOnClickListener {
@@ -517,7 +491,7 @@ class SettingsFragment : Fragment() {
         var previewPlayer: android.media.MediaPlayer? = null
 
         AlertDialog.Builder(requireContext())
-            .setTitle("🔔 Notification Tone & Alerts")
+            .setTitle("Notification Tone & Alerts")
             .setSingleChoiceItems(soundNames, selectedIndex) { _, which ->
                 selectedIndex = which
                 try {
@@ -543,51 +517,7 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
-    private fun showLanguageDialog() {
-        val languages = arrayOf("English", "සිංහල (Sinhala)", "தமிழ் (Tamil)")
-        val codes = arrayOf("en", "si", "ta")
-        val currentCode = com.group3.lostandfound.util.LocaleHelper.getLanguageCode(requireContext())
-        val selectedIndex = codes.indexOf(currentCode).coerceAtLeast(0)
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("Select App Language")
-            .setSingleChoiceItems(languages, selectedIndex) { dialog, which ->
-                val code = codes[which]
-                val selected = languages[which]
-                textLanguageValue.text = selected.substringBefore(" ")
-                com.group3.lostandfound.util.LocaleHelper.setLocale(requireContext(), code)
-
-                val uid = FirebaseManager.currentUid
-                if (uid.isNotEmpty()) {
-                    FirebaseManager.usersRef.child(uid).child("preferredLanguage").setValue(code)
-                }
-                dialog.dismiss()
-                ModernToast.show(requireContext(), "Language changed to $selected", view)
-                activity?.recreate()
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun showThemeDialog() {
-        val themes = arrayOf("System Default", "Light Mode", "Dark Mode")
-        AlertDialog.Builder(requireContext())
-            .setTitle("Select Appearance Theme")
-            .setItems(themes) { _, which ->
-                val selected = themes[which]
-                textThemeValue.text = selected
-                val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
-                prefs.edit().putString("selected_theme_label", selected).apply()
-
-                when (which) {
-                    0 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                    1 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    2 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                }
-                ModernToast.show(requireContext(), "Theme set to $selected", view)
-            }
-            .show()
-    }
 
     private fun showAboutDialog() {
         AlertDialog.Builder(requireContext())
