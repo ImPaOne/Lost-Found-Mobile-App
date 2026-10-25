@@ -67,39 +67,28 @@
             android:textSize="11sp" />
     </LinearLayout>
 
-    <!-- 3. Center + Post Pill Button -->
+    <!-- 3. Center Circle + Button -->
     <LinearLayout
         android:id="@+id/tabPost"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1.2"
+        android:layout_weight="1"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center">
 
         <LinearLayout
             android:id="@+id/btnPostPill"
-            android:layout_width="66dp"
-            android:layout_height="44dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_nav_post_pill"
-            android:gravity="center"
-            android:orientation="vertical">
+            android:gravity="center">
 
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
                 android:contentDescription="Post"
                 android:src="@drawable/ic_nav_plus" />
-
-            <TextView
-                android:id="@+id/lblPost"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="+ Post"
-                android:textColor="@color/white"
-                android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
 
