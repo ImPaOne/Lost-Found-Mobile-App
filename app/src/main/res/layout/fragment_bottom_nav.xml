@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navCard"
     android:layout_width="match_parent"
     android:layout_height="64dp"
@@ -20,18 +22,26 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/imgHome"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:contentDescription="Home"
-            android:src="@drawable/ic_nav_home" />
+        <LinearLayout
+            android:id="@+id/boxHome"
+            android:layout_width="48dp"
+            android:layout_height="28dp"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/imgHome"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:contentDescription="Home"
+                android:src="@drawable/ic_nav_home"
+                app:tint="@color/text_secondary" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/lblHome"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
+            android:layout_marginTop="2dp"
             android:fontFamily="sans-serif"
             android:text="Home"
             android:textColor="@color/text_secondary"
@@ -49,18 +59,26 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/imgExplore"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:contentDescription="Explore"
-            android:src="@drawable/ic_nav_explore" />
+        <LinearLayout
+            android:id="@+id/boxExplore"
+            android:layout_width="48dp"
+            android:layout_height="28dp"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/imgExplore"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:contentDescription="Explore"
+                android:src="@drawable/ic_nav_explore"
+                app:tint="@color/text_secondary" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/lblExplore"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
+            android:layout_marginTop="2dp"
             android:fontFamily="sans-serif"
             android:text="Explore"
             android:textColor="@color/text_secondary"
@@ -103,22 +121,33 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/imgMessages"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:contentDescription="Messages"
-            android:src="@drawable/ic_nav_messages" />
+        <LinearLayout
+            android:id="@+id/boxMessages"
+            android:layout_width="48dp"
+            android:layout_height="28dp"
+            android:gravity="center"
+            tools:background="@drawable/bg_nav_tab_active_pill">
+
+            <ImageView
+                android:id="@+id/imgMessages"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:contentDescription="Messages"
+                android:src="@drawable/ic_nav_messages"
+                app:tint="@color/text_secondary"
+                tools:tint="@color/text_primary" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/lblMessages"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:fontFamily="sans-serif"
+            android:layout_marginTop="2dp"
+            android:fontFamily="sans-serif-bold"
             android:text="Messages"
             android:textColor="@color/text_secondary"
-            android:textSize="11sp" />
+            android:textSize="11sp"
+            tools:textColor="@color/text_primary" />
     </LinearLayout>
 
     <!-- 5. Profile Tab -->
@@ -132,18 +161,26 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/imgProfile"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:contentDescription="Profile"
-            android:src="@drawable/ic_nav_profile" />
+        <LinearLayout
+            android:id="@+id/boxProfile"
+            android:layout_width="48dp"
+            android:layout_height="28dp"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/imgProfile"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:contentDescription="Profile"
+                android:src="@drawable/ic_nav_profile"
+                app:tint="@color/text_secondary" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/lblProfile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
+            android:layout_marginTop="2dp"
             android:fontFamily="sans-serif"
             android:text="Profile"
             android:textColor="@color/text_secondary"
