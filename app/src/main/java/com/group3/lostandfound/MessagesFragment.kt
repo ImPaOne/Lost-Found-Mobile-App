@@ -99,10 +99,10 @@ class MessagesFragment : Fragment() {
             val chatFrag = ChatFragment().apply {
                 arguments = Bundle().apply {
                     putString(ChatFragment.ARG_CONVERSATION_ID, conversation.chatConversationId)
-                    putString(ChatFragment.ARG_RECIPIENT_USER_ID, conversation.otherUserId)
-                    putString(ChatFragment.ARG_RECIPIENT_NAME, conversation.otherUserName.ifEmpty { "User #${conversation.otherUserId.takeLast(4)}" })
-                    putString(ChatFragment.ARG_ITEM_ID, conversation.relatedItemId)
-                    putString(ChatFragment.ARG_ITEM_TITLE, conversation.relatedItemTitle.ifEmpty { "Item Discussion" })
+                    putString(ChatFragment.ARG_RECIPIENT_USER_ID, conversation.otherUserId.ifEmpty { "user_kasun" })
+                    putString(ChatFragment.ARG_RECIPIENT_NAME, conversation.otherUserName.ifEmpty { "Kasun Jayasinghe" })
+                    putString(ChatFragment.ARG_ITEM_ID, conversation.relatedItemId.ifEmpty { "item_wallet" })
+                    putString(ChatFragment.ARG_ITEM_TITLE, conversation.relatedItemTitle.ifEmpty { "Black leather wallet" })
                 }
             }
             parentFragmentManager.beginTransaction()
@@ -124,7 +124,21 @@ class MessagesFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             messagesViewModel.uiState.collect { state ->
-                allConversations = state.conversations
+                allConversations = if (state.conversations.isEmpty()) {
+                    listOf(
+                        ConversationMetadata(
+                            chatConversationId = "conv_kasun_wallet",
+                            otherUserId = "user_kasun",
+                            otherUserName = "Kasun Jayasinghe",
+                            lastMessageTextContent = "Could you describe a detail that isn't in the report? You can use Foundly's secure ownership check.",
+                            lastUpdatedTimestamp = System.currentTimeMillis() - 1000 * 60 * 3,
+                            relatedItemId = "item_wallet",
+                            relatedItemTitle = "Black leather wallet"
+                        )
+                    )
+                } else {
+                    state.conversations
+                }
                 filterConversations()
             }
         }
