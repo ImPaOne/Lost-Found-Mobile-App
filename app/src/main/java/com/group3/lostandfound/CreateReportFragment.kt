@@ -67,9 +67,12 @@ class CreateReportFragment : Fragment() {
     private lateinit var cardFoundItem: View
     private lateinit var iconLost: ImageView
     private lateinit var iconFound: ImageView
-    private lateinit var chipDateToday: TextView
-    private lateinit var chipDateYesterday: TextView
-    private lateinit var chipDateEarlier: TextView
+    private var imgRadioLost: ImageView? = null
+    private var imgRadioFound: ImageView? = null
+    private var tvNextStepHint: TextView? = null
+    private var chipDateToday: TextView? = null
+    private var chipDateYesterday: TextView? = null
+    private var chipDateEarlier: TextView? = null
 
     // Step 2 Views
     private lateinit var boxCategory: View
@@ -404,6 +407,9 @@ class CreateReportFragment : Fragment() {
         cardFoundItem = view.findViewById(R.id.cardFoundItem)
         iconLost = view.findViewById(R.id.iconLost)
         iconFound = view.findViewById(R.id.iconFound)
+        imgRadioLost = view.findViewById(R.id.imgRadioLost)
+        imgRadioFound = view.findViewById(R.id.imgRadioFound)
+        tvNextStepHint = view.findViewById(R.id.tvNextStepHint)
         chipDateToday = view.findViewById(R.id.chipDateToday)
         chipDateYesterday = view.findViewById(R.id.chipDateYesterday)
         chipDateEarlier = view.findViewById(R.id.chipDateEarlier)
