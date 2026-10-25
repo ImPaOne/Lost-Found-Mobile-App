@@ -229,6 +229,11 @@ data class ConversationMetadata(
     val lastUpdatedTimestamp: Long = 0L,
     val relatedItemId: String = "",
     val relatedItemTitle: String = "",
-    val lastSenderId: String = ""
+    val lastSenderId: String = "",
+    val unreadCount: Int = 0,
+    val isResolved: Boolean = false,
+    val itemImageUrl: String = "",
+    val itemType: String = "LOST",
+    val isOutgoingRead: Boolean = false
 )
 
