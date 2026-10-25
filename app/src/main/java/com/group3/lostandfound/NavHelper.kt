@@ -28,13 +28,28 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     val imgMessages = rootView.findViewById<ImageView>(R.id.imgMessages)
     val imgProfile = rootView.findViewById<ImageView>(R.id.imgProfile)
 
+    val boxHome = rootView.findViewById<View>(R.id.boxHome)
+    val boxExplore = rootView.findViewById<View>(R.id.boxExplore)
+    val boxMessages = rootView.findViewById<View>(R.id.boxMessages)
+    val boxProfile = rootView.findViewById<View>(R.id.boxProfile)
+
     val activeColor = ContextCompat.getColor(requireContext(), R.color.text_primary)
     val inactiveColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+
+    boxHome?.setBackgroundResource(if (activeTab == "home") R.drawable.bg_nav_tab_active_pill else 0)
+    boxExplore?.setBackgroundResource(if (activeTab == "explore") R.drawable.bg_nav_tab_active_pill else 0)
+    boxMessages?.setBackgroundResource(if (activeTab == "messages") R.drawable.bg_nav_tab_active_pill else 0)
+    boxProfile?.setBackgroundResource(if (activeTab == "profile") R.drawable.bg_nav_tab_active_pill else 0)
 
     lblHome?.setTextColor(if (activeTab == "home") activeColor else inactiveColor)
     lblExplore?.setTextColor(if (activeTab == "explore") activeColor else inactiveColor)
     lblMessages?.setTextColor(if (activeTab == "messages") activeColor else inactiveColor)
     lblProfile?.setTextColor(if (activeTab == "profile") activeColor else inactiveColor)
+
+    lblHome?.setTypeface(null, if (activeTab == "home") android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+    lblExplore?.setTypeface(null, if (activeTab == "explore") android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+    lblMessages?.setTypeface(null, if (activeTab == "messages") android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+    lblProfile?.setTypeface(null, if (activeTab == "profile") android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
 
     imgHome?.setColorFilter(if (activeTab == "home") activeColor else inactiveColor)
     imgExplore?.setColorFilter(if (activeTab == "explore") activeColor else inactiveColor)
