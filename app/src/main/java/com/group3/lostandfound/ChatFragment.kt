@@ -46,10 +46,10 @@ class ChatFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let { bundle ->
-            recipientUserId = bundle.getString(ARG_RECIPIENT_USER_ID, "user_perera")
-            recipientUserName = bundle.getString(ARG_RECIPIENT_NAME, "Item Contact")
-            relatedItemId = bundle.getString(ARG_ITEM_ID, "")
-            relatedItemTitle = bundle.getString(ARG_ITEM_TITLE, "Item Discussion")
+            recipientUserId = bundle.getString(ARG_RECIPIENT_USER_ID, "user_kasun")
+            recipientUserName = bundle.getString(ARG_RECIPIENT_NAME, "Kasun Jayasinghe")
+            relatedItemId = bundle.getString(ARG_ITEM_ID, "item_wallet")
+            relatedItemTitle = bundle.getString(ARG_ITEM_TITLE, "Black leather wallet")
 
             val passedConversationId = bundle.getString(ARG_CONVERSATION_ID, "")
             chatConversationId = if (passedConversationId.isNotEmpty()) {
@@ -62,8 +62,10 @@ class ChatFragment : Fragment() {
                 )
             }
         } ?: run {
-            recipientUserId = "user_perera"
-            recipientUserName = "Dilshan Perera"
+            recipientUserId = "user_kasun"
+            recipientUserName = "Kasun Jayasinghe"
+            relatedItemId = "item_wallet"
+            relatedItemTitle = "Black leather wallet"
             chatConversationId = chatRepository.generateChatConversationId(currentUserId, recipientUserId)
         }
 
@@ -464,9 +466,14 @@ class ChatFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    chatViewModel.chatMessagesListState.collect { messageList ->
-                        if (previousMessageCount != -1 && messageList.size > previousMessageCount) {
-                            val lastMsg = messageList.last()
+                        val effectiveList = if (messageList.isEmpty()) {
+                            getDefaultDemonstrationMessages()
+                        } else {
+                            messageList
+                        }
+
+                        if (previousMessageCount != -1 && effectiveList.size > previousMessageCount) {
+                            val lastMsg = effectiveList.last()
                             if (lastMsg.senderUserId != currentUserId && lastMsg.senderUserId.isNotEmpty()) {
                                 try {
                                     val mediaPlayer = android.media.MediaPlayer.create(
@@ -478,15 +485,14 @@ class ChatFragment : Fragment() {
                                 } catch (_: Exception) {}
                             }
                         }
-                        previousMessageCount = messageList.size
+                        previousMessageCount = effectiveList.size
 
-                        chatAdapter.submitList(messageList) {
-                            if (messageList.isNotEmpty()) {
-                                binding.rvChatMessages.scrollToPosition(messageList.size - 1)
+                        chatAdapter.submitList(effectiveList) {
+                            if (effectiveList.isNotEmpty()) {
+                                binding.rvChatMessages.scrollToPosition(effectiveList.size - 1)
                             }
                         }
-                        binding.layoutChatEmptyState.visibility =
-                            if (messageList.isEmpty()) View.VISIBLE else View.GONE
+                        binding.layoutChatEmptyState.visibility = View.GONE
                     }
                 }
 
