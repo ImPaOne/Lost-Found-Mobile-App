@@ -27,7 +27,7 @@
             android:contentDescription="Back"
             android:focusable="true"
             android:padding="10dp"
-            android:src="@drawable/ic_back_chevron"
+            android:src="@drawable/ic_arrow_back_stem"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
