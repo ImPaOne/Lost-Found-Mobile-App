@@ -217,9 +217,9 @@ class ChatRepository {
 
                     val notifId = notifRef.key ?: "notif_${System.currentTimeMillis()}"
                     val notifTitle = if (relatedItemTitle.isNotBlank()) {
-                        "💬 Message regarding '$relatedItemTitle'"
+                        "Message regarding '$relatedItemTitle'"
                     } else {
-                        "💬 Message from $senderDisplayName"
+                        "Message from $senderDisplayName"
                     }
 
                     val notifItem = com.group3.lostandfound.NotificationItem(
@@ -250,7 +250,7 @@ class ChatRepository {
             .child("messages")
             .child(messageId)
         ref.child("isDeletedForEveryone").setValue(true).await()
-        ref.child("chatMessageTextContent").setValue("🚫 This message was deleted").await()
+        ref.child("chatMessageTextContent").setValue("This message was deleted").await()
     }
 
     suspend fun deleteMessageForMe(chatConversationId: String, messageId: String, userId: String) {
