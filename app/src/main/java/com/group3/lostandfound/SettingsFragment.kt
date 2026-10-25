@@ -549,28 +549,31 @@ class SettingsFragment : Fragment() {
             sheetView.findViewById<ImageView>(R.id.star4),
             sheetView.findViewById<ImageView>(R.id.star5)
         )
-        val tvRatingLabel = sheetView.findViewById<TextView>(R.id.tvRatingLabel)
-        val etFeedback = sheetView.findViewById<EditText>(R.id.etFeedback)
-        val btnDismissRating = sheetView.findViewById<View>(R.id.btnDismissRating)
-        val btnSubmitRating = sheetView.findViewById<View>(R.id.btnSubmitRating)
+        val badgeRatingPill = sheetView.findViewById<TextView>(R.id.badgeRatingPill)
+        val etFeedbackComment = sheetView.findViewById<EditText>(R.id.etFeedbackComment)
+        val btnCloseRateDialog = sheetView.findViewById<View>(R.id.btnCloseRateDialog)
+        val btnMaybeLater = sheetView.findViewById<View>(R.id.btnMaybeLater)
+        val btnSubmitFeedback = sheetView.findViewById<View>(R.id.btnSubmitFeedback)
 
-        var selectedRating = 5
+        var selectedRating = 4
 
         fun updateStars(rating: Int) {
             selectedRating = rating
             for (i in 0 until 5) {
                 if (i < rating) {
                     starViews[i].setImageResource(R.drawable.ic_star_filled)
+                    starViews[i].setColorFilter(android.graphics.Color.parseColor("#F59E0B"))
                 } else {
                     starViews[i].setImageResource(R.drawable.ic_star_outline)
+                    starViews[i].setColorFilter(android.graphics.Color.parseColor("#CBD5E1"))
                 }
             }
-            tvRatingLabel.text = when (rating) {
-                5 -> "Outstanding · 5.0"
-                4 -> "Very Good · 4.0"
-                3 -> "Good · 3.0"
-                2 -> "Needs Improvement · 2.0"
-                else -> "Poor · 1.0"
+            badgeRatingPill?.text = when (rating) {
+                5 -> "5 out of 5 - Outstanding!"
+                4 -> "4 out of 5 - Great!"
+                3 -> "3 out of 5 - Good"
+                2 -> "2 out of 5 - Needs Work"
+                else -> "1 out of 5 - Poor"
             }
         }
 
@@ -580,12 +583,16 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        btnDismissRating.setOnClickListener {
+        btnCloseRateDialog?.setOnClickListener {
             bottomSheet.dismiss()
         }
 
-        btnSubmitRating.setOnClickListener {
-            val feedback = etFeedback.text.toString().trim()
+        btnMaybeLater?.setOnClickListener {
+            bottomSheet.dismiss()
+        }
+
+        btnSubmitFeedback.setOnClickListener {
+            val feedback = etFeedbackComment?.text?.toString()?.trim().orEmpty()
             val uid = FirebaseManager.currentUid
             if (uid.isNotEmpty()) {
                 val review = mapOf(
