@@ -17,10 +17,6 @@ import com.group3.lostandfound.databinding.FragmentChatBinding
 import com.group3.lostandfound.repository.ChatRepository
 import kotlinx.coroutines.launch
 
-/**
- * Fragment implementing real-time messaging between item finders and owners.
- * Connects to ChatViewModel and ChatRepository with Firebase Realtime Database.
- */
 class ChatFragment : Fragment() {
 
     private var _binding: FragmentChatBinding? = null
@@ -43,6 +39,7 @@ class ChatFragment : Fragment() {
     private val currentUserId: String
         get() = FirebaseManager.currentUid
 
+    // Initializes the chat screen and loads conversation details from arguments.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let { bundle ->
@@ -72,6 +69,7 @@ class ChatFragment : Fragment() {
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
     }
 
+    // Creates and returns the chat screen layout.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -81,6 +79,7 @@ class ChatFragment : Fragment() {
         return binding.root
     }
 
+    //// Initializes the chat UI, listeners, and ViewModel observers.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -94,6 +93,7 @@ class ChatFragment : Fragment() {
         chatViewModel.initializeChatConversation(chatConversationId)
     }
 
+    // Sets the chat header with the recipient's name and report details.
     private fun setupHeader() {
         val displayName = recipientUserName.ifEmpty { "Kasun Jayasinghe" }
         binding.tvChatTitle.text = displayName
@@ -101,6 +101,7 @@ class ChatFragment : Fragment() {
         setupPinnedReport()
     }
 
+    //// Loads the related item details and opens its details screen when clicked.
     private fun setupPinnedReport() {
         val defaultTitle = if (relatedItemTitle.isNotBlank()) relatedItemTitle else "Black leather wallet"
         binding.tvPinnedItemTitle.text = defaultTitle
@@ -136,6 +137,7 @@ class ChatFragment : Fragment() {
         }
     }
 
+    // Configures the RecyclerView to display chat messages.
     private fun setupRecyclerView() {
         chatAdapter = ChatAdapter(
             currentUserId = currentUserId,
@@ -194,6 +196,7 @@ class ChatFragment : Fragment() {
         }
     }
 
+    // Saves a captured photo temporarily and returns its content URI.
     private fun saveBitmapToTempUri(bitmap: android.graphics.Bitmap): android.net.Uri? {
         return try {
             val cachePath = java.io.File(requireContext().cacheDir, "images")
@@ -213,6 +216,7 @@ class ChatFragment : Fragment() {
         }
     }
 
+    // Displays options to take a photo or select one from the gallery.
     private fun showAttachmentOptions() {
         val options = arrayOf("Take Photo with Camera", "Choose from Gallery")
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
@@ -248,6 +252,7 @@ class ChatFragment : Fragment() {
             .show()
     }
 
+    // Displays options to delete a message or reply to it.
     private fun handleMessageLongClick(message: ChatMessage) {
         if (message.isDeletedForEveryone) return
         val isSender = message.senderUserId == currentUserId
@@ -278,6 +283,7 @@ class ChatFragment : Fragment() {
             .show()
     }
 
+    // Prepares the selected message as a reply.
     private fun startReply(message: ChatMessage) {
         if (message.isDeletedForEveryone) return
         selectedReplyMessage = message
@@ -295,6 +301,7 @@ class ChatFragment : Fragment() {
         binding.etChatMessageInput.requestFocus()
     }
 
+    // Registers click listeners and handles chat input interactions.
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
@@ -462,6 +469,7 @@ class ChatFragment : Fragment() {
         }
     }
 
+    // Observes messages, typing status, user presence, and message-sending results.
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -536,6 +544,7 @@ class ChatFragment : Fragment() {
         }
     }
 
+    // Updates the subtitle to show typing, online, or last-seen status.
     private fun updateChatSubtitle() {
         if (_binding == null) return
         if (isRecipientTyping) {
@@ -570,6 +579,7 @@ class ChatFragment : Fragment() {
         }
     }
 
+    // Marks the current user as online when the chat screen resumes.
     override fun onResume() {
         super.onResume()
         if (currentUserId.isNotEmpty()) {
@@ -577,6 +587,7 @@ class ChatFragment : Fragment() {
         }
     }
 
+    // Cancels typing updates and marks the user as offline when the screen pauses.
     override fun onPause() {
         super.onPause()
         typingDebounceJob?.cancel()
@@ -586,6 +597,7 @@ class ChatFragment : Fragment() {
         }
     }
 
+    // Checks whether the related report is resolved and whether the current user reported it
     private fun checkReportResolutionStatus() {
         if (relatedItemId.isBlank()) {
             binding.layoutResolveReportBanner.visibility = View.GONE
@@ -626,6 +638,7 @@ class ChatFragment : Fragment() {
             })
     }
 
+    // Asks the user to confirm resolving the report with the chat recipient.
     private fun confirmResolveReportWithUser(targetUserId: String, targetUserName: String) {
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Resolve Case with $targetUserName")
@@ -644,6 +657,7 @@ class ChatFragment : Fragment() {
             .show()
     }
 
+    // Marks the report as resolved and awards achievements and trust points.
     private fun performReportResolution(targetUserId: String, targetUserName: String) {
         if (relatedItemId.isBlank()) return
         val currentContext = context ?: return
@@ -750,6 +764,7 @@ class ChatFragment : Fragment() {
         }
     }
 
+    // Starts the floating chat bubble after overlay permission is granted.
     private fun launchFloatingBubble() {
         if (com.group3.lostandfound.service.FloatingOverlayService.canDrawOverlays(requireContext())) {
             com.group3.lostandfound.service.FloatingOverlayService.startService(requireContext())
@@ -774,6 +789,7 @@ class ChatFragment : Fragment() {
         }
     }
 
+    // Displays chat options such as resolving a report, blocking a user, and clearing the view
     private fun showChatOptionsMenu() {
         val optionsList = mutableListOf<String>()
         if (isCurrentUserReporter && !isItemAlreadyResolved && relatedItemId.isNotBlank()) {
@@ -818,6 +834,7 @@ class ChatFragment : Fragment() {
             .show()
     }
 
+    // Confirms blocking a user and disables further chat interactions.
     private fun confirmBlockUser() {
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Block $recipientUserName?")
@@ -849,6 +866,7 @@ class ChatFragment : Fragment() {
             .show()
     }
 
+    // Releases the view binding when the chat screen is destroyed.
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

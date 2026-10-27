@@ -32,18 +32,9 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 /**
- * SettingsFragment provides full, comprehensive management of user preferences:
- * - Real-time push notification & sound toggle
- * - Profile details editing synced to Firebase Realtime Database
- * - In-app password updating
- * - Profile visibility privacy controls
- * - Block list manager
- * - Data export via Android Share Sheet
- * - Language selection (English, Sinhala, Tamil)
- * - Dark Mode / Theme toggle via AppCompatDelegate
- * - App review & rating submission
- * - About Foundly with version & team credentials
- * - Secure logout with state wiping
+ * Manages Foundly application settings, including profile editing, password changes,
+ * push notifications, notification sounds, floating chat bubbles, profile visibility,
+ * block list management, app information, user feedback, and logout.
  */
 class SettingsFragment : Fragment() {
 
@@ -91,6 +82,7 @@ class SettingsFragment : Fragment() {
         updateDrawOverAppsUI()
     }
 
+    // Creates and displays the settings screen layout.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -99,6 +91,7 @@ class SettingsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_settings, container, false)
     }
 
+    // Initializes views, sets up bottom navigation, loads preferences, and registers listeners.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -108,11 +101,13 @@ class SettingsFragment : Fragment() {
         setupListeners()
     }
 
+    // Refreshes the floating overlay status whenever the settings screen resumes.
     override fun onResume() {
         super.onResume()
         updateDrawOverAppsUI()
     }
 
+    // Connects the layout views to their corresponding Kotlin variables.
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         btnHeaderMenu = view.findViewById(R.id.btnHeaderMenu)
@@ -137,6 +132,7 @@ class SettingsFragment : Fragment() {
         rowLogout = view.findViewById(R.id.rowLogout)
     }
 
+    // Updates the floating bubble switch and status using overlay permission, service state, and saved preferences.
     private fun updateDrawOverAppsUI() {
         if (!isAdded) return
         val hasOverlayPermission = FloatingOverlayService.canDrawOverlays(requireContext())
@@ -153,6 +149,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    // Loads notification preferences, profile visibility, overlay status, and admin menu visibility.
     private fun loadCurrentPreferences() {
         val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
 
@@ -174,6 +171,7 @@ class SettingsFragment : Fragment() {
         btnHeaderMenu.visibility = if (isExplicitAdmin) View.VISIBLE else View.GONE
     }
 
+    // Registers click listeners and switch listeners for the settings options.
     private fun setupListeners() {
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
@@ -307,6 +305,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    // Displays a dialog to edit and save the user's name, phone number, and NIC or student ID.
     private fun showEditProfileDialog() {
         val ctx = requireContext()
         val uid = FirebaseManager.currentUid
@@ -369,6 +368,7 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
+    // Displays a dialog that allows the user to change their account password.
     private fun showChangePasswordDialog() {
         val ctx = requireContext()
         val layout = LinearLayout(ctx).apply {
@@ -426,6 +426,7 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
+    // Allows the user to select and save their profile visibility preference.
     private fun showProfileVisibilityDialog() {
         val options = arrayOf("Community (Recommended)", "Contacts Only", "Private & Anonymous")
         AlertDialog.Builder(requireContext())
@@ -445,6 +446,7 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
+    // Displays the block list and allows the user to confirm an unblock action.
     private fun showBlockListDialog() {
         val blockedUsers = arrayOf("Suspicious Seller (#8921)", "Automated Bot (#1094)")
         AlertDialog.Builder(requireContext())
@@ -465,6 +467,7 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
+    // Allows the user to preview and select a notification sound.
     private fun showNotificationSoundDialog() {
         val soundNames = arrayOf(
             "Tri-Tone (Classic iPhone)",
@@ -519,6 +522,7 @@ class SettingsFragment : Fragment() {
 
 
 
+    // Displays notification preferences, including location radius and notification delivery options.
     private fun showNotificationOptionsDialog() {
         val bottomSheet = com.google.android.material.bottomsheet.BottomSheetDialog(requireContext())
         val sheetView = layoutInflater.inflate(R.layout.dialog_notification_options, null)
@@ -580,6 +584,7 @@ class SettingsFragment : Fragment() {
         bottomSheet.show()
     }
 
+    // Displays information about Foundly, its features, architecture, and development team.
     private fun showAboutDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle("Foundly - Reconnecting Communities")
@@ -598,6 +603,7 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
+    // Displays a rating interface for submitting a star rating and written feedback.
     private fun showRateAppDialog() {
         val bottomSheet = com.google.android.material.bottomsheet.BottomSheetDialog(requireContext())
         val sheetView = layoutInflater.inflate(R.layout.dialog_rate_app, null)

@@ -9,14 +9,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 
-/**
- * UiKitFragment displays the Foundly UI Kit component library:
- * - Buttons (Primary, Secondary, Danger, Disabled)
- * - Input states (Default, Focused, Error, Search)
- * - Tabs, chips & badges (All, Lost, Found, Pets, Avatars, Badges)
- * - Item card list variant
- * - Overlays & feedback components
- */
 class UiKitFragment : Fragment() {
 
     private lateinit var btnPrimary: TextView
@@ -28,6 +20,7 @@ class UiKitFragment : Fragment() {
     private lateinit var inputFocused: EditText
     private lateinit var inputError: EditText
 
+    //Loads the UI Kit layout.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -36,6 +29,7 @@ class UiKitFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_ui_kit, container, false)
     }
 
+    //Initializes views and sets up click listeners and bottom navigation.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -44,6 +38,7 @@ class UiKitFragment : Fragment() {
         setupBottomNav(view)
     }
 
+    //Connects Kotlin variables to XML views using their IDs.
     private fun initViews(view: View) {
         btnPrimary = view.findViewById(R.id.btnPrimary)
         btnSecondary = view.findViewById(R.id.btnSecondary)
@@ -55,6 +50,7 @@ class UiKitFragment : Fragment() {
         inputError = view.findViewById(R.id.inputError)
     }
 
+    //Handles button clicks and displays Toast messages.
     private fun setupListeners() {
         view?.findViewById<View>(R.id.tvKitTitle)?.setOnClickListener {
             parentFragmentManager.popBackStack()

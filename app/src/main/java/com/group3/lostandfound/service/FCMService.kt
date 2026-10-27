@@ -19,11 +19,6 @@ import com.group3.lostandfound.FirebaseManager
 import com.group3.lostandfound.MainActivity
 import com.group3.lostandfound.R
 
-/**
- * FCMService handles incoming push messages from Firebase Cloud Messaging.
- * Notifications are delivered even when the app is closed or the phone is locked.
- * Uses Apple-style chime sound stored in res/raw/apple_chime.wav.
- */
 class FCMService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {

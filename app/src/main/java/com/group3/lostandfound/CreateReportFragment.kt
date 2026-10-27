@@ -1,5 +1,7 @@
 package com.group3.lostandfound
 
+import com.group3.lostandfound.R
+import com.group3.lostandfound.databinding.FragmentCreateReportBinding
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -43,6 +45,9 @@ import java.io.FileOutputStream
  * - Step 5: Review & Submit (with 0-100% horizontal progress bar, retry mechanisms, and Clean Architecture)
  */
 class CreateReportFragment : Fragment() {
+
+    private var _binding: FragmentCreateReportBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var btnBack: ImageView
     private lateinit var btnBackBottom: TextView
@@ -146,6 +151,7 @@ class CreateReportFragment : Fragment() {
     private lateinit var createReportViewModel: CreateReportViewModel
     private var uploadJob: Job? = null
 
+    //copies a selected image in to the apps cache so the app can access it.
     private fun copyUriToInternalStorage(uri: Uri): Uri? {
         return try {
             val dir = File(requireContext().cacheDir, "report_images")
@@ -163,6 +169,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Adds a photo to the selected list, sets the primary photo, and moves to Step 4.
     private fun addImageToSelection(uri: Uri) {
         if (!attachedImagesList.contains(uri)) {
             attachedImagesList.add(uri)
@@ -177,6 +184,7 @@ class CreateReportFragment : Fragment() {
         updateStepHeader()
     }
 
+    //Displays selected photos and updates the photo count.
     private fun updatePhotoUI() {
         if (!::tvPhotosCountStatus.isInitialized) return
         val count = attachedImagesList.size
@@ -233,6 +241,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Creates a destination for the photo and launches the camera app.
     private fun launchCamera() {
         try {
             val cacheImagesDir = File(requireContext().cacheDir, "images")
@@ -247,6 +256,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Registers a listener to receive the location selected on the map.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         parentFragmentManager.setFragmentResultListener(
@@ -273,20 +283,23 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Inflates fragment_create_report.xml to create the screen's UI.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_create_report, container, false)
+    ): View {
+        _binding = FragmentCreateReportBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
+    //Initializes the ViewModel and UI, restores form state, and registers listeners.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         createReportViewModel = ViewModelProvider(this)[CreateReportViewModel::class.java]
 
-        initViews(view)
+        initViews()
         observeViewModel()
 
         // Restore state if process/fragment was killed or rotated
@@ -365,84 +378,86 @@ class CreateReportFragment : Fragment() {
         })
     }
 
-    private fun initViews(view: View) {
-        btnBack = view.findViewById(R.id.btnBack)
-        btnBackBottom = view.findViewById(R.id.btnBackBottom)
-        btnContinue = view.findViewById(R.id.btnContinue)
+    //	Connects Kotlin variables to UI components using ViewBinding.
+    private fun initViews() {
+        btnBack = binding.btnBack
+        btnBackBottom = binding.btnBackBottom
+        btnContinue = binding.btnContinue
 
-        segStep1 = view.findViewById(R.id.segStep1)
-        segStep2 = view.findViewById(R.id.segStep2)
-        segStep3 = view.findViewById(R.id.segStep3)
-        segStep4 = view.findViewById(R.id.segStep4)
-        segStep5 = view.findViewById(R.id.segStep5)
+        segStep1 = binding.segStep1
+        segStep2 = binding.segStep2
+        segStep3 = binding.segStep3
+        segStep4 = binding.segStep4
+        segStep5 = binding.segStep5
 
-        tvStepNumber = view.findViewById(R.id.tvStepNumber)
-        tvStepTitle = view.findViewById(R.id.tvStepTitle)
-        tvStepSubtitle = view.findViewById(R.id.tvStepSubtitle)
+        tvStepNumber = binding.tvStepNumber
+        tvStepTitle = binding.tvStepTitle
+        tvStepSubtitle = binding.tvStepSubtitle
 
-        flipperSteps = view.findViewById(R.id.flipperSteps)
+        flipperSteps = binding.flipperSteps
 
         // Step 1
-        cardLostItem = view.findViewById(R.id.cardLostItem)
-        cardFoundItem = view.findViewById(R.id.cardFoundItem)
-        iconLost = view.findViewById(R.id.iconLost)
-        iconFound = view.findViewById(R.id.iconFound)
-        imgRadioLost = view.findViewById(R.id.imgRadioLost)
-        imgRadioFound = view.findViewById(R.id.imgRadioFound)
-        tvNextStepHint = view.findViewById(R.id.tvNextStepHint)
+        cardLostItem = binding.cardLostItem
+        cardFoundItem = binding.cardFoundItem
+        iconLost = binding.iconLost
+        iconFound = binding.iconFound
+        imgRadioLost = binding.imgRadioLost
+        imgRadioFound = binding.imgRadioFound
+        tvNextStepHint = binding.tvNextStepHint
 
         // Step 2
-        boxCategory = view.findViewById(R.id.boxCategory)
-        tvCategoryValue = view.findViewById(R.id.tvCategoryValue)
-        inputTitle = view.findViewById(R.id.inputTitle)
-        inputDescription = view.findViewById(R.id.inputDescription)
+        boxCategory = binding.boxCategory
+        tvCategoryValue = binding.tvCategoryValue
+        inputTitle = binding.inputTitle
+        inputDescription = binding.inputDescription
 
         // Step 3
-        mapCard = view.findViewById(R.id.mapCard)
-        searchInput = view.findViewById(R.id.searchInput)
-        btnClearSearch = view.findViewById(R.id.btnClearSearch)
-        btnGps = view.findViewById(R.id.btnGps)
-        inputLocation = view.findViewById(R.id.inputLocation)
-        lblDate = view.findViewById(R.id.lblDate)
-        boxDate = view.findViewById(R.id.boxDate)
-        tvDate = view.findViewById(R.id.tvDate)
-        lblTime = view.findViewById(R.id.lblTime)
-        boxTime = view.findViewById(R.id.boxTime)
-        tvTime = view.findViewById(R.id.tvTime)
+        mapCard = binding.mapCard
+        searchInput = binding.searchInput
+        btnClearSearch = binding.btnClearSearch
+        btnGps = binding.btnGps
+        inputLocation = binding.inputLocation
+        lblDate = binding.lblDate
+        boxDate = binding.boxDate
+        tvDate = binding.tvDate
+        lblTime = binding.lblTime
+        boxTime = binding.boxTime
+        tvTime = binding.tvTime
 
         // Step 4
-        cardPhotoPreview = view.findViewById(R.id.cardPhotoPreview)
-        imgPhotoPreview = view.findViewById(R.id.imgPhotoPreview)
-        btnRemovePhoto = view.findViewById(R.id.btnRemovePhoto)
-        badgeCoverPhoto = view.findViewById(R.id.badgeCoverPhoto)
-        btnTakePhoto = view.findViewById(R.id.btnTakePhoto)
-        btnGallery = view.findViewById(R.id.btnGallery)
-        tvPhotosCountStatus = view.findViewById(R.id.tvPhotosCountStatus)
+        cardPhotoPreview = binding.cardPhotoPreview
+        imgPhotoPreview = binding.imgPhotoPreview
+        btnRemovePhoto = binding.btnRemovePhoto
+        badgeCoverPhoto = binding.badgeCoverPhoto
+        btnTakePhoto = binding.btnTakePhoto
+        btnGallery = binding.btnGallery
+        tvPhotosCountStatus = binding.tvPhotosCountStatus
 
         // Step 5 Review Views
-        badgeReviewStatus = view.findViewById(R.id.badgeReviewStatus)
-        btnEditSummary = view.findViewById(R.id.btnEditSummary)
-        tvReviewTitle = view.findViewById(R.id.tvReviewTitle)
-        tvReviewCategory = view.findViewById(R.id.tvReviewCategory)
-        tvReviewDesc = view.findViewById(R.id.tvReviewDesc)
-        imgReviewThumbnail = view.findViewById(R.id.imgReviewThumbnail)
-        tvReviewLocation = view.findViewById(R.id.tvReviewLocation)
-        tvReviewDateTime = view.findViewById(R.id.tvReviewDateTime)
-        btnEditLocation = view.findViewById(R.id.btnEditLocation)
-        tvPrivacyHiddenNote = view.findViewById(R.id.tvPrivacyHiddenNote)
-        switchMessages = view.findViewById(R.id.switchMessages)
-        cbConfirmAccuracy = view.findViewById(R.id.cbConfirmAccuracy)
+        badgeReviewStatus = binding.badgeReviewStatus
+        btnEditSummary = binding.btnEditSummary
+        tvReviewTitle = binding.tvReviewTitle
+        tvReviewCategory = binding.tvReviewCategory
+        tvReviewDesc = binding.tvReviewDesc
+        imgReviewThumbnail = binding.imgReviewThumbnail
+        tvReviewLocation = binding.tvReviewLocation
+        tvReviewDateTime = binding.tvReviewDateTime
+        btnEditLocation = binding.btnEditLocation
+        tvPrivacyHiddenNote = binding.tvPrivacyHiddenNote
+        switchMessages = binding.switchMessages
+        cbConfirmAccuracy = binding.cbConfirmAccuracy
 
         // Upload Progress UI
-        cardUploadProgress = view.findViewById(R.id.cardUploadProgress)
-        tvUploadStatusText = view.findViewById(R.id.tvUploadStatusText)
-        tvUploadPercentage = view.findViewById(R.id.tvUploadPercentage)
-        pbUploadBar = view.findViewById(R.id.pbUploadBar)
-        layoutUploadError = view.findViewById(R.id.layoutUploadError)
-        tvErrorMessage = view.findViewById(R.id.tvErrorMessage)
-        btnRetryUpload = view.findViewById(R.id.btnRetryUpload)
+        cardUploadProgress = binding.cardUploadProgress
+        tvUploadStatusText = binding.tvUploadStatusText
+        tvUploadPercentage = binding.tvUploadPercentage
+        pbUploadBar = binding.pbUploadBar
+        layoutUploadError = binding.layoutUploadError
+        tvErrorMessage = binding.tvErrorMessage
+        btnRetryUpload = binding.btnRetryUpload
     }
 
+    //	Updates the UI when the user selects LOST or FOUND.
     private fun setItemType(isLost: Boolean) {
         isLostSelected = isLost
         if (isLost) {
@@ -460,6 +475,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Attaches click listeners to buttons, categories, locations, and photo controls.
     private fun setupStepListeners() {
         // Back navigation
         val onBackAction = View.OnClickListener {
@@ -623,6 +639,7 @@ class CreateReportFragment : Fragment() {
         ).show()
     }
 
+    //Lets the user choose between the gallery and camera.
     private fun showImageSourceChooser() {
         val options = arrayOf("Choose from Gallery", "Take Photo with Camera")
         AlertDialog.Builder(requireContext())
@@ -645,6 +662,7 @@ class CreateReportFragment : Fragment() {
             .show()
     }
 
+    //	Saves a bitmap as a temporary JPEG file.
     private fun saveBitmapToTempUri(bitmap: Bitmap): Uri? {
         return try {
             val cachePath = File(requireContext().cacheDir, "images")
@@ -660,6 +678,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Checks whether required input is valid before continuing.
     private fun validateCurrentStep(): Boolean {
         if (currentStep == 2) {
             val title = inputTitle.text.toString().trim()
@@ -676,6 +695,7 @@ class CreateReportFragment : Fragment() {
         return true
     }
 
+    //	Animates navigation to the next form step and saves input.
     private fun slideForward() {
         if (currentStep == 2) {
             if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString().ifEmpty { "Black leather wallet" }
@@ -715,6 +735,7 @@ class CreateReportFragment : Fragment() {
         updateStepHeader()
     }
 
+    //Animates navigation to the previous form step.
     private fun slideBackward() {
         if (currentStep == 2) {
             if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
@@ -751,6 +772,7 @@ class CreateReportFragment : Fragment() {
         updateStepHeader()
     }
 
+    //Updates progress indicators, titles, buttons, and Step 5's review information.
     private fun updateStepHeader() {
         tvStepNumber.text = "STEP $currentStep OF 5"
 
@@ -850,6 +872,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //	Creates the ItemReport object and asks the ViewModel to submit it.
     private fun submitReport() {
         val title = inputTitle.text.toString().trim()
         val desc = inputDescription.text.toString().trim()
@@ -889,6 +912,7 @@ class CreateReportFragment : Fragment() {
         createReportViewModel.submitReport(requireContext(), selectedImageUri, report)
     }
 
+    //Reacts to upload progress, success, and errors.
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             createReportViewModel.uploadState.collect { state ->
@@ -958,6 +982,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Saves form values when Android recreates the Fragment.
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(KEY_SAVED_STEP, currentStep)
@@ -974,6 +999,7 @@ class CreateReportFragment : Fragment() {
         if (::inputLocation.isInitialized) outState.putString(KEY_SAVED_LANDMARK, inputLocation.text.toString())
     }
 
+    //Caches text inputs before the Fragment's view is destroyed.
     override fun onDestroyView() {
         if (::inputTitle.isInitialized) {
             savedTitle = inputTitle.text.toString()
@@ -984,6 +1010,7 @@ class CreateReportFragment : Fragment() {
         if (::inputLocation.isInitialized) {
             savedLandmark = inputLocation.text.toString()
         }
+        _binding = null
         super.onDestroyView()
     }
 
@@ -1006,6 +1033,7 @@ class CreateReportFragment : Fragment() {
         private const val KEY_SAVED_DESC = "key_saved_desc"
         private const val KEY_SAVED_LANDMARK = "key_saved_landmark"
 
+        //Creates a Fragment with optional initial report type and location arguments.
         fun newInstance(
             isLost: Boolean = true,
             latitude: Double = 6.9042,

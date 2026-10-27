@@ -29,6 +29,7 @@ class ExploreViewModel(
         applyFilter()
     }
 
+    // Called when the user types in the search box.
     fun setSearchQuery(query: String) {
         if (_uiState.value.query == query) return
         _uiState.value = _uiState.value.copy(query = query)
@@ -40,7 +41,7 @@ class ExploreViewModel(
             applyFilter()
         }
     }
-
+    //Called when user select All,Lost,Found
     fun setFilterStatus(status: String) {
         if (_uiState.value.filterStatus == status) return
         _uiState.value = _uiState.value.copy(filterStatus = status)
@@ -50,10 +51,12 @@ class ExploreViewModel(
         }
     }
 
+    //Called when usered choose grid or list layout
     fun setViewMode(isGrid: Boolean) {
         _uiState.value = _uiState.value.copy(isGridMode = isGrid)
     }
 
+    //// Retrieves items from the repository using the current search and filter.
     private fun applyFilter() {
         val currentQuery = _uiState.value.query
         val currentStatus = _uiState.value.filterStatus

@@ -11,18 +11,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 
-/**
- * Clean Architecture Repository providing real-time item listing, dynamic Firebase queries,
- * client-side Flow filtering, and single-item live status observers with null-safe snapshot parsing.
- */
+// Repository handles communication between the ViewModel and Firebase.
 class ExploreRepository {
 
     private val db = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("items")
 
-    /**
-     * Observes the entire /items node in real time.
-     * Parses each child snapshot null-safely.
-     */
+    // Gets all item reports and keeps listening for database changes.
     fun getItemsRealtime(): Flow<List<ItemReport>> = callbackFlow {
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -51,9 +45,7 @@ class ExploreRepository {
         awaitClose { db.removeEventListener(listener) }
     }
 
-    /**
-     * Firebase dynamic query using `orderByChild("category")` equal to the specified category.
-     */
+    // Gets item reports by category, such as a specific category or ALL.
     fun getItemsByCategory(category: String): Flow<List<ItemReport>> = callbackFlow {
         val query = if (category.isNotEmpty() && category != "ALL") {
             db.orderByChild("category").equalTo(category)
@@ -84,9 +76,7 @@ class ExploreRepository {
         awaitClose { query.removeEventListener(listener) }
     }
 
-    /**
-     * Live client-side flow filtering for text matching on title/description and status filters.
-     */
+    // Filters the live item list by search text, status, and optional category.
     fun getItemsFiltered(
         query: String = "",
         status: String = "ALL",
@@ -116,10 +106,9 @@ class ExploreRepository {
         }
     }
 
-    /**
-     * Read single report object from `/items/{itemId}` using `addValueEventListener` for live status updates.
-     */
+    // Retrieves one item by its Firebase key and listens for changes.
     fun getItemDetails(itemId: String): Flow<ItemReport?> = callbackFlow {
+        // Get the database reference for one specific item.
         val ref = db.child(itemId)
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -136,6 +125,7 @@ class ExploreRepository {
             }
         }
 
+        // Start listening for changes to this individual item.
         ref.addValueEventListener(listener)
         awaitClose { ref.removeEventListener(listener) }
     }

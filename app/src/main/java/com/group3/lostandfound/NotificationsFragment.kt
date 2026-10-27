@@ -28,6 +28,7 @@ class NotificationsFragment : Fragment() {
 
     private var currentNotifs: List<com.group3.lostandfound.NotificationItem> = emptyList()
 
+    // Creates and displays the notifications screen layout.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -36,6 +37,7 @@ class NotificationsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_notifications, container, false)
     }
 
+    // Initializes notification views, sets up bottom navigation, and loads Firebase notifications.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -66,6 +68,7 @@ class NotificationsFragment : Fragment() {
             .child(currentUid)
 
         notifRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
+            // Handles notification data changes and updates the notification list in real time.
             override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
                 if (!isAdded) return
                 val notifList = mutableListOf<com.group3.lostandfound.NotificationItem>()
@@ -111,6 +114,7 @@ class NotificationsFragment : Fragment() {
                 lblToday?.text = if (hasNotifs) "TODAY" else "No new notifications. You're all caught up!"
                 lblEarlier?.visibility = View.GONE
             }
+            // Handles Firebase errors when notification data cannot be retrieved.
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
         })
 
@@ -206,6 +210,7 @@ class NotificationsFragment : Fragment() {
         }
     }
 
+    // Opens the appropriate screen based on the selected notification type.
     private fun handleNotificationClick(notif: com.group3.lostandfound.NotificationItem) {
         if (notif.type == "CHAT_MESSAGE" || notif.conversationId.isNotEmpty()) {
             val targetUid = notif.senderUserId.ifEmpty { "support_admin" }
@@ -247,6 +252,7 @@ class NotificationsFragment : Fragment() {
     }
 
     companion object {
+        // Creates a new instance of NotificationsFragment.
         fun newInstance(): NotificationsFragment {
             return NotificationsFragment()
         }

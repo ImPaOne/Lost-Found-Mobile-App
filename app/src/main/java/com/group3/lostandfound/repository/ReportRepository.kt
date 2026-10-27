@@ -24,12 +24,7 @@ class ReportRepository {
     private val db = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("items")
     private val storage = FirebaseStorage.getInstance(FirebaseManager.STORAGE_BUCKET).getReference("item_images")
 
-    /**
-     * Safely opens an InputStream from any Uri:
-     * - file:// URIs (e.g. file:///data/user/0/... from camera or internal cache)
-     * - content:// URIs (e.g. content://media/... from system gallery)
-     * - Direct filesystem paths (e.g. /data/user/0/...)
-     */
+    // Opens the selected image using different URI access methods.
     private fun openInputStreamSafe(context: Context, uri: Uri): java.io.InputStream? {
         val scheme = uri.scheme
 
@@ -77,9 +72,7 @@ class ReportRepository {
         return null
     }
 
-    /**
-     * Compresses the selected image URI into JPEG byte array, downscaling to prevent out-of-memory errors.
-     */
+    // Compresses and resizes the image into JPEG bytes.
     suspend fun compressImageUri(
         context: Context,
         imageUri: Uri,
@@ -125,16 +118,13 @@ class ReportRepository {
         outputStream.toByteArray()
     }
 
-    /**
-     * Uploads report image bytes to Firebase Storage, retrieves download URL, and writes payload to Realtime Database.
-     * Includes automatic retry mechanism for network resilience and real-time progress callbacks (0-100%).
-     */
+    // Uploads the image and saves the report to Firebase.
     suspend fun uploadImageAndCreateReport(
         context: Context,
         imageUri: Uri?,
         report: ItemReport,
         maxRetries: Int = 3,
-        onProgress: (Int) -> Unit
+        onProgress: (Int) -> Unit // Reports upload progress to the ViewModel.
     ): Result<ItemReport> = withContext(Dispatchers.IO) {
         var lastException: Exception? = null
 
