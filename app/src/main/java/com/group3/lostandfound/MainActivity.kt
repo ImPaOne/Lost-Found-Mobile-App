@@ -38,6 +38,13 @@ class MainActivity : AppCompatActivity() {
         applyWindowInsets()
         setupDoubleTapBackToHome()
 
+        // Request runtime notification permission on Android 13+ (API 33+)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                androidx.core.app.ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001)
+            }
+        }
+
         // Initialize notification channel with Apple-like sound & vibration
         FCMService.createNotificationChannel(this)
 
@@ -116,21 +123,59 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var isMessageListenerAttached = false
+    private var isAnnouncementListenerAttached = false
+    private val notifiedAlertIds = mutableSetOf<String>()
 
     fun setupIncomingMessageNotifications() {
         val uid = FirebaseManager.currentUid
         try {
-            startService(android.content.Intent(this, com.group3.lostandfound.service.AppNotificationService::class.java))
-        } catch (e: Exception) {}
+            val serviceIntent = Intent(this, com.group3.lostandfound.service.AppNotificationService::class.java).apply {
+                putExtra("user_uid", uid)
+            }
+            startService(serviceIntent)
+        } catch (_: Exception) {}
+
+        val appStartTime = System.currentTimeMillis()
+        val database = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+
+        // 1. Global Admin Announcements Listener (all users listen to this)
+        if (!isAnnouncementListenerAttached) {
+            isAnnouncementListenerAttached = true
+            val announcementsRef = database.getReference("announcements")
+            announcementsRef.addChildEventListener(object : com.google.firebase.database.ChildEventListener {
+                override fun onChildAdded(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {
+                    try {
+                        val timestamp = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
+                        val annKey = snapshot.key ?: "ann_$timestamp"
+                        if (!notifiedAlertIds.contains(annKey) && timestamp > appStartTime - 15000) {
+                            notifiedAlertIds.add(annKey)
+                            val title = snapshot.child("title").getValue(String::class.java) ?: "Foundly Official Announcement"
+                            val message = snapshot.child("message").getValue(String::class.java) ?: ""
+                            val prefs = getSharedPreferences("findit_prefs", MODE_PRIVATE)
+                            val notifEnabled = prefs.getBoolean("push_notifications_enabled", true)
+                            if (notifEnabled && message.isNotEmpty()) {
+                                FCMService.triggerPushNotification(
+                                    this@MainActivity,
+                                    "📢 $title",
+                                    message
+                                )
+                            }
+                        }
+                    } catch (_: Exception) {}
+                }
+
+                override fun onChildChanged(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {}
+                override fun onChildRemoved(snapshot: com.google.firebase.database.DataSnapshot) {}
+                override fun onChildMoved(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {}
+                override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+            })
+        }
 
         if (uid.isEmpty() || isMessageListenerAttached) return
         isMessageListenerAttached = true
 
-        val appStartTime = System.currentTimeMillis()
-        val convRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
-            .getReference("user_conversations")
-            .child(uid)
-
+        // 2. Real-time Messages from user_conversations
+        val convRef = database.getReference("user_conversations").child(uid)
         convRef.addChildEventListener(object : com.google.firebase.database.ChildEventListener {
             override fun onChildAdded(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {
                 handleConvUpdate(snapshot)
@@ -147,7 +192,9 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     false
                 }
-                if (!isSenderSelf && metadata.lastUpdatedTimestamp > appStartTime && metadata.otherUserId.isNotEmpty()) {
+                val convKey = "conv_${metadata.chatConversationId}_${metadata.lastUpdatedTimestamp}"
+                if (!isSenderSelf && !notifiedAlertIds.contains(convKey) && metadata.lastUpdatedTimestamp > appStartTime - 10000 && metadata.otherUserId.isNotEmpty()) {
+                    notifiedAlertIds.add(convKey)
                     val prefs = getSharedPreferences("findit_prefs", MODE_PRIVATE)
                     val notifEnabled = prefs.getBoolean("push_notifications_enabled", true)
                     if (notifEnabled) {
@@ -172,11 +219,8 @@ class MainActivity : AppCompatActivity() {
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
         })
 
-        // Also listen to /notifications/{uid} for other incoming alerts (reward offers, status changes)
-        val notifRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
-            .getReference("notifications")
-            .child(uid)
-
+        // 3. User notifications under /notifications/{uid} (Chat messages, status updates, reward offers)
+        val notifRef = database.getReference("notifications").child(uid)
         notifRef.addChildEventListener(object : com.google.firebase.database.ChildEventListener {
             override fun onChildAdded(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {
                 val notif = try {
@@ -185,7 +229,9 @@ class MainActivity : AppCompatActivity() {
                     null
                 } ?: return
 
-                if (notif.timestamp > appStartTime && notif.senderUserId != FirebaseManager.currentUid && notif.type != "CHAT_MESSAGE") {
+                val notifKey = notif.id.ifEmpty { "notif_${notif.timestamp}_${notif.title}" }
+                if (!notifiedAlertIds.contains(notifKey) && notif.timestamp > appStartTime - 10000 && notif.senderUserId != FirebaseManager.currentUid) {
+                    notifiedAlertIds.add(notifKey)
                     val prefs = getSharedPreferences("findit_prefs", MODE_PRIVATE)
                     val notifEnabled = prefs.getBoolean("push_notifications_enabled", true)
                     if (notifEnabled) {
