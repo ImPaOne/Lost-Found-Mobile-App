@@ -19,9 +19,7 @@ sealed class ReportUploadState {
     data class Error(val message: String) : ReportUploadState()
 }
 
-/**
- * ViewModel managing report creation, image compression, upload progress, and retries in MVVM.
- */
+
 class CreateReportViewModel(
     private val reportRepository: ReportRepository = ReportRepository()
 ) : ViewModel() {
@@ -31,6 +29,7 @@ class CreateReportViewModel(
 
     private var uploadJob: Job? = null
 
+    //	Starts the report submission process and sends the report and image to ReportRepository.
     fun submitReport(context: Context, imageUri: Uri?, report: ItemReport) {
         _uploadState.value = ReportUploadState.Progress(0, "Compressing photo & preparing upload...")
 
@@ -41,7 +40,7 @@ class CreateReportViewModel(
                 imageUri = imageUri,
                 report = report,
                 maxRetries = 3
-            ) { progress ->
+            ) { progress ->//Receives upload progress and updates the status message and percentage.
                 val statusText = when {
                     progress < 25 -> "Compressing image..."
                     progress < 90 -> "Uploading photo to Storage ($progress%)..."
@@ -51,6 +50,7 @@ class CreateReportViewModel(
                 _uploadState.value = ReportUploadState.Progress(progress, statusText)
             }
 
+            //	Handles the repository's success or failure result.
             result.fold(
                 onSuccess = { createdReport ->
                     _uploadState.value = ReportUploadState.Success(createdReport)
@@ -62,10 +62,12 @@ class CreateReportViewModel(
         }
     }
 
+    //Resets the upload state to Idle.
     fun resetState() {
         _uploadState.value = ReportUploadState.Idle
     }
 
+    //Performs cleanup when the ViewModel is permanently cleared and cancels the tracked upload job.
     override fun onCleared() {
         super.onCleared()
         uploadJob?.cancel()
