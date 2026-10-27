@@ -1,5 +1,7 @@
 package com.group3.lostandfound
 
+import com.group3.lostandfound.R
+import com.group3.lostandfound.databinding.FragmentCreateReportBinding
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -43,6 +45,9 @@ import java.io.FileOutputStream
  * - Step 5: Review & Submit (with 0-100% horizontal progress bar, retry mechanisms, and Clean Architecture)
  */
 class CreateReportFragment : Fragment() {
+
+    private var _binding: FragmentCreateReportBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var btnBack: ImageView
     private lateinit var btnBackBottom: TextView
@@ -283,8 +288,9 @@ class CreateReportFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_create_report, container, false)
+    ): View {
+        _binding = FragmentCreateReportBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     //Initializes the ViewModel and UI, restores form state, and registers listeners.
@@ -293,7 +299,7 @@ class CreateReportFragment : Fragment() {
 
         createReportViewModel = ViewModelProvider(this)[CreateReportViewModel::class.java]
 
-        initViews(view)
+        initViews()
         observeViewModel()
 
         // Restore state if process/fragment was killed or rotated
@@ -372,83 +378,83 @@ class CreateReportFragment : Fragment() {
         })
     }
 
-    //	Connects Kotlin variables to UI components using findViewById().
-    private fun initViews(view: View) {
-        btnBack = view.findViewById(R.id.btnBack)
-        btnBackBottom = view.findViewById(R.id.btnBackBottom)
-        btnContinue = view.findViewById(R.id.btnContinue)
+    //	Connects Kotlin variables to UI components using ViewBinding.
+    private fun initViews() {
+        btnBack = binding.btnBack
+        btnBackBottom = binding.btnBackBottom
+        btnContinue = binding.btnContinue
 
-        segStep1 = view.findViewById(R.id.segStep1)
-        segStep2 = view.findViewById(R.id.segStep2)
-        segStep3 = view.findViewById(R.id.segStep3)
-        segStep4 = view.findViewById(R.id.segStep4)
-        segStep5 = view.findViewById(R.id.segStep5)
+        segStep1 = binding.segStep1
+        segStep2 = binding.segStep2
+        segStep3 = binding.segStep3
+        segStep4 = binding.segStep4
+        segStep5 = binding.segStep5
 
-        tvStepNumber = view.findViewById(R.id.tvStepNumber)
-        tvStepTitle = view.findViewById(R.id.tvStepTitle)
-        tvStepSubtitle = view.findViewById(R.id.tvStepSubtitle)
+        tvStepNumber = binding.tvStepNumber
+        tvStepTitle = binding.tvStepTitle
+        tvStepSubtitle = binding.tvStepSubtitle
 
-        flipperSteps = view.findViewById(R.id.flipperSteps)
+        flipperSteps = binding.flipperSteps
 
         // Step 1
-        cardLostItem = view.findViewById(R.id.cardLostItem)
-        cardFoundItem = view.findViewById(R.id.cardFoundItem)
-        iconLost = view.findViewById(R.id.iconLost)
-        iconFound = view.findViewById(R.id.iconFound)
-        imgRadioLost = view.findViewById(R.id.imgRadioLost)
-        imgRadioFound = view.findViewById(R.id.imgRadioFound)
-        tvNextStepHint = view.findViewById(R.id.tvNextStepHint)
+        cardLostItem = binding.cardLostItem
+        cardFoundItem = binding.cardFoundItem
+        iconLost = binding.iconLost
+        iconFound = binding.iconFound
+        imgRadioLost = binding.imgRadioLost
+        imgRadioFound = binding.imgRadioFound
+        tvNextStepHint = binding.tvNextStepHint
 
         // Step 2
-        boxCategory = view.findViewById(R.id.boxCategory)
-        tvCategoryValue = view.findViewById(R.id.tvCategoryValue)
-        inputTitle = view.findViewById(R.id.inputTitle)
-        inputDescription = view.findViewById(R.id.inputDescription)
+        boxCategory = binding.boxCategory
+        tvCategoryValue = binding.tvCategoryValue
+        inputTitle = binding.inputTitle
+        inputDescription = binding.inputDescription
 
         // Step 3
-        mapCard = view.findViewById(R.id.mapCard)
-        searchInput = view.findViewById(R.id.searchInput)
-        btnClearSearch = view.findViewById(R.id.btnClearSearch)
-        btnGps = view.findViewById(R.id.btnGps)
-        inputLocation = view.findViewById(R.id.inputLocation)
-        lblDate = view.findViewById(R.id.lblDate)
-        boxDate = view.findViewById(R.id.boxDate)
-        tvDate = view.findViewById(R.id.tvDate)
-        lblTime = view.findViewById(R.id.lblTime)
-        boxTime = view.findViewById(R.id.boxTime)
-        tvTime = view.findViewById(R.id.tvTime)
+        mapCard = binding.mapCard
+        searchInput = binding.searchInput
+        btnClearSearch = binding.btnClearSearch
+        btnGps = binding.btnGps
+        inputLocation = binding.inputLocation
+        lblDate = binding.lblDate
+        boxDate = binding.boxDate
+        tvDate = binding.tvDate
+        lblTime = binding.lblTime
+        boxTime = binding.boxTime
+        tvTime = binding.tvTime
 
         // Step 4
-        cardPhotoPreview = view.findViewById(R.id.cardPhotoPreview)
-        imgPhotoPreview = view.findViewById(R.id.imgPhotoPreview)
-        btnRemovePhoto = view.findViewById(R.id.btnRemovePhoto)
-        badgeCoverPhoto = view.findViewById(R.id.badgeCoverPhoto)
-        btnTakePhoto = view.findViewById(R.id.btnTakePhoto)
-        btnGallery = view.findViewById(R.id.btnGallery)
-        tvPhotosCountStatus = view.findViewById(R.id.tvPhotosCountStatus)
+        cardPhotoPreview = binding.cardPhotoPreview
+        imgPhotoPreview = binding.imgPhotoPreview
+        btnRemovePhoto = binding.btnRemovePhoto
+        badgeCoverPhoto = binding.badgeCoverPhoto
+        btnTakePhoto = binding.btnTakePhoto
+        btnGallery = binding.btnGallery
+        tvPhotosCountStatus = binding.tvPhotosCountStatus
 
         // Step 5 Review Views
-        badgeReviewStatus = view.findViewById(R.id.badgeReviewStatus)
-        btnEditSummary = view.findViewById(R.id.btnEditSummary)
-        tvReviewTitle = view.findViewById(R.id.tvReviewTitle)
-        tvReviewCategory = view.findViewById(R.id.tvReviewCategory)
-        tvReviewDesc = view.findViewById(R.id.tvReviewDesc)
-        imgReviewThumbnail = view.findViewById(R.id.imgReviewThumbnail)
-        tvReviewLocation = view.findViewById(R.id.tvReviewLocation)
-        tvReviewDateTime = view.findViewById(R.id.tvReviewDateTime)
-        btnEditLocation = view.findViewById(R.id.btnEditLocation)
-        tvPrivacyHiddenNote = view.findViewById(R.id.tvPrivacyHiddenNote)
-        switchMessages = view.findViewById(R.id.switchMessages)
-        cbConfirmAccuracy = view.findViewById(R.id.cbConfirmAccuracy)
+        badgeReviewStatus = binding.badgeReviewStatus
+        btnEditSummary = binding.btnEditSummary
+        tvReviewTitle = binding.tvReviewTitle
+        tvReviewCategory = binding.tvReviewCategory
+        tvReviewDesc = binding.tvReviewDesc
+        imgReviewThumbnail = binding.imgReviewThumbnail
+        tvReviewLocation = binding.tvReviewLocation
+        tvReviewDateTime = binding.tvReviewDateTime
+        btnEditLocation = binding.btnEditLocation
+        tvPrivacyHiddenNote = binding.tvPrivacyHiddenNote
+        switchMessages = binding.switchMessages
+        cbConfirmAccuracy = binding.cbConfirmAccuracy
 
         // Upload Progress UI
-        cardUploadProgress = view.findViewById(R.id.cardUploadProgress)
-        tvUploadStatusText = view.findViewById(R.id.tvUploadStatusText)
-        tvUploadPercentage = view.findViewById(R.id.tvUploadPercentage)
-        pbUploadBar = view.findViewById(R.id.pbUploadBar)
-        layoutUploadError = view.findViewById(R.id.layoutUploadError)
-        tvErrorMessage = view.findViewById(R.id.tvErrorMessage)
-        btnRetryUpload = view.findViewById(R.id.btnRetryUpload)
+        cardUploadProgress = binding.cardUploadProgress
+        tvUploadStatusText = binding.tvUploadStatusText
+        tvUploadPercentage = binding.tvUploadPercentage
+        pbUploadBar = binding.pbUploadBar
+        layoutUploadError = binding.layoutUploadError
+        tvErrorMessage = binding.tvErrorMessage
+        btnRetryUpload = binding.btnRetryUpload
     }
 
     //	Updates the UI when the user selects LOST or FOUND.
@@ -1004,6 +1010,7 @@ class CreateReportFragment : Fragment() {
         if (::inputLocation.isInitialized) {
             savedLandmark = inputLocation.text.toString()
         }
+        _binding = null
         super.onDestroyView()
     }
 
