@@ -93,13 +93,16 @@ class AdminFragment : Fragment() {
             showAdminToolsDialog()
         }
 
-        view.findViewById<View>(R.id.btnViewAdvancedAnalytics)?.setOnClickListener {
+        val openAnalyticsScreen = View.OnClickListener {
             parentFragmentManager.beginTransaction()
                 .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.screenBox, AnalyticsFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
         }
+
+        view.findViewById<View>(R.id.btnViewAdvancedAnalytics)?.setOnClickListener(openAnalyticsScreen)
+        view.findViewById<View>(R.id.btnQuickAnalytics)?.setOnClickListener(openAnalyticsScreen)
 
         view.findViewById<View>(R.id.trendGraph)?.setOnClickListener {
             parentFragmentManager.beginTransaction()

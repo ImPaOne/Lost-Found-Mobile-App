@@ -2,6 +2,7 @@ package com.group3.lostandfound
 
 import android.os.Bundle
 import android.text.InputType
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -109,6 +111,14 @@ class SignUpFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
+        // Real-time error clearing
+        inputFullName.doAfterTextChanged { inputFullName.error = null }
+        inputEmail.doAfterTextChanged { inputEmail.error = null }
+        inputPhone.doAfterTextChanged { inputPhone.error = null }
+        inputNic.doAfterTextChanged { inputNic.error = null }
+        inputPassword.doAfterTextChanged { inputPassword.error = null }
+        inputConfirmPassword.doAfterTextChanged { inputConfirmPassword.error = null }
+
         btnCreateAccount.setOnClickListener {
             val name = inputFullName.text.toString().trim()
             val email = inputEmail.text.toString().trim()
@@ -118,18 +128,63 @@ class SignUpFragment : Fragment() {
             val confirmPassword = inputConfirmPassword.text.toString().trim()
 
             if (name.isEmpty()) {
-                inputFullName.error = "Name is required"
+                inputFullName.error = "Full name is required"
                 inputFullName.requestFocus()
                 return@setOnClickListener
             }
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                inputEmail.error = "Valid email is required"
+            if (name.length < 2) {
+                inputFullName.error = "Name must be at least 2 characters"
+                inputFullName.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (email.isEmpty()) {
+                inputEmail.error = "Email address is required"
                 inputEmail.requestFocus()
+                return@setOnClickListener
+            }
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                inputEmail.error = "Please enter a valid email address"
+                inputEmail.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (phone.isEmpty()) {
+                inputPhone.error = "Phone number is required"
+                inputPhone.requestFocus()
+                return@setOnClickListener
+            }
+            if (!phone.matches(Regex("^[0-9+ -]{9,15}\$"))) {
+                inputPhone.error = "Please enter a valid phone number (9-15 digits)"
+                inputPhone.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (nic.isEmpty()) {
+                inputNic.error = "NIC or Identity number is required"
+                inputNic.requestFocus()
+                return@setOnClickListener
+            }
+            if (nic.length < 4) {
+                inputNic.error = "Identity number must be at least 4 characters"
+                inputNic.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (password.isEmpty()) {
+                inputPassword.error = "Password is required"
+                inputPassword.requestFocus()
                 return@setOnClickListener
             }
             if (password.length < 6) {
                 inputPassword.error = "Password must be at least 6 characters"
                 inputPassword.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (confirmPassword.isEmpty()) {
+                inputConfirmPassword.error = "Please confirm your password"
+                inputConfirmPassword.requestFocus()
                 return@setOnClickListener
             }
             if (password != confirmPassword) {

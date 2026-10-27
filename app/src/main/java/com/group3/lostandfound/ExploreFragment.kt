@@ -54,6 +54,15 @@ class ExploreFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+        val isAdmin = prefs.getBoolean("is_admin", false) || FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
+        if (isAdmin) {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, ModerationFragment.newInstance())
+                .commit()
+            return
+        }
+
         exploreViewModel = ViewModelProvider(this)[ExploreViewModel::class.java]
 
         initViews(view)//connects kotlin varibles to XML components

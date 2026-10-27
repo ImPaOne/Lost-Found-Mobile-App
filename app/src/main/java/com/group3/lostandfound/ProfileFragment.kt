@@ -1,15 +1,18 @@
 package com.group3.lostandfound
 
 import android.os.Bundle
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -70,6 +73,15 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+        val isAdmin = prefs.getBoolean("is_admin", false) || FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
+        if (isAdmin) {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, SettingsFragment.newInstance())
+                .commit()
+            return
+        }
+
         val btnClose = view.findViewById<ImageView>(R.id.btnClose)
         val btnMenu = view.findViewById<ImageView>(R.id.btnMenu)
         userAvatar = view.findViewById(R.id.userAvatar)
@@ -112,13 +124,7 @@ class ProfileFragment : Fragment() {
         }
 
         btnMenu.setOnClickListener {
-            val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
-            val isAdmin = prefs.getBoolean("is_admin", false) || FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
-            if (isAdmin) {
-                navigateTo(AdminFragment.newInstance())
-            } else {
-                navigateTo(SettingsFragment.newInstance())
-            }
+            showProfileOptionsMenu(it)
         }
 
         rowReports.setOnClickListener {
@@ -154,16 +160,7 @@ class ProfileFragment : Fragment() {
         }
 
         rowLogout.setOnClickListener {
-            requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean("is_logged_in", false)
-                .putBoolean("is_admin", false)
-                .apply()
-            com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
-            Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, LoginFragment.newInstance())
-                .commit()
+            showLogoutConfirmationDialog()
         }
 
         setupBottomNav(view, "profile")
@@ -318,6 +315,12 @@ class ProfileFragment : Fragment() {
             etProfilePhone.setText(currentPhone)
         }
 
+        // Real-time error clearing
+        etProfileName.doAfterTextChanged { etProfileName.error = null }
+        etProfileEmail.doAfterTextChanged { etProfileEmail.error = null }
+        etProfilePhone.doAfterTextChanged { etProfilePhone.error = null }
+        etProfileLocation.doAfterTextChanged { etProfileLocation.error = null }
+
         btnCloseEditProfile?.setOnClickListener {
             bottomSheet.dismiss()
         }
@@ -330,14 +333,43 @@ class ProfileFragment : Fragment() {
             bottomSheet.dismiss()
         }
 
-        // Displays bookmarked reports and allows the user to open or clear saved items.
         btnSaveProfile.setOnClickListener {
             val enteredName = etProfileName.text.toString().trim()
-            val newName = if (enteredName.isNotEmpty()) enteredName else currentDisplayName
             val newLocation = etProfileLocation.text.toString().trim()
             val newEmail = etProfileEmail.text.toString().trim()
             val newPhone = etProfilePhone.text.toString().trim()
 
+            // Strict Validations
+            if (enteredName.isEmpty()) {
+                etProfileName.error = "Name cannot be empty"
+                etProfileName.requestFocus()
+                return@setOnClickListener
+            }
+            if (enteredName.length < 2) {
+                etProfileName.error = "Name must be at least 2 characters"
+                etProfileName.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (newEmail.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
+                etProfileEmail.error = "Please enter a valid email address"
+                etProfileEmail.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (newPhone.isNotEmpty() && !newPhone.matches(Regex("^[0-9+ -]{9,15}\$"))) {
+                etProfilePhone.error = "Please enter a valid phone number (9-15 digits)"
+                etProfilePhone.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (newLocation.isNotEmpty() && newLocation.length < 2) {
+                etProfileLocation.error = "Location must be at least 2 characters"
+                etProfileLocation.requestFocus()
+                return@setOnClickListener
+            }
+
+            val newName = enteredName
             val updates = mutableMapOf<String, Any>(
                 "displayName" to newName,
                 "fullName" to newName
@@ -505,11 +537,65 @@ class ProfileFragment : Fragment() {
         itemStatsListener?.let { FirebaseManager.itemsRef.removeEventListener(it) }
     }
 
+    // Shows options menu when the 3-dots header button is clicked
+    private fun showProfileOptionsMenu(anchorView: View) {
+        if (!isAdded) return
+        val popup = PopupMenu(requireContext(), anchorView)
+        popup.menu.add(0, 1, 0, "Edit Profile")
+        popup.menu.add(0, 2, 1, "Settings & Privacy")
+        popup.menu.add(0, 3, 2, "My Reports")
+        popup.menu.add(0, 4, 3, "Saved Items")
+        popup.menu.add(0, 5, 4, "Trust Score")
+        popup.menu.add(0, 6, 5, "Help & Support")
+        popup.menu.add(0, 7, 6, "Log Out")
+
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                1 -> showEditProfileDialog()
+                2 -> navigateTo(SettingsFragment.newInstance())
+                3 -> navigateTo(ReportsFragment.newInstance())
+                4 -> showSavedItemsDialog()
+                5 -> navigateTo(TrustFragment.newInstance())
+                6 -> showHelpCenterDialog()
+                7 -> showLogoutConfirmationDialog()
+            }
+            true
+        }
+        popup.show()
+    }
+
+    // Displays confirmation dialog before user logs out
+    private fun showLogoutConfirmationDialog() {
+        if (!isAdded) return
+        AlertDialog.Builder(requireContext())
+            .setTitle("Log Out")
+            .setMessage("Are you sure you want to log out of your account?")
+            .setPositiveButton("Log Out") { _, _ ->
+                requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("is_logged_in", false)
+                    .putBoolean("is_admin", false)
+                    .apply()
+                com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
+                Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.screenBox, LoginFragment.newInstance())
+                    .commit()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
     private fun navigateTo(fragment: Fragment) {
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.screenBox, fragment)
-            .addToBackStack(null)
-            .commit()
+        if (!isAdded || isStateSaved) return
+        try {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, fragment)
+                .addToBackStack(null)
+                .commit()
+        } catch (e: Exception) {
+            android.util.Log.e("ProfileFragment", "Navigation error: ${e.message}")
+        }
     }
 
     companion object {

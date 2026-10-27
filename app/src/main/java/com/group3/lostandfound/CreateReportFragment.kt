@@ -24,6 +24,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.ViewModelProvider
@@ -297,6 +298,15 @@ class CreateReportFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+        val isAdmin = prefs.getBoolean("is_admin", false) || FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
+        if (isAdmin) {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, AnalyticsFragment.newInstance())
+                .commit()
+            return
+        }
+
         createReportViewModel = ViewModelProvider(this)[CreateReportViewModel::class.java]
 
         initViews()
@@ -487,6 +497,11 @@ class CreateReportFragment : Fragment() {
         }
         btnBack.setOnClickListener(onBackAction)
         btnBackBottom.setOnClickListener(onBackAction)
+
+        // Real-time error clearing
+        inputTitle.doAfterTextChanged { inputTitle.error = null }
+        inputDescription.doAfterTextChanged { inputDescription.error = null }
+        inputLocation.doAfterTextChanged { inputLocation.error = null }
 
         // Continue / Submit button
         btnContinue.setOnClickListener {
@@ -680,16 +695,49 @@ class CreateReportFragment : Fragment() {
 
     //Checks whether required input is valid before continuing.
     private fun validateCurrentStep(): Boolean {
-        if (currentStep == 2) {
-            val title = inputTitle.text.toString().trim()
-            if (title.isEmpty()) {
-                inputTitle.setText("Black leather wallet")
-                savedTitle = "Black leather wallet"
+        when (currentStep) {
+            2 -> {
+                val title = inputTitle.text.toString().trim()
+                if (title.isEmpty()) {
+                    inputTitle.error = "Item title is required"
+                    inputTitle.requestFocus()
+                    return false
+                }
+                if (title.length < 3) {
+                    inputTitle.error = "Title must be at least 3 characters"
+                    inputTitle.requestFocus()
+                    return false
+                }
+
+                if (selectedCategory.isBlank()) {
+                    Toast.makeText(requireContext(), "Please select an item category", Toast.LENGTH_SHORT).show()
+                    return false
+                }
+
+                val desc = inputDescription.text.toString().trim()
+                if (desc.isEmpty()) {
+                    inputDescription.error = "Please provide an item description"
+                    inputDescription.requestFocus()
+                    return false
+                }
+                if (desc.length < 10) {
+                    inputDescription.error = "Description must be at least 10 characters"
+                    inputDescription.requestFocus()
+                    return false
+                }
             }
-            if (inputDescription.text.toString().trim().isEmpty()) {
-                val sampleDesc = "Slim wallet with national ID and two bank cards. Small scratch near the clasp."
-                inputDescription.setText(sampleDesc)
-                savedDescription = sampleDesc
+            3 -> {
+                val loc = inputLocation.text.toString().trim()
+                if (loc.isEmpty() && selectedArea.isBlank()) {
+                    inputLocation.error = "Please enter a location or landmark"
+                    inputLocation.requestFocus()
+                    return false
+                }
+                if (loc.isNotEmpty() && loc.length < 3) {
+                    inputLocation.error = "Location must be at least 3 characters"
+                    inputLocation.requestFocus()
+                    return false
+                }
             }
         }
         return true
@@ -698,12 +746,12 @@ class CreateReportFragment : Fragment() {
     //	Animates navigation to the next form step and saves input.
     private fun slideForward() {
         if (currentStep == 2) {
-            if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString().ifEmpty { "Black leather wallet" }
-            if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString().ifEmpty { "Slim wallet with national ID and two bank cards. Small scratch near the clasp." }
+            if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString().trim()
+            if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString().trim()
         } else if (currentStep == 3) {
             if (::inputLocation.isInitialized) {
                 val loc = inputLocation.text.toString().trim()
-                savedLandmark = if (loc.isNotEmpty()) loc else "Near Duplication Road, Colombo 03"
+                savedLandmark = loc.ifEmpty { selectedArea }
             }
         }
 
