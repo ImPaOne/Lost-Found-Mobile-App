@@ -137,6 +137,7 @@ class CreateReportFragment : Fragment() {
     private lateinit var createReportViewModel: CreateReportViewModel
     private var uploadJob: Job? = null
 
+    //copies a selected image in to the apps cache so the app can access it.
     private fun copyUriToInternalStorage(uri: Uri): Uri? {
         return try {
             val dir = File(requireContext().cacheDir, "report_images")
@@ -154,6 +155,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Adds a photo to the selected list, sets the primary photo, and moves to Step 4.
     private fun addImageToSelection(uri: Uri) {
         if (!attachedImagesList.contains(uri)) {
             attachedImagesList.add(uri)
@@ -168,6 +170,7 @@ class CreateReportFragment : Fragment() {
         updateStepHeader()
     }
 
+    //Displays selected photos and updates the photo count.
     private fun updateThumbnailsUI() {
         if (!::rowThumbnails.isInitialized) return
         if (attachedImagesList.isEmpty()) {
@@ -238,6 +241,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Creates a destination for the photo and launches the camera app.
     private fun launchCamera() {
         try {
             val cacheImagesDir = File(requireContext().cacheDir, "images")
@@ -252,6 +256,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Registers a listener to receive the location selected on the map.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         parentFragmentManager.setFragmentResultListener(
@@ -279,6 +284,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Inflates fragment_create_report.xml to create the screen's UI.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -287,6 +293,7 @@ class CreateReportFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_create_report, container, false)
     }
 
+    //Initializes the ViewModel and UI, restores form state, and registers listeners.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -373,6 +380,7 @@ class CreateReportFragment : Fragment() {
         })
     }
 
+    //	Connects Kotlin variables to UI components using findViewById().
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         btnBackBottom = view.findViewById(R.id.btnBackBottom)
@@ -445,6 +453,7 @@ class CreateReportFragment : Fragment() {
         btnRetryUpload = view.findViewById(R.id.btnRetryUpload)
     }
 
+    //	Updates the UI when the user selects LOST or FOUND.
     private fun setItemType(isLost: Boolean) {
         isLostSelected = isLost
         if (isLost) {
@@ -462,6 +471,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Attaches click listeners to buttons, categories, locations, and photo controls.
     private fun setupStepListeners() {
         // Back navigation
         val onBackAction = View.OnClickListener {
@@ -557,6 +567,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Lets the user choose between the gallery and camera.
     private fun showImageSourceChooser() {
         val options = arrayOf("Choose from Gallery", "Take Photo with Camera")
         AlertDialog.Builder(requireContext())
@@ -579,6 +590,7 @@ class CreateReportFragment : Fragment() {
             .show()
     }
 
+    //	Saves a bitmap as a temporary JPEG file.
     private fun saveBitmapToTempUri(bitmap: Bitmap): Uri? {
         return try {
             val cachePath = File(requireContext().cacheDir, "images")
@@ -594,6 +606,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Checks whether required input is valid before continuing.
     private fun validateCurrentStep(): Boolean {
         if (currentStep == 2) {
             val title = inputTitle.text.toString().trim()
@@ -606,6 +619,7 @@ class CreateReportFragment : Fragment() {
         return true
     }
 
+    //	Animates navigation to the next form step and saves input.
     private fun slideForward() {
         if (currentStep == 2) {
             if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
@@ -642,6 +656,7 @@ class CreateReportFragment : Fragment() {
         updateStepHeader()
     }
 
+    //Animates navigation to the previous form step.
     private fun slideBackward() {
         if (currentStep == 2) {
             if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
@@ -678,6 +693,7 @@ class CreateReportFragment : Fragment() {
         updateStepHeader()
     }
 
+    //Updates progress indicators, titles, buttons, and Step 5's review information.
     private fun updateStepHeader() {
         tvStepNumber.text = "STEP $currentStep OF 5"
 
@@ -758,6 +774,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //	Creates the ItemReport object and asks the ViewModel to submit it.
     private fun submitReport() {
         val title = inputTitle.text.toString().trim()
         val desc = inputDescription.text.toString().trim()
@@ -797,6 +814,7 @@ class CreateReportFragment : Fragment() {
         createReportViewModel.submitReport(requireContext(), selectedImageUri, report)
     }
 
+    //Reacts to upload progress, success, and errors.
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             createReportViewModel.uploadState.collect { state ->
@@ -866,6 +884,7 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    //Saves form values when Android recreates the Fragment.
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(KEY_SAVED_STEP, currentStep)
@@ -882,6 +901,7 @@ class CreateReportFragment : Fragment() {
         if (::inputLandmark.isInitialized) outState.putString(KEY_SAVED_LANDMARK, inputLandmark.text.toString())
     }
 
+    //Caches text inputs before the Fragment's view is destroyed.
     override fun onDestroyView() {
         if (::inputTitle.isInitialized) {
             savedTitle = inputTitle.text.toString()
@@ -914,6 +934,7 @@ class CreateReportFragment : Fragment() {
         private const val KEY_SAVED_DESC = "key_saved_desc"
         private const val KEY_SAVED_LANDMARK = "key_saved_landmark"
 
+        //Creates a Fragment with optional initial report type and location arguments.
         fun newInstance(
             isLost: Boolean = true,
             latitude: Double = 6.9042,
