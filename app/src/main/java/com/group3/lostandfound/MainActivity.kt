@@ -71,7 +71,10 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             val onboardingCompleted = prefs.getBoolean("onboarding_completed", false)
-            val isAdmin = prefs.getBoolean("is_admin", false) || savedEmail.equals("admin@gmail.com", ignoreCase = true)
+            val isAdmin = prefs.getBoolean("is_admin", false) ||
+                savedEmail.equals("admin@gmail.com", ignoreCase = true) ||
+                FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true) ||
+                (firebaseUser?.email ?: "").equals("admin@gmail.com", ignoreCase = true)
 
             val initialFragment = when {
                 !onboardingCompleted -> OnboardingFragment.newInstance()
