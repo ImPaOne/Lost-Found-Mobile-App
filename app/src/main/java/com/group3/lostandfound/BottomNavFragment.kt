@@ -92,7 +92,7 @@ class BottomNavFragment : Fragment() {
 
     private fun updateTabStyle(tab: NavigationTab) {
         val colAct = ContextCompat.getColor(requireContext(), R.color.text_primary)
-        val colInact = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+        val colInact = ContextCompat.getColor(requireContext(), R.color.text_hint)
 
         lblHome.setTextColor(if (tab == NavigationTab.HOME) colAct else colInact)
         lblExplore.setTextColor(if (tab == NavigationTab.EXPLORE) colAct else colInact)

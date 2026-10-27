@@ -30,20 +30,28 @@
                 android:paddingStart="16dp"
                 android:paddingTop="12dp"
                 android:paddingEnd="16dp"
-                android:paddingBottom="12dp">
+                android:paddingBottom="8dp">
 
-                <ImageView
-                    android:id="@+id/btnBack"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
-                    android:clickable="true"
-                    android:contentDescription="Back"
-                    android:focusable="true"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_back_chevron"
+                <FrameLayout
+                    android:id="@+id/boxBack"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_circle_icon_button"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/btnBack"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:clickable="true"
+                        android:contentDescription="Back"
+                        android:focusable="true"
+                        android:src="@drawable/ic_arrow_back_stem"
+                        app:tint="#0F172A" />
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/tvHeaderTitle"
@@ -51,7 +59,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-bold"
                     android:text="Item details"
-                    android:textColor="@color/text_primary"
+                    android:textColor="#0F172A"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -69,92 +77,114 @@
                     android:focusable="true"
                     android:padding="8dp"
                     android:src="@drawable/ic_share"
-                    app:tint="@color/text_primary"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/btnBookmark"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintEnd_toStartOf="@id/boxBookmark"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/text_primary" />
 
-                <ImageView
-                    android:id="@+id/btnBookmark"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
-                    android:clickable="true"
-                    android:contentDescription="Bookmark item"
-                    android:focusable="true"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_bookmark_outline"
+                <FrameLayout
+                    android:id="@+id/boxBookmark"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_circle_icon_button"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/btnBookmark"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:clickable="true"
+                        android:contentDescription="Bookmark item"
+                        android:focusable="true"
+                        android:src="@drawable/ic_bookmark_outline"
+                        app:tint="#0F172A" />
+                </FrameLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- 2. Main Photo Banner with Slideable ViewPager2 and Dot Indicators -->
-            <FrameLayout
-                android:id="@+id/boxPhoto"
+            <!-- 2. Main Photo Card with ViewPager2 and Dot Indicators -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPhotoContainer"
                 android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:background="#1E1612">
+                android:layout_height="250dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="16dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
-                <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/pagerPhotos"
+                <FrameLayout
+                    android:id="@+id/boxPhoto"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:background="#1E1612">
 
-                <!-- Tap to enlarge hint badge -->
-                <LinearLayout
-                    android:id="@+id/badgeEnlargeHint"
-                    android:layout_width="wrap_content"
-                    android:layout_height="26dp"
-                    android:layout_gravity="top|end"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginEnd="14dp"
-                    android:background="@drawable/bg_card_badge"
-                    android:backgroundTint="#80000000"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp">
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/pagerPhotos"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
 
-                    <TextView
+                    <!-- Tap to enlarge hint badge (hidden to match reference image) -->
+                    <LinearLayout
+                        android:id="@+id/badgeEnlargeHint"
+                        android:layout_width="wrap_content"
+                        android:layout_height="26dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginEnd="14dp"
+                        android:background="@drawable/bg_card_badge"
+                        android:backgroundTint="#80000000"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="Tap to enlarge"
+                            android:textColor="@color/white"
+                            android:textSize="10.5sp" />
+                    </LinearLayout>
+
+                    <!-- Carousel Dots Indicator Overlay (white capsule + dots) -->
+                    <LinearLayout
+                        android:id="@+id/photoDotsIndicator"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="Tap to enlarge"
-                        android:textColor="@color/white"
-                        android:textSize="10.5sp" />
-                </LinearLayout>
+                        android:layout_gravity="bottom|center_horizontal"
+                        android:layout_marginBottom="14dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                <!-- Carousel Dots Indicator Overlay -->
-                <LinearLayout
-                    android:id="@+id/photoDotsIndicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|center_horizontal"
-                    android:layout_marginBottom="12dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                        <View
+                            android:id="@+id/dotPhoto1"
+                            android:layout_width="18dp"
+                            android:layout_height="4.5dp"
+                            android:layout_marginEnd="5dp"
+                            android:background="@drawable/bg_photo_dot_active" />
 
-                    <View
-                        android:id="@+id/dotPhoto1"
-                        android:layout_width="18dp"
-                        android:layout_height="4.5dp"
-                        android:layout_marginEnd="5dp"
-                        android:background="@drawable/bg_onboard_dot_active" />
+                        <View
+                            android:id="@+id/dotPhoto2"
+                            android:layout_width="4.5dp"
+                            android:layout_height="4.5dp"
+                            android:layout_marginEnd="5dp"
+                            android:background="@drawable/bg_photo_dot_inactive" />
 
-                    <View
-                        android:id="@+id/dotPhoto2"
-                        android:layout_width="5dp"
-                        android:layout_height="4.5dp"
-                        android:layout_marginEnd="5dp"
-                        android:background="@drawable/bg_onboard_dot_inactive" />
-
-                    <View
-                        android:id="@+id/dotPhoto3"
-                        android:layout_width="5dp"
-                        android:layout_height="4.5dp"
-                        android:background="@drawable/bg_onboard_dot_inactive" />
-                </LinearLayout>
-            </FrameLayout>
+                        <View
+                            android:id="@+id/dotPhoto3"
+                            android:layout_width="4.5dp"
+                            android:layout_height="4.5dp"
+                            android:background="@drawable/bg_photo_dot_inactive" />
+                    </LinearLayout>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- 3. Details Content Container -->
             <LinearLayout
@@ -166,21 +196,41 @@
                 android:paddingEnd="20dp"
                 android:paddingBottom="24dp">
 
-                <!-- Outlined LOST Status Tag -->
-                <TextView
-                    android:id="@+id/tagStatus"
-                    android:layout_width="wrap_content"
+                <!-- Row 1: Status Badge & Timestamp -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_tag_lost_outlined"
-                    android:fontFamily="sans-serif-bold"
-                    android:paddingStart="12dp"
-                    android:paddingTop="3dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="3dp"
-                    android:text="LOST"
-                    android:textColor="@color/tag_lost_color"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <!-- Solid LOST Status Tag -->
+                    <TextView
+                        android:id="@+id/tagStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_tag_lost_solid"
+                        android:fontFamily="sans-serif-bold"
+                        android:paddingStart="12dp"
+                        android:paddingTop="3dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="3dp"
+                        android:text="LOST"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <!-- Timestamp -->
+                    <TextView
+                        android:id="@+id/tvTimestamp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif"
+                        android:gravity="end"
+                        android:text="12 Sep · 6:30 PM"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp" />
+                </LinearLayout>
 
                 <!-- Item Title -->
                 <TextView
@@ -190,8 +240,8 @@
                     android:layout_marginTop="8dp"
                     android:fontFamily="sans-serif-bold"
                     android:text="Black leather wallet"
-                    android:textColor="@color/text_primary"
-                    android:textSize="22sp"
+                    android:textColor="#0F172A"
+                    android:textSize="23sp"
                     android:textStyle="bold" />
 
                 <!-- Item Description -->
@@ -203,160 +253,124 @@
                     android:fontFamily="sans-serif"
                     android:lineSpacingExtra="3dp"
                     android:text="Slim wallet with national ID and two bank cards. Small scratch near the clasp."
-                    android:textColor="@color/text_secondary"
+                    android:textColor="#64748B"
                     android:textSize="14sp" />
 
-                <!-- Metadata Row: Location & Timestamp -->
+                <!-- Thin Divider Line -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="14dp"
+                    android:background="#F1F5F9" />
+
+                <!-- Location Row: Location Pin & City -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
                         android:contentDescription="Location icon"
-                        android:src="@drawable/ic_location_compass" />
+                        android:src="@drawable/ic_location"
+                        app:tint="#64748B" />
 
                     <TextView
                         android:id="@+id/tvLocationText"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_weight="1"
-                        android:fontFamily="sans-serif"
-                        android:text="Colombo 03"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tvTimestamp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif"
-                        android:text="12 Sep · 6:30 PM"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:layout_marginStart="6dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Colombo 03"
+                        android:textColor="#64748B"
+                        android:textSize="13sp" />
                 </LinearLayout>
 
-                <!-- Item Location & Embedded Map Card -->
+                <!-- Location Box: Near Duplication Road · View map 📍 -->
+                <LinearLayout
+                    android:id="@+id/bannerLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_location_card"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp">
+
+                    <View
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:background="@drawable/bg_dot_teal" />
+
+                    <TextView
+                        android:id="@+id/tvStreetName"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:fontFamily="sans-serif-bold"
+                        android:maxLines="1"
+                        android:text="Near Duplication Road"
+                        android:textColor="#0F172A"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btnOpenFullMap"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="View map"
+                        android:textColor="#002840"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="4dp"
+                        android:contentDescription="Map pin"
+                        android:src="@drawable/ic_location"
+                        app:tint="#002840" />
+                </LinearLayout>
+
+                <!-- Hidden Embedded Map container for code compatibility -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardItemMapContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="1dp"
-                    app:strokeColor="@color/component_stroke"
-                    app:strokeWidth="1dp">
+                    android:layout_height="0dp"
+                    android:visibility="gone">
 
-                    <LinearLayout
+                    <WebView
+                        android:id="@+id/webViewItemMap"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:layout_height="match_parent" />
 
-                        <!-- Location Header Strip (clickable to open full map) -->
-                        <LinearLayout
-                            android:id="@+id/bannerLocation"
-                            android:layout_width="match_parent"
-                            android:layout_height="46dp"
-                            android:background="@drawable/bg_location_banner"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingStart="14dp"
-                            android:paddingEnd="14dp">
+                    <View
+                        android:id="@+id/mapClickOverlay"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
 
-                            <ImageView
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
-                                android:contentDescription="Location Pin"
-                                android:src="@drawable/ic_location"
-                                app:tint="@color/text_primary" />
-
-                            <TextView
-                                android:id="@+id/tvStreetName"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:layout_weight="1"
-                                android:ellipsize="end"
-                                android:fontFamily="sans-serif-medium"
-                                android:maxLines="1"
-                                android:text="Near Duplication Road"
-                                android:textColor="@color/text_primary"
-                                android:textSize="13sp" />
-
-                            <TextView
-                                android:id="@+id/btnOpenFullMap"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-bold"
-                                android:text="Open Map ↗"
-                                android:textColor="@color/text_primary"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <!-- Embedded Interactive Leaflet Map Preview -->
-                        <FrameLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="180dp">
-
-                            <WebView
-                                android:id="@+id/webViewItemMap"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:overScrollMode="never" />
-
-                            <!-- Tap overlay to open Full Map -->
-                            <View
-                                android:id="@+id/mapClickOverlay"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:background="@android:color/transparent"
-                                android:clickable="true"
-                                android:focusable="true" />
-
-                            <!-- Bottom Floating Coordinates Badge -->
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="bottom|start"
-                                android:layout_margin="10dp"
-                                android:background="@drawable/bg_stat_banner"
-                                android:elevation="2dp"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal"
-                                android:paddingStart="10dp"
-                                android:paddingTop="4dp"
-                                android:paddingEnd="10dp"
-                                android:paddingBottom="4dp">
-
-                                <TextView
-                                    android:id="@+id/tvMapCoordinates"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:text="6.9140° N, 79.8630° E · Tap to explore"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="11sp" />
-                            </LinearLayout>
-                        </FrameLayout>
-                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/tvMapCoordinates"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Reporter Profile Card (Interactive) -->
+                <!-- Reporter Profile Card: Tharindu Perera ✔ Verified Trust score 94 > -->
                 <LinearLayout
                     android:id="@+id/rowReporter"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:background="@drawable/bg_stat_banner"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_reporter_card"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
@@ -366,14 +380,23 @@
                     android:paddingEnd="14dp"
                     android:paddingBottom="12dp">
 
-                    <!-- Avatar -->
-                    <ImageView
-                        android:id="@+id/imgAvatar"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:contentDescription="Reporter avatar"
-                        android:src="@drawable/ic_user_avatar" />
+                    <!-- Avatar Circle -->
+                    <FrameLayout
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_avatar_circle_border">
 
+                        <ImageView
+                            android:id="@+id/imgAvatar"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="Reporter avatar"
+                            android:src="@drawable/ic_person"
+                            app:tint="#64748B" />
+                    </FrameLayout>
+
+                    <!-- Info -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -392,98 +415,106 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
-                                android:text="Community Member"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
+                                android:text="Tharindu Perera"
+                                android:textColor="#0F172A"
+                                android:textSize="15sp"
                                 android:textStyle="bold" />
 
                             <ImageView
                                 android:layout_width="14dp"
                                 android:layout_height="14dp"
-                                android:layout_marginStart="4dp"
+                                android:layout_marginStart="5dp"
                                 android:contentDescription="Verified"
-                                android:src="@drawable/ic_verified_check" />
+                                android:src="@drawable/ic_check"
+                                app:tint="#0F172A" />
                         </LinearLayout>
 
-                        <TextView
-                            android:id="@+id/tvReporterTrust"
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:fontFamily="sans-serif"
-                            android:text="Tap to open direct chat"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="11sp" />
+                            android:layout_marginTop="3dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_verified_pill"
+                                android:fontFamily="sans-serif-bold"
+                                android:paddingStart="6dp"
+                                android:paddingTop="1dp"
+                                android:paddingEnd="6dp"
+                                android:paddingBottom="1dp"
+                                android:text="Verified"
+                                android:textColor="#B45309"
+                                android:textSize="10sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvReporterTrust"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:fontFamily="sans-serif"
+                                android:text="Trust score 94"
+                                android:textColor="#94A3B8"
+                                android:textSize="11sp" />
+                        </LinearLayout>
                     </LinearLayout>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-bold"
-                        android:text="Chat →"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
+                    <!-- Chevron Right Arrow -->
+                    <FrameLayout
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_circle_icon_button">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="Open reporter"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="#94A3B8" />
+                    </FrameLayout>
                 </LinearLayout>
 
-                <!-- Action Button Row: Instant Live Message & More Options -->
-                <LinearLayout
+                <!-- Primary Action Button: Contact Reporter -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLiveChat"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:layout_height="52dp"
+                    android:layout_marginTop="18dp"
+                    android:backgroundTint="#002840"
+                    android:clickable="true"
+                    android:elevation="0dp"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-bold"
+                    android:gravity="center"
+                    android:text="Contact Reporter"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="16dp" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnLiveChat"
-                        android:layout_width="0dp"
-                        android:layout_height="52dp"
-                        android:layout_weight="1"
-                        android:backgroundTint="@color/deep_blue"
-                        android:clickable="true"
-                        android:elevation="2dp"
-                        android:focusable="true"
-                        android:fontFamily="sans-serif-bold"
-                        android:gravity="center"
-                        android:text="Live Chat"
-                        android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        app:cornerRadius="14dp"
-                        app:icon="@drawable/ic_nav_messages"
-                        app:iconGravity="textStart"
-                        app:iconPadding="10dp"
-                        app:iconSize="20dp"
-                        app:iconTint="@color/white" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnWhatsApp"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="8dp"
+                    android:backgroundTint="#25D366"
+                    android:clickable="true"
+                    android:elevation="0dp"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-bold"
+                    android:gravity="center"
+                    android:text="WhatsApp Reporter"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    app:cornerRadius="16dp" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnWhatsApp"
-                        android:layout_width="0dp"
-                        android:layout_height="52dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:backgroundTint="#25D366"
-                        android:clickable="true"
-                        android:elevation="2dp"
-                        android:focusable="true"
-                        android:fontFamily="sans-serif-bold"
-                        android:gravity="center"
-                        android:text="WhatsApp"
-                        android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:visibility="gone"
-                        app:cornerRadius="14dp"
-                        app:icon="@drawable/ic_whatsapp"
-                        app:iconGravity="textStart"
-                        app:iconPadding="10dp"
-                        app:iconSize="20dp"
-                        app:iconTint="@null" />
-
-                    <!-- btnContactMore removed: only Live Chat and WhatsApp shown -->
-                </LinearLayout>
-
-                <!-- Mark as Resolved / Reunited Action (Visible for Reporter / Owner) -->
+                <!-- Mark as Resolved Action (for reporter/owner only) -->
                 <TextView
                     android:id="@+id/btnMarkResolved"
                     android:layout_width="match_parent"
@@ -502,118 +533,152 @@
                     android:visibility="gone" />
 
                 <!-- 4. Section: Similar items -->
-                <TextView
-                    android:id="@+id/lblSimilar"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="Similar items"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <!-- Similar Item Card: Brown card holder -->
-                <LinearLayout
+                    <TextView
+                        android:id="@+id/lblSimilar"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="Similar items"
+                        android:textColor="#0F172A"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btnSeeAllSimilar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_see_all"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="sans-serif-bold"
+                        android:paddingStart="12dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="4dp"
+                        android:text="See all"
+                        android:textColor="#0F172A"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Similar Item Card: Brown card holder preview -->
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardSimilarItem"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#E2E8F0"
+                    app:strokeWidth="1dp">
 
-                    <!-- Thumbnail -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="0dp">
-
-                        <ImageView
-                            android:id="@+id/imgSimilar"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:contentDescription="Similar item"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_item_placeholder" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Info -->
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="12dp">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:id="@+id/tvSimilarTag"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:fontFamily="sans-serif-bold"
-                                android:text="FOUND"
-                                android:textColor="@color/text_primary"
-                                android:textSize="11sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tvSimilarTime"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif"
-                                android:text="2h ago"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tvSimilarTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:fontFamily="sans-serif-bold"
-                            android:text="Brown card holder"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                        <!-- Thumbnail -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp">
 
                             <ImageView
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:contentDescription="Pin"
-                                android:src="@drawable/ic_location"
-                                app:tint="@color/text_secondary" />
+                                android:id="@+id/imgSimilar"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="Similar item"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/img_wallet_details" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Info -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/tvSimilarTag"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:fontFamily="sans-serif-bold"
+                                    android:text="FOUND"
+                                    android:textColor="#16A34A"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvSimilarTime"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif"
+                                    android:text="2h ago"
+                                    android:textColor="#94A3B8"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
 
                             <TextView
-                                android:id="@+id/tvSimilarLocation"
+                                android:id="@+id/tvSimilarTitle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="3dp"
-                                android:fontFamily="sans-serif"
-                                android:text="Kollupitiya"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="11sp" />
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-bold"
+                                android:text="Brown card holder"
+                                android:textColor="#0F172A"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="12dp"
+                                    android:layout_height="12dp"
+                                    android:contentDescription="Pin"
+                                    android:src="@drawable/ic_location"
+                                    app:tint="#64748B" />
+
+                                <TextView
+                                    android:id="@+id/tvSimilarLocation"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:fontFamily="sans-serif"
+                                    android:text="Kollupitiya"
+                                    android:textColor="#64748B"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
         </LinearLayout>

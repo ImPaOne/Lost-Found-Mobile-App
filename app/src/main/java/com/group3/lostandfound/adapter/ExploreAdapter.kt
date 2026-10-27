@@ -1,6 +1,5 @@
 package com.group3.lostandfound.adapter
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +15,7 @@ import kotlinx.coroutines.Job
 
 /**
  * Adapter for Explore Search Screen, rendering live items with asynchronous image loading,
- * status badge styling, and click handling.
+ * status badge overlay on image, and click handling.
  */
 class ExploreAdapter(
     private var items: List<ItemReport> = emptyList(),
@@ -43,27 +42,25 @@ class ExploreAdapter(
         val context = holder.itemView.context
 
         holder.tvTitle.text = if (item.title.isNotBlank()) item.title else "Untitled item"
-        holder.tvStatus.text = item.status.uppercase()
 
+        // Build "STATUS · Xh" badge text
+        val time = timeAgo(item.timestamp)
+        holder.tvStatus.text = if (time.isNotEmpty()) "${item.status.uppercase()} · $time"
+                                else item.status.uppercase()
+
+        // Use filled pill background: red for LOST, green for FOUND
         if (item.status.equals("LOST", ignoreCase = true)) {
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_badge_lost_pill)
             holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.tag_lost_color))
-            holder.tvStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
-        } else if (item.status.equals("FOUND", ignoreCase = true)) {
-            holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.tag_found_color))
-            holder.tvStatus.setBackgroundResource(R.drawable.bg_tag_found_outlined)
         } else {
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_badge_found_pill)
             holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.tag_found_color))
-            holder.tvStatus.setBackgroundResource(R.drawable.bg_tag_found_outlined)
         }
 
-        val locationText = if (item.category.isNotBlank()) {
-            "${item.category} · ${item.latitude.toString().take(6)}, ${item.longitude.toString().take(6)}"
-        } else {
-            "Colombo · ${item.latitude.toString().take(6)}, ${item.longitude.toString().take(6)}"
-        }
-        holder.tvLocation.text = locationText
+        // Show location name; fall back to Colombo if empty
+        holder.tvLocation.text = item.location.ifEmpty { "Colombo" }
 
-        // Cancel previous image load job if recycled
+        // Cancel previous image load job if cell was recycled
         holder.imageJob?.cancel()
         holder.imageJob = ImageLoader.load(
             imageView = holder.imgItem,
@@ -83,4 +80,20 @@ class ExploreAdapter(
         items = newItems
         notifyDataSetChanged()
     }
+
+    /** Returns a human-readable time string like "2h", "30m", "3d", or "" if timestamp is invalid. */
+    private fun timeAgo(timestamp: Long): String {
+        if (timestamp <= 0L) return ""
+        val diff = System.currentTimeMillis() - timestamp
+        val minutes = diff / 60_000L
+        val hours = diff / 3_600_000L
+        val days = diff / 86_400_000L
+        return when {
+            days >= 1   -> "${days}d"
+            hours >= 1  -> "${hours}h"
+            minutes >= 1 -> "${minutes}m"
+            else        -> "now"
+        }
+    }
 }
+
