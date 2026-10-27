@@ -43,7 +43,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     val isAdmin = prefs.getBoolean("is_admin", false) || FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
 
     val activeColor = ContextCompat.getColor(requireContext(), R.color.text_primary)
-    val inactiveColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+    val inactiveColor = ContextCompat.getColor(requireContext(), R.color.text_hint)
 
     fun navigateTo(dest: Fragment) {
         if (!isAdded) return
@@ -74,7 +74,10 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
         (btnPostPill as? ViewGroup)?.let { vg ->
             for (i in 0 until vg.childCount) {
                 val child = vg.getChildAt(i)
-                if (child is TextView) child.text = "Analytics"
+                if (child is TextView) {
+                    child.visibility = View.VISIBLE
+                    child.text = "Analytics"
+                }
                 if (child is ImageView) child.setImageResource(R.drawable.ic_star_filled)
             }
         }
@@ -139,7 +142,9 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
         (btnPostPill as? ViewGroup)?.let { vg ->
             for (i in 0 until vg.childCount) {
                 val child = vg.getChildAt(i)
-                if (child is TextView) child.text = "+ Post"
+                if (child is TextView) {
+                    child.visibility = View.GONE
+                }
                 if (child is ImageView) child.setImageResource(R.drawable.ic_plus)
             }
         }
@@ -150,11 +155,11 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
         val isTab4 = activeTab == "messages"
         val isTab5 = activeTab == "profile"
 
-        boxHome?.setBackgroundResource(if (isTab1) R.drawable.bg_nav_tab_active_pill else 0)
-        boxExplore?.setBackgroundResource(if (isTab2) R.drawable.bg_nav_tab_active_pill else 0)
+        boxHome?.setBackgroundResource(0)
+        boxExplore?.setBackgroundResource(0)
         btnPostPill?.setBackgroundResource(R.drawable.bg_nav_post_pill)
-        boxMessages?.setBackgroundResource(if (isTab4) R.drawable.bg_nav_tab_active_pill else 0)
-        boxProfile?.setBackgroundResource(if (isTab5) R.drawable.bg_nav_tab_active_pill else 0)
+        boxMessages?.setBackgroundResource(0)
+        boxProfile?.setBackgroundResource(0)
 
         lblHome?.setTextColor(if (isTab1) activeColor else inactiveColor)
         lblExplore?.setTextColor(if (isTab2) activeColor else inactiveColor)
