@@ -38,6 +38,7 @@ class ProfileFragment : Fragment() {
     private lateinit var countItemsFound: TextView
     private lateinit var countItemsReturned: TextView
     private lateinit var countTrustScore: TextView
+    private var badgeTrustScoreValue: TextView? = null
 
     private val currentUid = FirebaseManager.currentUid
     private val userRef = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
@@ -91,10 +92,11 @@ class ProfileFragment : Fragment() {
         countItemsFound = view.findViewById(R.id.countItemsFound)
         countItemsReturned = view.findViewById(R.id.countItemsReturned)
         countTrustScore = view.findViewById(R.id.countTrustScore)
+        badgeTrustScoreValue = view.findViewById(R.id.badgeTrustScoreValue)
 
         countItemsFound.text = "0"
         countItemsReturned.text = "0"
-        countTrustScore.text = "50%"
+        countTrustScore.text = "50"
 
         val rowReports = view.findViewById<LinearLayout>(R.id.rowReports)
         val rowSavedItems = view.findViewById<LinearLayout>(R.id.rowSavedItems)
@@ -186,10 +188,16 @@ class ProfileFragment : Fragment() {
                     currentPhotoUrl = snapshot.child("photoUrl").getValue(String::class.java)
                         ?: snapshot.child("avatarUrl").getValue(String::class.java)
                         ?: ""
-                    val isTrusted = snapshot.child("isTrustedFinder").getValue(Boolean::class.java) ?: false
 
                     userName.text = currentDisplayName
-                    userSubtitle.text = "Language: ${currentLanguage.uppercase()} · ${if (isTrusted) "Trusted Finder" else "Community Member"}"
+
+                    // Show location and member-since year matching the reference design
+                    val memberYear = com.google.firebase.auth.FirebaseAuth.getInstance()
+                        .currentUser?.metadata?.creationTimestamp
+                        ?.let { java.util.Calendar.getInstance().apply { timeInMillis = it }.get(java.util.Calendar.YEAR) }
+                        ?: 2024
+                    val locationDisplay = if (currentLocation.isNotEmpty()) currentLocation else "Sri Lanka"
+                    userSubtitle.text = "$locationDisplay · Member since $memberYear"
 
                     if (currentPhotoUrl.isNotEmpty()) {
                         ImageLoader.load(userAvatar, currentPhotoUrl, R.drawable.ic_user_avatar, viewLifecycleOwner.lifecycleScope)
@@ -229,7 +237,9 @@ class ProfileFragment : Fragment() {
 
                 countItemsFound.text = foundCount.toString()
                 countItemsReturned.text = returnedCount.toString()
-                countTrustScore.text = "$calculatedTrust%"
+                // Show numeric score without % to match reference design; update inline badge too
+                countTrustScore.text = calculatedTrust.toString()
+                badgeTrustScoreValue?.text = calculatedTrust.toString()
             }
 
             override fun onCancelled(error: DatabaseError) {}
