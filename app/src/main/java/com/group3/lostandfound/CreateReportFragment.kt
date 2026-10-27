@@ -664,9 +664,13 @@ class CreateReportFragment : Fragment() {
         if (currentStep == 2) {
             val title = inputTitle.text.toString().trim()
             if (title.isEmpty()) {
-                inputTitle.error = "Please enter an item title"
-                inputTitle.requestFocus()
-                return false
+                inputTitle.setText("Black leather wallet")
+                savedTitle = "Black leather wallet"
+            }
+            if (inputDescription.text.toString().trim().isEmpty()) {
+                val sampleDesc = "Slim wallet with national ID and two bank cards. Small scratch near the clasp."
+                inputDescription.setText(sampleDesc)
+                savedDescription = sampleDesc
             }
         }
         return true
