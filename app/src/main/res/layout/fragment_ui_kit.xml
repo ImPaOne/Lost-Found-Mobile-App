@@ -26,38 +26,72 @@
             android:paddingEnd="20dp"
             android:paddingBottom="36dp">
 
-            <!-- 1. Header -->
-            <TextView
-                android:id="@+id/tvKitTitle"
-                android:layout_width="wrap_content"
+            <!-- 1. Header with Bullet Dot -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-bold"
-                android:text="Foundly UI Kit"
-                android:textColor="@color/text_primary"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/bg_badge_dot"
+                    android:backgroundTint="#003049" />
+
+                <TextView
+                    android:id="@+id/tvKitTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Foundly UI Kit"
+                    android:textColor="#003049"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvKitSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="3dp"
                 android:fontFamily="sans-serif"
-                android:text="Android · Mobile · Core components &amp; states"
-                android:textColor="@color/text_secondary"
+                android:text="Mobile - iOS &amp; Android - Core components"
+                android:textColor="#94A3B8"
                 android:textSize="13sp" />
 
-            <!-- 2. Section: BUTTONS · DEFAULT / HOVER / DISABLED -->
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- Thin divider line -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="#F1F5F9" />
+
+            <!-- 2. Section: BUTTONS - DEFAULT / HOVER / DISABLED -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:fontFamily="sans-serif-bold"
-                android:letterSpacing="0.05"
-                android:text="BUTTONS · DEFAULT / HOVER / DISABLED"
-                android:textColor="#624E43"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="20dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="12dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="#003049" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
+                    android:letterSpacing="0.05"
+                    android:text="BUTTONS - DEFAULT / HOVER / DISABLED"
+                    android:textColor="#64748B"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <!-- Button Row 1: Primary & Secondary -->
             <LinearLayout
@@ -94,7 +128,7 @@
                     android:fontFamily="sans-serif-bold"
                     android:gravity="center"
                     android:text="Secondary"
-                    android:textColor="@color/text_primary"
+                    android:textColor="#003049"
                     android:textSize="15sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -132,22 +166,35 @@
                     android:fontFamily="sans-serif-bold"
                     android:gravity="center"
                     android:text="Disabled"
-                    android:textColor="#8C867E"
+                    android:textColor="#94A3B8"
                     android:textSize="15sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- 3. Section: INPUTS · DEFAULT / FOCUSED / ERROR -->
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- 3. Section: INPUTS - DEFAULT / FOCUSED / ERROR -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:fontFamily="sans-serif-bold"
-                android:letterSpacing="0.05"
-                android:text="INPUTS · DEFAULT / FOCUSED / ERROR"
-                android:textColor="#624E43"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="12dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="#0D9488" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
+                    android:letterSpacing="0.05"
+                    android:text="INPUTS - DEFAULT / FOCUSED / ERROR"
+                    android:textColor="#64748B"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <!-- Default Item Title Input -->
             <TextView
@@ -156,7 +203,7 @@
                 android:layout_marginTop="12dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="Item title"
-                android:textColor="@color/text_primary"
+                android:textColor="#003049"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -171,7 +218,7 @@
                 android:paddingEnd="14dp"
                 android:singleLine="true"
                 android:text="Blue Samsung phone"
-                android:textColor="@color/text_primary"
+                android:textColor="#003049"
                 android:textSize="14sp" />
 
             <!-- Side by Side: Focused & Error Inputs -->
@@ -195,7 +242,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="Focused"
-                        android:textColor="@color/text_primary"
+                        android:textColor="#0D9488"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
@@ -210,7 +257,7 @@
                         android:paddingEnd="14dp"
                         android:singleLine="true"
                         android:text="Colombo"
-                        android:textColor="@color/text_primary"
+                        android:textColor="#003049"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -227,7 +274,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
                         android:text="Error"
-                        android:textColor="@color/text_primary"
+                        android:textColor="#DC2626"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
@@ -242,7 +289,7 @@
                         android:paddingEnd="14dp"
                         android:singleLine="true"
                         android:text="Required"
-                        android:textColor="@color/text_primary"
+                        android:textColor="#94A3B8"
                         android:textSize="14sp" />
 
                     <TextView
@@ -250,14 +297,15 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif"
-                        android:text="This field is required"
-                        android:textColor="@color/tag_lost_color"
+                        android:text="• This field is required"
+                        android:textColor="#DC2626"
                         android:textSize="11sp" />
                 </LinearLayout>
             </LinearLayout>
 
             <!-- Search Bar Component -->
             <LinearLayout
+                android:id="@+id/cardSearchBar"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="14dp"
@@ -265,13 +313,14 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingStart="14dp"
-                android:paddingEnd="14dp">
+                android:paddingEnd="6dp">
 
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:contentDescription="Search"
-                    android:src="@drawable/ic_search_cylinder" />
+                    android:src="@drawable/ic_search_cylinder"
+                    app:tint="#94A3B8" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -280,27 +329,51 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif"
                     android:text="Search lost and found items"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
+                    android:textColor="#94A3B8"
+                    android:textSize="13sp" />
 
-                <ImageView
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:contentDescription="Filters"
-                    android:src="@drawable/ic_filter" />
+                <FrameLayout
+                    android:id="@+id/btnFilterInSearch"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_search_filter_btn"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Filters"
+                        android:src="@drawable/ic_filter"
+                        app:tint="@color/white" />
+                </FrameLayout>
             </LinearLayout>
 
             <!-- 4. Section: TABS, CHIPS & BADGES -->
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:fontFamily="sans-serif-bold"
-                android:letterSpacing="0.05"
-                android:text="TABS, CHIPS &amp; BADGES"
-                android:textColor="#624E43"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="12dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="#7C3AED" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
+                    android:letterSpacing="0.05"
+                    android:text="TABS, CHIPS &amp; BADGES"
+                    android:textColor="#64748B"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <!-- Chips Row -->
             <LinearLayout
@@ -310,58 +383,73 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/chipAll"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_chip_selected"
-                    android:fontFamily="sans-serif-medium"
-                    android:paddingStart="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-bold"
+                    android:paddingStart="18dp"
                     android:paddingTop="7dp"
-                    android:paddingEnd="16dp"
+                    android:paddingEnd="18dp"
                     android:paddingBottom="7dp"
                     android:text="All"
                     android:textColor="@color/white"
-                    android:textSize="13sp" />
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/chipLost"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_chip_lost_red"
-                    android:fontFamily="sans-serif-medium"
-                    android:paddingStart="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-bold"
+                    android:paddingStart="18dp"
                     android:paddingTop="7dp"
-                    android:paddingEnd="16dp"
+                    android:paddingEnd="18dp"
                     android:paddingBottom="7dp"
                     android:text="Lost"
-                    android:textColor="@color/tag_lost_color"
-                    android:textSize="13sp" />
+                    android:textColor="#DC2626"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/chipFound"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_chip_unselected"
-                    android:fontFamily="sans-serif-medium"
-                    android:paddingStart="16dp"
+                    android:background="@drawable/bg_chip_teal_border"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-bold"
+                    android:paddingStart="18dp"
                     android:paddingTop="7dp"
-                    android:paddingEnd="16dp"
+                    android:paddingEnd="18dp"
                     android:paddingBottom="7dp"
                     android:text="Found"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp" />
+                    android:textColor="#0D9488"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/chipPets"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_chip_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:fontFamily="sans-serif-medium"
-                    android:paddingStart="16dp"
+                    android:paddingStart="18dp"
                     android:paddingTop="7dp"
-                    android:paddingEnd="16dp"
+                    android:paddingEnd="18dp"
                     android:paddingBottom="7dp"
                     android:text="Pets"
-                    android:textColor="@color/text_primary"
+                    android:textColor="#64748B"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -374,47 +462,71 @@
                 android:orientation="horizontal">
 
                 <!-- Small avatar -->
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_marginEnd="12dp"
-                    android:contentDescription="Small avatar"
-                    android:src="@drawable/ic_user_avatar" />
+                <FrameLayout
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/bg_avatar_circle_border">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Small avatar"
+                        android:src="@drawable/ic_person"
+                        app:tint="#94A3B8" />
+                </FrameLayout>
 
                 <!-- Avatar with status dot -->
                 <FrameLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="14dp">
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="16dp">
 
-                    <ImageView
-                        android:layout_width="38dp"
-                        android:layout_height="38dp"
-                        android:contentDescription="Avatar with dot"
-                        android:src="@drawable/ic_user_avatar" />
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_avatar_circle_border">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="Avatar with dot"
+                            android:src="@drawable/ic_person"
+                            app:tint="#94A3B8" />
+                    </FrameLayout>
 
                     <View
-                        android:layout_width="6dp"
-                        android:layout_height="6dp"
+                        android:layout_width="7dp"
+                        android:layout_height="7dp"
                         android:layout_gravity="bottom|end"
-                        android:layout_marginEnd="3dp"
-                        android:layout_marginBottom="3dp"
-                        android:background="@drawable/bg_onboard_dot_inactive"
-                        android:backgroundTint="@color/text_primary" />
+                        android:layout_marginEnd="1dp"
+                        android:layout_marginBottom="1dp"
+                        android:background="@drawable/bg_badge_dot"
+                        android:backgroundTint="#10B981" />
                 </FrameLayout>
 
                 <!-- Large avatar -->
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                <FrameLayout
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:layout_marginEnd="16dp"
-                    android:contentDescription="Large avatar"
-                    android:src="@drawable/ic_user_avatar" />
+                    android:background="@drawable/bg_avatar_circle_border">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Large avatar"
+                        android:src="@drawable/ic_person"
+                        app:tint="#94A3B8" />
+                </FrameLayout>
 
                 <!-- Red circle badge "3" -->
                 <FrameLayout
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
                     android:background="@drawable/bg_badge_red_circle">
 
                     <TextView
@@ -429,24 +541,41 @@
                 </FrameLayout>
             </LinearLayout>
 
-            <!-- 5. Section: ITEM CARD · LIST VARIANT -->
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- 5. Section: ITEM CARD - LIST VARIANT -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:fontFamily="sans-serif-bold"
-                android:letterSpacing="0.05"
-                android:text="ITEM CARD · LIST VARIANT"
-                android:textColor="#624E43"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="12dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="#F59E0B" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
+                    android:letterSpacing="0.05"
+                    android:text="ITEM CARD - LIST VARIANT"
+                    android:textColor="#64748B"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <!-- List Variant Card -->
             <LinearLayout
+                android:id="@+id/cardListVariantItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_card_list_variant"
+                android:clickable="true"
+                android:elevation="2dp"
+                android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="12dp">
@@ -461,9 +590,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:contentDescription="Passport image"
-                        android:padding="4dp"
                         android:scaleType="centerInside"
-                        android:src="@drawable/ic_item_placeholder" />
+                        android:src="@drawable/img_passport" />
                 </FrameLayout>
 
                 <!-- Info -->
@@ -477,34 +605,44 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
                         android:orientation="horizontal">
 
                         <TextView
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:background="@drawable/bg_badge_found_teal_pill"
                             android:fontFamily="sans-serif-bold"
+                            android:paddingStart="8dp"
+                            android:paddingTop="3dp"
+                            android:paddingEnd="8dp"
+                            android:paddingBottom="3dp"
                             android:text="FOUND"
-                            android:textColor="@color/text_primary"
-                            android:textSize="11sp"
+                            android:textColor="#0D9488"
+                            android:textSize="10sp"
                             android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif"
                             android:text="2h ago"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="#94A3B8"
                             android:textSize="11sp" />
                     </LinearLayout>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
+                        android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif-bold"
                         android:text="Sri Lankan passport"
-                        android:textColor="@color/text_primary"
+                        android:textColor="#003049"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
@@ -520,37 +658,239 @@
                             android:layout_height="12dp"
                             android:contentDescription="Pin"
                             android:src="@drawable/ic_location"
-                            app:tint="@color/text_secondary" />
+                            app:tint="#94A3B8" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="3dp"
+                            android:layout_marginStart="4dp"
                             android:fontFamily="sans-serif"
                             android:text="Fort Railway Station"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="11sp" />
+                            android:textColor="#64748B"
+                            android:textSize="12sp" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
             <!-- 6. Section: OVERLAYS & FEEDBACK -->
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:fontFamily="sans-serif-bold"
-                android:letterSpacing="0.05"
-                android:text="OVERLAYS &amp; FEEDBACK"
-                android:textColor="#624E43"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-            <View
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="12dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="#0D9488" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
+                    android:letterSpacing="0.05"
+                    android:text="OVERLAYS &amp; FEEDBACK"
+                    android:textColor="#64748B"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Bottom Sheet Preview -->
+            <LinearLayout
+                android:id="@+id/cardFilterOverlayPreview"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_card_list_variant" />
+                android:background="@drawable/bg_card_list_variant"
+                android:clickable="true"
+                android:elevation="2dp"
+                android:focusable="true"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="16dp">
+
+                <!-- Drag Handle -->
+                <View
+                    android:layout_width="36dp"
+                    android:layout_height="4dp"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/bg_pill_indicator_gray" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Filter results"
+                    android:textColor="#003049"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="Category · Distance · Date reported"
+                    android:textColor="#64748B"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Success Notification Banner -->
+            <LinearLayout
+                android:id="@+id/cardSuccessToastBanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_search_filter_btn"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="14dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:contentDescription="Checkmark"
+                    android:src="@drawable/ic_check_circle"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Report published successfully"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Feedback States Row (Loading, Empty, Error) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <!-- Loading State Card -->
+                <LinearLayout
+                    android:id="@+id/cardLoadingState"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_card_feedback_normal"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <View
+                        android:layout_width="22dp"
+                        android:layout_height="4dp"
+                        android:background="@drawable/bg_pill_indicator_gray" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="Loading"
+                        android:textColor="#003049"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif"
+                        android:text="Loading results..."
+                        android:textColor="#94A3B8"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- Empty State Card -->
+                <LinearLayout
+                    android:id="@+id/cardEmptyState"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_card_feedback_normal"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <View
+                        android:layout_width="22dp"
+                        android:layout_height="4dp"
+                        android:background="@drawable/bg_pill_indicator_gray" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="Empty"
+                        android:textColor="#003049"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif"
+                        android:text="No items yet"
+                        android:textColor="#94A3B8"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- Error State Card -->
+                <LinearLayout
+                    android:id="@+id/cardErrorState"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_card_feedback_error"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <View
+                        android:layout_width="22dp"
+                        android:layout_height="4dp"
+                        android:background="@drawable/bg_pill_indicator_red" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="Error"
+                        android:textColor="#DC2626"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif"
+                        android:text="Couldn't load"
+                        android:textColor="#94A3B8"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
