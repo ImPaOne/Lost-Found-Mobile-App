@@ -1,0 +1,224 @@
+================================================================================
+FOUNDLY (LOST & FOUND SRI LANKA) - TECHNICAL REPORT
+TECHNICAL CHALLENGES OVERCOME & POTENTIAL FUTURE IMPROVEMENTS
+================================================================================
+
+PROJECT DETAILS:
+* Project Name: Foundly (Lost & Found Mobile Application)
+* Platform: Android (Kotlin, Android SDK)
+* Architecture: Model-View-ViewModel (MVVM)
+* Backend: Firebase (Authentication, Realtime Database, Cloud Messaging, Storage)
+
+
+================================================================================
+PART 1: TECHNICAL CHALLENGES OVERCOME DURING DEVELOPMENT
+================================================================================
+
+During the development of Foundly, our team faced several real-world mobile
+development and architecture challenges. Below are the key problems we solved:
+
+--------------------------------------------------------------------------------
+1. Reliable Background Notifications When App is Closed or Phone is Locked
+--------------------------------------------------------------------------------
+* The Problem:
+  By default, when an Android app is swiped away from recent apps or the phone
+  enters Doze mode (battery saving), ordinary database listeners stop running.
+  Users were missing urgent messages, case resolutions, and found item alerts.
+
+* How We Solved It:
+  - We implemented a sticky background Android Service (AppNotificationService.kt)
+    registered directly in AndroidManifest.xml.
+  - Configured a high-importance Android Notification Channel with custom sound
+    and vibration patterns (FCMService.kt).
+  - Used PowerManager.WakeLock carefully to wake the device screen and post
+    heads-up notifications when an urgent message or announcement arrives.
+
+--------------------------------------------------------------------------------
+2. Image Resolution, File Compression, and Out-Of-Memory (OOM) Crashes
+--------------------------------------------------------------------------------
+* The Problem:
+  Modern smartphone cameras capture images at high resolutions (12MP to 48MP),
+  producing files that are 5MB to 15MB each. Loading multiple uncompressed
+  photos caused OutOfMemoryError crashes on devices with limited RAM. In addition,
+  Android 10+ scoped storage restricted direct file path access.
+
+* How We Solved It:
+  - Used the modern Android ActivityResultContracts.TakePicture API combined with
+    a secure Android FileProvider.
+  - Built an image processing pipeline that scales photos down to a maximum of
+    2048x2048 pixels and applies 92% JPEG compression before uploading.
+  - Uploaded images to Cloudinary / Firebase Storage and stored only lightweight
+    HTTPS URLs in the Realtime Database, keeping memory usage low.
+
+--------------------------------------------------------------------------------
+3. Real-Time Chat Synchronization and Typing Indicators
+--------------------------------------------------------------------------------
+* The Problem:
+  A lost-and-found app requires instant communication between finder and owner.
+  Updating an entire conversation list on every keystroke or message created
+  excessive database traffic, UI stutter, and screen flickering.
+
+* How We Solved It:
+  - Separated message data (/chat_conversations/{id}/messages) from conversation
+    summary previews (/user_conversations/{userId}/{id}).
+  - Used ChildEventListener instead of ValueEventListener so only the new message
+    is appended to the list without reloading previous messages.
+  - Built a debounced typing indicator that writes typing status to Firebase
+    only after a delay, preventing unnecessary database writes while user types.
+
+--------------------------------------------------------------------------------
+4. Floating Chat Bubble Overlay Across Different Android Versions
+--------------------------------------------------------------------------------
+* The Problem:
+  Displaying a floating chat bubble over other apps (like Facebook Messenger)
+  requires special Android permissions (SYSTEM_ALERT_WINDOW) and behaves
+  differently across Android versions (Android 8 to Android 14).
+
+* How We Solved It:
+  - Created FloatingOverlayService.kt using Android WindowManager.
+  - Implemented version-safe window layout flags (TYPE_APPLICATION_OVERLAY).
+  - Added custom touch-drag physics with touch slop calculations so users can drag
+    the chat head smoothly and tap to open the active chat room.
+
+--------------------------------------------------------------------------------
+5. Off-Screen Flyer & QR Code Poster Generation
+--------------------------------------------------------------------------------
+* The Problem:
+  Users needed a way to print and share physical posters with QR codes for lost
+  pets, wallets, and keys. Generating this flyer on the visible screen caused UI
+  glitches and required slow manual screenshots.
+
+* How We Solved It:
+  - Integrated the Google ZXing library to encode the item web URL into a crisp
+    512x512 QR code bitmap.
+  - Inflated the layout (layout_item_flyer.xml) completely off-screen onto an
+    Android Canvas bitmap.
+  - Saved the rendered bitmap directly into cacheDir/flyers/ and shared it
+    seamlessly to WhatsApp, Facebook, or printer apps using Android FileProvider
+    and Intent.ACTION_SEND.
+
+--------------------------------------------------------------------------------
+6. Real-Time Multi-Criteria Search & Filtering
+--------------------------------------------------------------------------------
+* The Problem:
+  On the Explore screen, users often filter simultaneously by keyword text,
+  status tab ("Lost" vs "Found"), category chip, and city dropdown. Running
+  multiple sequential network queries was slow and caused UI lag.
+
+* How We Solved It:
+  - Streamed the active items list once into ExploreViewModel using Kotlin Flow.
+  - Applied combined filtering in memory using background coroutine dispatchers
+    (Dispatchers.Default), keeping the main UI thread completely smooth and responsive.
+
+--------------------------------------------------------------------------------
+7. Dual-Mode Interactive GPS Map & Location Picker
+--------------------------------------------------------------------------------
+* The Problem:
+  The map had to serve two different purposes:
+  1. An overview map showing all nearby lost and found items.
+  2. A precise coordinate picker used inside the 5-step report creation form.
+
+* How We Solved It:
+  - Handled location permissions cleanly using FusedLocationProviderClient.
+  - Implemented a coordinate picker mode: tapping the map drops a marker and
+    returns latitude and longitude back to CreateReportFragment using Android's
+    FragmentResultListener API.
+  - Filtered out items with zero or invalid GPS coordinates to prevent broken pins.
+
+--------------------------------------------------------------------------------
+8. Role-Based Access Control and Moderation Security
+--------------------------------------------------------------------------------
+* The Problem:
+  Preventing ordinary users from accessing admin screens (moderation queue,
+  system analytics, user ban tools) without adding complex server logic.
+
+* How We Solved It:
+  - Stored a role field ("ADMIN" vs "USER") under /users/{uid} in Firebase.
+  - Guarded all admin fragments so unauthorized accounts cannot open them.
+  - Added an audit trail log (/admin_logs) that records who approved, rejected,
+    or banned an account with exact timestamps.
+
+
+================================================================================
+PART 2: POTENTIAL FUTURE IMPROVEMENTS
+================================================================================
+
+While Foundly is fully functional, the following improvements can be implemented
+in future versions to expand the platform:
+
+--------------------------------------------------------------------------------
+1. AI Visual Matching & Image Recognition
+--------------------------------------------------------------------------------
+* What it is:
+  Integrate machine learning models (such as Google ML Kit, TensorFlow Lite,
+  or Vertex AI) directly into the app.
+* Benefit:
+  When a user uploads a photo of a found wallet, backpack, or pet, the AI can
+  automatically detect object type, color, and brand. It can instantly suggest
+  potential matches from recently reported lost items, saving hours of manual searching.
+
+--------------------------------------------------------------------------------
+2. Optical Character Recognition (OCR) for Documents & IDs
+--------------------------------------------------------------------------------
+* What it is:
+  Use on-device OCR text recognition to read National Identity Cards (NIC),
+  passports, driving licenses, and student ID cards.
+* Benefit:
+  Users who find an ID card can scan it with their camera. The app can read the
+  name and ID number automatically while masking sensitive personal digits for
+  privacy, making document reunions faster and safer.
+
+--------------------------------------------------------------------------------
+3. Proximity Geo-Fencing & Instant Local Alerts
+--------------------------------------------------------------------------------
+* What it is:
+  Implement Android Geofencing APIs and Firebase Cloud Messaging topic subscriptions.
+* Benefit:
+  When a high-value item or pet is reported lost, an automated broadcast push
+  notification can be sent to all users currently within a 2-kilometer radius of
+  that location to ask people nearby to keep an eye out.
+
+--------------------------------------------------------------------------------
+4. End-to-End Chat Encryption (E2EE)
+--------------------------------------------------------------------------------
+* What it is:
+  Implement client-side cryptographic key exchange (such as AES-256 or the
+  Signal Protocol) for 1-on-1 chats.
+* Benefit:
+  Ensures private discussions regarding handover locations, phone numbers, and
+  verification proofs can only be decrypted by the finder and owner, providing
+  maximum user privacy.
+
+--------------------------------------------------------------------------------
+5. Digital Reward Escrow System
+--------------------------------------------------------------------------------
+* What it is:
+  Integrate local payment gateways (such as LankaQR, PayHere, or FriMi).
+* Benefit:
+  When an owner offers a cash reward, the money can be held securely in escrow.
+  Once both parties confirm that the item has been safely returned via QR scan,
+  the reward is automatically transferred to the finder's account, preventing scams.
+
+--------------------------------------------------------------------------------
+6. Integration with Public Transport & Police Lost & Found Systems
+--------------------------------------------------------------------------------
+* What it is:
+  Provide an API and web portal for public transit authorities (Sri Lanka Railways,
+  SLTB bus depots) and local police stations.
+* Benefit:
+  Allows transit staff and police officers to log items turned in at stations
+  directly into Foundly, unifying lost property records across the country into one place.
+
+--------------------------------------------------------------------------------
+7. Offline Mesh Support for Remote Areas
+--------------------------------------------------------------------------------
+* What it is:
+  Use Bluetooth Low Energy (BLE) or Wi-Fi Direct peer-to-peer networking.
+* Benefit:
+  Allows users in areas with poor mobile signal (national parks, hiking trails)
+  to broadcast lost reports locally to nearby hikers' phones until a network
+  connection is restored.
+
+================================================================================
+END OF FILE: TECHNICAL CHALLENGES & FUTURE IMPROVEMENTS
+================================================================================
