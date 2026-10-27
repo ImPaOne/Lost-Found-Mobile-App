@@ -2,12 +2,6 @@ package com.group3.lostandfound
 
 import com.google.firebase.database.DataSnapshot
 
-/**
- * Data Models for Lost and Found System, Team Developer Prompts,
- * and Admin Moderation Engine.
- * Matches production Firebase Realtime Database schema requirements.
- */
-
 // 1. Pawan Tharusha (GAHNDSE261F-011): User Data Model for /users/{uid}
 data class User(
     val uid: String = "",
