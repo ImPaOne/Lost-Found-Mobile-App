@@ -15,6 +15,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
@@ -331,43 +332,70 @@ class SettingsFragment : Fragment() {
             setText(prefs.getString("saved_nic", ""))
         }
 
+        etName.doAfterTextChanged { etName.error = null }
+        etPhone.doAfterTextChanged { etPhone.error = null }
+        etNic.doAfterTextChanged { etNic.error = null }
+
         layout.addView(TextView(ctx).apply { text = "Update your verified contact information:"; setTextColor(0xFF7C6E66.toInt()); setPadding(0, 0, 0, 20) })
         layout.addView(etName)
         layout.addView(etPhone)
         layout.addView(etNic)
 
-        AlertDialog.Builder(ctx)
+        val dialog = AlertDialog.Builder(ctx)
             .setTitle("Edit Profile")
             .setView(layout)
-            .setPositiveButton("Save Changes") { _, _ ->
-                val newName = etName.text.toString().trim()
-                val newPhone = etPhone.text.toString().trim()
-                val newNic = etNic.text.toString().trim()
-
-                if (newName.isEmpty()) {
-                    Toast.makeText(ctx, "Name cannot be empty", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-
-                prefs.edit()
-                    .putString("saved_name", newName)
-                    .putString("saved_phone", newPhone)
-                    .putString("saved_nic", newNic)
-                    .apply()
-
-                if (uid.isNotEmpty()) {
-                    val updates = mapOf<String, Any>(
-                        "fullName" to newName,
-                        "phoneNumber" to newPhone,
-                        "nicNumber" to newNic
-                    )
-                    FirebaseManager.usersRef.child(uid).updateChildren(updates)
-                }
-
-                ModernToast.show(ctx, "Profile details updated successfully", view)
-            }
+            .setPositiveButton("Save Changes", null)
             .setNegativeButton("Cancel", null)
-            .show()
+            .create()
+
+        dialog.show()
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val newName = etName.text.toString().trim()
+            val newPhone = etPhone.text.toString().trim()
+            val newNic = etNic.text.toString().trim()
+
+            if (newName.isEmpty()) {
+                etName.error = "Name cannot be empty"
+                etName.requestFocus()
+                return@setOnClickListener
+            }
+            if (newName.length < 2) {
+                etName.error = "Name must be at least 2 characters"
+                etName.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (newPhone.isNotEmpty() && !newPhone.matches(Regex("^[0-9+ -]{9,15}\$"))) {
+                etPhone.error = "Enter a valid phone number (9-15 digits)"
+                etPhone.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (newNic.isNotEmpty() && newNic.length < 4) {
+                etNic.error = "Identity number must be at least 4 characters"
+                etNic.requestFocus()
+                return@setOnClickListener
+            }
+
+            prefs.edit()
+                .putString("saved_name", newName)
+                .putString("saved_phone", newPhone)
+                .putString("saved_nic", newNic)
+                .apply()
+
+            if (uid.isNotEmpty()) {
+                val updates = mapOf<String, Any>(
+                    "fullName" to newName,
+                    "phoneNumber" to newPhone,
+                    "nicNumber" to newNic
+                )
+                FirebaseManager.usersRef.child(uid).updateChildren(updates)
+            }
+
+            ModernToast.show(ctx, "Profile details updated successfully", view)
+            dialog.dismiss()
+        }
     }
 
     // Displays a dialog that allows the user to change their account password.
@@ -387,45 +415,67 @@ class SettingsFragment : Fragment() {
             inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
         }
 
+        etNewPass.doAfterTextChanged { etNewPass.error = null }
+        etConfirmPass.doAfterTextChanged { etConfirmPass.error = null }
+
         layout.addView(etNewPass)
         layout.addView(etConfirmPass)
 
-        AlertDialog.Builder(ctx)
+        val dialog = AlertDialog.Builder(ctx)
             .setTitle("Change Password")
             .setView(layout)
-            .setPositiveButton("Update") { _, _ ->
-                val newPass = etNewPass.text.toString().trim()
-                val confirmPass = etConfirmPass.text.toString().trim()
-
-                if (newPass.length < 6) {
-                    Toast.makeText(ctx, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-
-                if (newPass != confirmPass) {
-                    Toast.makeText(ctx, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-
-                val user = FirebaseAuth.getInstance().currentUser
-                if (user != null) {
-                    user.updatePassword(newPass)
-                        .addOnSuccessListener {
-                            ModernToast.show(ctx, "Password updated successfully in Firebase Auth", view)
-                        }
-                        .addOnFailureListener {
-                            ModernToast.show(ctx, "Failed: ${it.localizedMessage}", view)
-                        }
-                } else {
-                    val uid = FirebaseManager.currentUid
-                    if (uid.isNotEmpty()) {
-                        FirebaseManager.usersRef.child(uid).child("password").setValue(newPass)
-                    }
-                    ModernToast.show(ctx, "Password updated successfully", view)
-                }
-            }
+            .setPositiveButton("Update", null)
             .setNegativeButton("Cancel", null)
-            .show()
+            .create()
+
+        dialog.show()
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val newPass = etNewPass.text.toString().trim()
+            val confirmPass = etConfirmPass.text.toString().trim()
+
+            if (newPass.isEmpty()) {
+                etNewPass.error = "New password cannot be empty"
+                etNewPass.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (newPass.length < 6) {
+                etNewPass.error = "Password must be at least 6 characters"
+                etNewPass.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (confirmPass.isEmpty()) {
+                etConfirmPass.error = "Please confirm new password"
+                etConfirmPass.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (newPass != confirmPass) {
+                etConfirmPass.error = "Passwords do not match"
+                etConfirmPass.requestFocus()
+                return@setOnClickListener
+            }
+
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user != null) {
+                user.updatePassword(newPass)
+                    .addOnSuccessListener {
+                        ModernToast.show(ctx, "Password updated successfully in Firebase Auth", view)
+                    }
+                    .addOnFailureListener {
+                        ModernToast.show(ctx, "Failed: ${it.localizedMessage}", view)
+                    }
+            } else {
+                val uid = FirebaseManager.currentUid
+                if (uid.isNotEmpty()) {
+                    FirebaseManager.usersRef.child(uid).child("password").setValue(newPass)
+                }
+                ModernToast.show(ctx, "Password updated successfully", view)
+            }
+            dialog.dismiss()
+        }
     }
 
     // Allows the user to select and save their profile visibility preference.
