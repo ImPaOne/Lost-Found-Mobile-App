@@ -56,6 +56,7 @@ class SavedItemsFragment : Fragment() {
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
+        setupBottomNav(view, "profile")
 
         btnClearAll.setOnClickListener {
             if (savedItemList.isEmpty()) return@setOnClickListener
