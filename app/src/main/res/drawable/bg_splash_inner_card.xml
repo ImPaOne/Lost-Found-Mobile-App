@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <corners android:radius="16dp" />
-    <!-- Brick Red inner card -->
-    <solid android:color="#C1121F" />
+    <corners android:radius="18dp" />
+    <solid android:color="#0B2540" />
 </shape>
