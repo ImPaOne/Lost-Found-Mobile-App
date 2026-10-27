@@ -1098,14 +1098,15 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Summary Preview Card -->
+                <!-- 1. Report Summary Card -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardReviewSummary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="20dp"
                     app:cardElevation="0dp"
-                    app:strokeColor="@color/stroke_light"
+                    app:strokeColor="#E2E8F0"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
@@ -1114,117 +1115,369 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <androidx.constraintlayout.widget.ConstraintLayout
+                        <!-- Top Header Row: Thumbnail + Details + Edit button -->
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:id="@+id/badgeReviewStatus"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/bg_chip_lost_red"
-                                android:fontFamily="sans-serif-black"
-                                android:paddingStart="12dp"
-                                android:paddingTop="3dp"
-                                android:paddingEnd="12dp"
-                                android:paddingBottom="3dp"
-                                android:text="LOST ITEM"
-                                android:textColor="@color/tag_lost_color"
-                                android:textSize="11sp"
-                                android:textStyle="bold"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <TextView
-                                android:id="@+id/tvReviewCategory"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-medium"
-                                android:text="Category"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
-                        <TextView
-                            android:id="@+id/tvReviewTitle"
-                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:fontFamily="sans-serif-bold"
-                            android:text="Report Title Preview"
-                            android:textColor="@color/text_primary"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                            android:gravity="top"
+                            android:orientation="horizontal">
 
-                        <TextView
-                            android:id="@+id/tvReviewLocation"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="sans-serif"
-                            android:text="Colombo 03 · Reported Today"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
+                            <!-- Thumbnail Image Container -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="72dp"
+                                android:layout_height="72dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:strokeWidth="0dp">
 
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/cardReviewThumbnail"
-                            android:layout_width="match_parent"
-                            android:layout_height="140dp"
-                            android:layout_marginTop="10dp"
-                            android:visibility="gone"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="0dp"
-                            app:strokeColor="@color/stroke_light"
-                            app:strokeWidth="1dp">
+                                <ImageView
+                                    android:id="@+id/imgReviewThumbnail"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:contentDescription="Attached photo"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/img_wallet_details" />
+                            </com.google.android.material.card.MaterialCardView>
 
-                            <ImageView
-                                android:id="@+id/imgReviewThumbnail"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleType="centerCrop"
-                                android:contentDescription="Review Image" />
-                        </com.google.android.material.card.MaterialCardView>
+                            <!-- Details Column -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="14dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
 
+                                <!-- Top row: Status Badge + Edit Button -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center_vertical"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/badgeReviewStatus"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:background="@drawable/bg_badge_lost_pill"
+                                        android:fontFamily="sans-serif-bold"
+                                        android:paddingStart="10dp"
+                                        android:paddingTop="3dp"
+                                        android:paddingEnd="10dp"
+                                        android:paddingBottom="3dp"
+                                        android:text="LOST"
+                                        android:textColor="#E11D48"
+                                        android:textSize="11sp"
+                                        android:textStyle="bold" />
+
+                                    <View
+                                        android:layout_width="0dp"
+                                        android:layout_height="1dp"
+                                        android:layout_weight="1" />
+
+                                    <TextView
+                                        android:id="@+id/btnEditSummary"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:background="@drawable/bg_btn_edit_pill"
+                                        android:clickable="true"
+                                        android:focusable="true"
+                                        android:fontFamily="sans-serif"
+                                        android:paddingStart="12dp"
+                                        android:paddingTop="3dp"
+                                        android:paddingEnd="12dp"
+                                        android:paddingBottom="3dp"
+                                        android:text="Edit"
+                                        android:textColor="#64748B"
+                                        android:textSize="12sp" />
+                                </LinearLayout>
+
+                                <!-- Title -->
+                                <TextView
+                                    android:id="@+id/tvReviewTitle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="5dp"
+                                    android:fontFamily="sans-serif-bold"
+                                    android:text="Black leather wallet"
+                                    android:textColor="#0F172A"
+                                    android:textSize="17sp"
+                                    android:textStyle="bold" />
+
+                                <!-- Category & Photos Count -->
+                                <TextView
+                                    android:id="@+id/tvReviewCategory"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="sans-serif"
+                                    android:text="Personal items · 1 photo"
+                                    android:textColor="#94A3B8"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Divider -->
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
-                            android:layout_marginTop="12dp"
+                            android:layout_marginTop="14dp"
                             android:layout_marginBottom="12dp"
-                            android:background="@color/stroke_light" />
+                            android:background="#F1F5F9" />
 
+                        <!-- Description text -->
                         <TextView
                             android:id="@+id/tvReviewDesc"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif"
                             android:lineSpacingExtra="3dp"
-                            android:text="Slim wallet with national ID and cards. Distinctive scratch near the clasp."
-                            android:textColor="@color/text_primary"
-                            android:textSize="13sp" />
+                            android:text="Slim wallet with national ID and two bank cards. Small scratch near the clasp."
+                            android:textColor="#64748B"
+                            android:textSize="14sp" />
+
+                        <!-- Location & Time Box -->
+                        <LinearLayout
+                            android:id="@+id/boxReviewLocation"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:background="@drawable/bg_box_light_rounded"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <FrameLayout
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="@drawable/bg_icon_squircle_white">
+
+                                <ImageView
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="Location"
+                                    android:src="@drawable/ic_location"
+                                    app:tint="#0F172A" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvReviewLocation"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-bold"
+                                    android:text="Near Duplication Road, Colombo 03"
+                                    android:textColor="#0F172A"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvReviewDateTime"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="sans-serif"
+                                    android:text="12 Sep · 6:30 PM"
+                                    android:textColor="#94A3B8"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <FrameLayout
+                                android:id="@+id/btnEditLocation"
+                                android:layout_width="34dp"
+                                android:layout_height="34dp"
+                                android:background="@drawable/bg_btn_edit_pill"
+                                android:clickable="true"
+                                android:focusable="true">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="Edit Location"
+                                    android:src="@drawable/ic_edit_pencil" />
+                            </FrameLayout>
+                        </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Pledge Notice -->
-                <LinearLayout
+                <!-- 2. Safe contact preferences Card -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:background="@drawable/bg_stat_banner"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#E2E8F0"
+                    app:strokeWidth="1dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="Verified Community Pledge: Your post will be immediately visible across nearby members."
-                        android:textColor="@color/text_primary"
-                        android:textSize="12sp" />
-                </LinearLayout>
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Safe contact preferences"
+                            android:textColor="#0F172A"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <!-- Switch Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:text="Allow Foundly messages"
+                                android:textColor="#0F172A"
+                                android:textSize="15sp" />
+
+                            <androidx.appcompat.widget.SwitchCompat
+                                android:id="@+id/switchMessages"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="true"
+                                app:thumbTint="@color/white"
+                                app:trackTint="#002840" />
+                        </LinearLayout>
+
+                        <!-- Hidden Info Note Box -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:background="@drawable/bg_box_light_rounded"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <FrameLayout
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:background="@drawable/bg_icon_squircle_white">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="Lock"
+                                    android:src="@drawable/ic_lock"
+                                    app:tint="#0F172A" />
+                            </FrameLayout>
+
+                            <TextView
+                                android:id="@+id/tvPrivacyHiddenNote"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:lineSpacingExtra="2dp"
+                                android:text="Your phone and email stay hidden. Only your display name, Nadeesha Silva, is public."
+                                android:textColor="#64748B"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 3. Confirmation Guidelines Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#E2E8F0"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- Checkbox Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <CheckBox
+                                android:id="@+id/cbConfirmAccuracy"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:background="@drawable/selector_checkbox"
+                                android:button="@null"
+                                android:checked="true" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:lineSpacingExtra="2dp"
+                                android:text="I confirm these details are accurate and follow the community guidelines."
+                                android:textColor="#334155"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <!-- Divider -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="14dp"
+                            android:layout_marginBottom="12dp"
+                            android:background="#F1F5F9" />
+
+                        <!-- Info review note row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="top"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_marginTop="1dp"
+                                android:contentDescription="Info"
+                                android:src="@drawable/ic_info"
+                                app:tint="#94A3B8" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:lineSpacingExtra="2dp"
+                                android:text="We'll review your report and alert you to possible matches. You can edit it in My Reports."
+                                android:textColor="#94A3B8"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Upload Progress & Status Bar (0-100%) -->
                 <com.google.android.material.card.MaterialCardView
