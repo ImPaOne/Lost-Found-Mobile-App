@@ -678,10 +678,13 @@ class CreateReportFragment : Fragment() {
 
     private fun slideForward() {
         if (currentStep == 2) {
-            if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
-            if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString()
+            if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString().ifEmpty { "Black leather wallet" }
+            if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString().ifEmpty { "Slim wallet with national ID and two bank cards. Small scratch near the clasp." }
         } else if (currentStep == 3) {
-            if (::inputLocation.isInitialized) savedLandmark = inputLocation.text.toString()
+            if (::inputLocation.isInitialized) {
+                val loc = inputLocation.text.toString().trim()
+                savedLandmark = if (loc.isNotEmpty()) loc else "Near Duplication Road, Colombo 03"
+            }
         }
 
         val slideInRight = TranslateAnimation(
