@@ -167,40 +167,23 @@ class CreateReportFragment : Fragment() {
         if (::flipperSteps.isInitialized) {
             flipperSteps.displayedChild = 3
         }
-        updateThumbnailsUI()
+        updatePhotoUI()
         updateStepHeader()
     }
 
-    private fun updateThumbnailsUI() {
-        if (!::rowThumbnails.isInitialized) return
-        if (attachedImagesList.isEmpty()) {
-            rowThumbnails.visibility = View.GONE
-            if (::tvPhotosCountStatus.isInitialized) {
-                tvPhotosCountStatus.text = "Tap to attach photos"
-            }
-            return
-        }
+    private fun updatePhotoUI() {
+        if (!::tvPhotosCountStatus.isInitialized) return
+        val count = attachedImagesList.size
+        tvPhotosCountStatus.text = "$count photo${if (count == 1) "" else "s"} added"
 
-        rowThumbnails.visibility = View.VISIBLE
-        if (::tvPhotosCountStatus.isInitialized) {
-            tvPhotosCountStatus.text = "${attachedImagesList.size} photo(s) attached"
-        }
-
-        if (attachedImagesList.size > 0 && ::imgThumbnail1.isInitialized) {
-            com.group3.lostandfound.util.ImageLoader.load(requireContext(), attachedImagesList[0].toString(), imgThumbnail1)
-            if (::cardThumbnail1.isInitialized) cardThumbnail1.visibility = View.VISIBLE
-        }
-        if (attachedImagesList.size > 1 && ::imgThumbnail2.isInitialized) {
-            com.group3.lostandfound.util.ImageLoader.load(requireContext(), attachedImagesList[1].toString(), imgThumbnail2)
-            if (::cardThumbnail2.isInitialized) cardThumbnail2.visibility = View.VISIBLE
-        } else if (::cardThumbnail2.isInitialized) {
-            cardThumbnail2.visibility = View.GONE
-        }
-        if (attachedImagesList.size > 2 && ::imgThumbnail3.isInitialized) {
-            com.group3.lostandfound.util.ImageLoader.load(requireContext(), attachedImagesList[2].toString(), imgThumbnail3)
-            if (::cardThumbnail3.isInitialized) cardThumbnail3.visibility = View.VISIBLE
-        } else if (::cardThumbnail3.isInitialized) {
-            cardThumbnail3.visibility = View.GONE
+        if (selectedImageUri != null && ::imgPhotoPreview.isInitialized) {
+            com.group3.lostandfound.util.ImageLoader.load(requireContext(), selectedImageUri.toString(), imgPhotoPreview)
+            btnRemovePhoto.visibility = View.VISIBLE
+            badgeCoverPhoto.visibility = View.VISIBLE
+        } else if (::imgPhotoPreview.isInitialized) {
+            imgPhotoPreview.setImageResource(R.drawable.img_wallet_details)
+            btnRemovePhoto.visibility = View.VISIBLE
+            badgeCoverPhoto.visibility = View.VISIBLE
         }
 
         if (imgReviewThumbnail != null && attachedImagesList.isNotEmpty()) {
@@ -346,9 +329,8 @@ class CreateReportFragment : Fragment() {
 
         // Restore photo thumbnail if selected
         if (selectedImageUri != null) {
-            com.group3.lostandfound.util.ImageLoader.load(requireContext(), selectedImageUri.toString(), imgThumbnail1)
-            rowThumbnails.visibility = View.VISIBLE
-            tvPhotosCountStatus.text = "$photosCount photo attached"
+            com.group3.lostandfound.util.ImageLoader.load(requireContext(), selectedImageUri.toString(), imgPhotoPreview)
+            tvPhotosCountStatus.text = "$photosCount photo${if (photosCount == 1) "" else "s"} added"
         }
 
         // Initialize report type UI
