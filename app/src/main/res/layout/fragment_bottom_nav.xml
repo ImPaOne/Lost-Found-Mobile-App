@@ -98,33 +98,36 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <FrameLayout
+        <LinearLayout
             android:id="@+id/btnPostCircle"
-            android:layout_width="46dp"
-            android:layout_height="32dp"
+            android:layout_width="50dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_dark_circle_button"
-            android:elevation="2dp"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp">
 
             <ImageView
                 android:id="@+id/imgPostPlus"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:layout_gravity="center"
                 android:contentDescription="Post"
                 android:src="@drawable/ic_nav_plus"
                 app:tint="@color/white" />
-        </FrameLayout>
 
-        <TextView
-            android:id="@+id/lblPost"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:fontFamily="sans-serif-bold"
-            android:text="+ Post"
-            android:textColor="@color/text_primary"
-            android:textSize="11sp" />
+            <TextView
+                android:id="@+id/lblPost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:fontFamily="sans-serif-bold"
+                android:text="+ Post"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <!-- Dummy view keeping btnPostPill ID for backward compatibility -->
         <View
