@@ -104,7 +104,7 @@ class DetailsFragment : Fragment() {
         detailsViewModel = ViewModelProvider(this)[DetailsViewModel::class.java]
         bindData()
         setupListeners()
-        NavigationHelper.setup(this, view, NavigationHelper.Tab.HOME)
+        NavigationHelper.setup(this, view, NavigationHelper.Tab.EXPLORE)
     }
 
     private fun initViews(view: View) {
@@ -137,23 +137,17 @@ class DetailsFragment : Fragment() {
     }
 
     private fun bindData() {
-        val initialTitle = arguments?.getString(ARG_TITLE) ?: "Item Report"
-        val initialDesc = arguments?.getString(ARG_DESC) ?: "No description provided."
+        val initialTitle = arguments?.getString(ARG_TITLE) ?: "Black leather wallet"
+        val initialDesc = arguments?.getString(ARG_DESC) ?: "Slim wallet with national ID and two bank cards. Small scratch near the clasp."
         val initialStatus = arguments?.getString(ARG_STATUS) ?: "LOST"
         val initialLocation = arguments?.getString(ARG_LOCATION) ?: "Colombo 03"
         itemId = arguments?.getString(ARG_ITEM_ID)
         val initialReporter = arguments?.getString(ARG_REPORTER_UID).orEmpty()
         val initialAuthorName = arguments?.getString(ARG_AUTHOR_NAME).orEmpty()
-        if (initialAuthorName.isNotEmpty()) {
-            reporterName = initialAuthorName
-            view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
-        }
+        reporterName = if (initialAuthorName.isNotEmpty()) initialAuthorName else "Tharindu Perera"
+        view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
         if (initialReporter.isNotEmpty()) {
             reporterUserId = initialReporter
-            if (initialAuthorName.isEmpty()) {
-                reporterName = "User #${initialReporter.takeLast(4)}"
-                view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
-            }
         }
         if (reporterUserId.isEmpty() && !itemId.isNullOrEmpty()) {
             reporterUserId = "user_${itemId.orEmpty().replace("-", "").takeLast(6)}"
@@ -166,7 +160,7 @@ class DetailsFragment : Fragment() {
         updateStatusTag(initialStatus)
         tvLocationText.text = initialLocation
 
-        // Setup Photo Carousel
+        // Setup Photo Carousel with wallet details default
         val fallbackPhotos = listOf("")
         itemPhotoList = fallbackPhotos
         pagerPhotos.adapter = PhotoSliderAdapter(itemPhotoList, viewLifecycleOwner.lifecycleScope) { url ->
@@ -262,31 +256,31 @@ class DetailsFragment : Fragment() {
         tagStatus.text = status.uppercase()
         when (status.uppercase()) {
             "LOST" -> {
-                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_lost_color))
-                tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
-                btnLiveChat.text = "Chat Owner"
+                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_solid)
+                btnLiveChat.text = "Contact Reporter"
             }
             "FOUND" -> {
-                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
-                tagStatus.setBackgroundResource(R.drawable.bg_tag_found_outlined)
-                btnLiveChat.text = "Chat Finder"
+                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                tagStatus.setBackgroundResource(R.drawable.bg_tag_found_solid)
+                btnLiveChat.text = "Contact Reporter"
             }
             "RESOLVED" -> {
-                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.tag_found_color))
-                tagStatus.setBackgroundResource(R.drawable.bg_tag_found_outlined)
+                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                tagStatus.setBackgroundResource(R.drawable.bg_tag_found_solid)
                 btnLiveChat.text = "Item Claimed"
             }
             else -> {
-                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-                tagStatus.setBackgroundResource(R.drawable.bg_tag_found_outlined)
-                btnLiveChat.text = "Live Chat"
+                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_solid)
+                btnLiveChat.text = "Contact Reporter"
             }
         }
     }
 
     private fun updateDots(selectedIndex: Int) {
-        val activeRes = R.drawable.bg_onboard_dot_active
-        val inactiveRes = R.drawable.bg_onboard_dot_inactive
+        val activeRes = R.drawable.bg_photo_dot_active
+        val inactiveRes = R.drawable.bg_photo_dot_inactive
 
         dotPhoto1.setBackgroundResource(if (selectedIndex == 0) activeRes else inactiveRes)
         dotPhoto2?.setBackgroundResource(if (selectedIndex == 1) activeRes else inactiveRes)
@@ -471,8 +465,15 @@ class DetailsFragment : Fragment() {
         btnOpenFullMap?.setOnClickListener(openMapAction)
         mapClickOverlay?.setOnClickListener(openMapAction)
 
-        // Hide cardSimilarItem since there is no dummy item
-        cardSimilarItem.visibility = View.GONE
+        val openSeeAllAction = View.OnClickListener {
+            parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(R.id.screenBox, ExploreFragment.newInstance())
+                .addToBackStack("main_flow")
+                .commit()
+        }
+        view?.findViewById<View>(R.id.btnSeeAllSimilar)?.setOnClickListener(openSeeAllAction)
+        cardSimilarItem.setOnClickListener(openSeeAllAction)
     }
 
     private fun markItemAsResolved() {
@@ -943,7 +944,11 @@ class DetailsFragment : Fragment() {
         override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
             val url = photos[position]
             holder.job?.cancel()
-            holder.job = ImageLoader.load(holder.imageView, url, R.drawable.ic_item_placeholder, scope)
+            if (url.isBlank()) {
+                holder.imageView.setImageResource(R.drawable.img_wallet_details)
+            } else {
+                holder.job = ImageLoader.load(holder.imageView, url, R.drawable.img_wallet_details, scope)
+            }
 
             holder.imageView.setOnClickListener {
                 onPhotoClicked(url)
