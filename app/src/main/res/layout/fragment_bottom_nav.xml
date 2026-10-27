@@ -24,8 +24,8 @@
 
         <FrameLayout
             android:id="@+id/boxHome"
-            android:layout_width="48dp"
-            android:layout_height="26dp"
+            android:layout_width="50dp"
+            android:layout_height="28dp"
             android:gravity="center">
 
             <ImageView
@@ -62,8 +62,8 @@
 
         <FrameLayout
             android:id="@+id/boxExplore"
-            android:layout_width="48dp"
-            android:layout_height="26dp"
+            android:layout_width="50dp"
+            android:layout_height="28dp"
             android:gravity="center">
 
             <ImageView
@@ -101,22 +101,32 @@
         <FrameLayout
             android:id="@+id/btnPostCircle"
             android:layout_width="46dp"
-            android:layout_height="46dp"
+            android:layout_height="32dp"
             android:background="@drawable/bg_dark_circle_button"
-            android:elevation="4dp"
+            android:elevation="2dp"
             android:gravity="center">
 
             <ImageView
                 android:id="@+id/imgPostPlus"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:layout_gravity="center"
                 android:contentDescription="Post"
                 android:src="@drawable/ic_nav_plus"
                 app:tint="@color/white" />
         </FrameLayout>
 
-        <!-- Dummy views keeping btnPostPill & lblPost IDs for backward compatibility -->
+        <TextView
+            android:id="@+id/lblPost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="sans-serif-bold"
+            android:text="+ Post"
+            android:textColor="@color/text_primary"
+            android:textSize="11sp" />
+
+        <!-- Dummy view keeping btnPostPill ID for backward compatibility -->
         <View
             android:id="@+id/btnPostPill"
             android:layout_width="0dp"
@@ -137,8 +147,8 @@
 
         <FrameLayout
             android:id="@+id/boxMessages"
-            android:layout_width="48dp"
-            android:layout_height="26dp"
+            android:layout_width="50dp"
+            android:layout_height="28dp"
             android:gravity="center">
 
             <ImageView
@@ -175,8 +185,8 @@
 
         <FrameLayout
             android:id="@+id/boxProfile"
-            android:layout_width="48dp"
-            android:layout_height="26dp"
+            android:layout_width="50dp"
+            android:layout_height="28dp"
             android:gravity="center">
 
             <ImageView
