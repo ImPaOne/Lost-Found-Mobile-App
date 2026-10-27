@@ -70,6 +70,15 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+        val isAdmin = prefs.getBoolean("is_admin", false) || FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
+        if (isAdmin) {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, SettingsFragment.newInstance())
+                .commit()
+            return
+        }
+
         val btnClose = view.findViewById<ImageView>(R.id.btnClose)
         val btnMenu = view.findViewById<ImageView>(R.id.btnMenu)
         userAvatar = view.findViewById(R.id.userAvatar)
