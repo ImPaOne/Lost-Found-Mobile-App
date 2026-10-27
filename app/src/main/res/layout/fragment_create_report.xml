@@ -111,10 +111,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-bold"
-            android:letterSpacing="0.05"
+            android:letterSpacing="0.04"
+            android:paddingStart="8dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="3dp"
             android:text="STEP 1 OF 5"
             android:textColor="#64748B"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:textStyle="bold" />
 
         <TextView
@@ -469,192 +473,317 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <!-- ================= STEP 3: Location Picker ================= -->
+            <!-- ================= STEP 3: Where & when? ================= -->
             <LinearLayout
                 android:id="@+id/layoutStep3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="Select City / Area *"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <!-- Area Quick Chips -->
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:overScrollMode="never"
-                    android:scrollbars="none">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/chipAreaColombo3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="34dp"
-                            android:background="@drawable/bg_chip_selected"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:paddingStart="16dp"
-                            android:paddingEnd="16dp"
-                            android:text="Colombo 03"
-                            android:textColor="@color/white"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/chipAreaKollupitiya"
-                            android:layout_width="wrap_content"
-                            android:layout_height="34dp"
-                            android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_chip_unselected"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:paddingStart="16dp"
-                            android:paddingEnd="16dp"
-                            android:text="Kollupitiya"
-                            android:textColor="@color/text_primary"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/chipAreaBamba"
-                            android:layout_width="wrap_content"
-                            android:layout_height="34dp"
-                            android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_chip_unselected"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:paddingStart="16dp"
-                            android:paddingEnd="16dp"
-                            android:text="Bambalapitiya"
-                            android:textColor="@color/text_primary"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/chipAreaFort"
-                            android:layout_width="wrap_content"
-                            android:layout_height="34dp"
-                            android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_chip_unselected"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:paddingStart="16dp"
-                            android:paddingEnd="16dp"
-                            android:text="Fort"
-                            android:textColor="@color/text_primary"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </HorizontalScrollView>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="Specific Spot / Landmark"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/inputLandmark"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_input_field"
-                    android:fontFamily="sans-serif"
-                    android:hint="e.g. Near park bench / Bus halt / Cafe counter"
-                    android:inputType="textCapSentences"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp"
-                    android:singleLine="true"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_hint"
-                    android:textSize="14sp" />
-
-                <!-- Location Map Pin Banner Preview -->
+                <!-- Map Container Card -->
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardMapPinPreview"
+                    android:id="@+id/mapCard"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_height="195dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="#F7F5F0"
-                    app:cardCornerRadius="14dp"
+                    app:cardBackgroundColor="#F7F5EE"
+                    app:cardCornerRadius="20dp"
                     app:cardElevation="0dp"
-                    app:strokeColor="@color/stroke_light"
+                    app:strokeColor="#E8E4DA"
                     app:strokeWidth="1dp">
 
-                    <LinearLayout
+                    <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="14dp">
+                        android:layout_height="match_parent">
 
+                        <!-- Map Preview Image -->
                         <ImageView
-                            android:layout_width="26dp"
-                            android:layout_height="26dp"
-                            android:contentDescription="Map pin"
-                            android:src="@drawable/ic_location"
-                            app:tint="@color/text_primary" />
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="Map preview"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/img_map_bg" />
 
+                        <!-- Floating Search Bar -->
                         <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:layout_gravity="top"
                             android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:layout_marginTop="12dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/bg_map_search_bar"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="10dp">
 
-                            <TextView
-                                android:id="@+id/tvSelectedLocationPreview"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-bold"
-                                android:text="Colombo 03, Western Province"
-                                android:textColor="@color/text_primary"
-                                android:textSize="13sp"
-                                android:textStyle="bold" />
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:contentDescription="Search"
+                                android:src="@drawable/ic_search"
+                                app:tint="#64748B" />
 
-                            <TextView
-                                android:id="@+id/tvSelectedLocationCoords"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
+                            <EditText
+                                android:id="@+id/searchInput"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="8dp"
+                                android:layout_marginEnd="6dp"
+                                android:layout_weight="1"
+                                android:background="@null"
                                 android:fontFamily="sans-serif"
-                                android:text="6.9042° N, 79.8530° E · Tap to open map"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="11sp" />
+                                android:hint="Duplication Road, Colombo 03"
+                                android:imeOptions="actionSearch"
+                                android:inputType="text"
+                                android:singleLine="true"
+                                android:text="Duplication Road, Colombo 03"
+                                android:textColor="#0F172A"
+                                android:textColorHint="#94A3B8"
+                                android:textSize="13sp" />
+
+                            <ImageView
+                                android:id="@+id/btnClearSearch"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:clickable="true"
+                                android:contentDescription="Clear search"
+                                android:focusable="true"
+                                android:padding="3dp"
+                                android:src="@drawable/ic_close"
+                                app:tint="#94A3B8" />
                         </LinearLayout>
 
+                        <!-- Center Pin with White Halo -->
+                        <FrameLayout
+                            android:layout_width="34dp"
+                            android:layout_height="34dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bg_pin_red_halo">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Pin"
+                                android:src="@drawable/ic_pin_white" />
+                        </FrameLayout>
+
+                        <!-- Move Pin Hint Pill -->
                         <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom|start"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginBottom="12dp"
+                            android:background="@drawable/bg_map_hint_pill"
+                            android:fontFamily="sans-serif"
+                            android:paddingStart="12dp"
+                            android:paddingTop="6dp"
+                            android:paddingEnd="12dp"
+                            android:paddingBottom="6dp"
+                            android:text="Move the pin to the last-seen area"
+                            android:textColor="#64748B"
+                            android:textSize="11sp" />
+
+                        <!-- GPS Locate Button -->
+                        <ImageView
+                            android:id="@+id/btnGps"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:layout_gravity="bottom|end"
+                            android:layout_marginEnd="12dp"
+                            android:layout_marginBottom="12dp"
+                            android:background="@drawable/bg_circle_gps_button"
+                            android:clickable="true"
+                            android:contentDescription="Locate GPS position"
+                            android:focusable="true"
+                            android:padding="9dp"
+                            android:src="@drawable/ic_gps_target"
+                            app:tint="#475569" />
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Last-seen Location Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Last-seen location"
+                    android:textColor="#0F172A"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_input_box_rounded"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp">
+
+                    <EditText
+                        android:id="@+id/inputLocation"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:fontFamily="sans-serif"
+                        android:hint="Near Duplication Road, Colombo 03"
+                        android:inputType="textCapSentences"
+                        android:singleLine="true"
+                        android:text="Near Duplication Road, Colombo 03"
+                        android:textColor="#0F172A"
+                        android:textColorHint="#94A3B8"
+                        android:textSize="14sp" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="Location pin"
+                        android:src="@drawable/ic_location"
+                        app:tint="#64748B" />
+                </LinearLayout>
+
+                <!-- Date & Time Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <!-- Date Column -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/lblDate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-bold"
-                            android:text="Pin on Map"
-                            android:textColor="@color/tag_lost_color"
-                            android:textSize="11sp"
+                            android:text="Date lost"
+                            android:textColor="#0F172A"
+                            android:textSize="14sp"
                             android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:id="@+id/boxDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/bg_input_box_rounded"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp">
+
+                            <TextView
+                                android:id="@+id/tvDate"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:text="12 Sep"
+                                android:textColor="#0F172A"
+                                android:textSize="14sp" />
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:contentDescription="Calendar"
+                                android:src="@drawable/ic_calendar"
+                                app:tint="#64748B" />
+                        </LinearLayout>
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Time Column -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/lblTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Time lost"
+                            android:textColor="#0F172A"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:id="@+id/boxTime"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/bg_input_box_rounded"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp">
+
+                            <TextView
+                                android:id="@+id/tvTime"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:text="6:30 PM"
+                                android:textColor="#0F172A"
+                                android:textSize="14sp" />
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:contentDescription="Clock"
+                                android:src="@drawable/ic_clock"
+                                app:tint="#64748B" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Public Notice Disclaimer -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:contentDescription="Info"
+                        android:src="@drawable/ic_info"
+                        app:tint="#94A3B8" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:fontFamily="sans-serif"
+                        android:text="Only the approximate location appears publicly."
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <!-- ================= STEP 4: Photos Upload ================= -->
