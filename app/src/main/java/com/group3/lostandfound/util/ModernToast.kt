@@ -13,17 +13,9 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import com.group3.lostandfound.R
 
-/**
- * Modern Toast & Banner utility providing sleek, modern notification feedback.
- * Features rounded pill geometry, Davis Humphries clay tones, clean typography,
- * and completely eliminates legacy emoji clutter.
- */
+// Provides a reusable notification utility with styled Snackbars, Toast fallbacks, and success/error message functions.
 object ModernToast {
 
-    /**
-     * Displays a modern styled notification. Prefers Material Snackbar if a View
-     * is available, with graceful fallback to a modern styled Toast.
-     */
     fun show(context: Context?, message: String, view: View? = null, durationLong: Boolean = false) {
         if (context == null || message.isBlank()) return
 
@@ -72,9 +64,6 @@ object ModernToast {
     }
 }
 
-/**
- * Fragment extension for fast, modern pill toasts.
- */
 fun Fragment.showModernToast(message: String, isLong: Boolean = false) {
     if (isAdded && context != null) {
         ModernToast.show(requireContext(), message, view, isLong)
