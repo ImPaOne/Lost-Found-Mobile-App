@@ -272,13 +272,12 @@ class CreateReportFragment : Fragment() {
                 selectedArea = locName ?: String.format(java.util.Locale.US, "%.4f, %.4f", lat, lng)
 
                 if (view != null) {
-                    tvSelectedLocationPreview.text = "$selectedArea, Western Province"
-                    tvSelectedLocationCoords.text = String.format(
-                        java.util.Locale.US,
-                        "%.4f° N, %.4f° E · Selected from map",
-                        selectedLatitude,
-                        selectedLongitude
-                    )
+                    if (::inputLocation.isInitialized) {
+                        inputLocation.setText("Near $selectedArea")
+                    }
+                    if (::searchInput.isInitialized) {
+                        searchInput.setText(selectedArea)
+                    }
                 }
             }
         }
@@ -553,6 +552,42 @@ class CreateReportFragment : Fragment() {
         }
     }
 
+    private fun showDatePicker() {
+        val calendar = java.util.Calendar.getInstance()
+        android.app.DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val cal = java.util.Calendar.getInstance()
+                cal.set(year, month, dayOfMonth)
+                val format = java.text.SimpleDateFormat("d MMM", java.util.Locale.US)
+                selectedDateFormatted = format.format(cal.time)
+                tvDate.text = selectedDateFormatted
+                selectedDate = selectedDateFormatted
+            },
+            calendar.get(java.util.Calendar.YEAR),
+            calendar.get(java.util.Calendar.MONTH),
+            calendar.get(java.util.Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    private fun showTimePicker() {
+        val calendar = java.util.Calendar.getInstance()
+        android.app.TimePickerDialog(
+            requireContext(),
+            { _, hourOfDay, minute ->
+                val cal = java.util.Calendar.getInstance()
+                cal.set(java.util.Calendar.HOUR_OF_DAY, hourOfDay)
+                cal.set(java.util.Calendar.MINUTE, minute)
+                val format = java.text.SimpleDateFormat("h:mm a", java.util.Locale.US)
+                selectedTimeFormatted = format.format(cal.time)
+                tvTime.text = selectedTimeFormatted
+            },
+            calendar.get(java.util.Calendar.HOUR_OF_DAY),
+            calendar.get(java.util.Calendar.MINUTE),
+            false
+        ).show()
+    }
+
     private fun showImageSourceChooser() {
         val options = arrayOf("Choose from Gallery", "Take Photo with Camera")
         AlertDialog.Builder(requireContext())
@@ -607,7 +642,7 @@ class CreateReportFragment : Fragment() {
             if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
             if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString()
         } else if (currentStep == 3) {
-            if (::inputLandmark.isInitialized) savedLandmark = inputLandmark.text.toString()
+            if (::inputLocation.isInitialized) savedLandmark = inputLocation.text.toString()
         }
 
         val slideInRight = TranslateAnimation(
@@ -643,7 +678,7 @@ class CreateReportFragment : Fragment() {
             if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
             if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString()
         } else if (currentStep == 3) {
-            if (::inputLandmark.isInitialized) savedLandmark = inputLandmark.text.toString()
+            if (::inputLocation.isInitialized) savedLandmark = inputLocation.text.toString()
         }
 
         val slideInLeft = TranslateAnimation(
@@ -688,43 +723,60 @@ class CreateReportFragment : Fragment() {
 
         when (currentStep) {
             1 -> {
+                tvStepNumber.setBackgroundResource(android.R.color.transparent)
+                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
                 tvStepTitle.text = "What happened?"
                 tvStepSubtitle.text = "Choose a report type. We'll help you with the next steps."
+                tvNextStepHint?.visibility = View.VISIBLE
                 tvNextStepHint?.text = "➔ Next: Category & details"
                 btnBackBottom.text = "Cancel"
                 btnContinue.text = "Continue ➔"
             }
             2 -> {
+                tvStepNumber.setBackgroundResource(android.R.color.transparent)
+                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
                 tvStepTitle.text = "Category & details"
                 tvStepSubtitle.text = "Tell the community what to look for."
-                tvNextStepHint?.text = "➔ Next: Where was it?"
+                tvNextStepHint?.visibility = View.VISIBLE
+                tvNextStepHint?.text = "➔ Next: Where & when?"
                 btnBackBottom.text = "Back"
                 btnContinue.text = "Continue ➔"
             }
             3 -> {
-                tvStepTitle.text = "Where was it?"
-                tvStepSubtitle.text = "Pin the neighborhood or specific spot."
-                tvNextStepHint?.text = "➔ Next: Add photos"
+                tvStepNumber.setBackgroundResource(R.drawable.bg_badge_step_amber)
+                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#B45309"))
+                tvStepTitle.text = "Where & when?"
+                val itemWord = savedTitle.trim().takeIf { it.isNotEmpty() }?.lowercase() ?: "wallet"
+                tvStepSubtitle.text = if (isLostSelected) "Where did you last see your $itemWord?" else "Where did you find this item?"
+                lblDate.text = if (isLostSelected) "Date lost" else "Date found"
+                lblTime.text = if (isLostSelected) "Time lost" else "Time found"
+                tvNextStepHint?.visibility = View.GONE
                 btnBackBottom.text = "Back"
-                btnContinue.text = "Continue ➔"
+                btnContinue.text = "Continue"
             }
             4 -> {
+                tvStepNumber.setBackgroundResource(android.R.color.transparent)
+                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
                 tvStepTitle.text = "Add photos"
                 tvStepSubtitle.text = "Clear photos increase reunion chances by 85%."
+                tvNextStepHint?.visibility = View.VISIBLE
                 tvNextStepHint?.text = "➔ Next: Review & publish"
                 btnBackBottom.text = "Back"
                 btnContinue.text = "Continue ➔"
             }
             5 -> {
+                tvStepNumber.setBackgroundResource(android.R.color.transparent)
+                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
                 tvStepTitle.text = "Review & publish"
                 tvStepSubtitle.text = "Double-check your report before publishing."
+                tvNextStepHint?.visibility = View.VISIBLE
                 tvNextStepHint?.text = "➔ Ready to publish"
                 btnBackBottom.text = "Back"
                 btnContinue.text = "Publish Report"
 
                 // Populate Step 5 Review
                 val title = inputTitle.text.toString().trim()
-                val landmark = inputLandmark.text.toString().trim()
+                val landmark = if (::inputLocation.isInitialized) inputLocation.text.toString().trim() else savedLandmark
                 val desc = inputDescription.text.toString().trim()
 
                 tvReviewTitle.text = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
@@ -739,7 +791,7 @@ class CreateReportFragment : Fragment() {
                     )
                 )
                 tvReviewCategory.text = selectedCategory
-                tvReviewLocation.text = "$selectedArea ${if (landmark.isNotEmpty()) "· $landmark" else ""} · Reported $selectedDate"
+                tvReviewLocation.text = "${if (landmark.isNotEmpty()) landmark else selectedArea} · Reported $selectedDateFormatted at $selectedTimeFormatted"
                 tvReviewDesc.text = if (desc.isNotEmpty()) desc else "No additional description provided."
 
                 if (selectedImageUri != null) {
@@ -757,7 +809,7 @@ class CreateReportFragment : Fragment() {
     private fun submitReport() {
         val title = inputTitle.text.toString().trim()
         val desc = inputDescription.text.toString().trim()
-        val landmark = inputLandmark.text.toString().trim()
+        val landmark = if (::inputLocation.isInitialized) inputLocation.text.toString().trim() else savedLandmark
         val reportTitle = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
 
         val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
@@ -775,7 +827,7 @@ class CreateReportFragment : Fragment() {
             }
         }
 
-        val reportLocation = "$selectedArea, Western Province"
+        val reportLocation = if (landmark.isNotEmpty()) landmark else "$selectedArea, Western Province"
 
         val report = ItemReport(
             userId = uid,
@@ -875,7 +927,7 @@ class CreateReportFragment : Fragment() {
         outState.putInt(KEY_SAVED_PHOTOS_COUNT, photosCount)
         if (::inputTitle.isInitialized) outState.putString(KEY_SAVED_TITLE, inputTitle.text.toString())
         if (::inputDescription.isInitialized) outState.putString(KEY_SAVED_DESC, inputDescription.text.toString())
-        if (::inputLandmark.isInitialized) outState.putString(KEY_SAVED_LANDMARK, inputLandmark.text.toString())
+        if (::inputLocation.isInitialized) outState.putString(KEY_SAVED_LANDMARK, inputLocation.text.toString())
     }
 
     override fun onDestroyView() {
@@ -885,8 +937,8 @@ class CreateReportFragment : Fragment() {
         if (::inputDescription.isInitialized) {
             savedDescription = inputDescription.text.toString()
         }
-        if (::inputLandmark.isInitialized) {
-            savedLandmark = inputLandmark.text.toString()
+        if (::inputLocation.isInitialized) {
+            savedLandmark = inputLocation.text.toString()
         }
         super.onDestroyView()
     }
