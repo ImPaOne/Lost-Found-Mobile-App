@@ -4,16 +4,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import com.group3.lostandfound.util.ModernToast
 
+/**
+ * Notifications screen matching the reference design:
+ * Displays categorized notifications (Today, Yesterday, Earlier),
+ * real-time Firebase sync, interactive notification cards, and consistent bottom navigation.
+ */
 class NotificationsFragment : Fragment() {
 
-    private lateinit var btnBack: ImageView
-    private lateinit var btnCheckAll: ImageView
+    private lateinit var btnBack: FrameLayout
+    private lateinit var btnCheckAll: FrameLayout
+    private lateinit var badgeNewToday: TextView
 
     private lateinit var itemWallet: LinearLayout
     private lateinit var itemKasun: LinearLayout
@@ -26,9 +33,10 @@ class NotificationsFragment : Fragment() {
     private lateinit var dotAdmin: View
     private lateinit var dotGalleFace: View
 
-    private var currentNotifs: List<com.group3.lostandfound.NotificationItem> = emptyList()
+    private var liveNotifications: List<NotificationItem> = emptyList()
+    private var adminAlertTitle = "Admin alert"
+    private var adminAlertMessage = "Please verify your contact number."
 
-    // Creates and displays the notifications screen layout.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -37,12 +45,20 @@ class NotificationsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_notifications, container, false)
     }
 
-    // Initializes notification views, sets up bottom navigation, and loads Firebase notifications.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initViews(view)
+        setupBottomNav(view, "")
+        setupCardClicks()
+        setupHeaderActions()
+        loadLiveNotifications(view)
+    }
+
+    private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         btnCheckAll = view.findViewById(R.id.btnCheckAll)
+        badgeNewToday = view.findViewById(R.id.badgeNewToday)
 
         itemWallet = view.findViewById(R.id.itemWallet)
         itemKasun = view.findViewById(R.id.itemKasun)
@@ -54,104 +70,9 @@ class NotificationsFragment : Fragment() {
         dotWallet = view.findViewById(R.id.dotWallet)
         dotAdmin = view.findViewById(R.id.dotAdmin)
         dotGalleFace = view.findViewById(R.id.dotGalleFace)
+    }
 
-        setupBottomNav(view, "")
-
-        val tvNotifTitle1 = view.findViewById<TextView>(R.id.tvNotifTitle1)
-        val tvNotifDesc1 = view.findViewById<TextView>(R.id.tvNotifDesc1)
-        val tvNotifTitle2 = view.findViewById<TextView>(R.id.tvNotifTitle2)
-        val tvNotifDesc2 = view.findViewById<TextView>(R.id.tvNotifDesc2)
-
-        val currentUid = FirebaseManager.currentUid
-        val notifRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
-            .getReference("notifications")
-            .child(currentUid)
-
-        notifRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
-            // Handles notification data changes and updates the notification list in real time.
-            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
-                if (!isAdded) return
-                val notifList = mutableListOf<com.group3.lostandfound.NotificationItem>()
-                for (child in snapshot.children) {
-                    val notif = try {
-                        child.getValue(com.group3.lostandfound.NotificationItem::class.java)
-                    } catch (e: Exception) {
-                        null
-                    }
-                    if (notif != null) {
-                        notifList.add(notif)
-                    } else {
-                        val title = child.child("title").getValue(String::class.java) ?: "Notification"
-                        val msg = child.child("message").getValue(String::class.java) ?: ""
-                        notifList.add(com.group3.lostandfound.NotificationItem(title = title, message = msg))
-                    }
-                }
-
-                currentNotifs = notifList
-                val hasNotifs = notifList.isNotEmpty()
-                itemWallet.visibility = if (hasNotifs) View.VISIBLE else View.GONE
-                itemKasun.visibility = if (notifList.size > 1) View.VISIBLE else View.GONE
-                itemPassport.visibility = View.GONE
-                itemAirPods.visibility = View.GONE
-                itemGalleFace.visibility = View.GONE
-
-                dotWallet.visibility = if (hasNotifs) View.VISIBLE else View.GONE
-                dotGalleFace.visibility = View.GONE
-
-                if (hasNotifs) {
-                    tvNotifTitle1?.text = notifList[0].title.ifEmpty { "Notification Alert" }
-                    tvNotifDesc1?.text = notifList[0].message.ifEmpty { "Active item notification." }
-                }
-                if (notifList.size > 1) {
-                    tvNotifTitle2?.text = notifList[1].title.ifEmpty { "Community Message" }
-                    tvNotifDesc2?.text = notifList[1].message.ifEmpty { "New community message received." }
-                }
-
-                val lblToday = view.findViewById<TextView>(R.id.lblToday)
-                val lblEarlier = view.findViewById<TextView>(R.id.lblEarlier)
-                lblToday?.text = if (hasNotifs) "TODAY" else "No new notifications. You're all caught up!"
-                lblEarlier?.visibility = View.GONE
-            }
-            // Handles Firebase errors when notification data cannot be retrieved.
-            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
-        })
-
-        // Listen for Global Admin Announcements from /announcements
-        var latestAnnouncementTitle = "Foundly Official Announcement"
-        var latestAnnouncementMessage = ""
-        val announcementsRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
-            .getReference("announcements")
-            .limitToLast(5)
-
-        announcementsRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
-            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
-                if (!isAdded) return
-                var foundAnn = false
-                for (child in snapshot.children.reversed()) {
-                    val msg = child.child("message").getValue(String::class.java) ?: ""
-                    val title = child.child("title").getValue(String::class.java) ?: "Foundly Official Announcement"
-                    if (msg.isNotEmpty()) {
-                        latestAnnouncementTitle = title
-                        latestAnnouncementMessage = msg
-                        val tvTitle = view.findViewById<TextView>(R.id.tvAdminNotifTitle)
-                        val tvDesc = view.findViewById<TextView>(R.id.tvAdminNotifDesc)
-                        tvTitle?.text = title
-                        tvDesc?.text = msg
-                        itemAdmin.visibility = View.VISIBLE
-                        dotAdmin.visibility = View.VISIBLE
-                        foundAnn = true
-                        break
-                    }
-                }
-                if (!foundAnn) {
-                    itemAdmin.visibility = View.GONE
-                    dotAdmin.visibility = View.GONE
-                }
-            }
-
-            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
-        })
-
+    private fun setupHeaderActions() {
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
@@ -160,34 +81,53 @@ class NotificationsFragment : Fragment() {
             dotWallet.visibility = View.GONE
             dotAdmin.visibility = View.GONE
             dotGalleFace.visibility = View.GONE
-            notifRef.removeValue()
-            com.group3.lostandfound.util.ModernToast.show(requireContext(), "All notifications marked as read.", view)
-        }
+            badgeNewToday.visibility = View.GONE
 
+            val currentUid = FirebaseManager.currentUid
+            if (currentUid.isNotEmpty()) {
+                com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                    .getReference("notifications")
+                    .child(currentUid)
+                    .removeValue()
+            }
+            ModernToast.show(requireContext(), "All notifications marked as read.", view)
+        }
+    }
+
+    private fun setupCardClicks() {
         itemWallet.setOnClickListener {
             dotWallet.visibility = View.GONE
-            if (currentNotifs.isNotEmpty()) {
-                handleNotificationClick(currentNotifs[0])
+            if (liveNotifications.isNotEmpty()) {
+                openNotificationTarget(liveNotifications[0])
             } else {
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.screenBox, ReportsFragment.newInstance())
+                    .replace(
+                        R.id.screenBox,
+                        DetailsFragment.newInstance(
+                            title = "Brown Leather Wallet",
+                            desc = "A brown leather wallet found in Kollupitiya with credit cards and national ID card.",
+                            status = "FOUND",
+                            location = "Kollupitiya",
+                            imageResId = R.drawable.img_wallet
+                        )
+                    )
                     .addToBackStack(null)
                     .commit()
             }
         }
 
         itemKasun.setOnClickListener {
-            if (currentNotifs.size > 1) {
-                handleNotificationClick(currentNotifs[1])
+            if (liveNotifications.size > 1) {
+                openNotificationTarget(liveNotifications[1])
             } else {
                 parentFragmentManager.beginTransaction()
                     .replace(
                         R.id.screenBox,
                         ChatFragment.newInstance(
-                            recipientUserId = "support_admin",
-                            recipientName = "Community Contact",
-                            itemId = "",
-                            itemTitle = "Inquiry"
+                            recipientUserId = "kasun_sender",
+                            recipientName = "Kasun",
+                            itemId = "wallet_report",
+                            itemTitle = "Found Wallet"
                         )
                     )
                     .addToBackStack(null)
@@ -200,11 +140,11 @@ class NotificationsFragment : Fragment() {
                 .replace(
                     R.id.screenBox,
                     DetailsFragment.newInstance(
-                        title = "Sri Lankan passport",
-                        desc = "Your reported passport has passed moderation review and is visible to the community.",
-                        status = "FOUND",
+                        title = "Sri Lankan Passport",
+                        desc = "Your reported passport is under review by moderation team.",
+                        status = "LOST",
                         location = "Fort Railway Station",
-                        imageResId = R.drawable.ic_item_placeholder
+                        imageResId = R.drawable.img_passport
                     )
                 )
                 .addToBackStack(null)
@@ -213,18 +153,17 @@ class NotificationsFragment : Fragment() {
 
         itemAdmin.setOnClickListener {
             dotAdmin.visibility = View.GONE
-            if (latestAnnouncementMessage.isNotEmpty()) {
-                androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                    .setTitle(latestAnnouncementTitle)
-                    .setMessage(latestAnnouncementMessage)
-                    .setPositiveButton("Understood", null)
-                    .show()
-            } else {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.screenBox, TrustFragment.newInstance())
-                    .addToBackStack(null)
-                    .commit()
-            }
+            AlertDialog.Builder(requireContext())
+                .setTitle(adminAlertTitle)
+                .setMessage(adminAlertMessage)
+                .setPositiveButton("Verify Now") { _, _ ->
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.screenBox, SettingsFragment.newInstance())
+                        .addToBackStack(null)
+                        .commit()
+                }
+                .setNegativeButton("Dismiss", null)
+                .show()
         }
 
         itemAirPods.setOnClickListener {
@@ -233,10 +172,10 @@ class NotificationsFragment : Fragment() {
                     R.id.screenBox,
                     DetailsFragment.newInstance(
                         title = "AirPods Pro Case",
-                        desc = "This case has been marked as resolved and reunited with owner.",
+                        desc = "AirPods Pro case marked as resolved and reunited with owner.",
                         status = "RESOLVED",
                         location = "Bambalapitiya",
-                        imageResId = R.drawable.ic_item_placeholder
+                        imageResId = R.drawable.img_airpods
                     )
                 )
                 .addToBackStack(null)
@@ -252,20 +191,81 @@ class NotificationsFragment : Fragment() {
         }
     }
 
-    // Opens the appropriate screen based on the selected notification type.
-    private fun handleNotificationClick(notif: com.group3.lostandfound.NotificationItem) {
+    private fun loadLiveNotifications(view: View) {
+        val currentUid = FirebaseManager.currentUid
+        if (currentUid.isEmpty()) return
+
+        val notifRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+            .getReference("notifications")
+            .child(currentUid)
+
+        notifRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                if (!isAdded) return
+                val list = mutableListOf<NotificationItem>()
+                for (child in snapshot.children) {
+                    val notif = try {
+                        child.getValue(NotificationItem::class.java)
+                    } catch (e: Exception) {
+                        null
+                    }
+                    if (notif != null) {
+                        list.add(notif)
+                    }
+                }
+
+                liveNotifications = list
+                if (list.isNotEmpty()) {
+                    view.findViewById<TextView>(R.id.tvNotifTitle1)?.text = list[0].title.ifEmpty { "Match found" }
+                    view.findViewById<TextView>(R.id.tvNotifDesc1)?.text = list[0].message.ifEmpty { "A wallet found in Kollupitiya is a 92% match." }
+                    dotWallet.visibility = View.VISIBLE
+                    badgeNewToday.visibility = View.VISIBLE
+                    badgeNewToday.text = "${list.size} new"
+                }
+
+                if (list.size > 1) {
+                    view.findViewById<TextView>(R.id.tvNotifTitle2)?.text = list[1].title.ifEmpty { "Message received" }
+                    view.findViewById<TextView>(R.id.tvNotifDesc2)?.text = list[1].message.ifEmpty { "Kasun sent a message about your report." }
+                }
+            }
+
+            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+        })
+
+        // Check for latest admin announcement
+        val annRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+            .getReference("announcements")
+            .limitToLast(1)
+
+        annRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                if (!isAdded) return
+                for (child in snapshot.children) {
+                    val msg = child.child("message").getValue(String::class.java) ?: ""
+                    val title = child.child("title").getValue(String::class.java) ?: "Admin alert"
+                    if (msg.isNotEmpty()) {
+                        adminAlertTitle = title
+                        adminAlertMessage = msg
+                        view.findViewById<TextView>(R.id.tvAdminNotifTitle)?.text = title
+                        view.findViewById<TextView>(R.id.tvAdminNotifDesc)?.text = msg
+                    }
+                }
+            }
+
+            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+        })
+    }
+
+    private fun openNotificationTarget(notif: NotificationItem) {
         if (notif.type == "CHAT_MESSAGE" || notif.conversationId.isNotEmpty()) {
-            val targetUid = notif.senderUserId.ifEmpty { "support_admin" }
-            val targetName = notif.senderName.ifEmpty { "Community Member" }
-            val itemTitle = notif.title.removePrefix("💬 Message regarding ").trim('\'', '"', ' ')
             parentFragmentManager.beginTransaction()
                 .replace(
                     R.id.screenBox,
                     ChatFragment.newInstance(
-                        recipientUserId = targetUid,
-                        recipientName = targetName,
+                        recipientUserId = notif.senderUserId.ifEmpty { "kasun_sender" },
+                        recipientName = notif.senderName.ifEmpty { "Kasun" },
                         itemId = notif.itemId,
-                        itemTitle = itemTitle.ifEmpty { "Item Discussion" }
+                        itemTitle = notif.title.removePrefix("💬 Message regarding ").trim('\'', '"', ' ').ifEmpty { "Report Discussion" }
                     )
                 )
                 .addToBackStack(null)
@@ -294,7 +294,6 @@ class NotificationsFragment : Fragment() {
     }
 
     companion object {
-        // Creates a new instance of NotificationsFragment.
         fun newInstance(): NotificationsFragment {
             return NotificationsFragment()
         }
