@@ -127,7 +127,7 @@ class ModerationFragment : Fragment() {
                         }
                     }
                 }
-                textReportsCountSummary.text = "$pendingCount reports awaiting review"
+                textReportsCountSummary.text = "• $pendingCount reports awaiting review"
                 updateModerationCardsVisibility()
             }
 
@@ -471,7 +471,7 @@ class ModerationFragment : Fragment() {
         for (tab in allTabs) {
             if (tab == selectedTab) {
                 tab.setBackgroundResource(R.drawable.bg_segment_active)
-                tab.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                tab.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
             } else {
                 tab.background = null
                 tab.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
