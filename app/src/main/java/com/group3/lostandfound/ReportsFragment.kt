@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 class ReportsFragment : Fragment() {
 
     private lateinit var btnBack: ImageView
-    private lateinit var btnAdd: ImageView
+    private lateinit var btnAdd: View
 
     private lateinit var tabAct: TextView
     private lateinit var tabRes: TextView
@@ -104,9 +104,10 @@ class ReportsFragment : Fragment() {
         name2 = view.findViewById(R.id.name2)
         name3 = view.findViewById(R.id.name3)
 
-        sub1 = view.findViewById(R.id.sub1)
-        sub2 = view.findViewById(R.id.sub2)
-        sub3 = view.findViewById(R.id.sub3)
+        // Subtitles are now nested TextViews inside LinearLayouts with pin icons
+        sub1 = view.findViewById(R.id.tvSub1)
+        sub2 = view.findViewById(R.id.tvSub2)
+        sub3 = view.findViewById(R.id.tvSub3)
 
         tag1 = view.findViewById(R.id.tag1)
         tag2 = view.findViewById(R.id.tag2)
@@ -143,9 +144,7 @@ class ReportsFragment : Fragment() {
             card1.visibility = View.VISIBLE
             name1.text = item1.title
             sub1.text = "${item1.location} · Live Post"
-            val isLost1 = item1.status.equals("LOST", ignoreCase = true)
-            tag1.setTextColor(ContextCompat.getColor(requireContext(), if (isLost1) R.color.tag_lost_color else R.color.tag_found_color))
-            tag1.setBackgroundResource(if (isLost1) R.drawable.bg_tag_lost_outlined else R.drawable.bg_tag_found_outlined)
+            applyBadgeStyle(tag1, item1.status)
             ImageLoader.load(img1, item1.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             card1.setOnClickListener { openItemDetails(item1) }
             opt1.setOnClickListener { showItemMenu(item1) }
@@ -159,10 +158,7 @@ class ReportsFragment : Fragment() {
             card2.visibility = View.VISIBLE
             name2.text = item2.title
             sub2.text = "${item2.location} · Live Post"
-            tag2.text = item2.status
-            val isLost2 = item2.status.equals("LOST", ignoreCase = true)
-            tag2.setTextColor(ContextCompat.getColor(requireContext(), if (isLost2) R.color.tag_lost_color else R.color.tag_found_color))
-            tag2.setBackgroundResource(if (isLost2) R.drawable.bg_tag_lost_outlined else R.drawable.bg_tag_found_outlined)
+            applyBadgeStyle(tag2, item2.status)
             ImageLoader.load(img2, item2.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             card2.setOnClickListener { openItemDetails(item2) }
             opt2.setOnClickListener { showItemMenu(item2) }
@@ -176,15 +172,39 @@ class ReportsFragment : Fragment() {
             card3.visibility = View.VISIBLE
             name3.text = item3.title
             sub3.text = "${item3.location} · Live Post"
-            tag3.text = item3.status
-            val isLost3 = item3.status.equals("LOST", ignoreCase = true)
-            tag3.setTextColor(ContextCompat.getColor(requireContext(), if (isLost3) R.color.tag_lost_color else R.color.tag_found_color))
-            tag3.setBackgroundResource(if (isLost3) R.drawable.bg_tag_lost_outlined else R.drawable.bg_tag_found_outlined)
+            applyBadgeStyle(tag3, item3.status)
             ImageLoader.load(img3, item3.imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
             card3.setOnClickListener { openItemDetails(item3) }
             opt3.setOnClickListener { showItemMenu(item3) }
         } else {
             card3.visibility = View.GONE
+        }
+    }
+
+    /** Applies the correct badge background and text color based on item status. */
+    private fun applyBadgeStyle(badge: TextView, status: String) {
+        when {
+            status.equals("RESOLVED", ignoreCase = true) -> {
+                badge.text = "Resolved"
+                badge.setBackgroundResource(R.drawable.bg_badge_resolved_green)
+                badge.setTextColor(ContextCompat.getColor(requireContext(), R.color.badge_resolved_text))
+            }
+            status.equals("MATCHED", ignoreCase = true) -> {
+                badge.text = "Matched"
+                badge.setBackgroundResource(R.drawable.bg_badge_matched)
+                badge.setTextColor(ContextCompat.getColor(requireContext(), R.color.badge_matched_text))
+            }
+            status.equals("FOUND", ignoreCase = true) -> {
+                badge.text = "Found"
+                badge.setBackgroundResource(R.drawable.bg_badge_found_pill)
+                badge.setTextColor(ContextCompat.getColor(requireContext(), R.color.badge_matched_text))
+            }
+            else -> {
+                // LOST or PENDING
+                badge.text = if (status.equals("LOST", ignoreCase = true)) "Pending" else status
+                badge.setBackgroundResource(R.drawable.bg_badge_pending)
+                badge.setTextColor(ContextCompat.getColor(requireContext(), R.color.badge_pending_text))
+            }
         }
     }
 
