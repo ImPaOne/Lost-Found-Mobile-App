@@ -161,11 +161,12 @@ class LoginFragment : Fragment() {
 
                         val safeCtx = context ?: return@collect
                         val email = emailInput.text.toString().trim()
+                        val isExplicitAdmin = state.isAdmin || email.equals("admin@gmail.com", ignoreCase = true)
 
                         safeCtx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
                             .edit()
                             .putBoolean("is_logged_in", true)
-                            .putBoolean("is_admin", state.isAdmin)
+                            .putBoolean("is_admin", isExplicitAdmin)
                             .putString("user_uid", authViewModel.currentUid)
                             .putString("saved_email", email)
                             .putBoolean("onboarding_completed", true)
@@ -173,7 +174,7 @@ class LoginFragment : Fragment() {
 
                         FCMService.triggerPushNotification(
                             safeCtx,
-                            if (state.isAdmin) "Admin Session Active" else "Account Login Successful",
+                            if (isExplicitAdmin) "Admin Session Active" else "Account Login Successful",
                             "Welcome back to Foundly. Signed in as $email."
                         )
 
@@ -184,12 +185,13 @@ class LoginFragment : Fragment() {
 
                         ModernToast.show(
                             safeCtx,
-                            if (state.isAdmin) "Admin session verified. Directing to Administrator Dashboard."
+                            if (isExplicitAdmin) "Admin session verified. Directing to Administrator Dashboard."
                             else "Welcome back. Navigating to Homepage."
                         )
 
                         if (isAdded) {
-                            val destination = if (state.isAdmin) AdminFragment.newInstance() else HomeFragment.newInstance()
+                            parentFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                            val destination = if (isExplicitAdmin) AdminFragment.newInstance() else HomeFragment.newInstance()
                             parentFragmentManager.beginTransaction()
                                 .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                                 .replace(R.id.screenBox, destination)
