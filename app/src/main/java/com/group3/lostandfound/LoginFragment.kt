@@ -2,6 +2,7 @@ package com.group3.lostandfound
 
 import android.os.Bundle
 import android.text.InputType
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -99,6 +101,10 @@ class LoginFragment : Fragment() {
             }
         }
 
+        // Real-time error clearing as user types
+        emailInput.doAfterTextChanged { emailInput.error = null }
+        passwordInput.doAfterTextChanged { passwordInput.error = null }
+
         loginBtn.setOnClickListener {
             val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
@@ -108,13 +114,18 @@ class LoginFragment : Fragment() {
                 emailInput.requestFocus()
                 return@setOnClickListener
             }
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                emailInput.error = "Please enter a valid email address"
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                emailInput.error = "Please enter a valid email address (e.g. user@example.com)"
                 emailInput.requestFocus()
                 return@setOnClickListener
             }
             if (password.isEmpty()) {
                 passwordInput.error = "Please enter your password"
+                passwordInput.requestFocus()
+                return@setOnClickListener
+            }
+            if (password.length < 6) {
+                passwordInput.error = "Password must be at least 6 characters"
                 passwordInput.requestFocus()
                 return@setOnClickListener
             }
@@ -131,11 +142,17 @@ class LoginFragment : Fragment() {
 
         forgotPasswordBtn.setOnClickListener {
             val email = emailInput.text.toString().trim()
-            if (email.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                authViewModel.sendPasswordReset(email)
-            } else {
-                Toast.makeText(requireContext(), "Enter your email to receive a password reset link", Toast.LENGTH_SHORT).show()
+            if (email.isEmpty()) {
+                emailInput.error = "Enter your email to receive a password reset link"
+                emailInput.requestFocus()
+                return@setOnClickListener
             }
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                emailInput.error = "Please enter a valid email address"
+                emailInput.requestFocus()
+                return@setOnClickListener
+            }
+            authViewModel.sendPasswordReset(email)
         }
 
         signUpRow.setOnClickListener {
