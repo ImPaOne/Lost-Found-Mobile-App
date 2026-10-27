@@ -85,7 +85,7 @@
             android:textSize="11sp" />
     </LinearLayout>
 
-    <!-- 3. Center Circle + Button -->
+    <!-- 3. Center Post Button -->
     <LinearLayout
         android:id="@+id/tabPost"
         android:layout_width="0dp"
@@ -97,7 +97,7 @@
 
         <LinearLayout
             android:id="@+id/btnPostPill"
-            android:layout_width="52dp"
+            android:layout_width="54dp"
             android:layout_height="44dp"
             android:background="@drawable/bg_nav_post_pill"
             android:gravity="center"
@@ -113,6 +113,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="+ Post"
                 android:textColor="@color/white"

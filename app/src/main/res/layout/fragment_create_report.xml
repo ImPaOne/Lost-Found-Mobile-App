@@ -112,6 +112,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-bold"
             android:letterSpacing="0.05"
+            android:padding="0dp"
             android:text="STEP 1 OF 5"
             android:textColor="#64748B"
             android:textSize="12sp"
@@ -370,46 +371,46 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Category Selector Box -->
+                <!-- Item Category -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-bold"
                     android:text="Item Category *"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
+                    android:textColor="#0F172A"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
-                <RelativeLayout
+                <LinearLayout
                     android:id="@+id/boxCategory"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="52dp"
                     android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_input_field"
+                    android:background="@drawable/bg_input_box_rounded"
                     android:clickable="true"
                     android:focusable="true"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp">
 
                     <TextView
                         android:id="@+id/tvCategoryValue"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:fontFamily="sans-serif-medium"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif"
                         android:text="Electronics"
-                        android:textColor="@color/text_primary"
+                        android:textColor="#0F172A"
                         android:textSize="14sp" />
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:contentDescription="Dropdown"
                         android:src="@drawable/ic_chevron_down"
-                        app:tint="@color/text_hint" />
-                </RelativeLayout>
+                        app:tint="#64748B" />
+                </LinearLayout>
 
                 <!-- Item Title Input -->
                 <TextView
@@ -418,25 +419,32 @@
                     android:layout_marginTop="16dp"
                     android:fontFamily="sans-serif-bold"
                     android:text="Item Title *"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
+                    android:textColor="#0F172A"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
-                <EditText
-                    android:id="@+id/inputTitle"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="52dp"
                     android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_input_field"
-                    android:fontFamily="sans-serif"
-                    android:hint="e.g. Black leather wallet, Milo dog"
-                    android:inputType="textCapSentences"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp"
-                    android:singleLine="true"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_hint"
-                    android:textSize="14sp" />
+                    android:background="@drawable/bg_input_box_rounded"
+                    android:gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp">
+
+                    <EditText
+                        android:id="@+id/inputTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:fontFamily="sans-serif"
+                        android:hint="e.g. Black leather wallet, Milo dog"
+                        android:inputType="textCapSentences"
+                        android:singleLine="true"
+                        android:textColor="#0F172A"
+                        android:textColorHint="#94A3B8"
+                        android:textSize="14sp" />
+                </LinearLayout>
 
                 <!-- Description Input -->
                 <TextView
@@ -445,271 +453,73 @@
                     android:layout_marginTop="16dp"
                     android:fontFamily="sans-serif-bold"
                     android:text="Description &amp; Identifying Marks"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
+                    android:textColor="#0F172A"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
-                <EditText
-                    android:id="@+id/inputDescription"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="80dp"
+                    android:layout_height="96dp"
                     android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_input_field"
-                    android:fontFamily="sans-serif"
-                    android:gravity="top|start"
-                    android:hint="Colour, scratches, unique stickers, serial or identifiers"
-                    android:inputType="textMultiLine"
-                    android:lineSpacingExtra="3dp"
-                    android:paddingStart="14dp"
+                    android:background="@drawable/bg_input_box_rounded"
+                    android:paddingStart="16dp"
                     android:paddingTop="12dp"
-                    android:paddingEnd="14dp"
-                    android:paddingBottom="12dp"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_hint"
-                    android:textSize="14sp" />
-            </LinearLayout>
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="12dp">
 
-            <!-- ================= STEP 3: Location Picker ================= -->
-            <LinearLayout
-                android:id="@+id/layoutStep3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="Select City / Area *"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <!-- Area Quick Chips -->
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:overScrollMode="never"
-                    android:scrollbars="none">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/chipAreaColombo3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="34dp"
-                            android:background="@drawable/bg_chip_selected"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:paddingStart="16dp"
-                            android:paddingEnd="16dp"
-                            android:text="Colombo 03"
-                            android:textColor="@color/white"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/chipAreaKollupitiya"
-                            android:layout_width="wrap_content"
-                            android:layout_height="34dp"
-                            android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_chip_unselected"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:paddingStart="16dp"
-                            android:paddingEnd="16dp"
-                            android:text="Kollupitiya"
-                            android:textColor="@color/text_primary"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/chipAreaBamba"
-                            android:layout_width="wrap_content"
-                            android:layout_height="34dp"
-                            android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_chip_unselected"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:paddingStart="16dp"
-                            android:paddingEnd="16dp"
-                            android:text="Bambalapitiya"
-                            android:textColor="@color/text_primary"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/chipAreaFort"
-                            android:layout_width="wrap_content"
-                            android:layout_height="34dp"
-                            android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_chip_unselected"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:paddingStart="16dp"
-                            android:paddingEnd="16dp"
-                            android:text="Fort"
-                            android:textColor="@color/text_primary"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </HorizontalScrollView>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="Specific Spot / Landmark"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/inputLandmark"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_input_field"
-                    android:fontFamily="sans-serif"
-                    android:hint="e.g. Near park bench / Bus halt / Cafe counter"
-                    android:inputType="textCapSentences"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp"
-                    android:singleLine="true"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_hint"
-                    android:textSize="14sp" />
-
-                <!-- Location Map Pin Banner Preview -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardMapPinPreview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="#F7F5F0"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/stroke_light"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="14dp">
-
-                        <ImageView
-                            android:layout_width="26dp"
-                            android:layout_height="26dp"
-                            android:contentDescription="Map pin"
-                            android:src="@drawable/ic_location"
-                            app:tint="@color/text_primary" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tvSelectedLocationPreview"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-bold"
-                                android:text="Colombo 03, Western Province"
-                                android:textColor="@color/text_primary"
-                                android:textSize="13sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tvSelectedLocationCoords"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif"
-                                android:text="6.9042° N, 79.8530° E · Tap to open map"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-bold"
-                            android:text="Pin on Map"
-                            android:textColor="@color/tag_lost_color"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-
-            <!-- ================= STEP 4: Photos Upload ================= -->
-            <LinearLayout
-                android:id="@+id/layoutStep4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="Upload Item Photos"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <!-- Upload Dropzone Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardUploadDropzone"
-                    android:layout_width="match_parent"
-                    android:layout_height="130dp"
-                    android:layout_marginTop="10dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    app:cardBackgroundColor="#FBF9F6"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/stroke_light"
-                    app:strokeWidth="1.5dp">
-
-                    <LinearLayout
+                    <EditText
+                        android:id="@+id/inputDescription"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:background="@null"
+                        android:fontFamily="sans-serif"
+                        android:gravity="top|start"
+                        android:hint="Colour, scratches, unique stickers, serial or identifiers"
+                        android:inputType="textMultiLine"
+                        android:lineSpacingExtra="3dp"
+                        android:textColor="#0F172A"
+                        android:textColorHint="#94A3B8"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Informative Tip Banner -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_info_banner_blue"
+                    android:gravity="top"
+                    android:orientation="horizontal"
+                    android:padding="14dp">
+
+                    <FrameLayout
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:layout_marginTop="1dp"
+                        android:background="@drawable/bg_icon_squircle_white">
 
                         <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:contentDescription="Upload"
-                            android:src="@drawable/ic_nav_plus"
-                            app:tint="@color/text_primary" />
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="Tip"
+                            android:src="@drawable/ic_heart_hands_info" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/tvPhotosCountStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
                             android:fontFamily="sans-serif-bold"
-                            android:text="Tap to attach photos"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp"
+                            android:text="Be descriptive"
+                            android:textColor="#1E293B"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -717,79 +527,568 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif"
-                            android:text="PNG, JPG or WebP up to 10MB each"
-                            android:textColor="@color/text_secondary"
+                            android:lineSpacingExtra="2dp"
+                            android:text="Unique marks, brand names, or distinctive stickers help confirm ownership much faster."
+                            android:textColor="#64748B"
                             android:textSize="12sp" />
                     </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ================= STEP 3: Where & when? ================= -->
+            <LinearLayout
+                android:id="@+id/layoutStep3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Map Container Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/mapCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="195dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="#F7F5EE"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#E8E4DA"
+                    app:strokeWidth="1dp">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <!-- Map Preview Image -->
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="Map preview"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/img_map_bg" />
+
+                        <!-- Floating Search Bar -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:layout_gravity="top"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginTop="12dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/bg_map_search_bar"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="10dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:contentDescription="Search"
+                                android:src="@drawable/ic_search"
+                                app:tint="#64748B" />
+
+                            <EditText
+                                android:id="@+id/searchInput"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="8dp"
+                                android:layout_marginEnd="6dp"
+                                android:layout_weight="1"
+                                android:background="@null"
+                                android:fontFamily="sans-serif"
+                                android:hint="Duplication Road, Colombo 03"
+                                android:imeOptions="actionSearch"
+                                android:inputType="text"
+                                android:singleLine="true"
+                                android:text="Duplication Road, Colombo 03"
+                                android:textColor="#0F172A"
+                                android:textColorHint="#94A3B8"
+                                android:textSize="13sp" />
+
+                            <ImageView
+                                android:id="@+id/btnClearSearch"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:clickable="true"
+                                android:contentDescription="Clear search"
+                                android:focusable="true"
+                                android:padding="3dp"
+                                android:src="@drawable/ic_close"
+                                app:tint="#94A3B8" />
+                        </LinearLayout>
+
+                        <!-- Center Pin with White Halo -->
+                        <FrameLayout
+                            android:layout_width="34dp"
+                            android:layout_height="34dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bg_pin_red_halo">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Pin"
+                                android:src="@drawable/ic_pin_white" />
+                        </FrameLayout>
+
+                        <!-- Move Pin Hint Pill -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom|start"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginBottom="12dp"
+                            android:background="@drawable/bg_map_hint_pill"
+                            android:fontFamily="sans-serif"
+                            android:paddingStart="12dp"
+                            android:paddingTop="6dp"
+                            android:paddingEnd="12dp"
+                            android:paddingBottom="6dp"
+                            android:text="Move the pin to the last-seen area"
+                            android:textColor="#64748B"
+                            android:textSize="11sp" />
+
+                        <!-- GPS Locate Button -->
+                        <ImageView
+                            android:id="@+id/btnGps"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:layout_gravity="bottom|end"
+                            android:layout_marginEnd="12dp"
+                            android:layout_marginBottom="12dp"
+                            android:background="@drawable/bg_circle_gps_button"
+                            android:clickable="true"
+                            android:contentDescription="Locate GPS position"
+                            android:focusable="true"
+                            android:padding="9dp"
+                            android:src="@drawable/ic_gps_target"
+                            app:tint="#475569" />
+                    </FrameLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Attached Photos Thumbnail Row -->
+                <!-- Last-seen Location Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Last-seen location"
+                    android:textColor="#0F172A"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <LinearLayout
-                    android:id="@+id/rowThumbnails"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_input_box_rounded"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp">
+
+                    <EditText
+                        android:id="@+id/inputLocation"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:fontFamily="sans-serif"
+                        android:hint="Near Duplication Road, Colombo 03"
+                        android:inputType="textCapSentences"
+                        android:singleLine="true"
+                        android:text="Near Duplication Road, Colombo 03"
+                        android:textColor="#0F172A"
+                        android:textColorHint="#94A3B8"
+                        android:textSize="14sp" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="Location pin"
+                        android:src="@drawable/ic_location"
+                        app:tint="#64748B" />
+                </LinearLayout>
+
+                <!-- Date & Time Row -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardThumbnail1"
-                        android:layout_width="74dp"
-                        android:layout_height="74dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="@color/stroke_light"
-                        app:strokeWidth="1dp">
+                    <!-- Date Column -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                        <ImageView
-                            android:id="@+id/imgThumbnail1"
+                        <TextView
+                            android:id="@+id/lblDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Date lost"
+                            android:textColor="#0F172A"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:id="@+id/boxDate"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:contentDescription="Photo 1"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_item_placeholder" />
-                    </com.google.android.material.card.MaterialCardView>
+                            android:layout_height="52dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/bg_input_box_rounded"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp">
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardThumbnail2"
-                        android:layout_width="74dp"
-                        android:layout_height="74dp"
-                        android:layout_marginStart="10dp"
-                        android:visibility="gone"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="@color/stroke_light"
-                        app:strokeWidth="1dp">
+                            <TextView
+                                android:id="@+id/tvDate"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:text="12 Sep"
+                                android:textColor="#0F172A"
+                                android:textSize="14sp" />
 
-                        <ImageView
-                            android:id="@+id/imgThumbnail2"
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:contentDescription="Calendar"
+                                android:src="@drawable/ic_calendar"
+                                app:tint="#64748B" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Time Column -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/lblTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Time lost"
+                            android:textColor="#0F172A"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:id="@+id/boxTime"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:contentDescription="Photo 2"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_item_placeholder" />
-                    </com.google.android.material.card.MaterialCardView>
+                            android:layout_height="52dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/bg_input_box_rounded"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp">
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardThumbnail3"
-                        android:layout_width="74dp"
-                        android:layout_height="74dp"
-                        android:layout_marginStart="10dp"
-                        android:visibility="gone"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="@color/stroke_light"
-                        app:strokeWidth="1dp">
+                            <TextView
+                                android:id="@+id/tvTime"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:text="6:30 PM"
+                                android:textColor="#0F172A"
+                                android:textSize="14sp" />
 
-                        <ImageView
-                            android:id="@+id/imgThumbnail3"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:contentDescription="Photo 3"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_item_placeholder" />
-                    </com.google.android.material.card.MaterialCardView>
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:contentDescription="Clock"
+                                android:src="@drawable/ic_clock"
+                                app:tint="#64748B" />
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
+
+                <!-- Public Notice Disclaimer -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:contentDescription="Info"
+                        android:src="@drawable/ic_info"
+                        app:tint="#94A3B8" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:fontFamily="sans-serif"
+                        android:text="Only the approximate location appears publicly."
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ================= STEP 4: Add photos ================= -->
+            <LinearLayout
+                android:id="@+id/layoutStep4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Photos Count Header Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvPhotosCountStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_navy"
+                        android:fontFamily="sans-serif-bold"
+                        android:paddingStart="12dp"
+                        android:paddingTop="5dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="5dp"
+                        android:text="1 photo added"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:text="Up to 5 photos"
+                        android:textColor="#94A3B8"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- Main Photo Preview Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardPhotoPreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="12dp"
+                    app:cardBackgroundColor="#FAF8F5"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#E8E4DA"
+                    app:strokeWidth="1dp">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <!-- Photo Image -->
+                        <ImageView
+                            android:id="@+id/imgPhotoPreview"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="Attached photo"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/img_wallet_details" />
+
+                        <!-- Top Center Delete Button -->
+                        <FrameLayout
+                            android:id="@+id/btnRemovePhoto"
+                            android:layout_width="34dp"
+                            android:layout_height="34dp"
+                            android:layout_gravity="top|center_horizontal"
+                            android:layout_marginTop="12dp"
+                            android:background="@drawable/bg_circle_close_white"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Remove photo"
+                                android:src="@drawable/ic_close"
+                                app:tint="#0F172A" />
+                        </FrameLayout>
+
+                        <!-- Bottom Left "Cover photo" Pill -->
+                        <TextView
+                            android:id="@+id/badgeCoverPhoto"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom|start"
+                            android:layout_marginStart="14dp"
+                            android:layout_marginBottom="14dp"
+                            android:background="@drawable/bg_map_hint_pill"
+                            android:fontFamily="sans-serif-bold"
+                            android:paddingStart="12dp"
+                            android:paddingTop="6dp"
+                            android:paddingEnd="12dp"
+                            android:paddingBottom="6dp"
+                            android:text="Cover photo"
+                            android:textColor="#0F172A"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Two Action Buttons Row: Take photo & Add from gallery -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <!-- Take Photo Button -->
+                    <LinearLayout
+                        android:id="@+id/btnTakePhoto"
+                        android:layout_width="0dp"
+                        android:layout_height="74dp"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_input_box_rounded"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:contentDescription="Camera"
+                            android:src="@drawable/ic_camera"
+                            app:tint="#64748B" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Take photo"
+                            android:textColor="#0F172A"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Add from Gallery Button -->
+                    <LinearLayout
+                        android:id="@+id/btnGallery"
+                        android:layout_width="0dp"
+                        android:layout_height="74dp"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_input_box_rounded"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:contentDescription="Gallery"
+                            android:src="@drawable/ic_gallery_add"
+                            app:tint="#64748B" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Add from gallery"
+                            android:textColor="#0F172A"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Privacy Warning Banner -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_input_box_rounded"
+                    android:gravity="top"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <FrameLayout
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginTop="1dp"
+                        android:background="@drawable/bg_icon_squircle_white">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="Shield"
+                            android:src="@drawable/ic_shield_check"
+                            app:tint="#64748B" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Show the item, not private information"
+                            android:textColor="#0F172A"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:fontFamily="sans-serif"
+                            android:lineSpacingExtra="2dp"
+                            android:text="Keep ID and bank cards out of frame. Don't upload card numbers, addresses or identifying evidence you'll need to verify ownership."
+                            android:textColor="#64748B"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Footer File Spec Hint -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:fontFamily="sans-serif"
+                    android:text="JPG or PNG · Up to 10 MB each · Photos are optional"
+                    android:textColor="#94A3B8"
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <!-- ================= STEP 5: Review & Submit ================= -->
@@ -799,14 +1098,15 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Summary Preview Card -->
+                <!-- 1. Report Summary Card -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardReviewSummary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="20dp"
                     app:cardElevation="0dp"
-                    app:strokeColor="@color/stroke_light"
+                    app:strokeColor="#E2E8F0"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
@@ -815,117 +1115,369 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <androidx.constraintlayout.widget.ConstraintLayout
+                        <!-- Top Header Row: Thumbnail + Details + Edit button -->
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:id="@+id/badgeReviewStatus"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/bg_chip_lost_red"
-                                android:fontFamily="sans-serif-black"
-                                android:paddingStart="12dp"
-                                android:paddingTop="3dp"
-                                android:paddingEnd="12dp"
-                                android:paddingBottom="3dp"
-                                android:text="LOST ITEM"
-                                android:textColor="@color/tag_lost_color"
-                                android:textSize="11sp"
-                                android:textStyle="bold"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <TextView
-                                android:id="@+id/tvReviewCategory"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-medium"
-                                android:text="Category"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
-                        <TextView
-                            android:id="@+id/tvReviewTitle"
-                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:fontFamily="sans-serif-bold"
-                            android:text="Report Title Preview"
-                            android:textColor="@color/text_primary"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                            android:gravity="top"
+                            android:orientation="horizontal">
 
-                        <TextView
-                            android:id="@+id/tvReviewLocation"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="sans-serif"
-                            android:text="Colombo 03 · Reported Today"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
+                            <!-- Thumbnail Image Container -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="72dp"
+                                android:layout_height="72dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:strokeWidth="0dp">
 
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/cardReviewThumbnail"
-                            android:layout_width="match_parent"
-                            android:layout_height="140dp"
-                            android:layout_marginTop="10dp"
-                            android:visibility="gone"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="0dp"
-                            app:strokeColor="@color/stroke_light"
-                            app:strokeWidth="1dp">
+                                <ImageView
+                                    android:id="@+id/imgReviewThumbnail"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:contentDescription="Attached photo"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/img_wallet_details" />
+                            </com.google.android.material.card.MaterialCardView>
 
-                            <ImageView
-                                android:id="@+id/imgReviewThumbnail"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleType="centerCrop"
-                                android:contentDescription="Review Image" />
-                        </com.google.android.material.card.MaterialCardView>
+                            <!-- Details Column -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="14dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
 
+                                <!-- Top row: Status Badge + Edit Button -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center_vertical"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/badgeReviewStatus"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:background="@drawable/bg_badge_lost_pill"
+                                        android:fontFamily="sans-serif-bold"
+                                        android:paddingStart="10dp"
+                                        android:paddingTop="3dp"
+                                        android:paddingEnd="10dp"
+                                        android:paddingBottom="3dp"
+                                        android:text="LOST"
+                                        android:textColor="#E11D48"
+                                        android:textSize="11sp"
+                                        android:textStyle="bold" />
+
+                                    <View
+                                        android:layout_width="0dp"
+                                        android:layout_height="1dp"
+                                        android:layout_weight="1" />
+
+                                    <TextView
+                                        android:id="@+id/btnEditSummary"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:background="@drawable/bg_btn_edit_pill"
+                                        android:clickable="true"
+                                        android:focusable="true"
+                                        android:fontFamily="sans-serif"
+                                        android:paddingStart="12dp"
+                                        android:paddingTop="3dp"
+                                        android:paddingEnd="12dp"
+                                        android:paddingBottom="3dp"
+                                        android:text="Edit"
+                                        android:textColor="#64748B"
+                                        android:textSize="12sp" />
+                                </LinearLayout>
+
+                                <!-- Title -->
+                                <TextView
+                                    android:id="@+id/tvReviewTitle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="5dp"
+                                    android:fontFamily="sans-serif-bold"
+                                    android:text="Black leather wallet"
+                                    android:textColor="#0F172A"
+                                    android:textSize="17sp"
+                                    android:textStyle="bold" />
+
+                                <!-- Category & Photos Count -->
+                                <TextView
+                                    android:id="@+id/tvReviewCategory"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="sans-serif"
+                                    android:text="Personal items · 1 photo"
+                                    android:textColor="#94A3B8"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Divider -->
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
-                            android:layout_marginTop="12dp"
+                            android:layout_marginTop="14dp"
                             android:layout_marginBottom="12dp"
-                            android:background="@color/stroke_light" />
+                            android:background="#F1F5F9" />
 
+                        <!-- Description text -->
                         <TextView
                             android:id="@+id/tvReviewDesc"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif"
                             android:lineSpacingExtra="3dp"
-                            android:text="Slim wallet with national ID and cards. Distinctive scratch near the clasp."
-                            android:textColor="@color/text_primary"
-                            android:textSize="13sp" />
+                            android:text="Slim wallet with national ID and two bank cards. Small scratch near the clasp."
+                            android:textColor="#64748B"
+                            android:textSize="14sp" />
+
+                        <!-- Location & Time Box -->
+                        <LinearLayout
+                            android:id="@+id/boxReviewLocation"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:background="@drawable/bg_box_light_rounded"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <FrameLayout
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="@drawable/bg_icon_squircle_white">
+
+                                <ImageView
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="Location"
+                                    android:src="@drawable/ic_location"
+                                    app:tint="#0F172A" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvReviewLocation"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-bold"
+                                    android:text="Near Duplication Road, Colombo 03"
+                                    android:textColor="#0F172A"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvReviewDateTime"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="sans-serif"
+                                    android:text="12 Sep · 6:30 PM"
+                                    android:textColor="#94A3B8"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <FrameLayout
+                                android:id="@+id/btnEditLocation"
+                                android:layout_width="34dp"
+                                android:layout_height="34dp"
+                                android:background="@drawable/bg_btn_edit_pill"
+                                android:clickable="true"
+                                android:focusable="true">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="Edit Location"
+                                    android:src="@drawable/ic_edit_pencil" />
+                            </FrameLayout>
+                        </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Pledge Notice -->
-                <LinearLayout
+                <!-- 2. Safe contact preferences Card -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:background="@drawable/bg_stat_banner"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#E2E8F0"
+                    app:strokeWidth="1dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="Verified Community Pledge: Your post will be immediately visible across nearby members."
-                        android:textColor="@color/text_primary"
-                        android:textSize="12sp" />
-                </LinearLayout>
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Safe contact preferences"
+                            android:textColor="#0F172A"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <!-- Switch Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:text="Allow Foundly messages"
+                                android:textColor="#0F172A"
+                                android:textSize="15sp" />
+
+                            <androidx.appcompat.widget.SwitchCompat
+                                android:id="@+id/switchMessages"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="true"
+                                app:thumbTint="@color/white"
+                                app:trackTint="#002840" />
+                        </LinearLayout>
+
+                        <!-- Hidden Info Note Box -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:background="@drawable/bg_box_light_rounded"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <FrameLayout
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:background="@drawable/bg_icon_squircle_white">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="Lock"
+                                    android:src="@drawable/ic_lock"
+                                    app:tint="#0F172A" />
+                            </FrameLayout>
+
+                            <TextView
+                                android:id="@+id/tvPrivacyHiddenNote"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:lineSpacingExtra="2dp"
+                                android:text="Your phone and email stay hidden. Only your display name, Nadeesha Silva, is public."
+                                android:textColor="#64748B"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 3. Confirmation Guidelines Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#E2E8F0"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- Checkbox Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <CheckBox
+                                android:id="@+id/cbConfirmAccuracy"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:background="@drawable/selector_checkbox"
+                                android:button="@null"
+                                android:checked="true" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:lineSpacingExtra="2dp"
+                                android:text="I confirm these details are accurate and follow the community guidelines."
+                                android:textColor="#334155"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <!-- Divider -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="14dp"
+                            android:layout_marginBottom="12dp"
+                            android:background="#F1F5F9" />
+
+                        <!-- Info review note row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="top"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_marginTop="1dp"
+                                android:contentDescription="Info"
+                                android:src="@drawable/ic_info"
+                                app:tint="#94A3B8" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:lineSpacingExtra="2dp"
+                                android:text="We'll review your report and alert you to possible matches. You can edit it in My Reports."
+                                android:textColor="#94A3B8"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Upload Progress & Status Bar (0-100%) -->
                 <com.google.android.material.card.MaterialCardView

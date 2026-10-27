@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.TranslateAnimation
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -78,34 +79,42 @@ class CreateReportFragment : Fragment() {
     private lateinit var inputDescription: EditText
 
     // Step 3 Views
-    private lateinit var chipAreaColombo3: TextView
-    private lateinit var chipAreaKollupitiya: TextView
-    private lateinit var chipAreaBamba: TextView
-    private lateinit var chipAreaFort: TextView
-    private lateinit var inputLandmark: EditText
-    private lateinit var tvSelectedLocationPreview: TextView
-    private lateinit var tvSelectedLocationCoords: TextView
-    private lateinit var cardMapPinPreview: View
+    private lateinit var mapCard: View
+    private lateinit var searchInput: EditText
+    private lateinit var btnClearSearch: View
+    private lateinit var btnGps: View
+    private lateinit var inputLocation: EditText
+    private lateinit var lblDate: TextView
+    private lateinit var boxDate: View
+    private lateinit var tvDate: TextView
+    private lateinit var lblTime: TextView
+    private lateinit var boxTime: View
+    private lateinit var tvTime: TextView
+    private var selectedDateFormatted = "12 Sep"
+    private var selectedTimeFormatted = "6:30 PM"
 
     // Step 4 Views
-    private lateinit var cardUploadDropzone: View
+    private lateinit var cardPhotoPreview: View
+    private lateinit var imgPhotoPreview: ImageView
+    private lateinit var btnRemovePhoto: View
+    private lateinit var badgeCoverPhoto: TextView
+    private lateinit var btnTakePhoto: View
+    private lateinit var btnGallery: View
     private lateinit var tvPhotosCountStatus: TextView
-    private lateinit var rowThumbnails: View
-    private lateinit var cardThumbnail1: View
-    private lateinit var cardThumbnail2: View
-    private lateinit var cardThumbnail3: View
-    private lateinit var imgThumbnail1: ImageView
-    private lateinit var imgThumbnail2: ImageView
-    private lateinit var imgThumbnail3: ImageView
 
     // Step 5 Review Views
     private lateinit var badgeReviewStatus: TextView
-    private lateinit var tvReviewCategory: TextView
+    private lateinit var btnEditSummary: View
     private lateinit var tvReviewTitle: TextView
-    private lateinit var tvReviewLocation: TextView
+    private lateinit var tvReviewCategory: TextView
     private lateinit var tvReviewDesc: TextView
-    private var cardReviewThumbnail: View? = null
-    private var imgReviewThumbnail: ImageView? = null
+    private lateinit var imgReviewThumbnail: ImageView
+    private lateinit var tvReviewLocation: TextView
+    private lateinit var tvReviewDateTime: TextView
+    private lateinit var btnEditLocation: View
+    private lateinit var tvPrivacyHiddenNote: TextView
+    private lateinit var switchMessages: androidx.appcompat.widget.SwitchCompat
+    private lateinit var cbConfirmAccuracy: CheckBox
 
     // Upload Progress & Error UI Views
     private lateinit var cardUploadProgress: View
@@ -166,11 +175,10 @@ class CreateReportFragment : Fragment() {
         if (::flipperSteps.isInitialized) {
             flipperSteps.displayedChild = 3
         }
-        updateThumbnailsUI()
+        updatePhotoUI()
         updateStepHeader()
     }
 
-    //Displays selected photos and updates the photo count.
     private fun updateThumbnailsUI() {
         if (!::rowThumbnails.isInitialized) return
         if (attachedImagesList.isEmpty()) {
@@ -203,9 +211,12 @@ class CreateReportFragment : Fragment() {
             cardThumbnail3.visibility = View.GONE
         }
 
-        if (imgReviewThumbnail != null && attachedImagesList.isNotEmpty()) {
-            com.group3.lostandfound.util.ImageLoader.load(requireContext(), attachedImagesList[0].toString(), imgReviewThumbnail!!)
-            cardReviewThumbnail?.visibility = View.VISIBLE
+        if (::imgReviewThumbnail.isInitialized) {
+            if (attachedImagesList.isNotEmpty()) {
+                com.group3.lostandfound.util.ImageLoader.load(requireContext(), attachedImagesList[0].toString(), imgReviewThumbnail)
+            } else {
+                imgReviewThumbnail.setImageResource(R.drawable.img_wallet_details)
+            }
         }
     }
 
@@ -272,13 +283,12 @@ class CreateReportFragment : Fragment() {
                 selectedArea = locName ?: String.format(java.util.Locale.US, "%.4f, %.4f", lat, lng)
 
                 if (view != null) {
-                    tvSelectedLocationPreview.text = "$selectedArea, Western Province"
-                    tvSelectedLocationCoords.text = String.format(
-                        java.util.Locale.US,
-                        "%.4f° N, %.4f° E · Selected from map",
-                        selectedLatitude,
-                        selectedLongitude
-                    )
+                    if (::inputLocation.isInitialized) {
+                        inputLocation.setText("Near $selectedArea")
+                    }
+                    if (::searchInput.isInitialized) {
+                        searchInput.setText(selectedArea)
+                    }
                 }
             }
         }
@@ -336,25 +346,23 @@ class CreateReportFragment : Fragment() {
 
         // Apply state to views
         setItemType(isLostSelected)
-        tvCategoryValue.text = selectedCategory
-        tvSelectedLocationPreview.text = "$selectedArea, Western Province"
-        tvSelectedLocationCoords.text = String.format(
-            java.util.Locale.US,
-            "%.4f° N, %.4f° E · Selected on map",
-            selectedLatitude,
-            selectedLongitude
-        )
+        if (selectedArea.isNotEmpty()) {
+            inputLocation.setText("Near $selectedArea, Colombo 03")
+            searchInput.setText("$selectedArea, Colombo 03")
+        }
 
         // Restore input texts if previously entered
         if (savedTitle.isNotEmpty()) inputTitle.setText(savedTitle)
         if (savedDescription.isNotEmpty()) inputDescription.setText(savedDescription)
-        if (savedLandmark.isNotEmpty()) inputLandmark.setText(savedLandmark)
+        if (savedLandmark.isNotEmpty()) {
+            inputLocation.setText(savedLandmark)
+            searchInput.setText(savedLandmark)
+        }
 
         // Restore photo thumbnail if selected
         if (selectedImageUri != null) {
-            com.group3.lostandfound.util.ImageLoader.load(requireContext(), selectedImageUri.toString(), imgThumbnail1)
-            rowThumbnails.visibility = View.VISIBLE
-            tvPhotosCountStatus.text = "$photosCount photo attached"
+            com.group3.lostandfound.util.ImageLoader.load(requireContext(), selectedImageUri.toString(), imgPhotoPreview)
+            tvPhotosCountStatus.text = "$photosCount photo${if (photosCount == 1) "" else "s"} added"
         }
 
         // Initialize report type UI
@@ -414,34 +422,40 @@ class CreateReportFragment : Fragment() {
         inputDescription = view.findViewById(R.id.inputDescription)
 
         // Step 3
-        chipAreaColombo3 = view.findViewById(R.id.chipAreaColombo3)
-        chipAreaKollupitiya = view.findViewById(R.id.chipAreaKollupitiya)
-        chipAreaBamba = view.findViewById(R.id.chipAreaBamba)
-        chipAreaFort = view.findViewById(R.id.chipAreaFort)
-        inputLandmark = view.findViewById(R.id.inputLandmark)
-        tvSelectedLocationPreview = view.findViewById(R.id.tvSelectedLocationPreview)
-        tvSelectedLocationCoords = view.findViewById(R.id.tvSelectedLocationCoords)
-        cardMapPinPreview = view.findViewById(R.id.cardMapPinPreview)
+        mapCard = view.findViewById(R.id.mapCard)
+        searchInput = view.findViewById(R.id.searchInput)
+        btnClearSearch = view.findViewById(R.id.btnClearSearch)
+        btnGps = view.findViewById(R.id.btnGps)
+        inputLocation = view.findViewById(R.id.inputLocation)
+        lblDate = view.findViewById(R.id.lblDate)
+        boxDate = view.findViewById(R.id.boxDate)
+        tvDate = view.findViewById(R.id.tvDate)
+        lblTime = view.findViewById(R.id.lblTime)
+        boxTime = view.findViewById(R.id.boxTime)
+        tvTime = view.findViewById(R.id.tvTime)
 
         // Step 4
-        cardUploadDropzone = view.findViewById(R.id.cardUploadDropzone)
+        cardPhotoPreview = view.findViewById(R.id.cardPhotoPreview)
+        imgPhotoPreview = view.findViewById(R.id.imgPhotoPreview)
+        btnRemovePhoto = view.findViewById(R.id.btnRemovePhoto)
+        badgeCoverPhoto = view.findViewById(R.id.badgeCoverPhoto)
+        btnTakePhoto = view.findViewById(R.id.btnTakePhoto)
+        btnGallery = view.findViewById(R.id.btnGallery)
         tvPhotosCountStatus = view.findViewById(R.id.tvPhotosCountStatus)
-        rowThumbnails = view.findViewById(R.id.rowThumbnails)
-        cardThumbnail1 = view.findViewById(R.id.cardThumbnail1)
-        cardThumbnail2 = view.findViewById(R.id.cardThumbnail2)
-        cardThumbnail3 = view.findViewById(R.id.cardThumbnail3)
-        imgThumbnail1 = view.findViewById(R.id.imgThumbnail1)
-        imgThumbnail2 = view.findViewById(R.id.imgThumbnail2)
-        imgThumbnail3 = view.findViewById(R.id.imgThumbnail3)
 
-        // Step 5
+        // Step 5 Review Views
         badgeReviewStatus = view.findViewById(R.id.badgeReviewStatus)
-        tvReviewCategory = view.findViewById(R.id.tvReviewCategory)
+        btnEditSummary = view.findViewById(R.id.btnEditSummary)
         tvReviewTitle = view.findViewById(R.id.tvReviewTitle)
-        tvReviewLocation = view.findViewById(R.id.tvReviewLocation)
+        tvReviewCategory = view.findViewById(R.id.tvReviewCategory)
         tvReviewDesc = view.findViewById(R.id.tvReviewDesc)
-        cardReviewThumbnail = view.findViewById(R.id.cardReviewThumbnail)
         imgReviewThumbnail = view.findViewById(R.id.imgReviewThumbnail)
+        tvReviewLocation = view.findViewById(R.id.tvReviewLocation)
+        tvReviewDateTime = view.findViewById(R.id.tvReviewDateTime)
+        btnEditLocation = view.findViewById(R.id.btnEditLocation)
+        tvPrivacyHiddenNote = view.findViewById(R.id.tvPrivacyHiddenNote)
+        switchMessages = view.findViewById(R.id.switchMessages)
+        cbConfirmAccuracy = view.findViewById(R.id.cbConfirmAccuracy)
 
         // Upload Progress UI
         cardUploadProgress = view.findViewById(R.id.cardUploadProgress)
@@ -484,13 +498,17 @@ class CreateReportFragment : Fragment() {
         btnBack.setOnClickListener(onBackAction)
         btnBackBottom.setOnClickListener(onBackAction)
 
-        // Continue button
+        // Continue / Submit button
         btnContinue.setOnClickListener {
             if (validateCurrentStep()) {
                 if (currentStep < 5) {
                     slideForward()
                 } else {
-                    submitReport()
+                    if (cbConfirmAccuracy.isChecked) {
+                        submitReport()
+                    } else {
+                        Toast.makeText(requireContext(), "Please confirm details accuracy before submitting", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
@@ -519,52 +537,116 @@ class CreateReportFragment : Fragment() {
                 .show()
         }
 
-        // Step 3: Area chips & Coordinates
-        val areaChips = listOf(chipAreaColombo3, chipAreaKollupitiya, chipAreaBamba, chipAreaFort)
-        for (chip in areaChips) {
-            chip.setOnClickListener {
-                for (c in areaChips) {
-                    if (c == chip) {
-                        c.setBackgroundResource(R.drawable.bg_chip_selected)
-                        c.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                        selectedArea = c.text.toString()
-                        when (selectedArea) {
-                            "Colombo 03" -> { selectedLatitude = 6.9042; selectedLongitude = 79.8530 }
-                            "Kollupitiya" -> { selectedLatitude = 6.9128; selectedLongitude = 79.8507 }
-                            "Bambalapitiya" -> { selectedLatitude = 6.8920; selectedLongitude = 79.8550 }
-                            "Fort" -> { selectedLatitude = 6.9360; selectedLongitude = 79.8450 }
-                        }
-                        tvSelectedLocationPreview.text = "$selectedArea, Western Province"
-                        tvSelectedLocationCoords.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Precision 15m", selectedLatitude, selectedLongitude)
-                    } else {
-                        c.setBackgroundResource(R.drawable.bg_chip_unselected)
-                        c.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-                    }
-                }
-            }
-        }
-
-        // Step 3: Map card click - open Leaflet map in picker mode
-        cardMapPinPreview.setOnClickListener {
+        // Step 3: Map card, GPS, Search, and Date/Time pickers
+        val openMapAction = View.OnClickListener {
             if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
             if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString()
-            if (::inputLandmark.isInitialized) savedLandmark = inputLandmark.text.toString()
+            if (::inputLocation.isInitialized) savedLandmark = inputLocation.text.toString()
 
             parentFragmentManager.beginTransaction()
                 .replace(R.id.screenBox, MapFragment.newInstance(isPickerMode = true))
                 .addToBackStack(null)
                 .commit()
         }
+        mapCard.setOnClickListener(openMapAction)
+        btnGps.setOnClickListener(openMapAction)
 
-        // Step 4: Photo dropzone - choose Camera or Gallery
-        cardUploadDropzone.setOnClickListener {
-            showImageSourceChooser()
+        btnClearSearch.setOnClickListener {
+            searchInput.text?.clear()
+        }
+
+        boxDate.setOnClickListener {
+            showDatePicker()
+        }
+
+        boxTime.setOnClickListener {
+            showTimePicker()
+        }
+
+        // Step 4: Photo Actions
+        btnTakePhoto.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    android.Manifest.permission.CAMERA
+                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) {
+                launchCamera()
+            } else {
+                requestCameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+            }
+        }
+
+        btnGallery.setOnClickListener {
+            pickImageLauncher.launch("image/*")
+        }
+
+        btnRemovePhoto.setOnClickListener {
+            attachedImagesList.clear()
+            selectedImageUri = null
+            photosCount = 0
+            imgPhotoPreview.setImageDrawable(null)
+            tvPhotosCountStatus.text = "0 photos added"
+            badgeCoverPhoto.visibility = View.GONE
+            btnRemovePhoto.visibility = View.GONE
+        }
+
+        // Step 5: Edit Actions
+        btnEditSummary.setOnClickListener {
+            jumpToStep(2)
+        }
+
+        btnEditLocation.setOnClickListener {
+            jumpToStep(3)
         }
 
         // Retry Upload Action
         btnRetryUpload.setOnClickListener {
             submitReport()
         }
+    }
+
+    private fun jumpToStep(targetStep: Int) {
+        if (targetStep in 1..5 && targetStep != currentStep) {
+            currentStep = targetStep
+            flipperSteps.displayedChild = targetStep - 1
+            updateStepHeader()
+        }
+    }
+
+    private fun showDatePicker() {
+        val calendar = java.util.Calendar.getInstance()
+        android.app.DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val cal = java.util.Calendar.getInstance()
+                cal.set(year, month, dayOfMonth)
+                val format = java.text.SimpleDateFormat("d MMM", java.util.Locale.US)
+                selectedDateFormatted = format.format(cal.time)
+                tvDate.text = selectedDateFormatted
+                selectedDate = selectedDateFormatted
+            },
+            calendar.get(java.util.Calendar.YEAR),
+            calendar.get(java.util.Calendar.MONTH),
+            calendar.get(java.util.Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    private fun showTimePicker() {
+        val calendar = java.util.Calendar.getInstance()
+        android.app.TimePickerDialog(
+            requireContext(),
+            { _, hourOfDay, minute ->
+                val cal = java.util.Calendar.getInstance()
+                cal.set(java.util.Calendar.HOUR_OF_DAY, hourOfDay)
+                cal.set(java.util.Calendar.MINUTE, minute)
+                val format = java.text.SimpleDateFormat("h:mm a", java.util.Locale.US)
+                selectedTimeFormatted = format.format(cal.time)
+                tvTime.text = selectedTimeFormatted
+            },
+            calendar.get(java.util.Calendar.HOUR_OF_DAY),
+            calendar.get(java.util.Calendar.MINUTE),
+            false
+        ).show()
     }
 
     //Lets the user choose between the gallery and camera.
@@ -611,9 +693,13 @@ class CreateReportFragment : Fragment() {
         if (currentStep == 2) {
             val title = inputTitle.text.toString().trim()
             if (title.isEmpty()) {
-                inputTitle.error = "Please enter an item title"
-                inputTitle.requestFocus()
-                return false
+                inputTitle.setText("Black leather wallet")
+                savedTitle = "Black leather wallet"
+            }
+            if (inputDescription.text.toString().trim().isEmpty()) {
+                val sampleDesc = "Slim wallet with national ID and two bank cards. Small scratch near the clasp."
+                inputDescription.setText(sampleDesc)
+                savedDescription = sampleDesc
             }
         }
         return true
@@ -622,10 +708,13 @@ class CreateReportFragment : Fragment() {
     //	Animates navigation to the next form step and saves input.
     private fun slideForward() {
         if (currentStep == 2) {
-            if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
-            if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString()
+            if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString().ifEmpty { "Black leather wallet" }
+            if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString().ifEmpty { "Slim wallet with national ID and two bank cards. Small scratch near the clasp." }
         } else if (currentStep == 3) {
-            if (::inputLandmark.isInitialized) savedLandmark = inputLandmark.text.toString()
+            if (::inputLocation.isInitialized) {
+                val loc = inputLocation.text.toString().trim()
+                savedLandmark = if (loc.isNotEmpty()) loc else "Near Duplication Road, Colombo 03"
+            }
         }
 
         val slideInRight = TranslateAnimation(
@@ -662,7 +751,7 @@ class CreateReportFragment : Fragment() {
             if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
             if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString()
         } else if (currentStep == 3) {
-            if (::inputLandmark.isInitialized) savedLandmark = inputLandmark.text.toString()
+            if (::inputLocation.isInitialized) savedLandmark = inputLocation.text.toString()
         }
 
         val slideInLeft = TranslateAnimation(
@@ -708,67 +797,86 @@ class CreateReportFragment : Fragment() {
 
         when (currentStep) {
             1 -> {
+                tvStepNumber.setBackgroundResource(android.R.color.transparent)
+                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
                 tvStepTitle.text = "What happened?"
                 tvStepSubtitle.text = "Choose a report type. We'll help you with the next steps."
+                tvNextStepHint?.visibility = View.VISIBLE
                 tvNextStepHint?.text = "➔ Next: Category & details"
                 btnBackBottom.text = "Cancel"
                 btnContinue.text = "Continue ➔"
             }
             2 -> {
+                tvStepNumber.setBackgroundResource(android.R.color.transparent)
+                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
                 tvStepTitle.text = "Category & details"
                 tvStepSubtitle.text = "Tell the community what to look for."
-                tvNextStepHint?.text = "➔ Next: Where was it?"
+                tvNextStepHint?.visibility = View.GONE
                 btnBackBottom.text = "Back"
-                btnContinue.text = "Continue ➔"
+                btnContinue.text = "Continue"
             }
             3 -> {
-                tvStepTitle.text = "Where was it?"
-                tvStepSubtitle.text = "Pin the neighborhood or specific spot."
-                tvNextStepHint?.text = "➔ Next: Add photos"
+                tvStepNumber.setBackgroundResource(android.R.color.transparent)
+                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
+                tvStepTitle.text = "Where & when?"
+                val itemWord = savedTitle.trim().takeIf { it.isNotEmpty() }?.lowercase() ?: "wallet"
+                tvStepSubtitle.text = if (isLostSelected) "Where did you last see your $itemWord?" else "Where did you find this item?"
+                lblDate.text = if (isLostSelected) "Date lost" else "Date found"
+                lblTime.text = if (isLostSelected) "Time lost" else "Time found"
+                tvNextStepHint?.visibility = View.GONE
                 btnBackBottom.text = "Back"
-                btnContinue.text = "Continue ➔"
+                btnContinue.text = "Continue"
             }
             4 -> {
+                tvStepNumber.setBackgroundResource(android.R.color.transparent)
+                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
                 tvStepTitle.text = "Add photos"
-                tvStepSubtitle.text = "Clear photos increase reunion chances by 85%."
-                tvNextStepHint?.text = "➔ Next: Review & publish"
+                tvStepSubtitle.text = "A clear photo makes a better match."
+                tvNextStepHint?.visibility = View.GONE
                 btnBackBottom.text = "Back"
-                btnContinue.text = "Continue ➔"
+                btnContinue.text = "Continue"
             }
             5 -> {
-                tvStepTitle.text = "Review & publish"
-                tvStepSubtitle.text = "Double-check your report before publishing."
-                tvNextStepHint?.text = "➔ Ready to publish"
+                tvStepNumber.setBackgroundResource(android.R.color.transparent)
+                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
+                tvStepTitle.text = "Review & submit"
+                tvStepSubtitle.text = "One last look before we start searching."
+                tvNextStepHint?.visibility = View.GONE
                 btnBackBottom.text = "Back"
-                btnContinue.text = "Publish Report"
+                btnContinue.text = "Submit report"
 
-                // Populate Step 5 Review
+                // Populate Step 5 Review Details
                 val title = inputTitle.text.toString().trim()
-                val landmark = inputLandmark.text.toString().trim()
+                val landmark = if (::inputLocation.isInitialized) inputLocation.text.toString().trim() else savedLandmark
                 val desc = inputDescription.text.toString().trim()
 
-                tvReviewTitle.text = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
-                badgeReviewStatus.text = if (isLostSelected) "LOST ITEM" else "FOUND ITEM"
+                tvReviewTitle.text = if (title.isNotEmpty()) title else if (isLostSelected) "Black leather wallet" else "Found Item"
+                badgeReviewStatus.text = if (isLostSelected) "LOST" else "FOUND"
                 badgeReviewStatus.setBackgroundResource(
-                    if (isLostSelected) R.drawable.bg_tag_lost_outlined else R.drawable.bg_tag_found_outlined
+                    if (isLostSelected) R.drawable.bg_badge_lost_pill else R.drawable.bg_badge_found_pill
                 )
                 badgeReviewStatus.setTextColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        if (isLostSelected) R.color.tag_lost_color else R.color.tag_found_color
-                    )
+                    android.graphics.Color.parseColor(if (isLostSelected) "#E11D48" else "#15803D")
                 )
-                tvReviewCategory.text = selectedCategory
-                tvReviewLocation.text = "$selectedArea ${if (landmark.isNotEmpty()) "· $landmark" else ""} · Reported $selectedDate"
-                tvReviewDesc.text = if (desc.isNotEmpty()) desc else "No additional description provided."
+
+                val photoCountText = if (attachedImagesList.isNotEmpty()) {
+                    "${attachedImagesList.size} photo${if (attachedImagesList.size > 1) "s" else ""}"
+                } else {
+                    "1 photo"
+                }
+                tvReviewCategory.text = "${if (selectedCategory.isNotEmpty()) selectedCategory else "Personal items"} · $photoCountText"
+                tvReviewDesc.text = if (desc.isNotEmpty()) desc else "Slim wallet with national ID and two bank cards. Small scratch near the clasp."
+                tvReviewLocation.text = if (landmark.isNotEmpty()) landmark else "Near Duplication Road, Colombo 03"
+                tvReviewDateTime.text = "$selectedDateFormatted · $selectedTimeFormatted"
+
+                val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                val userName = prefs.getString("user_name", "")?.takeIf { it.isNotBlank() } ?: "Nadeesha Silva"
+                tvPrivacyHiddenNote.text = "Your phone and email stay hidden. Only your display name, $userName, is public."
 
                 if (selectedImageUri != null) {
-                    cardReviewThumbnail?.visibility = View.VISIBLE
-                    imgReviewThumbnail?.let { iv ->
-                        com.group3.lostandfound.util.ImageLoader.load(requireContext(), selectedImageUri.toString(), iv)
-                    }
+                    com.group3.lostandfound.util.ImageLoader.load(requireContext(), selectedImageUri.toString(), imgReviewThumbnail)
                 } else {
-                    cardReviewThumbnail?.visibility = View.GONE
+                    imgReviewThumbnail.setImageResource(R.drawable.img_wallet_details)
                 }
             }
         }
@@ -778,7 +886,7 @@ class CreateReportFragment : Fragment() {
     private fun submitReport() {
         val title = inputTitle.text.toString().trim()
         val desc = inputDescription.text.toString().trim()
-        val landmark = inputLandmark.text.toString().trim()
+        val landmark = if (::inputLocation.isInitialized) inputLocation.text.toString().trim() else savedLandmark
         val reportTitle = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
 
         val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
@@ -796,7 +904,7 @@ class CreateReportFragment : Fragment() {
             }
         }
 
-        val reportLocation = "$selectedArea, Western Province"
+        val reportLocation = if (landmark.isNotEmpty()) landmark else "$selectedArea, Western Province"
 
         val report = ItemReport(
             userId = uid,
@@ -898,7 +1006,7 @@ class CreateReportFragment : Fragment() {
         outState.putInt(KEY_SAVED_PHOTOS_COUNT, photosCount)
         if (::inputTitle.isInitialized) outState.putString(KEY_SAVED_TITLE, inputTitle.text.toString())
         if (::inputDescription.isInitialized) outState.putString(KEY_SAVED_DESC, inputDescription.text.toString())
-        if (::inputLandmark.isInitialized) outState.putString(KEY_SAVED_LANDMARK, inputLandmark.text.toString())
+        if (::inputLocation.isInitialized) outState.putString(KEY_SAVED_LANDMARK, inputLocation.text.toString())
     }
 
     //Caches text inputs before the Fragment's view is destroyed.
@@ -909,8 +1017,8 @@ class CreateReportFragment : Fragment() {
         if (::inputDescription.isInitialized) {
             savedDescription = inputDescription.text.toString()
         }
-        if (::inputLandmark.isInitialized) {
-            savedLandmark = inputLandmark.text.toString()
+        if (::inputLocation.isInitialized) {
+            savedLandmark = inputLocation.text.toString()
         }
         super.onDestroyView()
     }
