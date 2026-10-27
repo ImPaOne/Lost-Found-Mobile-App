@@ -25,6 +25,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
 
     val lblHome = rootView.findViewById<TextView>(R.id.lblHome)
     val lblExplore = rootView.findViewById<TextView>(R.id.lblExplore)
+    val lblPost = rootView.findViewById<TextView>(R.id.lblPost)
     val lblMessages = rootView.findViewById<TextView>(R.id.lblMessages)
     val lblProfile = rootView.findViewById<TextView>(R.id.lblProfile)
 
@@ -68,6 +69,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
 
         lblHome?.text = "Dashboard"
         lblExplore?.text = "Moderation"
+        lblPost?.text = "Analytics"
         lblMessages?.text = "Users"
         lblProfile?.text = "Settings"
 
@@ -90,11 +92,13 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
 
         lblHome?.setTextColor(if (isTab1) activeColor else inactiveColor)
         lblExplore?.setTextColor(if (isTab2) activeColor else inactiveColor)
+        lblPost?.setTextColor(if (isTab3) activeColor else inactiveColor)
         lblMessages?.setTextColor(if (isTab4) activeColor else inactiveColor)
         lblProfile?.setTextColor(if (isTab5) activeColor else inactiveColor)
 
         lblHome?.setTypeface(null, if (isTab1) Typeface.BOLD else Typeface.NORMAL)
         lblExplore?.setTypeface(null, if (isTab2) Typeface.BOLD else Typeface.NORMAL)
+        lblPost?.setTypeface(null, if (isTab3) Typeface.BOLD else Typeface.NORMAL)
         lblMessages?.setTypeface(null, if (isTab4) Typeface.BOLD else Typeface.NORMAL)
         lblProfile?.setTypeface(null, if (isTab5) Typeface.BOLD else Typeface.NORMAL)
 
@@ -132,6 +136,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
 
         lblHome?.text = "Home"
         lblExplore?.text = "Explore"
+        lblPost?.text = "+ Post"
         lblMessages?.text = "Messages"
         lblProfile?.text = "Profile"
 
@@ -145,7 +150,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
         val isTabExplore = activeTab == "explore"
         val isTabPost = activeTab == "post"
         val isTabMessages = activeTab == "messages"
-        val isTabProfile = activeTab == "profile"
+        val isTabProfile = activeTab == "profile" || activeTab == "settings"
 
         boxHome?.setBackgroundResource(if (isTabHome) R.drawable.bg_nav_tab_active_pill else 0)
         boxExplore?.setBackgroundResource(if (isTabExplore) R.drawable.bg_nav_tab_active_pill else 0)
@@ -154,6 +159,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
 
         lblHome?.setTextColor(if (isTabHome) activeColor else inactiveColor)
         lblExplore?.setTextColor(if (isTabExplore) activeColor else inactiveColor)
+        lblPost?.setTextColor(if (isTabPost) activeColor else activeColor)
         lblMessages?.setTextColor(if (isTabMessages) activeColor else inactiveColor)
         lblProfile?.setTextColor(if (isTabProfile) activeColor else inactiveColor)
 

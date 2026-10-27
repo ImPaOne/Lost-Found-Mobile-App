@@ -48,29 +48,16 @@ object CloudinaryManager {
             val base64Data = "data:image/jpeg;base64," + Base64.encodeToString(imageBytes, Base64.NO_WRAP)
 
             DataOutputStream(connection.outputStream).use { output ->
-                // 1. file parameter (as data URI)
-                output.writeBytes("--$boundary\r\n")
-                output.writeBytes("Content-Disposition: form-data; name=\"file\"\r\n\r\n")
-                output.writeBytes(base64Data)
-                output.writeBytes("\r\n")
-
-                // 2. api_key parameter
-                output.writeBytes("--$boundary\r\n")
-                output.writeBytes("Content-Disposition: form-data; name=\"api_key\"\r\n\r\n")
-                output.writeBytes(API_KEY)
-                output.writeBytes("\r\n")
-
-                // 3. upload_preset parameter
+                // 1. upload_preset parameter (Unsigned preset)
                 output.writeBytes("--$boundary\r\n")
                 output.writeBytes("Content-Disposition: form-data; name=\"upload_preset\"\r\n\r\n")
-                output.writeBytes("ml_default")
-                output.writeBytes("\r\n")
+                output.writeBytes("ml_default\r\n")
 
-                // 4. timestamp parameter
-                val timestamp = (System.currentTimeMillis() / 1000).toString()
+                // 2. file parameter (direct binary JPEG upload)
                 output.writeBytes("--$boundary\r\n")
-                output.writeBytes("Content-Disposition: form-data; name=\"timestamp\"\r\n\r\n")
-                output.writeBytes(timestamp)
+                output.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\"item_photo.jpg\"\r\n")
+                output.writeBytes("Content-Type: image/jpeg\r\n\r\n")
+                output.write(imageBytes)
                 output.writeBytes("\r\n")
 
                 // End of multipart
