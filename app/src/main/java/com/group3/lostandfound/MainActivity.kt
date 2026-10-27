@@ -64,15 +64,11 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             val onboardingCompleted = prefs.getBoolean("onboarding_completed", false)
-            val isExplicitAdmin = savedEmail.equals("admin@gmail.com", ignoreCase = true) && prefs.getBoolean("is_admin", false)
-
-            if (!isExplicitAdmin && prefs.getBoolean("is_admin", false)) {
-                prefs.edit().putBoolean("is_admin", false).apply()
-            }
+            val isAdmin = prefs.getBoolean("is_admin", false) || savedEmail.equals("admin@gmail.com", ignoreCase = true)
 
             val initialFragment = when {
                 !onboardingCompleted -> OnboardingFragment.newInstance()
-                isLoggedIn && isExplicitAdmin -> AdminFragment.newInstance()
+                isLoggedIn && isAdmin -> AdminFragment.newInstance()
                 isLoggedIn -> HomeFragment.newInstance()
                 else -> LoginFragment.newInstance()
             }
@@ -223,30 +219,37 @@ class MainActivity : AppCompatActivity() {
     private fun setupDoubleTapBackToHome() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                val prefs = getSharedPreferences("findit_prefs", MODE_PRIVATE)
+                val isAdmin = prefs.getBoolean("is_admin", false) || FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
                 val currentTime = System.currentTimeMillis()
                 val currentFrag = supportFragmentManager.findFragmentById(R.id.screenBox)
 
+                val isRootScreen = if (isAdmin) currentFrag is AdminFragment else currentFrag is HomeFragment
+
                 if (currentTime - lastBackPressTime < 2000L) {
                     lastBackPressTime = 0L
-                    if (currentFrag is HomeFragment) {
+                    if (isRootScreen) {
                         finish()
                     } else {
                         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                        val targetFrag = if (isAdmin) AdminFragment.newInstance() else HomeFragment.newInstance()
+                        val targetLabel = if (isAdmin) "Admin Dashboard" else "Homepage"
                         supportFragmentManager.beginTransaction()
                             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                            .replace(R.id.screenBox, HomeFragment.newInstance())
+                            .replace(R.id.screenBox, targetFrag)
                             .commit()
-                        Toast.makeText(this@MainActivity, "Returned to Homepage", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "Returned to $targetLabel", Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     lastBackPressTime = currentTime
-                    if (currentFrag is HomeFragment) {
+                    if (isRootScreen) {
                         Toast.makeText(this@MainActivity, "Tap back again to exit", Toast.LENGTH_SHORT).show()
                     } else {
                         if (supportFragmentManager.backStackEntryCount > 0) {
                             supportFragmentManager.popBackStack()
                         } else {
-                            Toast.makeText(this@MainActivity, "Double tap back to go to Homepage", Toast.LENGTH_SHORT).show()
+                            val targetLabel = if (isAdmin) "Admin Dashboard" else "Homepage"
+                            Toast.makeText(this@MainActivity, "Double tap back to go to $targetLabel", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
