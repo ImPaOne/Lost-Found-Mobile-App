@@ -100,18 +100,16 @@
 
         <LinearLayout
             android:id="@+id/btnPostCircle"
-            android:layout_width="50dp"
-            android:layout_height="48dp"
+            android:layout_width="48dp"
+            android:layout_height="44dp"
             android:background="@drawable/bg_dark_circle_button"
             android:gravity="center"
-            android:orientation="vertical"
-            android:paddingTop="3dp"
-            android:paddingBottom="3dp">
+            android:orientation="vertical">
 
             <ImageView
                 android:id="@+id/imgPostPlus"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
                 android:layout_gravity="center"
                 android:contentDescription="Post"
                 android:src="@drawable/ic_nav_plus"
@@ -121,12 +119,7 @@
                 android:id="@+id/lblPost"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
-                android:fontFamily="sans-serif-bold"
-                android:text="+ Post"
-                android:textColor="@color/white"
-                android:textSize="10sp"
-                android:textStyle="bold" />
+                android:visibility="gone" />
         </LinearLayout>
 
         <!-- Dummy view keeping btnPostPill ID for backward compatibility -->
