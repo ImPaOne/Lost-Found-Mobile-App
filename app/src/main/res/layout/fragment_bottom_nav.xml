@@ -97,16 +97,16 @@
 
         <LinearLayout
             android:id="@+id/btnPostPill"
-            android:layout_width="48dp"
-            android:layout_height="46dp"
+            android:layout_width="54dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_nav_post_pill"
             android:elevation="2dp"
             android:gravity="center"
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:contentDescription="Post"
                 android:src="@drawable/ic_plus"
                 app:tint="@color/white" />
@@ -114,8 +114,12 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:text="+ Post" />
+                android:layout_marginTop="1dp"
+                android:fontFamily="sans-serif-bold"
+                android:text="+ Post"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
 
