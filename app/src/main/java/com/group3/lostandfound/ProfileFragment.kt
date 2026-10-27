@@ -556,8 +556,9 @@ class ProfileFragment : Fragment() {
         popup.menu.add(0, 3, 2, "My Reports")
         popup.menu.add(0, 4, 3, "Saved Items")
         popup.menu.add(0, 5, 4, "Trust Score")
-        popup.menu.add(0, 6, 5, "Help & Support")
-        popup.menu.add(0, 7, 6, "Log Out")
+        popup.menu.add(0, 6, 5, "Component Library (UI Kit)")
+        popup.menu.add(0, 7, 6, "Help & Support")
+        popup.menu.add(0, 8, 7, "Log Out")
 
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
@@ -566,8 +567,9 @@ class ProfileFragment : Fragment() {
                 3 -> navigateTo(ReportsFragment.newInstance())
                 4 -> showSavedItemsDialog()
                 5 -> navigateTo(TrustFragment.newInstance())
-                6 -> showHelpCenterDialog()
-                7 -> showLogoutConfirmationDialog()
+                6 -> navigateTo(UiKitFragment.newInstance())
+                7 -> showHelpCenterDialog()
+                8 -> showLogoutConfirmationDialog()
             }
             true
         }
