@@ -394,9 +394,9 @@ class SettingsFragment : Fragment() {
     private fun showMoreOptionsDialog() {
         val isExplicitAdmin = FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
         val options = if (isExplicitAdmin) {
-            arrayOf("Admin Dashboard", "Rate Foundly", "Draw Over Other Apps", "About", "Log Out")
+            arrayOf("Admin Dashboard", "Component Library (UI Kit)", "Rate Foundly", "Draw Over Other Apps", "About", "Log Out")
         } else {
-            arrayOf("Rate Foundly", "Draw Over Other Apps", "About", "Log Out")
+            arrayOf("Component Library (UI Kit)", "Rate Foundly", "Draw Over Other Apps", "About", "Log Out")
         }
 
         AlertDialog.Builder(requireContext())
@@ -406,6 +406,12 @@ class SettingsFragment : Fragment() {
                     "Admin Dashboard" -> {
                         parentFragmentManager.beginTransaction()
                             .replace(R.id.screenBox, AdminFragment.newInstance())
+                            .addToBackStack(null)
+                            .commit()
+                    }
+                    "Component Library (UI Kit)" -> {
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.screenBox, UiKitFragment.newInstance())
                             .addToBackStack(null)
                             .commit()
                     }
