@@ -90,7 +90,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
 
     lblHome?.setTextColor(if (isTabHome) activeColor else inactiveColor)
     lblExplore?.setTextColor(if (isTabExplore) activeColor else inactiveColor)
-    lblPost?.setTextColor(if (isTabPost) activeColor else activeColor)
+    lblPost?.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
     lblMessages?.setTextColor(if (isTabMessages) activeColor else inactiveColor)
     lblProfile?.setTextColor(if (isTabProfile) activeColor else inactiveColor)
 
@@ -101,6 +101,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
 
     imgHome?.setColorFilter(if (isTabHome) activeColor else inactiveColor)
     imgExplore?.setColorFilter(if (isTabExplore) activeColor else inactiveColor)
+    imgPostPlus?.setColorFilter(ContextCompat.getColor(requireContext(), R.color.white))
     imgMessages?.setColorFilter(if (isTabMessages) activeColor else inactiveColor)
     imgProfile?.setColorFilter(if (isTabProfile) activeColor else inactiveColor)
 
