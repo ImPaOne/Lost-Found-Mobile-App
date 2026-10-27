@@ -5,10 +5,10 @@
     android:id="@+id/splashRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFFFF"
+    android:background="#FFFFFF"
     tools:context=".SplashActivity">
 
-    <!-- Center Branding Container -->
+    <!-- Center Branding Container matching reference design -->
     <LinearLayout
         android:id="@+id/centerBrandingBox"
         android:layout_width="wrap_content"
@@ -19,56 +19,96 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.46">
+        app:layout_constraintVertical_bias="0.44">
 
-        <!-- Logo Container without background shapes -->
+        <!-- Outer Rounded Card with Soft Ambient Shadow/Glow -->
         <FrameLayout
             android:id="@+id/logoOuterBox"
-            android:layout_width="120dp"
-            android:layout_height="120dp">
+            android:layout_width="98dp"
+            android:layout_height="98dp"
+            android:background="@drawable/bg_splash_outer_card"
+            android:elevation="6dp">
 
-            <ImageView
-                android:id="@+id/logoIcon"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+            <!-- Inner Dark Navy Rounded Container -->
+            <FrameLayout
+                android:layout_width="54dp"
+                android:layout_height="54dp"
                 android:layout_gravity="center"
-                android:contentDescription="App Logo"
-                android:src="@drawable/logoo"
-                android:scaleType="fitCenter" />
+                android:background="@drawable/bg_splash_inner_card">
+
+                <!-- Verified User Checkmark Icon -->
+                <ImageView
+                    android:id="@+id/logoIcon"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Foundly App Logo"
+                    android:src="@drawable/ic_splash_person_check" />
+            </FrameLayout>
         </FrameLayout>
 
-        <!-- App Name: Foundly in black -->
+        <!-- App Name: Foundly in rich dark navy -->
         <TextView
             android:id="@+id/appNameText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="22dp"
             android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.01"
             android:text="Foundly"
-            android:textColor="#FF000000"
-            android:textSize="40sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.02" />
+            android:textColor="#0B2540"
+            android:textSize="38sp"
+            android:textStyle="bold" />
 
-        <!-- Accent Divider -->
+        <!-- Vibrant Teal Accent Divider -->
         <View
             android:id="@+id/brandDivider"
-            android:layout_width="40dp"
+            android:layout_width="34dp"
             android:layout_height="3dp"
-            android:layout_marginTop="10dp"
-            android:background="#FF000000" />
+            android:layout_marginTop="9dp"
+            android:background="@drawable/bg_splash_accent_bar" />
 
-        <!-- Tagline: black text -->
+        <!-- Tagline in soft slate gray -->
         <TextView
             android:id="@+id/taglineText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.04"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif"
+            android:letterSpacing="0.02"
             android:text="Lost less. Found faster."
-            android:textColor="#FF333333"
-            android:textSize="15sp" />
+            android:textColor="#627D98"
+            android:textSize="14.5sp" />
+    </LinearLayout>
+
+    <!-- Bottom 3 Dots Indicator matching reference image -->
+    <LinearLayout
+        android:id="@+id/dotsIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="54dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <View
+            android:layout_width="7dp"
+            android:layout_height="7dp"
+            android:background="@drawable/bg_splash_dot_1" />
+
+        <View
+            android:layout_width="7dp"
+            android:layout_height="7dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_splash_dot_2" />
+
+        <View
+            android:layout_width="7dp"
+            android:layout_height="7dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_splash_dot_3" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

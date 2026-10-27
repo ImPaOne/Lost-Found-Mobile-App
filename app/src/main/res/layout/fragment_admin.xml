@@ -8,6 +8,7 @@
     android:orientation="vertical"
     tools:context=".AdminFragment">
 
+    <!-- Scrollable Admin Content -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollBox"
         android:layout_width="match_parent"
@@ -21,12 +22,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="22dp"
+            android:paddingStart="20dp"
             android:paddingTop="14dp"
-            android:paddingEnd="22dp"
+            android:paddingEnd="20dp"
             android:paddingBottom="24dp">
 
-            <!-- Header Row: Back button, Title, Notification Bell -->
+            <!-- 1. Header Row: Back button, Title with Admin Badge, Bell -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/headerRow"
                 android:layout_width="match_parent"
@@ -34,75 +35,100 @@
 
                 <ImageView
                     android:id="@+id/backButton"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:contentDescription="Back"
                     android:focusable="true"
-                    android:padding="8dp"
+                    android:padding="9dp"
                     android:src="@drawable/ic_back_chevron"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/text_primary" />
 
-                <TextView
-                    android:id="@+id/headerTitle"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="Admin Dashboard"
-                    android:textColor="@color/text_primary"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:orientation="horizontal"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintEnd_toStartOf="@+id/notificationBell"
+                    app:layout_constraintStart_toEndOf="@+id/backButton"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/headerTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="Admin Dashboard"
+                        android:textColor="@color/text_primary"
+                        android:textSize="19sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_badge_admin"
+                        android:paddingStart="6dp"
+                        android:paddingTop="2dp"
+                        android:paddingEnd="6dp"
+                        android:paddingBottom="2dp"
+                        android:text="PORTAL"
+                        android:textColor="#0369A1"
+                        android:textSize="9.5sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <ImageView
                     android:id="@+id/notificationBell"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:contentDescription="Notifications"
                     android:focusable="true"
-                    android:padding="8dp"
+                    android:padding="9dp"
                     android:src="@drawable/ic_bell"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/text_primary" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Subheading: Date and Operations Overview -->
+            <!-- 2. Subheading: Date & Operations Overview -->
             <TextView
                 android:id="@+id/dateSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="20dp"
                 android:fontFamily="sans-serif-black"
                 android:letterSpacing="0.04"
-                android:text="SUNDAY, 13 SEPTEMBER"
+                android:text="TODAY's OVERVIEW"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp"
+                android:textSize="11.5sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/overviewHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="3dp"
                 android:fontFamily="sans-serif-black"
                 android:text="Operations overview"
                 android:textColor="@color/text_primary"
-                android:textSize="29sp"
+                android:textSize="28sp"
                 android:textStyle="bold" />
 
-            <!-- 2x2 Statistics Grid -->
+            <!-- 3. Modern 2x2 Overview KPI Cards Grid -->
             <LinearLayout
                 android:id="@+id/statisticsGrid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="18dp"
                 android:orientation="vertical">
 
                 <!-- Row 1: Total Reports and Active Cases -->
@@ -111,248 +137,166 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
+                    <!-- KPI Card 1: Total Reports -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:background="@drawable/bg_admin_kpi_card"
+                        android:elevation="2dp"
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
                         <TextView
                             android:id="@+id/totalReportsNumber"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:focusable="true"
                             android:fontFamily="sans-serif-black"
                             android:text="1,284"
                             android:textColor="@color/text_primary"
-                            android:textSize="28sp"
+                            android:textSize="26sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/totalReportsLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
+                            android:layout_marginTop="4dp"
                             android:fontFamily="sans-serif-medium"
                             android:text="Total Reports"
                             android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
+                            android:textSize="12.5sp" />
                     </LinearLayout>
 
+                    <!-- KPI Card 2: Active Cases -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
+                        android:layout_marginStart="6dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:background="@drawable/bg_admin_kpi_card"
+                        android:elevation="2dp"
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
                         <TextView
                             android:id="@+id/activeCasesNumber"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:focusable="true"
                             android:fontFamily="sans-serif-black"
                             android:text="186"
                             android:textColor="@color/text_primary"
-                            android:textSize="28sp"
+                            android:textSize="26sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/activeCasesLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
+                            android:layout_marginTop="4dp"
                             android:fontFamily="sans-serif-medium"
                             android:text="Active Cases"
                             android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
+                            android:textSize="12.5sp" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Row 2: Resolved and Users -->
+                <!-- Row 2: Resolved Cases and Users -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="12dp"
                     android:orientation="horizontal">
 
+                    <!-- KPI Card 3: Resolved Reunions -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:background="@drawable/bg_admin_kpi_card"
+                        android:elevation="2dp"
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
                         <TextView
                             android:id="@+id/resolvedCasesNumber"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:focusable="true"
                             android:fontFamily="sans-serif-black"
                             android:text="1,098"
                             android:textColor="@color/text_primary"
-                            android:textSize="28sp"
+                            android:textSize="26sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/resolvedCasesLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
+                            android:layout_marginTop="4dp"
                             android:fontFamily="sans-serif-medium"
                             android:text="Resolved"
                             android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
+                            android:textSize="12.5sp" />
                     </LinearLayout>
 
+                    <!-- KPI Card 4: Registered Users -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
+                        android:layout_marginStart="6dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:background="@drawable/bg_admin_kpi_card"
+                        android:elevation="2dp"
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
                         <TextView
                             android:id="@+id/totalUsersNumber"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:focusable="true"
                             android:fontFamily="sans-serif-black"
                             android:text="8,420"
                             android:textColor="@color/text_primary"
-                            android:textSize="28sp"
+                            android:textSize="26sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/totalUsersLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
+                            android:layout_marginTop="4dp"
                             android:fontFamily="sans-serif-medium"
                             android:text="Users"
                             android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
+                            android:textSize="12.5sp" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Reports Over Time Section Header -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/chartHeaderRow"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp">
-
-                <TextView
-                    android:id="@+id/chartSectionTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-black"
-                    android:letterSpacing="0.04"
-                    android:text="REPORTS OVER TIME"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/chartTimeRange"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Last 30 days"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Spline Line Trend Graph -->
-            <ImageView
-                android:id="@+id/trendGraph"
-                android:layout_width="match_parent"
-                android:layout_height="64dp"
-                android:layout_marginTop="12dp"
-                android:contentDescription="Reports over time trend graph"
-                android:scaleType="fitXY"
-                android:src="@drawable/img_trend_line" />
-
-            <!-- Graph Date Labels -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp">
-
-                <TextView
-                    android:id="@+id/chartStartDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="15 Aug"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/chartEndDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="13 Sep"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Small Button to View Advanced Analytics Redirection -->
-            <LinearLayout
-                android:id="@+id/btnViewAdvancedAnalytics"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_gravity="end"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_badge_today"
-                android:backgroundTint="#003049"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp">
-
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:contentDescription="Analytics"
-                    android:src="@drawable/ic_star_filled"
-                    app:tint="@color/white" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="View Advanced Analytics →"
-                    android:textColor="@color/white"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- Moderation Queue Card Banner -->
+            <!-- 4. Moderation Queue Action Banner -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/moderationQueueCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="20dp"
                 android:background="@drawable/bg_stat_banner"
                 android:clickable="true"
+                android:elevation="2dp"
                 android:focusable="true"
-                android:paddingStart="20dp"
-                android:paddingTop="18dp"
-                android:paddingEnd="20dp"
-                android:paddingBottom="18dp">
+                android:paddingStart="18dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="18dp"
+                android:paddingBottom="16dp">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -383,7 +327,7 @@
                         android:fontFamily="sans-serif-black"
                         android:text="24 awaiting review"
                         android:textColor="@color/text_primary"
-                        android:textSize="20sp"
+                        android:textSize="19sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -404,35 +348,154 @@
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Quick Actions Section Title -->
+            <!-- 5. Reports Over Time Trend Section -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/chartHeaderRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp">
+
+                <TextView
+                    android:id="@+id/chartSectionTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:letterSpacing="0.04"
+                    android:text="REPORTS OVER TIME"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/chartTimeRange"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Last 30 days"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12.5sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Trend Graph Container -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_admin_kpi_card"
+                android:elevation="1dp"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <ImageView
+                    android:id="@+id/trendGraph"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:clickable="true"
+                    android:contentDescription="Reports over time trend graph"
+                    android:focusable="true"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/img_trend_line" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:id="@+id/chartStartDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="15 Aug"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/chartEndDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="13 Sep"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- Small Button to View Advanced Analytics Redirection -->
+                <LinearLayout
+                    android:id="@+id/btnViewAdvancedAnalytics"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_badge_today"
+                    android:backgroundTint="#003049"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:contentDescription="Analytics"
+                        android:src="@drawable/ic_star_filled"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="View Advanced Analytics →"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 6. Quick Navigation Actions -->
             <TextView
                 android:id="@+id/quickActionsTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="26dp"
+                android:layout_marginTop="24dp"
                 android:fontFamily="sans-serif-black"
                 android:letterSpacing="0.04"
                 android:text="QUICK ACTIONS"
                 android:textColor="@color/text_primary"
-                android:textSize="13sp"
+                android:textSize="12.5sp"
                 android:textStyle="bold" />
 
-            <!-- Quick Action 3 Buttons -->
             <LinearLayout
                 android:id="@+id/quickActionsRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/reviewReportsButton"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="48dp"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_btn_approve"
                     android:clickable="true"
+                    android:elevation="1dp"
                     android:focusable="true"
                     android:gravity="center"
                     android:paddingStart="4dp"
@@ -445,12 +508,13 @@
                 <TextView
                     android:id="@+id/manageUsersButton"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="48dp"
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_btn_outline"
                     android:clickable="true"
+                    android:elevation="1dp"
                     android:focusable="true"
                     android:gravity="center"
                     android:paddingStart="4dp"
@@ -463,167 +527,195 @@
                 <TextView
                     android:id="@+id/announcementButton"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="48dp"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_btn_outline"
                     android:clickable="true"
+                    android:elevation="1dp"
                     android:focusable="true"
                     android:gravity="center"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
-                    android:text="Send&#10;Announcement"
+                    android:text="Admin Tools"
                     android:textColor="@color/text_primary"
-                    android:textSize="11sp"
+                    android:textSize="11.5sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Recent Activity Section Title -->
+            <!-- 7. Recent Activity Audit Trail -->
             <TextView
                 android:id="@+id/recentActivityTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="26dp"
+                android:layout_marginTop="24dp"
                 android:fontFamily="sans-serif-black"
                 android:letterSpacing="0.04"
                 android:text="RECENT ACTIVITY"
                 android:textColor="@color/text_primary"
-                android:textSize="13sp"
+                android:textSize="12.5sp"
                 android:textStyle="bold" />
 
-            <!-- Activity Item 1 -->
             <LinearLayout
-                android:id="@+id/activityItemApproved"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:orientation="horizontal">
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_admin_kpi_card"
+                android:elevation="1dp"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <View
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@drawable/bg_circle_black"
-                    android:backgroundTint="#675349" />
-
+                <!-- Activity Item 1 -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:id="@+id/activityItemApproved"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/activityApprovedText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="Report #LF-2841 approved by Ama"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp" />
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_circle_black"
+                        android:backgroundTint="#2A9D8F" />
 
-                    <TextView
-                        android:id="@+id/activityApprovedTime"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="12m"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/activityApprovedText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="Report #LF-2841 approved by Ama"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/activityApprovedTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="12m"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp" />
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
-
-            <!-- Activity Item 2 -->
-            <LinearLayout
-                android:id="@+id/activityItemVerification"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:orientation="horizontal">
 
                 <View
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@drawable/bg_circle_black"
-                    android:backgroundTint="#675349" />
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="#F1F5F9" />
 
+                <!-- Activity Item 2 -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:id="@+id/activityItemVerification"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/activityVerificationText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="User verification completed · Kandy"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp" />
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_circle_black"
+                        android:backgroundTint="#003049" />
 
-                    <TextView
-                        android:id="@+id/activityVerificationTime"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="45m"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/activityVerificationText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="User verification completed · Kandy"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/activityVerificationTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="45m"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp" />
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
-
-            <!-- Activity Item 3 -->
-            <LinearLayout
-                android:id="@+id/activityItemEscalated"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:orientation="horizontal">
 
                 <View
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@drawable/bg_circle_black"
-                    android:backgroundTint="#675349" />
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="#F1F5F9" />
 
+                <!-- Activity Item 3 -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:id="@+id/activityItemEscalated"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/activityEscalatedText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="Flagged passport report escalated"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp" />
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_circle_black"
+                        android:backgroundTint="#C1121F" />
 
-                    <TextView
-                        android:id="@+id/activityEscalatedTime"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="2h"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/activityEscalatedText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="Flagged passport report escalated"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/activityEscalatedTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="2h"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Navigation Bar on screen -->
+    <!-- Consistent, Functional Bottom Navigation Bar -->
     <include
         android:id="@+id/bottomNav"
         layout="@layout/fragment_bottom_nav"
