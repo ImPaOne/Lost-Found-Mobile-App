@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.TranslateAnimation
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -103,12 +104,17 @@ class CreateReportFragment : Fragment() {
 
     // Step 5 Review Views
     private lateinit var badgeReviewStatus: TextView
-    private lateinit var tvReviewCategory: TextView
+    private lateinit var btnEditSummary: View
     private lateinit var tvReviewTitle: TextView
-    private lateinit var tvReviewLocation: TextView
+    private lateinit var tvReviewCategory: TextView
     private lateinit var tvReviewDesc: TextView
-    private var cardReviewThumbnail: View? = null
-    private var imgReviewThumbnail: ImageView? = null
+    private lateinit var imgReviewThumbnail: ImageView
+    private lateinit var tvReviewLocation: TextView
+    private lateinit var tvReviewDateTime: TextView
+    private lateinit var btnEditLocation: View
+    private lateinit var tvPrivacyHiddenNote: TextView
+    private lateinit var switchMessages: androidx.appcompat.widget.SwitchCompat
+    private lateinit var cbConfirmAccuracy: CheckBox
 
     // Upload Progress & Error UI Views
     private lateinit var cardUploadProgress: View
@@ -186,9 +192,12 @@ class CreateReportFragment : Fragment() {
             badgeCoverPhoto.visibility = View.VISIBLE
         }
 
-        if (imgReviewThumbnail != null && attachedImagesList.isNotEmpty()) {
-            com.group3.lostandfound.util.ImageLoader.load(requireContext(), attachedImagesList[0].toString(), imgReviewThumbnail!!)
-            cardReviewThumbnail?.visibility = View.VISIBLE
+        if (::imgReviewThumbnail.isInitialized) {
+            if (attachedImagesList.isNotEmpty()) {
+                com.group3.lostandfound.util.ImageLoader.load(requireContext(), attachedImagesList[0].toString(), imgReviewThumbnail)
+            } else {
+                imgReviewThumbnail.setImageResource(R.drawable.img_wallet_details)
+            }
         }
     }
 
@@ -410,14 +419,19 @@ class CreateReportFragment : Fragment() {
         btnGallery = view.findViewById(R.id.btnGallery)
         tvPhotosCountStatus = view.findViewById(R.id.tvPhotosCountStatus)
 
-        // Step 5
+        // Step 5 Review Views
         badgeReviewStatus = view.findViewById(R.id.badgeReviewStatus)
-        tvReviewCategory = view.findViewById(R.id.tvReviewCategory)
+        btnEditSummary = view.findViewById(R.id.btnEditSummary)
         tvReviewTitle = view.findViewById(R.id.tvReviewTitle)
-        tvReviewLocation = view.findViewById(R.id.tvReviewLocation)
+        tvReviewCategory = view.findViewById(R.id.tvReviewCategory)
         tvReviewDesc = view.findViewById(R.id.tvReviewDesc)
-        cardReviewThumbnail = view.findViewById(R.id.cardReviewThumbnail)
         imgReviewThumbnail = view.findViewById(R.id.imgReviewThumbnail)
+        tvReviewLocation = view.findViewById(R.id.tvReviewLocation)
+        tvReviewDateTime = view.findViewById(R.id.tvReviewDateTime)
+        btnEditLocation = view.findViewById(R.id.btnEditLocation)
+        tvPrivacyHiddenNote = view.findViewById(R.id.tvPrivacyHiddenNote)
+        switchMessages = view.findViewById(R.id.switchMessages)
+        cbConfirmAccuracy = view.findViewById(R.id.cbConfirmAccuracy)
 
         // Upload Progress UI
         cardUploadProgress = view.findViewById(R.id.cardUploadProgress)
@@ -458,13 +472,17 @@ class CreateReportFragment : Fragment() {
         btnBack.setOnClickListener(onBackAction)
         btnBackBottom.setOnClickListener(onBackAction)
 
-        // Continue button
+        // Continue / Submit button
         btnContinue.setOnClickListener {
             if (validateCurrentStep()) {
                 if (currentStep < 5) {
                     slideForward()
                 } else {
-                    submitReport()
+                    if (cbConfirmAccuracy.isChecked) {
+                        submitReport()
+                    } else {
+                        Toast.makeText(requireContext(), "Please confirm details accuracy before submitting", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
@@ -546,9 +564,26 @@ class CreateReportFragment : Fragment() {
             btnRemovePhoto.visibility = View.GONE
         }
 
+        // Step 5: Edit Actions
+        btnEditSummary.setOnClickListener {
+            jumpToStep(2)
+        }
+
+        btnEditLocation.setOnClickListener {
+            jumpToStep(3)
+        }
+
         // Retry Upload Action
         btnRetryUpload.setOnClickListener {
             submitReport()
+        }
+    }
+
+    private fun jumpToStep(targetStep: Int) {
+        if (targetStep in 1..5 && targetStep != currentStep) {
+            currentStep = targetStep
+            flipperSteps.displayedChild = targetStep - 1
+            updateStepHeader()
         }
     }
 
@@ -765,40 +800,44 @@ class CreateReportFragment : Fragment() {
             5 -> {
                 tvStepNumber.setBackgroundResource(android.R.color.transparent)
                 tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
-                tvStepTitle.text = "Review & publish"
-                tvStepSubtitle.text = "Double-check your report before publishing."
-                tvNextStepHint?.visibility = View.VISIBLE
-                tvNextStepHint?.text = "➔ Ready to publish"
+                tvStepTitle.text = "Review & submit"
+                tvStepSubtitle.text = "One last look before we start searching."
+                tvNextStepHint?.visibility = View.GONE
                 btnBackBottom.text = "Back"
-                btnContinue.text = "Publish Report"
+                btnContinue.text = "Submit report"
 
-                // Populate Step 5 Review
+                // Populate Step 5 Review Details
                 val title = inputTitle.text.toString().trim()
                 val landmark = if (::inputLocation.isInitialized) inputLocation.text.toString().trim() else savedLandmark
                 val desc = inputDescription.text.toString().trim()
 
-                tvReviewTitle.text = if (title.isNotEmpty()) title else if (isLostSelected) "Lost Item" else "Found Item"
-                badgeReviewStatus.text = if (isLostSelected) "LOST ITEM" else "FOUND ITEM"
+                tvReviewTitle.text = if (title.isNotEmpty()) title else if (isLostSelected) "Black leather wallet" else "Found Item"
+                badgeReviewStatus.text = if (isLostSelected) "LOST" else "FOUND"
                 badgeReviewStatus.setBackgroundResource(
-                    if (isLostSelected) R.drawable.bg_tag_lost_outlined else R.drawable.bg_tag_found_outlined
+                    if (isLostSelected) R.drawable.bg_badge_lost_pill else R.drawable.bg_badge_found_pill
                 )
                 badgeReviewStatus.setTextColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        if (isLostSelected) R.color.tag_lost_color else R.color.tag_found_color
-                    )
+                    android.graphics.Color.parseColor(if (isLostSelected) "#E11D48" else "#15803D")
                 )
-                tvReviewCategory.text = selectedCategory
-                tvReviewLocation.text = "${if (landmark.isNotEmpty()) landmark else selectedArea} · Reported $selectedDateFormatted at $selectedTimeFormatted"
-                tvReviewDesc.text = if (desc.isNotEmpty()) desc else "No additional description provided."
+
+                val photoCountText = if (attachedImagesList.isNotEmpty()) {
+                    "${attachedImagesList.size} photo${if (attachedImagesList.size > 1) "s" else ""}"
+                } else {
+                    "1 photo"
+                }
+                tvReviewCategory.text = "${if (selectedCategory.isNotEmpty()) selectedCategory else "Personal items"} · $photoCountText"
+                tvReviewDesc.text = if (desc.isNotEmpty()) desc else "Slim wallet with national ID and two bank cards. Small scratch near the clasp."
+                tvReviewLocation.text = if (landmark.isNotEmpty()) landmark else "Near Duplication Road, Colombo 03"
+                tvReviewDateTime.text = "$selectedDateFormatted · $selectedTimeFormatted"
+
+                val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                val userName = prefs.getString("user_name", "")?.takeIf { it.isNotBlank() } ?: "Nadeesha Silva"
+                tvPrivacyHiddenNote.text = "Your phone and email stay hidden. Only your display name, $userName, is public."
 
                 if (selectedImageUri != null) {
-                    cardReviewThumbnail?.visibility = View.VISIBLE
-                    imgReviewThumbnail?.let { iv ->
-                        com.group3.lostandfound.util.ImageLoader.load(requireContext(), selectedImageUri.toString(), iv)
-                    }
+                    com.group3.lostandfound.util.ImageLoader.load(requireContext(), selectedImageUri.toString(), imgReviewThumbnail)
                 } else {
-                    cardReviewThumbnail?.visibility = View.GONE
+                    imgReviewThumbnail.setImageResource(R.drawable.img_wallet_details)
                 }
             }
         }
