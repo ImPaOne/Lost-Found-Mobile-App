@@ -519,9 +519,31 @@ class CreateReportFragment : Fragment() {
             showTimePicker()
         }
 
-        // Step 4: Photo dropzone - choose Camera or Gallery
-        cardUploadDropzone.setOnClickListener {
-            showImageSourceChooser()
+        // Step 4: Photo Actions
+        btnTakePhoto.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    android.Manifest.permission.CAMERA
+                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) {
+                launchCamera()
+            } else {
+                requestCameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+            }
+        }
+
+        btnGallery.setOnClickListener {
+            pickImageLauncher.launch("image/*")
+        }
+
+        btnRemovePhoto.setOnClickListener {
+            attachedImagesList.clear()
+            selectedImageUri = null
+            photosCount = 0
+            imgPhotoPreview.setImageDrawable(null)
+            tvPhotosCountStatus.text = "0 photos added"
+            badgeCoverPhoto.visibility = View.GONE
+            btnRemovePhoto.visibility = View.GONE
         }
 
         // Retry Upload Action
