@@ -733,8 +733,8 @@ class CreateReportFragment : Fragment() {
                 btnContinue.text = "Continue ➔"
             }
             2 -> {
-                tvStepNumber.setBackgroundResource(R.drawable.bg_badge_step_amber)
-                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#B45309"))
+                tvStepNumber.setBackgroundResource(android.R.color.transparent)
+                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
                 tvStepTitle.text = "Category & details"
                 tvStepSubtitle.text = "Tell the community what to look for."
                 tvNextStepHint?.visibility = View.GONE
@@ -742,8 +742,8 @@ class CreateReportFragment : Fragment() {
                 btnContinue.text = "Continue"
             }
             3 -> {
-                tvStepNumber.setBackgroundResource(R.drawable.bg_badge_step_amber)
-                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#B45309"))
+                tvStepNumber.setBackgroundResource(android.R.color.transparent)
+                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
                 tvStepTitle.text = "Where & when?"
                 val itemWord = savedTitle.trim().takeIf { it.isNotEmpty() }?.lowercase() ?: "wallet"
                 tvStepSubtitle.text = if (isLostSelected) "Where did you last see your $itemWord?" else "Where did you find this item?"
@@ -757,11 +757,10 @@ class CreateReportFragment : Fragment() {
                 tvStepNumber.setBackgroundResource(android.R.color.transparent)
                 tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
                 tvStepTitle.text = "Add photos"
-                tvStepSubtitle.text = "Clear photos increase reunion chances by 85%."
-                tvNextStepHint?.visibility = View.VISIBLE
-                tvNextStepHint?.text = "➔ Next: Review & publish"
+                tvStepSubtitle.text = "A clear photo makes a better match."
+                tvNextStepHint?.visibility = View.GONE
                 btnBackBottom.text = "Back"
-                btnContinue.text = "Continue ➔"
+                btnContinue.text = "Continue"
             }
             5 -> {
                 tvStepNumber.setBackgroundResource(android.R.color.transparent)
