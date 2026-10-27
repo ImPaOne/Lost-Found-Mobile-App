@@ -28,15 +28,17 @@ class PieChartView @JvmOverloads constructor(
         val color: Int
     )
 
+    var showCenterText: Boolean = false
+
     private val slicePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        strokeCap = Paint.Cap.ROUND
+        strokeCap = Paint.Cap.BUTT
     }
 
     private val emptyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         color = Color.parseColor("#E5E7EB")
-        strokeCap = Paint.Cap.ROUND
+        strokeCap = Paint.Cap.BUTT
     }
 
     private val centerCountPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -60,8 +62,8 @@ class PieChartView @JvmOverloads constructor(
     init {
         // Density scaling for text and stroke
         val density = context.resources.displayMetrics.density
-        slicePaint.strokeWidth = 20f * density
-        emptyPaint.strokeWidth = 20f * density
+        slicePaint.strokeWidth = 22f * density
+        emptyPaint.strokeWidth = 22f * density
         centerCountPaint.textSize = 20f * density
         centerLabelPaint.textSize = 10f * density
     }
@@ -103,13 +105,15 @@ class PieChartView @JvmOverloads constructor(
 
         if (totalCount == 0 || slices.isEmpty()) {
             canvas.drawArc(rectF, 0f, 360f, false, emptyPaint)
-            canvas.drawText("0", cx, cy + centerCountPaint.textSize * 0.1f, centerCountPaint)
-            canvas.drawText("Items", cx, cy + centerCountPaint.textSize * 0.9f, centerLabelPaint)
+            if (showCenterText) {
+                canvas.drawText("0", cx, cy + centerCountPaint.textSize * 0.1f, centerCountPaint)
+                canvas.drawText("Items", cx, cy + centerCountPaint.textSize * 0.9f, centerLabelPaint)
+            }
             return
         }
 
         var startAngle = -90f
-        val spacingAngle = if (slices.size > 1) 3f else 0f
+        val spacingAngle = if (slices.size > 1) 2.5f else 0f
         val availableDegrees = 360f - (spacingAngle * slices.size)
 
         for (slice in slices) {
@@ -121,11 +125,12 @@ class PieChartView @JvmOverloads constructor(
             startAngle += sweep + spacingAngle
         }
 
-        // Draw center text
-        val countText = "$totalCount"
-        val labelText = "Reports"
-        canvas.drawText(countText, cx, cy + centerCountPaint.textSize * 0.05f, centerCountPaint)
-        canvas.drawText(labelText, cx, cy + centerCountPaint.textSize * 0.85f, centerLabelPaint)
+        if (showCenterText) {
+            val countText = "$totalCount"
+            val labelText = "Reports"
+            canvas.drawText(countText, cx, cy + centerCountPaint.textSize * 0.05f, centerCountPaint)
+            canvas.drawText(labelText, cx, cy + centerCountPaint.textSize * 0.85f, centerLabelPaint)
+        }
     }
 
     override fun onDetachedFromWindow() {
