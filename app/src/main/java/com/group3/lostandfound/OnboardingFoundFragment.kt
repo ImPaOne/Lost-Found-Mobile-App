@@ -27,8 +27,8 @@ class OnboardingFoundFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val btnSkip = view.findViewById<TextView>(R.id.btnSkip)
-        val btnNext = view.findViewById<TextView>(R.id.btnNext)
+        val btnSkip = view.findViewById<View>(R.id.btnSkip)
+        val btnNext = view.findViewById<View>(R.id.btnNext)
 
         // Smooth entry animation
         view.alpha = 0f
