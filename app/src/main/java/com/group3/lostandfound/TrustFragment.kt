@@ -28,6 +28,7 @@ class TrustFragment : Fragment() {
     private lateinit var textRank: TextView
     private lateinit var progressXp: ProgressBar
 
+    private lateinit var badgeId: View
     private lateinit var badgePhone: View
     private lateinit var badgeEmail: View
 
@@ -115,6 +116,7 @@ class TrustFragment : Fragment() {
         textRank = view.findViewById(R.id.textRank)
         progressXp = view.findViewById(R.id.progressXp)
 
+        badgeId = view.findViewById(R.id.badgeId)
         badgePhone = view.findViewById(R.id.badgePhone)
         badgeEmail = view.findViewById(R.id.badgeEmail)
 
@@ -134,6 +136,14 @@ class TrustFragment : Fragment() {
                 .replace(R.id.screenBox, SettingsFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
+        }
+
+        badgeId.setOnClickListener {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("ID Verification")
+                .setMessage("Status: VERIFIED\nGovernment-issued ID confirmed for secure identity validation.")
+                .setPositiveButton("OK", null)
+                .show()
         }
 
         badgePhone.setOnClickListener {
