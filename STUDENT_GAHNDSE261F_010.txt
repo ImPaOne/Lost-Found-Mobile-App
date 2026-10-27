@@ -1,0 +1,295 @@
+================================================================================
+FOUNDLY (LOST & FOUND SRI LANKA) - STUDENT SPECIFICATION & BACKEND MATRIX
+STUDENT INDEX: GAHNDSE261F-010
+================================================================================
+
+STUDENT SUMMARY
+---------------
+* Student Index Number: GAHNDSE261F-010
+* Responsibility / Scope: Discovery, Multi-Step Report Creation, UI Kit & Feedback Modals
+* Total Allocated Screens: 7 Screens & Modals
+
+Allocated Screens List:
+1. Explore & Search Screen
+2. Onboarding Screen 1 ("Lost Something?")
+3. 5-Step Create Report Flow
+4. UI Component Library (UI Kit)
+5. High-Resolution Photo Lightbox Modal
+6. Rate App & Community Feedback Modal
+7. Notification Options Bottom Sheet Modal
+
+
+================================================================================
+DETAILED SCREEN SPECIFICATIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. SCREEN: Explore & Search Screen
+--------------------------------------------------------------------------------
+* Screen Name: Explore & Search Screen
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_explore.xml
+  - Item Layout: app/src/main/res/layout/item_report_card.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/ExploreFragment.kt
+
+* Backend Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/ExploreViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/ExploreRepository.kt
+  - Data Models: ReportItem in app/src/main/java/com/group3/lostandfound/Models.kt
+
+* UI Components & Features:
+  - Full-width search input field where users can type keywords.
+  - Two-segment toggle bar to switch between [ Lost Items ] and [ Found Items ].
+  - Horizontal scroll row of category chips: "All", "Electronics", "Wallets", "IDs", "Keys", "Bags", "Pets".
+  - City/District dropdown filter to filter reports by location (Colombo, Kandy, Galle, etc.).
+  - 2-column grid of report cards showing item picture, title, location, and status badge.
+  - Pull-to-refresh control to refresh the list manually.
+
+* Backend Logic:
+  - ExploreViewModel calls ExploreRepository to read all active items from the Firebase /items node.
+  - Applies multi-criteria filtering simultaneously:
+    1. Text search matches item title, description, or landmark.
+    2. Selected tab matches item status ("LOST" vs "FOUND").
+    3. Category chip matches the item's category.
+    4. City filter matches the item's city.
+  - Sends the filtered results to the RecyclerView adapter using Kotlin Flow.
+
+--------------------------------------------------------------------------------
+2. SCREEN: Onboarding Screen 1 ("Lost Something?")
+--------------------------------------------------------------------------------
+* Screen Name: Onboarding Screen 1 ("Lost Something?")
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_onboarding.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/OnboardingFragment.kt
+
+* Backend Architecture Files:
+  - Local Storage: SharedPreferences ("findit_prefs", key "onboarding_completed")
+
+* UI Components & Features:
+  - Top header with a "Skip" button on the top right.
+  - Central illustration showing a magnifying glass searching on a map.
+  - Heading: "Lost Something?" and explanatory text describing how users can quickly post lost items and notify people nearby.
+  - 3-dot page indicator with dot 1 active (highlighted in Navy #003049).
+  - Primary "Next" button at the bottom.
+
+* Backend Logic:
+  - Serves as the first introductory screen when the app is opened for the first time.
+  - Tapping "Skip" saves onboarding_completed = true in SharedPreferences and navigates straight to LoginFragment.
+  - Tapping "Next" opens Onboarding Screen 2.
+
+--------------------------------------------------------------------------------
+3. SCREEN: 5-Step Create Report Flow
+--------------------------------------------------------------------------------
+* Screen Name: 5-Step Create Report Flow
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_create_report.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/CreateReportFragment.kt
+
+* Backend Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/CreateReportViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/ReportRepository.kt
+  - Image Cache: Android FileProvider, cacheDir/images/
+  - Image Upload: Cloudinary API / Firebase Storage
+  - Notification Service: app/src/main/java/com/group3/lostandfound/service/FCMService.kt
+
+* UI Components & Features:
+  - Top app bar with back navigation arrow and step indicator title.
+  - 5-segment horizontal progress bar showing current progress (20%, 40%, 60%, 80%, 100%).
+  - ViewFlipper with 5 step views:
+    * Step 1 (Status): Two selectable cards: [ I Lost an Item ] (red border) and [ I Found an Item ] (green border).
+    * Step 2 (Category & Details): Category dropdown selector, title text field, and multiline description text area.
+    * Step 3 (Location): City input, landmark text field, and a "Pick on Map" button that opens the interactive map.
+    * Step 4 (Photos):
+      - Two upload buttons: [ Choose from Gallery ] and [ Take Photo ] (camera).
+      - 3-thumbnail preview row (Thumbnail 1, Thumbnail 2, Thumbnail 3) showing attached photos with individual delete icons.
+    * Step 5 (Review & Publish): Summary card displaying the selected photo, title, status, location, community pledge checkbox, and a sticky "Publish Report" button.
+
+* Backend Logic:
+  - Uses Android Camera API (ActivityResultContracts.TakePicture) with FileProvider to take full-resolution photos.
+  - Keeps an attached image list combining both camera photos and gallery uploads.
+  - Compresses images to a maximum of 2048x2048 resolution at 92% quality to save bandwidth while keeping clarity.
+  - Uploads images to Cloudinary / Firebase Storage and gets back HTTPS image URLs.
+  - Generates a new unique push key using FirebaseDatabase.getReference("items").push().key.
+  - Writes the complete item data into /items/{itemId}.
+  - Increments the user's report counter at /users/{uid}/itemsReported.
+  - Fires a local notification confirming the item was successfully published.
+
+--------------------------------------------------------------------------------
+4. SCREEN: UI Component Library (UI Kit)
+--------------------------------------------------------------------------------
+* Screen Name: UI Component Library (UI Kit)
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_ui_kit.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/UiKitFragment.kt
+
+* Backend Architecture Files:
+  - Design Styles: res/values/colors.xml, res/values/styles.xml, res/values/themes.xml
+  - Toast Utility: app/src/main/java/com/group3/lostandfound/util/ModernToast.kt
+
+* UI Components & Features:
+  - Color palette showcase showing app colors: Navy (#003049), Crimson Red (#C1121F), Teal Green (#2A9D8F), WhatsApp Green (#25D366), and background tones.
+  - Typography scale preview (Headings, Subheadings, Body text, Captions).
+  - Button collection: Primary, Outlined, Danger, WhatsApp Green, Disabled, and Icon buttons.
+  - Status badge pills: "LOST ITEM", "FOUND ITEM", "URGENT", and "RESOLVED".
+  - Text input field states: Default, Focused/Active, and Error with helper text.
+  - Interactive test buttons to trigger ModernToast notifications (Success, Error, Info).
+
+* Backend Logic:
+  - Functions as the central design reference and testing ground for the app.
+  - Ensures all team members use consistent colors, margins, fonts, and button styles across all screens.
+
+--------------------------------------------------------------------------------
+5. SCREEN: High-Resolution Photo Lightbox Modal
+--------------------------------------------------------------------------------
+* Screen Name: High-Resolution Photo Lightbox Modal
+* Frontend UI Files:
+  - Dialog Layout: app/src/main/res/layout/dialog_enlarged_photo.xml
+  - Kotlin Invocation: Called from DetailsFragment.kt and ChatFragment.kt
+
+* Backend Architecture Files:
+  - Image Utility: app/src/main/java/com/group3/lostandfound/util/ImageLoader.kt
+
+* UI Components & Features:
+  - Full-screen dark modal overlay (#000000).
+  - Close button ("X") in the top-right corner.
+  - Centered high-resolution image view with pinch-to-zoom and fit-center scaling.
+  - Bottom text label showing the item name or photo caption.
+
+* Backend Logic:
+  - Takes the full-resolution image URL from the item record (/items/{itemId}/imageUrl) or chat message.
+  - Uses ImageLoader to stream the uncompressed photo into memory.
+  - Dismisses smoothly when the user taps outside the image or presses back.
+
+--------------------------------------------------------------------------------
+6. SCREEN: Rate App & Community Feedback Modal
+--------------------------------------------------------------------------------
+* Screen Name: Rate App & Community Feedback Modal
+* Frontend UI Files:
+  - Dialog Layout: app/src/main/res/layout/dialog_rate_app.xml
+  - Kotlin Invocation: Called from ProfileFragment.kt and SettingsFragment.kt
+
+* Backend Architecture Files:
+  - Database Path: /app_feedback in Firebase Realtime Database
+  - Utilities: ModernToast.kt
+
+* UI Components & Features:
+  - Pop-up modal dialog card.
+  - Top star graphic icon.
+  - Heading: "Enjoying Foundly?" with subtitle asking for user feedback.
+  - 5-star interactive rating bar (gold stars #F59E0B) where users can tap 1 to 5 stars.
+  - Multiline text box where users can type comments or suggestions.
+  - Action buttons: "Maybe Later" (dismisses dialog) and "Submit Feedback" (Navy button).
+
+* Backend Logic:
+  - Reads the selected star rating and user comment.
+  - Generates a new unique key at /app_feedback/{feedbackId} in Firebase Realtime Database.
+  - Saves the record containing: userId, rating (1-5), feedbackText, and timestamp.
+  - Shows a ModernToast thanking the user and closes the dialog.
+
+--------------------------------------------------------------------------------
+7. SCREEN: Notification Options Bottom Sheet Modal
+--------------------------------------------------------------------------------
+* Screen Name: Notification Options Bottom Sheet Modal
+* Frontend UI Files:
+  - Dialog Layout: app/src/main/res/layout/dialog_notification_options.xml
+  - Kotlin Invocation: Called from NotificationsFragment.kt and SettingsFragment.kt
+
+* Backend Architecture Files:
+  - Service: app/src/main/java/com/group3/lostandfound/service/FCMService.kt
+
+* UI Components & Features:
+  - Bottom sheet dialog with rounded top corners and drag handle.
+  - Title: "Notifications & Alerts".
+  - Action Row 1: "Open Notification Inbox" with bell icon.
+  - Action Row 2: "Test Notification Sound & Vibration" with speaker icon.
+  - Bottom "Close" button.
+
+* Backend Logic:
+  - Option 1 closes the sheet and navigates directly to the NotificationsFragment inbox.
+  - Option 2 calls FCMService.triggerPushNotification() to immediately fire a test alert with sound and vibration to prove that device notifications are working properly.
+
+
+================================================================================
+BACKEND FILES & ARCHITECTURE EXPLANATION
+================================================================================
+
+1. ExploreViewModel.kt
+   - Role: ViewModel for search and explore.
+   - Why it is used: Keeps the list of items in memory, handles filter changes (search text, category chip, status, city), and updates the UI using Kotlin Flow.
+
+2. CreateReportViewModel.kt
+   - Role: ViewModel for the 5-step report creation process.
+   - Why it is used: Holds report data across all 5 steps (category, title, description, city, coordinates, photo URIs) so nothing is lost if the screen rotates or the user goes back a step.
+
+3. ExploreRepository.kt
+   - Role: Data repository for fetching and filtering items.
+   - Why it is used: Contains the logic to read /items from Firebase Realtime Database and apply multi-criteria search filters before passing data to the ViewModel.
+
+4. ReportRepository.kt
+   - Role: Data repository for saving new reports.
+   - Why it is used: Handles compressing image files, uploading them to cloud storage, writing the final item data to Firebase, and updating the user's report counter.
+
+5. CloudinaryManager.kt / Android FileProvider Image Cache
+   - Role: Media handling and cloud upload manager.
+   - Why it is used: Provides high-speed image compression and secure cloud hosting for user-uploaded photos.
+
+6. ModernToast.kt
+   - Role: Custom in-app alert utility.
+   - Why it is used: Displays sleek, stylized toast messages for success, error, and info states without using ugly default Android toasts.
+
+7. ImageLoader.kt
+   - Role: Image loading helper.
+   - Why it is used: Loads photos from cloud URLs into ImageViews smoothly with caching and placeholder support.
+
+
+================================================================================
+FIREBASE OPERATIONS USED BY THIS STUDENT
+================================================================================
+
+1. Realtime Database Nodes Accessed:
+   - /items
+     * What it is: The central node containing all lost and found item records.
+     * Why it is accessed: To search, filter, and display items on the Explore screen.
+   - /items/{itemId}
+     * What it is: The unique record for each item report.
+     * Why it is accessed: To create and save the newly published report when completing Step 5 of the Create Report flow.
+   - /users/{uid}/itemsReported
+     * What it is: An integer counter in the user's profile tracking how many items they have reported.
+     * Why it is accessed: To increment the user's report count by 1 whenever a report is successfully published.
+   - /app_feedback/{feedbackId}
+     * What it is: Node storing community feedback and star ratings.
+     * Why it is accessed: To store the 1-to-5 star rating and feedback comment submitted from the Rate App dialog.
+   - /notifications/{uid}
+     * What it is: User's personal notification inbox node.
+     * Why it is accessed: To insert a confirmation notification after a report has been successfully submitted.
+
+2. Read & Stream Operations:
+   - Streaming /items with Kotlin Flow
+     * Why: Reads the entire list of active items to perform live text searching and chip filtering in ExploreFragment.
+   - Fetching /items/{itemId}/imageUrl
+     * Why: Retrieves the full uncompressed image URL to display in the High-Resolution Photo Lightbox.
+
+3. Create & Write Operations:
+   - FirebaseDatabase.getReference("items").push().key
+     * Why: Generates a unique ID for the new item.
+   - Writing full item object to /items/{itemId}
+     * Why: Stores title, description, category, status ("LOST" or "FOUND"), city, landmark, latitude, longitude, image URLs, reporter UID, and timestamp.
+   - Writing to /app_feedback/{feedbackId}
+     * Why: Saves user feedback, star rating, user ID, and timestamp into Firebase.
+   - Writing to /notifications/{uid}
+     * Why: Adds a new notification alert in the user's notification list.
+
+4. Update Operations:
+   - Atomic increment of /users/{uid}/itemsReported
+     * Why: Keeps the user's total reports count accurate for profile statistics.
+
+5. Storage & Media Operations:
+   - Image Compression Pipeline:
+     * Takes raw camera and gallery photos.
+     * Compresses them to max 2048x2048 resolution at 92% quality.
+     * Uploads the file to Cloudinary / Firebase Storage.
+     * Retrieves the public HTTPS URL to store inside the Firebase Realtime Database item record.
+
+================================================================================
+END OF FILE: GAHNDSE261F-010
+================================================================================

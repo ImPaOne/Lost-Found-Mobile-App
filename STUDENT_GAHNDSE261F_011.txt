@@ -1,0 +1,272 @@
+================================================================================
+FOUNDLY (LOST & FOUND SRI LANKA) - STUDENT SPECIFICATION & BACKEND MATRIX
+STUDENT INDEX: GAHNDSE261F-011
+================================================================================
+
+STUDENT SUMMARY
+---------------
+* Student Index Number: GAHNDSE261F-011
+* Responsibility / Scope: Application Entry, Onboarding Experience & User Account Management
+* Total Allocated Screens: 6 Screens & Modals
+
+Allocated Screens List:
+1. Splash Screen
+2. Onboarding Screen 2 ("Found Something?")
+3. Onboarding Screen 3 ("Reunite & Connect")
+4. Login Screen
+5. User Profile Screen
+6. Edit Profile Bottom Sheet Modal
+
+
+================================================================================
+DETAILED SCREEN SPECIFICATIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. SCREEN: Splash Screen
+--------------------------------------------------------------------------------
+* Screen Name: Splash Screen
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/activity_splash.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/SplashActivity.kt
+
+* Backend Architecture Files:
+  - Background Service: app/src/main/java/com/group3/lostandfound/service/AppNotificationService.kt
+  - Local Storage: SharedPreferences ("findit_prefs" keys "onboarding_completed", "is_logged_in")
+  - Authentication: com.google.firebase.auth.FirebaseAuth
+
+* UI Components & Features:
+  - Pure clean white background (#FFFFFF).
+  - Centered Foundly brand logo (@drawable/logoo) sized 120x120 dp.
+  - Large title "FOUNDLY" (26sp, bold black).
+  - Subtitle: "Sri Lanka's Community Lost & Found" (13sp dark gray).
+  - No slow animations or blocking spinners so the app launches very quickly.
+
+* Backend Logic:
+  - Starts the background AppNotificationService right away so the user never misses notifications.
+  - Checks the user's stored session state in SharedPreferences:
+    * If onboarding_completed is false -> Opens Onboarding Screen 1.
+    * If is_logged_in is true AND FirebaseAuth.currentUser exists -> Opens Home Dashboard directly.
+    * Otherwise -> Opens Login Screen.
+  - Transitions automatically after 1800ms or instantly if the user taps the screen.
+
+--------------------------------------------------------------------------------
+2. SCREEN: Onboarding Screen 2 ("Found Something?")
+--------------------------------------------------------------------------------
+* Screen Name: Onboarding Screen 2 ("Found Something?")
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_onboarding_found.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/OnboardingFoundFragment.kt
+
+* Backend Architecture Files:
+  - Local Storage: SharedPreferences ("findit_prefs")
+
+* UI Components & Features:
+  - Top header with right-aligned "Skip" text button.
+  - Central illustration showing a found backpack/item and safety badge.
+  - Heading: "Found Something?" with descriptive body text explaining how good citizens can post found items safely and protect owner privacy.
+  - 3-dot page indicator with dot 2 active (Navy #003049).
+  - Primary "Next" button at the bottom.
+
+* Backend Logic:
+  - Tapping "Skip" marks onboarding_completed = true in SharedPreferences and navigates directly to the Login screen.
+  - Tapping "Next" moves to Onboarding Screen 3 ("Reunite & Connect").
+
+--------------------------------------------------------------------------------
+3. SCREEN: Onboarding Screen 3 ("Reunite & Connect")
+--------------------------------------------------------------------------------
+* Screen Name: Onboarding Screen 3 ("Reunite & Connect")
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_onboarding_reunite.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/OnboardingReuniteFragment.kt
+
+* Backend Architecture Files:
+  - Local Storage: SharedPreferences ("findit_prefs", key "onboarding_completed")
+
+* UI Components & Features:
+  - Central community handshake trust illustration.
+  - Heading: "Reunite & Connect" with description explaining safe handovers, live in-app chat, and earning community Trust Points.
+  - 3-dot page indicator with dot 3 active (Navy #003049).
+  - Full-width primary button: "Get Started" (Navy #003049).
+
+* Backend Logic:
+  - Tapping "Get Started" or "Skip" writes onboarding_completed = true to SharedPreferences.
+  - Smoothly transitions the user to the Login Screen.
+
+--------------------------------------------------------------------------------
+4. SCREEN: Login Screen
+--------------------------------------------------------------------------------
+* Screen Name: Login Screen
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_login.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/LoginFragment.kt
+
+* Backend Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/AuthViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/AuthRepository.kt
+  - Authentication Engine: com.google.firebase.auth.FirebaseAuth
+  - Background Service: app/src/main/java/com/group3/lostandfound/service/AppNotificationService.kt
+  - Preferences: SharedPreferences ("findit_prefs" keys "is_logged_in", "user_uid", "saved_email")
+
+* UI Components & Features:
+  - Foundly logo and "Welcome Back" greeting header.
+  - Email address input text field.
+  - Password input field with an eye icon to toggle password visibility on/off.
+  - "Forgot Password?" clickable text link.
+  - Primary "Sign In" button (Navy #003049).
+  - Quick Demo buttons row:
+    * [ Admin Demo ] button (auto-fills admin@gmail.com and signs in as admin).
+    * [ User Demo ] button (auto-signs in with a demo citizen account).
+  - Bottom navigation link: "Don't have an account? Sign Up".
+
+* Backend Logic:
+  - Validates that email and password fields are filled and formatted correctly.
+  - Authenticates user credentials using FirebaseAuth.signInWithEmailAndPassword.
+  - Checks /users/{uid}/isBanned in Firebase Realtime Database. If true, rejects login and shows a suspension message.
+  - Saves login session data in SharedPreferences ("is_logged_in" = true, user UID, and email).
+  - Starts the AppNotificationService to listen for background notifications.
+  - Admin Demo button sets the admin session flag and opens Admin Operations Dashboard directly.
+  - Regular login opens Home Dashboard.
+
+--------------------------------------------------------------------------------
+5. SCREEN: User Profile Screen
+--------------------------------------------------------------------------------
+* Screen Name: User Profile Screen
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_profile.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/ProfileFragment.kt
+
+* Backend Architecture Files:
+  - Database Path: /users/{currentUid} in Firebase Realtime Database
+  - Authentication Engine: com.google.firebase.auth.FirebaseAuth
+  - Data Models: UserData in app/src/main/java/com/group3/lostandfound/Models.kt
+  - Preferences: SharedPreferences ("findit_prefs")
+
+* UI Components & Features:
+  - Top profile card showing circular user profile picture with an edit badge icon.
+  - User's full name and email address.
+  - Trust Level badge (e.g., "Level 2 Finder - 95 XP").
+  - 3-card summary statistics row:
+    * Items Reported count
+    * Items Reunited count
+    * Trust Score XP count
+  - Menu navigation options with arrows:
+    * "Edit Profile" (opens the Edit Profile modal)
+    * "Trust & Achievements" (opens Trust screen)
+    * "Saved Items" (opens Saved Items screen)
+    * "App Settings" (opens Settings screen)
+    * "Rate App" (opens Rate App modal)
+    * "Support & Help"
+  - Prominent red "Sign Out" button at the bottom.
+
+* Backend Logic:
+  - Attaches a Firebase ValueEventListener to /users/{currentUid} to pull live name, avatar, and statistics.
+  - When the user taps "Sign Out":
+    * Calls FirebaseAuth.getInstance().signOut().
+    * Clears session flags in SharedPreferences.
+    * Stops background notification listeners.
+    * Redirects the user back to the Login Screen.
+
+--------------------------------------------------------------------------------
+6. SCREEN: Edit Profile Bottom Sheet Modal
+--------------------------------------------------------------------------------
+* Screen Name: Edit Profile Bottom Sheet Modal
+* Frontend UI Files:
+  - Dialog Layout: app/src/main/res/layout/dialog_edit_profile.xml
+  - Kotlin UI Class: ProfileFragment.kt (method: showEditProfileDialog)
+
+* Backend Architecture Files:
+  - Database Path: /users/{currentUid} in Firebase Realtime Database
+  - Cloud Upload: Cloudinary / Firebase Storage API
+
+* UI Components & Features:
+  - Bottom sheet dialog with drag handle and title "Edit Profile Details".
+  - Circular avatar preview with "Upload Photo" link to choose a new picture from gallery.
+  - Text input fields:
+    * Full Name
+    * Phone Number (prefixed with Sri Lankan code +94)
+    * City / District
+  - Action buttons: [ Cancel ] and [ Save Changes ] (Navy #003049).
+
+* Backend Logic:
+  - Pre-fills input fields with the user's existing data from /users/{currentUid}.
+  - If a new photo is selected, compresses the image to 512x512 resolution and uploads it to cloud storage.
+  - Updates the fields (fullName, phoneNumber, city, avatarUrl) in Firebase Realtime Database under /users/{currentUid}.
+  - Shows a confirmation toast and refreshes the profile screen.
+
+
+================================================================================
+BACKEND FILES & ARCHITECTURE EXPLANATION
+================================================================================
+
+1. AuthViewModel.kt
+   - Role: ViewModel for authentication and login.
+   - Why it is used: Keeps login state, handles communication with AuthRepository, and provides error and success states to the UI without losing state on orientation changes.
+
+2. AuthRepository.kt
+   - Role: Repository for Firebase Authentication and user profile operations.
+   - Why it is used: Encapsulates all FirebaseAuth API calls (sign in, password reset, sign out) and initial user record verification, separating auth logic from the UI.
+
+3. FirebaseAuth (com.google.firebase.auth.FirebaseAuth)
+   - Role: Official Google Firebase Authentication engine.
+   - Why it is used: Provides secure token-based user login, password hashing, session tokens, and password reset emails.
+
+4. AppNotificationService.kt
+   - Role: Background Android Service for notifications.
+   - Why it is used: Starts on splash or login and runs in the background to listen for new chat messages, case resolutions, and announcements even when the app is minimized.
+
+5. FCMService.kt
+   - Role: Firebase Cloud Messaging notification builder.
+   - Why it is used: Sets up notification channels, plays custom alert chimes, and triggers heads-up alerts on Android devices.
+
+
+================================================================================
+FIREBASE OPERATIONS USED BY THIS STUDENT
+================================================================================
+
+1. Realtime Database Nodes Accessed:
+   - /users/{uid}
+     * What it is: The user's root profile object in the Realtime Database.
+     * Why it is accessed: To load profile information (name, avatar, email, stats) and update profile details.
+   - /users/{uid}/role
+     * What it is: User role ("ADMIN" or "USER").
+     * Why it is accessed: Verified during login to check if the user is an authorized administrator.
+   - /users/{uid}/isBanned
+     * What it is: A boolean flag indicating account ban status.
+     * Why it is accessed: Checked during login; if true, the user is blocked from entering the app.
+   - /users/{uid}/fcmToken
+     * What it is: The device's push notification token.
+     * Why it is accessed: Updated on login so cloud notifications can be routed to this specific phone.
+   - /users/{uid}/fullName, phoneNumber, city, avatarUrl
+     * What it is: Profile data fields.
+     * Why it is accessed: Updated when the user edits their profile in the Edit Profile modal.
+
+2. Firebase Authentication Operations:
+   - FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+     * Why: Verifies user credentials securely against Firebase Auth servers.
+   - FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+     * Why: Sends an official password reset link to the user's email if they forgot their password.
+   - FirebaseAuth.getInstance().signOut()
+     * Why: Terminates the active session and revokes authentication tokens when the user signs out.
+   - FirebaseAuth.getInstance().currentUser
+     * Why: Checked on the Splash Screen to determine whether an active session already exists.
+
+3. Read & Stream Operations:
+   - ValueEventListener on /users/{currentUid}
+     * Why: Streams live profile updates (items reported, items reunited, trust score) directly to the Profile screen.
+   - Checking /users/{uid}/isBanned
+     * Why: Ensures suspended accounts cannot sign in.
+
+4. Update Operations:
+   - Updating /users/{currentUid}/fullName, phoneNumber, city, avatarUrl
+     * Why: Saves changes made in the Edit Profile modal.
+   - Updating /users/{uid}/fcmToken
+     * Why: Keeps the device notification token fresh whenever a user logs in.
+
+5. Storage & Upload Operations:
+   - Compressing user avatar image to 512x512 resolution.
+   - Uploading avatar to cloud storage and storing the generated URL in /users/{currentUid}/avatarUrl.
+
+================================================================================
+END OF FILE: GAHNDSE261F-011
+================================================================================
