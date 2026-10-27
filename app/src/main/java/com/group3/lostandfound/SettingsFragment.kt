@@ -96,7 +96,9 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initViews(view)
-        setupBottomNav(view, "profile")
+        val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+        val isAdmin = prefs.getBoolean("is_admin", false) || FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
+        setupBottomNav(view, if (isAdmin) "settings" else "profile")
         loadCurrentPreferences()
         setupListeners()
     }
