@@ -20,7 +20,8 @@ object NavigationHelper {
             Tab.POST -> "post"
             Tab.MESSAGES -> "messages"
             Tab.PROFILE -> "profile"
-            Tab.ADMIN, Tab.NONE -> ""
+            Tab.ADMIN -> "admin"
+            Tab.NONE -> ""
         }
         fragment.setupBottomNav(rootView, tabKey)
     }
