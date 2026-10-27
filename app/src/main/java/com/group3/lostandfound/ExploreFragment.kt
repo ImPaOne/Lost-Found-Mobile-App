@@ -1,5 +1,5 @@
 package com.group3.lostandfound
-
+//Handles Real time search
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -23,14 +23,6 @@ import com.group3.lostandfound.model.ItemReport
 import com.group3.lostandfound.viewmodel.ExploreViewModel
 import kotlinx.coroutines.launch
 
-/**
- * ExploreFragment displays the Explore Search Screen in MVVM architecture:
- * - Realtime search with client-side Flow filtering on title & description via ExploreViewModel
- * - Status & Category filter chips (All, Lost, Found, Pets)
- * - Grid (2 cols) and List (1 col) layout toggles
- * - Live Firebase Realtime Database item stream with null-safe parsing
- * - Navigation to live DetailsFragment passing itemId
- */
 class ExploreFragment : Fragment() {
 
     private lateinit var btnClose: FrameLayout
@@ -64,10 +56,10 @@ class ExploreFragment : Fragment() {
 
         exploreViewModel = ViewModelProvider(this)[ExploreViewModel::class.java]
 
-        initViews(view)
+        initViews(view)//connects kotlin varibles to XML components
         setupListeners()
-        setupBottomNav(view, "explore")
-        observeViewModel()
+        setupBottomNav(view, "explore")//configure the bottom navigation for the explore screen
+        observeViewModel()//state and update UI.
     }
 
     private fun initViews(view: View) {
