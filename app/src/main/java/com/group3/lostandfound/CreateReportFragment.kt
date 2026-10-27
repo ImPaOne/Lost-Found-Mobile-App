@@ -78,14 +78,19 @@ class CreateReportFragment : Fragment() {
     private lateinit var inputDescription: EditText
 
     // Step 3 Views
-    private lateinit var chipAreaColombo3: TextView
-    private lateinit var chipAreaKollupitiya: TextView
-    private lateinit var chipAreaBamba: TextView
-    private lateinit var chipAreaFort: TextView
-    private lateinit var inputLandmark: EditText
-    private lateinit var tvSelectedLocationPreview: TextView
-    private lateinit var tvSelectedLocationCoords: TextView
-    private lateinit var cardMapPinPreview: View
+    private lateinit var mapCard: View
+    private lateinit var searchInput: EditText
+    private lateinit var btnClearSearch: View
+    private lateinit var btnGps: View
+    private lateinit var inputLocation: EditText
+    private lateinit var lblDate: TextView
+    private lateinit var boxDate: View
+    private lateinit var tvDate: TextView
+    private lateinit var lblTime: TextView
+    private lateinit var boxTime: View
+    private lateinit var tvTime: TextView
+    private var selectedDateFormatted = "12 Sep"
+    private var selectedTimeFormatted = "6:30 PM"
 
     // Step 4 Views
     private lateinit var cardUploadDropzone: View
@@ -329,19 +334,18 @@ class CreateReportFragment : Fragment() {
 
         // Apply state to views
         setItemType(isLostSelected)
-        tvCategoryValue.text = selectedCategory
-        tvSelectedLocationPreview.text = "$selectedArea, Western Province"
-        tvSelectedLocationCoords.text = String.format(
-            java.util.Locale.US,
-            "%.4f° N, %.4f° E · Selected on map",
-            selectedLatitude,
-            selectedLongitude
-        )
+        if (selectedArea.isNotEmpty()) {
+            inputLocation.setText("Near $selectedArea, Colombo 03")
+            searchInput.setText("$selectedArea, Colombo 03")
+        }
 
         // Restore input texts if previously entered
         if (savedTitle.isNotEmpty()) inputTitle.setText(savedTitle)
         if (savedDescription.isNotEmpty()) inputDescription.setText(savedDescription)
-        if (savedLandmark.isNotEmpty()) inputLandmark.setText(savedLandmark)
+        if (savedLandmark.isNotEmpty()) {
+            inputLocation.setText(savedLandmark)
+            searchInput.setText(savedLandmark)
+        }
 
         // Restore photo thumbnail if selected
         if (selectedImageUri != null) {
@@ -406,14 +410,17 @@ class CreateReportFragment : Fragment() {
         inputDescription = view.findViewById(R.id.inputDescription)
 
         // Step 3
-        chipAreaColombo3 = view.findViewById(R.id.chipAreaColombo3)
-        chipAreaKollupitiya = view.findViewById(R.id.chipAreaKollupitiya)
-        chipAreaBamba = view.findViewById(R.id.chipAreaBamba)
-        chipAreaFort = view.findViewById(R.id.chipAreaFort)
-        inputLandmark = view.findViewById(R.id.inputLandmark)
-        tvSelectedLocationPreview = view.findViewById(R.id.tvSelectedLocationPreview)
-        tvSelectedLocationCoords = view.findViewById(R.id.tvSelectedLocationCoords)
-        cardMapPinPreview = view.findViewById(R.id.cardMapPinPreview)
+        mapCard = view.findViewById(R.id.mapCard)
+        searchInput = view.findViewById(R.id.searchInput)
+        btnClearSearch = view.findViewById(R.id.btnClearSearch)
+        btnGps = view.findViewById(R.id.btnGps)
+        inputLocation = view.findViewById(R.id.inputLocation)
+        lblDate = view.findViewById(R.id.lblDate)
+        boxDate = view.findViewById(R.id.boxDate)
+        tvDate = view.findViewById(R.id.tvDate)
+        lblTime = view.findViewById(R.id.lblTime)
+        boxTime = view.findViewById(R.id.boxTime)
+        tvTime = view.findViewById(R.id.tvTime)
 
         // Step 4
         cardUploadDropzone = view.findViewById(R.id.cardUploadDropzone)
@@ -509,41 +516,30 @@ class CreateReportFragment : Fragment() {
                 .show()
         }
 
-        // Step 3: Area chips & Coordinates
-        val areaChips = listOf(chipAreaColombo3, chipAreaKollupitiya, chipAreaBamba, chipAreaFort)
-        for (chip in areaChips) {
-            chip.setOnClickListener {
-                for (c in areaChips) {
-                    if (c == chip) {
-                        c.setBackgroundResource(R.drawable.bg_chip_selected)
-                        c.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                        selectedArea = c.text.toString()
-                        when (selectedArea) {
-                            "Colombo 03" -> { selectedLatitude = 6.9042; selectedLongitude = 79.8530 }
-                            "Kollupitiya" -> { selectedLatitude = 6.9128; selectedLongitude = 79.8507 }
-                            "Bambalapitiya" -> { selectedLatitude = 6.8920; selectedLongitude = 79.8550 }
-                            "Fort" -> { selectedLatitude = 6.9360; selectedLongitude = 79.8450 }
-                        }
-                        tvSelectedLocationPreview.text = "$selectedArea, Western Province"
-                        tvSelectedLocationCoords.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Precision 15m", selectedLatitude, selectedLongitude)
-                    } else {
-                        c.setBackgroundResource(R.drawable.bg_chip_unselected)
-                        c.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-                    }
-                }
-            }
-        }
-
-        // Step 3: Map card click - open Leaflet map in picker mode
-        cardMapPinPreview.setOnClickListener {
+        // Step 3: Map card, GPS, Search, and Date/Time pickers
+        val openMapAction = View.OnClickListener {
             if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
             if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString()
-            if (::inputLandmark.isInitialized) savedLandmark = inputLandmark.text.toString()
+            if (::inputLocation.isInitialized) savedLandmark = inputLocation.text.toString()
 
             parentFragmentManager.beginTransaction()
                 .replace(R.id.screenBox, MapFragment.newInstance(isPickerMode = true))
                 .addToBackStack(null)
                 .commit()
+        }
+        mapCard.setOnClickListener(openMapAction)
+        btnGps.setOnClickListener(openMapAction)
+
+        btnClearSearch.setOnClickListener {
+            searchInput.text?.clear()
+        }
+
+        boxDate.setOnClickListener {
+            showDatePicker()
+        }
+
+        boxTime.setOnClickListener {
+            showTimePicker()
         }
 
         // Step 4: Photo dropzone - choose Camera or Gallery
