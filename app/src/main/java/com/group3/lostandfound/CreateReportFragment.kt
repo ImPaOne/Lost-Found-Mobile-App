@@ -1,5 +1,6 @@
 package com.group3.lostandfound
 
+import com.group3.lostandfound.R
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -374,81 +375,81 @@ class CreateReportFragment : Fragment() {
 
     //	Connects Kotlin variables to UI components using findViewById().
     private fun initViews(view: View) {
-        btnBack = view.findViewById(R.id.btnBack)
-        btnBackBottom = view.findViewById(R.id.btnBackBottom)
-        btnContinue = view.findViewById(R.id.btnContinue)
+        btnBack = view.findViewById<ImageView>(R.id.btnBack)
+        btnBackBottom = view.findViewById<TextView>(R.id.btnBackBottom)
+        btnContinue = view.findViewById<TextView>(R.id.btnContinue)
 
-        segStep1 = view.findViewById(R.id.segStep1)
-        segStep2 = view.findViewById(R.id.segStep2)
-        segStep3 = view.findViewById(R.id.segStep3)
-        segStep4 = view.findViewById(R.id.segStep4)
-        segStep5 = view.findViewById(R.id.segStep5)
+        segStep1 = view.findViewById<View>(R.id.segStep1)
+        segStep2 = view.findViewById<View>(R.id.segStep2)
+        segStep3 = view.findViewById<View>(R.id.segStep3)
+        segStep4 = view.findViewById<View>(R.id.segStep4)
+        segStep5 = view.findViewById<View>(R.id.segStep5)
 
-        tvStepNumber = view.findViewById(R.id.tvStepNumber)
-        tvStepTitle = view.findViewById(R.id.tvStepTitle)
-        tvStepSubtitle = view.findViewById(R.id.tvStepSubtitle)
+        tvStepNumber = view.findViewById<TextView>(R.id.tvStepNumber)
+        tvStepTitle = view.findViewById<TextView>(R.id.tvStepTitle)
+        tvStepSubtitle = view.findViewById<TextView>(R.id.tvStepSubtitle)
 
-        flipperSteps = view.findViewById(R.id.flipperSteps)
+        flipperSteps = view.findViewById<ViewFlipper>(R.id.flipperSteps)
 
         // Step 1
-        cardLostItem = view.findViewById(R.id.cardLostItem)
-        cardFoundItem = view.findViewById(R.id.cardFoundItem)
-        iconLost = view.findViewById(R.id.iconLost)
-        iconFound = view.findViewById(R.id.iconFound)
-        imgRadioLost = view.findViewById(R.id.imgRadioLost)
-        imgRadioFound = view.findViewById(R.id.imgRadioFound)
-        tvNextStepHint = view.findViewById(R.id.tvNextStepHint)
+        cardLostItem = view.findViewById<View>(R.id.cardLostItem)
+        cardFoundItem = view.findViewById<View>(R.id.cardFoundItem)
+        iconLost = view.findViewById<ImageView>(R.id.iconLost)
+        iconFound = view.findViewById<ImageView>(R.id.iconFound)
+        imgRadioLost = view.findViewById<ImageView>(R.id.imgRadioLost)
+        imgRadioFound = view.findViewById<ImageView>(R.id.imgRadioFound)
+        tvNextStepHint = view.findViewById<TextView>(R.id.tvNextStepHint)
 
         // Step 2
-        boxCategory = view.findViewById(R.id.boxCategory)
-        tvCategoryValue = view.findViewById(R.id.tvCategoryValue)
-        inputTitle = view.findViewById(R.id.inputTitle)
-        inputDescription = view.findViewById(R.id.inputDescription)
+        boxCategory = view.findViewById<View>(R.id.boxCategory)
+        tvCategoryValue = view.findViewById<TextView>(R.id.tvCategoryValue)
+        inputTitle = view.findViewById<EditText>(R.id.inputTitle)
+        inputDescription = view.findViewById<EditText>(R.id.inputDescription)
 
         // Step 3
-        mapCard = view.findViewById(R.id.mapCard)
-        searchInput = view.findViewById(R.id.searchInput)
-        btnClearSearch = view.findViewById(R.id.btnClearSearch)
-        btnGps = view.findViewById(R.id.btnGps)
-        inputLocation = view.findViewById(R.id.inputLocation)
-        lblDate = view.findViewById(R.id.lblDate)
-        boxDate = view.findViewById(R.id.boxDate)
-        tvDate = view.findViewById(R.id.tvDate)
-        lblTime = view.findViewById(R.id.lblTime)
-        boxTime = view.findViewById(R.id.boxTime)
-        tvTime = view.findViewById(R.id.tvTime)
+        mapCard = view.findViewById<View>(R.id.mapCard)
+        searchInput = view.findViewById<EditText>(R.id.searchInput)
+        btnClearSearch = view.findViewById<View>(R.id.btnClearSearch)
+        btnGps = view.findViewById<View>(R.id.btnGps)
+        inputLocation = view.findViewById<EditText>(R.id.inputLocation)
+        lblDate = view.findViewById<TextView>(R.id.lblDate)
+        boxDate = view.findViewById<View>(R.id.boxDate)
+        tvDate = view.findViewById<TextView>(R.id.tvDate)
+        lblTime = view.findViewById<TextView>(R.id.lblTime)
+        boxTime = view.findViewById<View>(R.id.boxTime)
+        tvTime = view.findViewById<TextView>(R.id.tvTime)
 
         // Step 4
-        cardPhotoPreview = view.findViewById(R.id.cardPhotoPreview)
-        imgPhotoPreview = view.findViewById(R.id.imgPhotoPreview)
-        btnRemovePhoto = view.findViewById(R.id.btnRemovePhoto)
-        badgeCoverPhoto = view.findViewById(R.id.badgeCoverPhoto)
-        btnTakePhoto = view.findViewById(R.id.btnTakePhoto)
-        btnGallery = view.findViewById(R.id.btnGallery)
-        tvPhotosCountStatus = view.findViewById(R.id.tvPhotosCountStatus)
+        cardPhotoPreview = view.findViewById<View>(R.id.cardPhotoPreview)
+        imgPhotoPreview = view.findViewById<ImageView>(R.id.imgPhotoPreview)
+        btnRemovePhoto = view.findViewById<View>(R.id.btnRemovePhoto)
+        badgeCoverPhoto = view.findViewById<TextView>(R.id.badgeCoverPhoto)
+        btnTakePhoto = view.findViewById<View>(R.id.btnTakePhoto)
+        btnGallery = view.findViewById<View>(R.id.btnGallery)
+        tvPhotosCountStatus = view.findViewById<TextView>(R.id.tvPhotosCountStatus)
 
         // Step 5 Review Views
-        badgeReviewStatus = view.findViewById(R.id.badgeReviewStatus)
-        btnEditSummary = view.findViewById(R.id.btnEditSummary)
-        tvReviewTitle = view.findViewById(R.id.tvReviewTitle)
-        tvReviewCategory = view.findViewById(R.id.tvReviewCategory)
-        tvReviewDesc = view.findViewById(R.id.tvReviewDesc)
-        imgReviewThumbnail = view.findViewById(R.id.imgReviewThumbnail)
-        tvReviewLocation = view.findViewById(R.id.tvReviewLocation)
-        tvReviewDateTime = view.findViewById(R.id.tvReviewDateTime)
-        btnEditLocation = view.findViewById(R.id.btnEditLocation)
-        tvPrivacyHiddenNote = view.findViewById(R.id.tvPrivacyHiddenNote)
-        switchMessages = view.findViewById(R.id.switchMessages)
-        cbConfirmAccuracy = view.findViewById(R.id.cbConfirmAccuracy)
+        badgeReviewStatus = view.findViewById<TextView>(R.id.badgeReviewStatus)
+        btnEditSummary = view.findViewById<View>(R.id.btnEditSummary)
+        tvReviewTitle = view.findViewById<TextView>(R.id.tvReviewTitle)
+        tvReviewCategory = view.findViewById<TextView>(R.id.tvReviewCategory)
+        tvReviewDesc = view.findViewById<TextView>(R.id.tvReviewDesc)
+        imgReviewThumbnail = view.findViewById<ImageView>(R.id.imgReviewThumbnail)
+        tvReviewLocation = view.findViewById<TextView>(R.id.tvReviewLocation)
+        tvReviewDateTime = view.findViewById<TextView>(R.id.tvReviewDateTime)
+        btnEditLocation = view.findViewById<View>(R.id.btnEditLocation)
+        tvPrivacyHiddenNote = view.findViewById<TextView>(R.id.tvPrivacyHiddenNote)
+        switchMessages = view.findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switchMessages)
+        cbConfirmAccuracy = view.findViewById<CheckBox>(R.id.cbConfirmAccuracy)
 
         // Upload Progress UI
-        cardUploadProgress = view.findViewById(R.id.cardUploadProgress)
-        tvUploadStatusText = view.findViewById(R.id.tvUploadStatusText)
-        tvUploadPercentage = view.findViewById(R.id.tvUploadPercentage)
-        pbUploadBar = view.findViewById(R.id.pbUploadBar)
-        layoutUploadError = view.findViewById(R.id.layoutUploadError)
-        tvErrorMessage = view.findViewById(R.id.tvErrorMessage)
-        btnRetryUpload = view.findViewById(R.id.btnRetryUpload)
+        cardUploadProgress = view.findViewById<View>(R.id.cardUploadProgress)
+        tvUploadStatusText = view.findViewById<TextView>(R.id.tvUploadStatusText)
+        tvUploadPercentage = view.findViewById<TextView>(R.id.tvUploadPercentage)
+        pbUploadBar = view.findViewById<ProgressBar>(R.id.pbUploadBar)
+        layoutUploadError = view.findViewById<LinearLayout>(R.id.layoutUploadError)
+        tvErrorMessage = view.findViewById<TextView>(R.id.tvErrorMessage)
+        btnRetryUpload = view.findViewById<TextView>(R.id.btnRetryUpload)
     }
 
     //	Updates the UI when the user selects LOST or FOUND.
