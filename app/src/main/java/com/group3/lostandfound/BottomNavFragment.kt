@@ -12,8 +12,7 @@ import androidx.fragment.app.Fragment
 
 /**
  * Reusable 5-tab Bottom Navigation Component:
- * Home, Explore, + Post, Messages, Profile.
- * Uses clean human-written code with concise 3-8 character variable names.
+ * Home, Explore, (+) Post, Messages, Profile.
  */
 class BottomNavFragment : Fragment() {
 

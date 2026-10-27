@@ -1,53 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/background_screen"
     android:orientation="vertical">
 
-    <!-- Header Bar: Back, Title,  -->
+    <!-- Top Header Bar matching reference image -->
     <RelativeLayout
         android:id="@+id/headerBar"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
+        android:layout_height="wrap_content"
         android:paddingStart="20dp"
-        android:paddingEnd="20dp">
+        android:paddingTop="12dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="10dp">
 
-        <ImageView
+        <!-- Back Button (Round white button with soft border) -->
+        <FrameLayout
             android:id="@+id/btnBack"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/bg_circle_icon_button"
             android:clickable="true"
             android:contentDescription="Back"
-            android:focusable="true"
-            android:src="@drawable/ic_back_chevron" />
+            android:elevation="1dp"
+            android:focusable="true">
 
-        <TextView
-            android:id="@+id/tvTitle"
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:contentDescription="Back"
+                android:src="@drawable/ic_back_chevron"
+                app:tint="@color/text_primary" />
+        </FrameLayout>
+
+        <!-- Centered Title & Subtitle -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:fontFamily="sans-serif-bold"
-            android:text="Notifications"
-            android:textColor="@color/text_primary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
 
-        <ImageView
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-bold"
+                android:text="Notifications"
+                android:textColor="@color/text_primary"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="sans-serif"
+                android:text="Stay up to date"
+                android:textColor="@color/text_hint"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Check All Button (Round white button with green checkmark) -->
+        <FrameLayout
             android:id="@+id/btnCheckAll"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/bg_circle_icon_button"
             android:clickable="true"
             android:contentDescription="Mark all as read"
-            android:focusable="true"
-            android:src="@drawable/ic_check" />
+            android:elevation="1dp"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:contentDescription="Mark all as read"
+                android:src="@drawable/ic_check"
+                app:tint="#10B981" />
+        </FrameLayout>
     </RelativeLayout>
 
     <!-- Scrollable Notification List -->
@@ -62,55 +103,81 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:paddingBottom="24dp">
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingBottom="20dp">
 
-            <!-- SECTION 1: TODAY -->
-            <TextView
-                android:id="@+id/lblToday"
-                android:layout_width="wrap_content"
+            <!-- SECTION 1: TODAY HEADER + BADGE -->
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="12dp"
-                android:fontFamily="sans-serif-bold"
-                android:letterSpacing="0.04"
-                android:text="TODAY"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="10dp">
 
-            <!-- Item 1: Match found (Wallet) -->
+                <TextView
+                    android:id="@+id/lblToday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:fontFamily="sans-serif-bold"
+                    android:letterSpacing="0.04"
+                    android:text="TODAY"
+                    android:textColor="@color/text_hint"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/badgeNewToday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/bg_badge_today_red"
+                    android:fontFamily="sans-serif-bold"
+                    android:paddingStart="10dp"
+                    android:paddingTop="3dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="3dp"
+                    android:text="3 new"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <!-- Card 1: Match found (Wallet) -->
             <LinearLayout
                 android:id="@+id/itemWallet"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_notif_card"
                 android:clickable="true"
+                android:elevation="1dp"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp">
+                android:padding="14dp">
 
                 <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_notif_icon">
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/bg_icon_squircle_mint">
 
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:contentDescription="Match found"
-                        android:src="@drawable/ic_notif_sparkle" />
+                        android:src="@drawable/ic_notif_sparkle"
+                        app:tint="#0D9488" />
                 </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
-                    android:layout_marginEnd="12dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -119,7 +186,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
-                        android:text="Notification Alert"
+                        android:text="Match found"
                         android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -130,9 +197,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:fontFamily="sans-serif"
-                        android:lineSpacingExtra="2dp"
-                        android:text="Live update received."
-                        android:textColor="#75675F"
+                        android:lineSpacingExtra="1dp"
+                        android:text="A wallet found in Kollupitiya is a 92% match."
+                        android:textColor="@color/text_muted"
                         android:textSize="13sp" />
                 </LinearLayout>
 
@@ -143,53 +210,56 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tvNotifTime1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
                         android:text="10:24"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/text_hint"
                         android:textSize="11sp" />
 
                     <View
                         android:id="@+id/dotWallet"
-                        android:layout_width="7.5dp"
-                        android:layout_height="7.5dp"
-                        android:layout_marginTop="6dp"
+                        android:layout_width="7dp"
+                        android:layout_height="7dp"
+                        android:layout_marginTop="7dp"
                         android:background="@drawable/bg_notif_dot" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Item 2: Message received (Kasun) -->
+            <!-- Card 2: Message received (Kasun) -->
             <LinearLayout
                 android:id="@+id/itemKasun"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_notif_card"
                 android:clickable="true"
+                android:elevation="1dp"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp">
+                android:padding="14dp">
 
                 <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_notif_icon">
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/bg_icon_squircle_mint">
 
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:contentDescription="Message received"
-                        android:src="@drawable/ic_notif_chat" />
+                        android:src="@drawable/ic_notif_chat"
+                        app:tint="#0D9488" />
                 </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
-                    android:layout_marginEnd="12dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -198,7 +268,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
-                        android:text="Message Alert"
+                        android:text="Message received"
                         android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -209,9 +279,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:fontFamily="sans-serif"
-                        android:lineSpacingExtra="2dp"
-                        android:text="New message notification received."
-                        android:textColor="#75675F"
+                        android:lineSpacingExtra="1dp"
+                        android:text="Kasun sent a message about your report."
+                        android:textColor="@color/text_muted"
                         android:textSize="13sp" />
                 </LinearLayout>
 
@@ -222,53 +292,56 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tvNotifTime2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
                         android:text="09:41"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/text_hint"
                         android:textSize="11sp" />
 
                     <View
                         android:id="@+id/dotKasun"
-                        android:layout_width="7.5dp"
-                        android:layout_height="7.5dp"
-                        android:layout_marginTop="6dp"
+                        android:layout_width="7dp"
+                        android:layout_height="7dp"
+                        android:layout_marginTop="7dp"
                         android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Item 3: Status update (Passport) -->
+            <!-- Card 3: Status update (Passport) -->
             <LinearLayout
                 android:id="@+id/itemPassport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_notif_card"
                 android:clickable="true"
+                android:elevation="1dp"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp">
+                android:padding="14dp">
 
                 <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_notif_icon">
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/bg_icon_squircle_blue">
 
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:contentDescription="Status update"
-                        android:src="@drawable/ic_notif_sync" />
+                        android:src="@drawable/ic_notif_sync"
+                        app:tint="#4F46E5" />
                 </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
-                    android:layout_marginEnd="12dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -286,9 +359,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:fontFamily="sans-serif"
-                        android:lineSpacingExtra="2dp"
+                        android:lineSpacingExtra="1dp"
                         android:text="Your passport report is under review."
-                        android:textColor="#75675F"
+                        android:textColor="@color/text_muted"
                         android:textSize="13sp" />
                 </LinearLayout>
 
@@ -303,14 +376,14 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
                         android:text="08:15"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/text_hint"
                         android:textSize="11sp" />
 
                     <View
                         android:id="@+id/dotPassport"
-                        android:layout_width="7.5dp"
-                        android:layout_height="7.5dp"
-                        android:layout_marginTop="6dp"
+                        android:layout_width="7dp"
+                        android:layout_height="7dp"
+                        android:layout_marginTop="7dp"
                         android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
@@ -320,46 +393,48 @@
                 android:id="@+id/lblYesterday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="10dp"
                 android:fontFamily="sans-serif-bold"
                 android:letterSpacing="0.04"
                 android:text="YESTERDAY"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/text_hint"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
-            <!-- Item 4: Admin alert -->
+            <!-- Card 4: Admin alert -->
             <LinearLayout
                 android:id="@+id/itemAdmin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_notif_card"
                 android:clickable="true"
+                android:elevation="1dp"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp">
+                android:padding="14dp">
 
                 <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_notif_icon">
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/bg_icon_squircle_pink">
 
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:contentDescription="Admin alert"
-                        android:src="@drawable/ic_notif_shield_alert" />
+                        android:src="@drawable/ic_notif_shield_alert"
+                        app:tint="#EF4444" />
                 </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
-                    android:layout_marginEnd="12dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -368,7 +443,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
-                        android:text="Official Announcement"
+                        android:text="Admin alert"
                         android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -379,9 +454,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:fontFamily="sans-serif"
-                        android:lineSpacingExtra="2dp"
-                        android:text="Foundly administrative broadcast."
-                        android:textColor="#75675F"
+                        android:lineSpacingExtra="1dp"
+                        android:text="Please verify your contact number."
+                        android:textColor="@color/text_muted"
                         android:textSize="13sp" />
                 </LinearLayout>
 
@@ -396,49 +471,51 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
                         android:text="16:30"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/text_hint"
                         android:textSize="11sp" />
 
                     <View
                         android:id="@+id/dotAdmin"
-                        android:layout_width="7.5dp"
-                        android:layout_height="7.5dp"
-                        android:layout_marginTop="6dp"
+                        android:layout_width="7dp"
+                        android:layout_height="7dp"
+                        android:layout_marginTop="7dp"
                         android:background="@drawable/bg_notif_dot" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Item 5: Status update (AirPods) -->
+            <!-- Card 5: Status update (AirPods) -->
             <LinearLayout
                 android:id="@+id/itemAirPods"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_notif_card"
                 android:clickable="true"
+                android:elevation="1dp"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp">
+                android:padding="14dp">
 
                 <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_notif_icon">
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/bg_icon_squircle_green">
 
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:contentDescription="Status update"
-                        android:src="@drawable/ic_notif_check_circle" />
+                        android:src="@drawable/ic_notif_check_circle"
+                        app:tint="#10B981" />
                 </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
-                    android:layout_marginEnd="12dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -456,9 +533,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:fontFamily="sans-serif"
-                        android:lineSpacingExtra="2dp"
+                        android:lineSpacingExtra="1dp"
                         android:text="AirPods Pro case marked as resolved."
-                        android:textColor="#75675F"
+                        android:textColor="@color/text_muted"
                         android:textSize="13sp" />
                 </LinearLayout>
 
@@ -473,14 +550,14 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
                         android:text="11:02"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/text_hint"
                         android:textSize="11sp" />
 
                     <View
                         android:id="@+id/dotAirPods"
-                        android:layout_width="7.5dp"
-                        android:layout_height="7.5dp"
-                        android:layout_marginTop="6dp"
+                        android:layout_width="7dp"
+                        android:layout_height="7dp"
+                        android:layout_marginTop="7dp"
                         android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
@@ -490,46 +567,48 @@
                 android:id="@+id/lblEarlier"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="10dp"
                 android:fontFamily="sans-serif-bold"
                 android:letterSpacing="0.04"
                 android:text="EARLIER"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/text_hint"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
-            <!-- Item 6: Match found (Galle Face) -->
+            <!-- Card 6: Match found (Galle Face) -->
             <LinearLayout
                 android:id="@+id/itemGalleFace"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_notif_card"
                 android:clickable="true"
+                android:elevation="1dp"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp">
+                android:padding="14dp">
 
                 <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_notif_icon">
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/bg_icon_squircle_mint">
 
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:contentDescription="Match found"
-                        android:src="@drawable/ic_notif_sparkle" />
+                        android:src="@drawable/ic_notif_sparkle"
+                        app:tint="#0D9488" />
                 </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
-                    android:layout_marginEnd="12dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -547,9 +626,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:fontFamily="sans-serif"
-                        android:lineSpacingExtra="2dp"
+                        android:lineSpacingExtra="1dp"
                         android:text="New possible match near Galle Face."
-                        android:textColor="#75675F"
+                        android:textColor="@color/text_muted"
                         android:textSize="13sp" />
                 </LinearLayout>
 
@@ -564,14 +643,14 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
                         android:text="8 Sep"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/text_hint"
                         android:textSize="11sp" />
 
                     <View
                         android:id="@+id/dotGalleFace"
-                        android:layout_width="7.5dp"
-                        android:layout_height="7.5dp"
-                        android:layout_marginTop="6dp"
+                        android:layout_width="7dp"
+                        android:layout_height="7dp"
+                        android:layout_marginTop="7dp"
                         android:background="@drawable/bg_notif_dot" />
                 </LinearLayout>
             </LinearLayout>
@@ -579,7 +658,7 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Navigation Bar on screen -->
+    <!-- Consistent, Functional Bottom Navigation Bar -->
     <include
         android:id="@+id/bottomNav"
         layout="@layout/fragment_bottom_nav"
