@@ -93,15 +93,13 @@ class CreateReportFragment : Fragment() {
     private var selectedTimeFormatted = "6:30 PM"
 
     // Step 4 Views
-    private lateinit var cardUploadDropzone: View
+    private lateinit var cardPhotoPreview: View
+    private lateinit var imgPhotoPreview: ImageView
+    private lateinit var btnRemovePhoto: View
+    private lateinit var badgeCoverPhoto: TextView
+    private lateinit var btnTakePhoto: View
+    private lateinit var btnGallery: View
     private lateinit var tvPhotosCountStatus: TextView
-    private lateinit var rowThumbnails: View
-    private lateinit var cardThumbnail1: View
-    private lateinit var cardThumbnail2: View
-    private lateinit var cardThumbnail3: View
-    private lateinit var imgThumbnail1: ImageView
-    private lateinit var imgThumbnail2: ImageView
-    private lateinit var imgThumbnail3: ImageView
 
     // Step 5 Review Views
     private lateinit var badgeReviewStatus: TextView
