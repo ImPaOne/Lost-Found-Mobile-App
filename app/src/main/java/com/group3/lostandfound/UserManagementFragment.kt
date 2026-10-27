@@ -54,7 +54,7 @@ class UserManagementFragment : Fragment() {
 
         initViews(view)
         setupClickListeners()
-        setupBottomNav(view, "admin")
+        setupBottomNav(view, "users")
         observeLiveFirebaseUsers()
     }
 

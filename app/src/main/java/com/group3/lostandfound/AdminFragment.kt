@@ -63,9 +63,7 @@ class AdminFragment : Fragment() {
             if (parentFragmentManager.backStackEntryCount > 0) {
                 parentFragmentManager.popBackStack()
             } else {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.screenBox, ProfileFragment.newInstance())
-                    .commit()
+                Toast.makeText(requireContext(), "Foundly Administrator Dashboard", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -95,8 +93,17 @@ class AdminFragment : Fragment() {
             showAdminToolsDialog()
         }
 
+        view.findViewById<View>(R.id.btnViewAdvancedAnalytics)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(R.id.screenBox, AnalyticsFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
+        }
+
         view.findViewById<View>(R.id.trendGraph)?.setOnClickListener {
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.screenBox, AnalyticsFragment.newInstance())
                 .addToBackStack(null)
                 .commit()

@@ -75,7 +75,7 @@ class ModerationFragment : Fragment() {
 
         initViews(view)
         setupClickListeners()
-        setupBottomNav(view, "admin")
+        setupBottomNav(view, "moderation")
         observeFirebaseModerationQueue()
     }
 

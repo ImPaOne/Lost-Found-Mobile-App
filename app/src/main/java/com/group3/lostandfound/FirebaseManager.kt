@@ -127,17 +127,47 @@ object FirebaseManager {
                     }
 
                     // Geographic coordinates for heat map
+                    val resolvedLat: Double
+                    val resolvedLng: Double
                     if (lat != 0.0 && lng != 0.0) {
-                        points.add(
-                            MapMarkerItem(
-                                itemId = child.key ?: "",
-                                title = title,
-                                status = status,
-                                latitude = lat,
-                                longitude = lng
-                            )
-                        )
+                        resolvedLat = lat
+                        resolvedLng = lng
+                    } else {
+                        val offset = (child.key.hashCode() % 30) * 0.003
+                        when {
+                            locLower.contains("kandy") || locLower.contains("peradeniya") -> {
+                                resolvedLat = 7.2906 + offset
+                                resolvedLng = 80.6337 + offset
+                            }
+                            locLower.contains("galle") || locLower.contains("unawatuna") -> {
+                                resolvedLat = 6.0535 + offset
+                                resolvedLng = 80.2210 + offset
+                            }
+                            locLower.contains("jaffna") -> {
+                                resolvedLat = 9.6615 + offset
+                                resolvedLng = 80.0255 + offset
+                            }
+                            locLower.contains("negombo") -> {
+                                resolvedLat = 7.2008 + offset
+                                resolvedLng = 79.8736 + offset
+                            }
+                            else -> {
+                                // Default to Colombo metropolitan area with scatter
+                                resolvedLat = 6.9271 + offset
+                                resolvedLng = 79.8612 + offset
+                            }
+                        }
                     }
+
+                    points.add(
+                        MapMarkerItem(
+                            itemId = child.key ?: "",
+                            title = title,
+                            status = status,
+                            latitude = resolvedLat,
+                            longitude = resolvedLng
+                        )
+                    )
                 }
 
                 totalReports = total
