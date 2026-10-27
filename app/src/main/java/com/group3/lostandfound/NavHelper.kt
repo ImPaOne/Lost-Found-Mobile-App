@@ -77,11 +77,11 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     imgMessages?.setImageResource(R.drawable.ic_nav_messages)
     imgProfile?.setImageResource(R.drawable.ic_nav_profile)
 
-    val isTabHome = activeTab == "home"
-    val isTabExplore = activeTab == "explore"
+    val isTabHome = activeTab == "home" || activeTab == "admin"
+    val isTabExplore = activeTab == "explore" || activeTab == "reports" || activeTab == "map"
     val isTabPost = activeTab == "post"
-    val isTabMessages = activeTab == "messages"
-    val isTabProfile = activeTab == "profile" || activeTab == "settings"
+    val isTabMessages = activeTab == "messages" || activeTab == "chat"
+    val isTabProfile = activeTab == "profile" || activeTab == "settings" || activeTab == "saved" || activeTab == "trust"
 
     boxHome?.setBackgroundResource(0)
     boxExplore?.setBackgroundResource(0)
