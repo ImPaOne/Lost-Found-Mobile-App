@@ -95,30 +95,20 @@
         android:focusable="true"
         android:gravity="center">
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/btnPostPill"
-            android:layout_width="52dp"
+            android:layout_width="44dp"
             android:layout_height="44dp"
-            android:background="@drawable/bg_nav_post_pill"
-            android:gravity="center"
-            android:orientation="vertical">
+            android:background="@drawable/bg_nav_post_pill">
 
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
                 android:contentDescription="Post"
                 android:src="@drawable/ic_plus"
                 app:tint="@color/white" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-bold"
-                android:text="+ Post"
-                android:textColor="@color/white"
-                android:textSize="9sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+        </FrameLayout>
     </LinearLayout>
 
     <!-- 4. Messages Tab -->
