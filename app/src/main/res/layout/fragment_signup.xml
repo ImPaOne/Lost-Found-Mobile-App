@@ -25,7 +25,7 @@
             android:paddingEnd="24dp"
             android:paddingBottom="24dp">
 
-            <!-- Brand Logo: Squircle Icon + "FindIt LK" -->
+            <!-- Brand Logo: Squircle Icon + "Foundly" -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -33,15 +33,15 @@
                 android:orientation="horizontal">
 
                 <FrameLayout
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
                     android:background="@drawable/bg_logo_squircle">
 
                     <ImageView
                         android:layout_width="18dp"
                         android:layout_height="18dp"
                         android:layout_gravity="center"
-                        android:contentDescription="FindIt LK Logo"
+                        android:contentDescription="Foundly Logo"
                         android:src="@drawable/ic_search_white" />
                 </FrameLayout>
 
@@ -51,7 +51,7 @@
                     android:layout_marginStart="10dp"
                     android:fontFamily="sans-serif-bold"
                     android:text="Foundly"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/deep_blue"
                     android:textSize="18sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -61,81 +61,98 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="22dp"
-                android:fontFamily="sans-serif-black"
+                android:fontFamily="sans-serif-bold"
                 android:text="Create your account"
                 android:textColor="@color/text_primary"
-                android:textSize="28sp"
+                android:textSize="26sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:fontFamily="sans-serif"
-                android:lineSpacingExtra="3dp"
-                android:text="Join Sri Lanka’s trusted lost and found\ncommunity."
+                android:text="Join Sri Lanka's trusted lost and found community."
+                android:textColor="@color/text_muted"
+                android:textSize="13sp" />
+
+            <!-- Field 1: FULL NAME -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="sans-serif-bold"
+                android:letterSpacing="0.04"
+                android:text="FULL NAME"
+                android:textAllCaps="true"
                 android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
-            <!-- Field 1: Full name -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_input_box_rounded"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <EditText
+                    android:id="@+id/inputFullName"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:fontFamily="sans-serif"
+                    android:hint="Nadeesha Silva"
+                    android:importantForAutofill="no"
+                    android:inputType="textPersonName|textCapWords"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Field 2: EMAIL -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="14dp"
                 android:fontFamily="sans-serif-bold"
-                android:text="Full name"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp"
+                android:letterSpacing="0.04"
+                android:text="EMAIL"
+                android:textAllCaps="true"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
                 android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/inputFullName"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:background="@null"
-                android:fontFamily="sans-serif"
-                android:hint="Your Full Name"
-                android:importantForAutofill="no"
-                android:inputType="textPersonName"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_hint"
-                android:textSize="15sp" />
+                android:layout_height="50dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_input_box_rounded"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
 
-            <!-- Field 2: Email -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:fontFamily="sans-serif-bold"
-                android:text="Email"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/inputEmail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:background="@null"
-                android:fontFamily="sans-serif"
-                android:hint="user@example.com"
-                android:importantForAutofill="no"
-                android:inputType="textEmailAddress"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_hint"
-                android:textSize="15sp" />
+                <EditText
+                    android:id="@+id/inputEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:fontFamily="sans-serif"
+                    android:hint="nadeesha@email.com"
+                    android:importantForAutofill="no"
+                    android:inputType="textEmailAddress"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <!-- Field 3 & 4: Two-column Phone number & NIC number -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="14dp"
                 android:baselineAligned="false"
                 android:orientation="horizontal">
 
@@ -143,7 +160,7 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -151,33 +168,42 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
-                        android:text="Phone number"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
+                        android:letterSpacing="0.04"
+                        android:text="PHONE NUMBER"
+                        android:textAllCaps="true"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
                         android:textStyle="bold" />
 
-                    <EditText
-                        android:id="@+id/inputPhone"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:background="@null"
-                        android:fontFamily="sans-serif"
-                        android:hint="+94 77 123 4567"
-                        android:importantForAutofill="no"
-                        android:inputType="phone"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
-                        android:textColor="@color/text_primary"
-                        android:textColorHint="@color/text_hint"
-                        android:textSize="15sp" />
+                        android:layout_height="50dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/bg_input_box_rounded"
+                        android:gravity="center_vertical"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp">
+
+                        <EditText
+                            android:id="@+id/inputPhone"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:fontFamily="sans-serif"
+                            android:hint="+94 77 123 4567"
+                            android:importantForAutofill="no"
+                            android:inputType="phone"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_hint"
+                            android:textSize="14sp" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <!-- NIC number Column -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -185,126 +211,141 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
-                        android:text="NIC number"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
+                        android:letterSpacing="0.04"
+                        android:text="NIC NUMBER"
+                        android:textAllCaps="true"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
                         android:textStyle="bold" />
 
-                    <EditText
-                        android:id="@+id/inputNic"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:background="@null"
-                        android:fontFamily="sans-serif"
-                        android:hint="1998567••••"
-                        android:importantForAutofill="no"
-                        android:inputType="text"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
-                        android:textColor="@color/text_primary"
-                        android:textColorHint="@color/text_hint"
-                        android:textSize="15sp" />
+                        android:layout_height="50dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/bg_input_box_rounded"
+                        android:gravity="center_vertical"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp">
+
+                        <EditText
+                            android:id="@+id/inputNic"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:fontFamily="sans-serif"
+                            android:hint="1998567••••"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_hint"
+                            android:textSize="14sp" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Field 5: Password -->
+            <!-- Field 5: PASSWORD -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="14dp"
                 android:fontFamily="sans-serif-bold"
-                android:text="Password"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp"
+                android:letterSpacing="0.04"
+                android:text="PASSWORD"
+                android:textAllCaps="true"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
                 android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_input_box_rounded"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="12dp">
 
                 <EditText
                     android:id="@+id/inputPassword"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@null"
                     android:fontFamily="sans-serif"
                     android:hint="••••••••"
                     android:importantForAutofill="no"
                     android:inputType="textPassword"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="6dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="15sp" />
+                    android:textSize="14sp" />
 
                 <ImageView
                     android:id="@+id/btnTogglePassword"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:clickable="true"
                     android:contentDescription="Toggle password visibility"
                     android:focusable="true"
                     android:padding="2dp"
                     android:src="@drawable/ic_eye"
-                    app:tint="@color/text_secondary" />
+                    app:tint="@color/text_hint" />
             </LinearLayout>
 
-            <!-- Field 6: Confirm password -->
+            <!-- Field 6: CONFIRM PASSWORD -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="14dp"
                 android:fontFamily="sans-serif-bold"
-                android:text="Confirm password"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp"
+                android:letterSpacing="0.04"
+                android:text="CONFIRM PASSWORD"
+                android:textAllCaps="true"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
                 android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_input_box_rounded"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="12dp">
 
                 <EditText
                     android:id="@+id/inputConfirmPassword"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@null"
                     android:fontFamily="sans-serif"
                     android:hint="••••••••"
                     android:importantForAutofill="no"
                     android:inputType="textPassword"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="6dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="15sp" />
+                    android:textSize="14sp" />
 
                 <ImageView
                     android:id="@+id/btnToggleConfirmPassword"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:clickable="true"
                     android:contentDescription="Toggle confirm password visibility"
                     android:focusable="true"
                     android:padding="2dp"
                     android:src="@drawable/ic_eye"
-                    app:tint="@color/text_secondary" />
+                    app:tint="@color/text_hint" />
             </LinearLayout>
 
             <!-- Terms Agreement Checkbox Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -312,7 +353,7 @@
                     android:id="@+id/checkTerms"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:buttonTint="@color/deep_blue"
+                    android:button="@drawable/selector_checkbox"
                     android:checked="false"
                     android:minWidth="0dp"
                     android:minHeight="0dp" />
@@ -334,16 +375,16 @@
                 android:id="@+id/btnCreateAccount"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="20dp"
                 android:background="@drawable/bg_btn_create_account"
                 android:clickable="true"
-                android:elevation="2dp"
+                android:elevation="1dp"
                 android:focusable="true"
-                android:fontFamily="sans-serif-medium"
+                android:fontFamily="sans-serif-bold"
                 android:gravity="center"
                 android:text="Create Account"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <!-- Login Footer Link -->
@@ -352,8 +393,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="24dp"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="20dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:orientation="horizontal">
