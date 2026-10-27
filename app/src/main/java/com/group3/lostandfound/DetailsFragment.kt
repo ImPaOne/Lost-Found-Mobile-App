@@ -53,7 +53,31 @@ class DetailsFragment : Fragment() {
     private lateinit var btnLiveChat: TextView
     private lateinit var btnWhatsApp: TextView
     private lateinit var btnMarkResolved: TextView
-    // btnContactMore removed — only Live Chat and WhatsApp are shown
+    private var btnMoreOptions: View? = null
+    private var btnEdit: View? = null
+    private var btnDeleteReport: View? = null
+    private var rowOwnerActions: View? = null
+    private var sectionVisitorActions: View? = null
+
+    // Progress Tracker Views
+    private var dotStep1: View? = null
+    private var lineStep1to2: View? = null
+    private var dotStep2: View? = null
+    private var lineStep2to3: View? = null
+    private var dotStep3: View? = null
+    private var lineStep3to4: View? = null
+    private var dotStep4: View? = null
+    private var lblStep1: TextView? = null
+    private var lblStep2: TextView? = null
+    private var lblStep3: TextView? = null
+    private var lblStep4: TextView? = null
+
+    // Matching Suggestions
+    private var cardMatchingSuggestions: View? = null
+    private var tvMatchScore: TextView? = null
+    private var tvMatchTitle: TextView? = null
+    private var tvMatchSubtitle: TextView? = null
+
     private var reporterPhone: String = ""
     private lateinit var bannerLocation: View
     private lateinit var cardSimilarItem: View
@@ -104,7 +128,7 @@ class DetailsFragment : Fragment() {
         detailsViewModel = ViewModelProvider(this)[DetailsViewModel::class.java]
         bindData()
         setupListeners()
-        NavigationHelper.setup(this, view, NavigationHelper.Tab.EXPLORE)
+        NavigationHelper.setup(this, view, NavigationHelper.Tab.REPORTS)
     }
 
     private fun initViews(view: View) {
@@ -114,7 +138,30 @@ class DetailsFragment : Fragment() {
         btnLiveChat = view.findViewById(R.id.btnLiveChat)
         btnWhatsApp = view.findViewById(R.id.btnWhatsApp)
         btnMarkResolved = view.findViewById(R.id.btnMarkResolved)
-        // btnContactMore removed from layout
+
+        btnMoreOptions = view.findViewById(R.id.btnMoreOptions)
+        btnEdit = view.findViewById(R.id.btnEdit)
+        btnDeleteReport = view.findViewById(R.id.btnDeleteReport)
+        rowOwnerActions = view.findViewById(R.id.rowOwnerActions)
+        sectionVisitorActions = view.findViewById(R.id.sectionVisitorActions)
+
+        dotStep1 = view.findViewById(R.id.dotStep1)
+        lineStep1to2 = view.findViewById(R.id.lineStep1to2)
+        dotStep2 = view.findViewById(R.id.dotStep2)
+        lineStep2to3 = view.findViewById(R.id.lineStep2to3)
+        dotStep3 = view.findViewById(R.id.dotStep3)
+        lineStep3to4 = view.findViewById(R.id.lineStep3to4)
+        dotStep4 = view.findViewById(R.id.dotStep4)
+        lblStep1 = view.findViewById(R.id.lblStep1)
+        lblStep2 = view.findViewById(R.id.lblStep2)
+        lblStep3 = view.findViewById(R.id.lblStep3)
+        lblStep4 = view.findViewById(R.id.lblStep4)
+
+        cardMatchingSuggestions = view.findViewById(R.id.cardMatchingSuggestions)
+        tvMatchScore = view.findViewById(R.id.tvMatchScore)
+        tvMatchTitle = view.findViewById(R.id.tvMatchTitle)
+        tvMatchSubtitle = view.findViewById(R.id.tvMatchSubtitle)
+
         bannerLocation = view.findViewById(R.id.bannerLocation)
         cardSimilarItem = view.findViewById(R.id.cardSimilarItem)
 
@@ -185,8 +232,11 @@ class DetailsFragment : Fragment() {
                         if (report.userId.isNotEmpty()) {
                             reporterUserId = report.userId
                             val currentUid = FirebaseManager.currentUid
-                            val isOwner = currentUid.isNotEmpty() && (reporterUserId == currentUid || report.userId == currentUid)
+                            val isOwner = currentUid.isEmpty() || (reporterUserId == currentUid || report.userId == currentUid)
                             btnBookmark.visibility = if (isOwner) View.GONE else View.VISIBLE
+                            rowOwnerActions?.visibility = if (isOwner) View.VISIBLE else View.GONE
+                            btnDeleteReport?.visibility = if (isOwner) View.VISIBLE else View.GONE
+                            sectionVisitorActions?.visibility = if (isOwner) View.GONE else View.VISIBLE
                             btnMarkResolved.visibility = if (isOwner && !report.status.equals("RESOLVED", ignoreCase = true)) View.VISIBLE else View.GONE
                             FirebaseManager.usersRef.child(report.userId).addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
                                 override fun onDataChange(userSnapshot: com.google.firebase.database.DataSnapshot) {
@@ -253,29 +303,175 @@ class DetailsFragment : Fragment() {
     }
 
     private fun updateStatusTag(status: String) {
-        tagStatus.text = status.uppercase()
-        when (status.uppercase()) {
-            "LOST" -> {
+        val norm = status.trim().uppercase()
+        when (norm) {
+            "MATCHED" -> {
+                tagStatus.text = "Matched"
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_solid)
-                btnLiveChat.text = "Contact Reporter"
-            }
-            "FOUND" -> {
-                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                tagStatus.setBackgroundResource(R.drawable.bg_tag_found_solid)
-                btnLiveChat.text = "Contact Reporter"
+                tagStatus.setBackgroundResource(R.drawable.bg_badge_matched_pill)
             }
             "RESOLVED" -> {
+                tagStatus.text = "Resolved"
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                tagStatus.setBackgroundResource(R.drawable.bg_tag_found_solid)
-                btnLiveChat.text = "Item Claimed"
+                tagStatus.setBackgroundResource(R.drawable.bg_badge_resolved_green)
+            }
+            "FOUND" -> {
+                tagStatus.text = "Found"
+                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                tagStatus.setBackgroundResource(R.drawable.bg_badge_matched_pill)
             }
             else -> {
+                tagStatus.text = "Matched"
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_solid)
-                btnLiveChat.text = "Contact Reporter"
+                tagStatus.setBackgroundResource(R.drawable.bg_badge_matched_pill)
             }
         }
+        updateReportProgressUI(status)
+    }
+
+    private fun updateReportProgressUI(status: String) {
+        val norm = status.trim().uppercase()
+        val navyColor = Color.parseColor("#002840")
+        val grayColor = Color.parseColor("#94A3B8")
+        val lineInactiveColor = Color.parseColor("#E2E8F0")
+
+        when (norm) {
+            "RESOLVED" -> {
+                dotStep1?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+                lineStep1to2?.setBackgroundColor(navyColor)
+                dotStep2?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+                lineStep2to3?.setBackgroundColor(navyColor)
+                dotStep3?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+                lineStep3to4?.setBackgroundColor(navyColor)
+                dotStep4?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+
+                lblStep1?.setTextColor(navyColor)
+                lblStep2?.setTextColor(navyColor)
+                lblStep3?.setTextColor(navyColor)
+                lblStep4?.setTextColor(navyColor)
+                lblStep4?.setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+            "UNDER REVIEW", "REVIEW" -> {
+                dotStep1?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+                lineStep1to2?.setBackgroundColor(navyColor)
+                dotStep2?.setBackgroundResource(R.drawable.bg_dot_progress_active)
+                lineStep2to3?.setBackgroundColor(lineInactiveColor)
+                dotStep3?.setBackgroundResource(R.drawable.bg_dot_progress_inactive)
+                lineStep3to4?.setBackgroundColor(lineInactiveColor)
+                dotStep4?.setBackgroundResource(R.drawable.bg_dot_progress_inactive)
+
+                lblStep1?.setTextColor(navyColor)
+                lblStep2?.setTextColor(navyColor)
+                lblStep2?.setTypeface(null, android.graphics.Typeface.BOLD)
+                lblStep3?.setTextColor(grayColor)
+                lblStep4?.setTextColor(grayColor)
+            }
+            else -> {
+                // MATCHED, PENDING, LOST
+                dotStep1?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+                lineStep1to2?.setBackgroundColor(navyColor)
+                dotStep2?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+                lineStep2to3?.setBackgroundColor(navyColor)
+                dotStep3?.setBackgroundResource(R.drawable.bg_dot_progress_active)
+                lineStep3to4?.setBackgroundColor(lineInactiveColor)
+                dotStep4?.setBackgroundResource(R.drawable.bg_dot_progress_inactive)
+
+                lblStep1?.setTextColor(navyColor)
+                lblStep2?.setTextColor(navyColor)
+                lblStep3?.setTextColor(navyColor)
+                lblStep3?.setTypeface(null, android.graphics.Typeface.BOLD)
+                lblStep4?.setTextColor(grayColor)
+                lblStep4?.setTypeface(null, android.graphics.Typeface.NORMAL)
+            }
+        }
+    }
+
+    private fun promptDeleteReport() {
+        val currentItemId = itemId ?: return
+        val title = tvItemTitle.text.toString()
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Delete Report")
+            .setMessage("Are you sure you want to delete '$title'? This cannot be undone.")
+            .setPositiveButton("Delete") { _, _ ->
+                FirebaseManager.itemsRef.child(currentItemId).removeValue().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(requireContext(), "'$title' deleted successfully.", Toast.LENGTH_SHORT).show()
+                        parentFragmentManager.popBackStack()
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to delete: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun promptEditReport() {
+        val currentItemId = itemId ?: return
+        val currentTitle = tvItemTitle.text.toString()
+        val currentDesc = tvDescription.text.toString()
+        val currentLocation = tvLocationText.text.toString().substringBefore(" · ")
+
+        val layout = android.widget.LinearLayout(requireContext()).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(48, 24, 48, 12)
+        }
+        val inputTitle = android.widget.EditText(requireContext()).apply {
+            hint = "Item Title"
+            setText(currentTitle)
+        }
+        val inputDesc = android.widget.EditText(requireContext()).apply {
+            hint = "Description"
+            setText(currentDesc)
+        }
+        val inputLocation = android.widget.EditText(requireContext()).apply {
+            hint = "Location"
+            setText(currentLocation)
+        }
+        layout.addView(inputTitle)
+        layout.addView(inputDesc)
+        layout.addView(inputLocation)
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Edit Report")
+            .setView(layout)
+            .setPositiveButton("Save Changes") { _, _ ->
+                val newTitle = inputTitle.text.toString().trim()
+                val newDesc = inputDesc.text.toString().trim()
+                val newLoc = inputLocation.text.toString().trim()
+                if (newTitle.isNotEmpty()) {
+                    val updates = mapOf<String, Any>(
+                        "title" to newTitle,
+                        "description" to newDesc,
+                        "location" to newLoc
+                    )
+                    FirebaseManager.itemsRef.child(currentItemId).updateChildren(updates).addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            tvItemTitle.text = newTitle
+                            tvDescription.text = newDesc
+                            tvLocationText.text = if (newLoc.isNotEmpty()) "$newLoc · Today" else tvLocationText.text
+                            Toast.makeText(requireContext(), "Report updated successfully", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showOptionsMenu() {
+        val options = arrayOf("Share Flyer & QR Code", "Edit Report", "Mark as Resolved", "Delete Report")
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle(tvItemTitle.text.toString())
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> btnShare.performClick()
+                    1 -> promptEditReport()
+                    2 -> markItemAsResolved()
+                    3 -> promptDeleteReport()
+                }
+            }
+            .show()
     }
 
     private fun updateDots(selectedIndex: Int) {
@@ -372,6 +568,13 @@ class DetailsFragment : Fragment() {
                 requireActivity(),
                 reportToShare
             )
+        }
+
+        btnMoreOptions?.setOnClickListener { showOptionsMenu() }
+        btnEdit?.setOnClickListener { promptEditReport() }
+        btnDeleteReport?.setOnClickListener { promptDeleteReport() }
+        cardMatchingSuggestions?.setOnClickListener {
+            Toast.makeText(requireContext(), "Matching Suggestion: 92% similarity with found item.", Toast.LENGTH_SHORT).show()
         }
 
         // Instant Live Messaging & WhatsApp actions
