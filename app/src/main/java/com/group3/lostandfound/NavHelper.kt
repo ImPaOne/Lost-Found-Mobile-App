@@ -13,12 +13,12 @@ import androidx.fragment.app.Fragment
  * Clean helper for bottom navigation across all screens.
  * Dynamically adapts navigation tabs and routing based on user authorization:
  * - If Admin: Dashboard (Admin), Moderation Queue, Analytics & Heatmap, User Management, Settings.
- * - If User: Home, Explore, Post Report, Messages, Profile.
- * Guarantees Administrator NEVER sees normal user screens.
+ * - If User: Home, Explore, My reports, Profile (with Messages and Post as needed).
  */
 fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     val tabHome = rootView.findViewById<View>(R.id.tabHome) ?: return
     val tabExplore = rootView.findViewById<View>(R.id.tabExplore)
+    val tabReports = rootView.findViewById<View>(R.id.tabReports)
     val tabPost = rootView.findViewById<View>(R.id.tabPost)
     val btnPostPill = rootView.findViewById<View>(R.id.btnPostPill)
     val tabMessages = rootView.findViewById<View>(R.id.tabMessages)
@@ -26,16 +26,19 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
 
     val lblHome = rootView.findViewById<TextView>(R.id.lblHome)
     val lblExplore = rootView.findViewById<TextView>(R.id.lblExplore)
+    val lblReports = rootView.findViewById<TextView>(R.id.lblReports)
     val lblMessages = rootView.findViewById<TextView>(R.id.lblMessages)
     val lblProfile = rootView.findViewById<TextView>(R.id.lblProfile)
 
     val imgHome = rootView.findViewById<ImageView>(R.id.imgHome)
     val imgExplore = rootView.findViewById<ImageView>(R.id.imgExplore)
+    val imgReports = rootView.findViewById<ImageView>(R.id.imgReports)
     val imgMessages = rootView.findViewById<ImageView>(R.id.imgMessages)
     val imgProfile = rootView.findViewById<ImageView>(R.id.imgProfile)
 
     val boxHome = rootView.findViewById<View>(R.id.boxHome)
     val boxExplore = rootView.findViewById<View>(R.id.boxExplore)
+    val boxReports = rootView.findViewById<View>(R.id.boxReports)
     val boxMessages = rootView.findViewById<View>(R.id.boxMessages)
     val boxProfile = rootView.findViewById<View>(R.id.boxProfile)
 
@@ -59,7 +62,11 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     }
 
     if (isAdmin) {
-        // ADMIN SPECIFIC NAVIGATION
+        // ADMIN SPECIFIC NAVIGATION (Dashboard, Moderation, Analytics, Users, Settings)
+        tabReports?.visibility = View.GONE
+        tabPost?.visibility = View.VISIBLE
+        tabMessages?.visibility = View.VISIBLE
+
         lblHome?.text = "Dashboard"
         lblExplore?.text = "Moderation"
         lblMessages?.text = "Users"
@@ -70,7 +77,6 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
         imgMessages?.setImageResource(R.drawable.ic_person)
         imgProfile?.setImageResource(R.drawable.ic_gear_settings)
 
-        // Center pill for Analytics
         (btnPostPill as? ViewGroup)?.let { vg ->
             for (i in 0 until vg.childCount) {
                 val child = vg.getChildAt(i)
@@ -128,60 +134,69 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
             if (this !is SettingsFragment) navigateTo(SettingsFragment.newInstance())
         }
     } else {
-        // NORMAL USER NAVIGATION
+        // NORMAL USER NAVIGATION: Matches reference image (Home, Explore, My reports, Profile)
         lblHome?.text = "Home"
         lblExplore?.text = "Explore"
+        lblReports?.text = "My reports"
         lblMessages?.text = "Messages"
         lblProfile?.text = "Profile"
 
         imgHome?.setImageResource(R.drawable.ic_nav_home)
         imgExplore?.setImageResource(R.drawable.ic_nav_explore)
+        imgReports?.setImageResource(R.drawable.ic_nav_my_reports)
         imgMessages?.setImageResource(R.drawable.ic_nav_messages)
         imgProfile?.setImageResource(R.drawable.ic_nav_profile)
 
-        (btnPostPill as? ViewGroup)?.let { vg ->
-            for (i in 0 until vg.childCount) {
-                val child = vg.getChildAt(i)
-                if (child is TextView) {
-                    child.visibility = View.VISIBLE
-                    child.text = "+ Post"
-                }
-                if (child is ImageView) child.setImageResource(R.drawable.ic_plus)
-            }
+        val isTabHome = activeTab == "home"
+        val isTabExplore = activeTab == "explore"
+        val isTabReports = activeTab == "reports" || activeTab == "my_reports"
+        val isTabPost = activeTab == "post"
+        val isTabMessages = activeTab == "messages"
+        val isTabProfile = activeTab == "profile"
+
+        if (isTabMessages) {
+            tabMessages?.visibility = View.VISIBLE
+            tabReports?.visibility = View.GONE
+        } else if (isTabPost) {
+            tabPost?.visibility = View.VISIBLE
+        } else {
+            tabReports?.visibility = View.VISIBLE
+            tabPost?.visibility = View.GONE
+            tabMessages?.visibility = View.GONE
         }
 
-        val isTab1 = activeTab == "home"
-        val isTab2 = activeTab == "explore"
-        val isTab3 = activeTab == "post"
-        val isTab4 = activeTab == "messages"
-        val isTab5 = activeTab == "profile"
+        boxHome?.setBackgroundResource(if (isTabHome) R.drawable.bg_nav_tab_active_pill else 0)
+        boxExplore?.setBackgroundResource(if (isTabExplore) R.drawable.bg_nav_tab_active_pill else 0)
+        boxReports?.setBackgroundResource(if (isTabReports) R.drawable.bg_nav_tab_active_pill else 0)
+        boxMessages?.setBackgroundResource(if (isTabMessages) R.drawable.bg_nav_tab_active_pill else 0)
+        boxProfile?.setBackgroundResource(if (isTabProfile) R.drawable.bg_nav_tab_active_pill else 0)
 
-        boxHome?.setBackgroundResource(0)
-        boxExplore?.setBackgroundResource(0)
-        btnPostPill?.setBackgroundResource(R.drawable.bg_nav_post_pill)
-        boxMessages?.setBackgroundResource(0)
-        boxProfile?.setBackgroundResource(0)
+        lblHome?.setTextColor(if (isTabHome) activeColor else inactiveColor)
+        lblExplore?.setTextColor(if (isTabExplore) activeColor else inactiveColor)
+        lblReports?.setTextColor(if (isTabReports) activeColor else inactiveColor)
+        lblMessages?.setTextColor(if (isTabMessages) activeColor else inactiveColor)
+        lblProfile?.setTextColor(if (isTabProfile) activeColor else inactiveColor)
 
-        lblHome?.setTextColor(if (isTab1) activeColor else inactiveColor)
-        lblExplore?.setTextColor(if (isTab2) activeColor else inactiveColor)
-        lblMessages?.setTextColor(if (isTab4) activeColor else inactiveColor)
-        lblProfile?.setTextColor(if (isTab5) activeColor else inactiveColor)
+        lblHome?.setTypeface(null, if (isTabHome) Typeface.BOLD else Typeface.NORMAL)
+        lblExplore?.setTypeface(null, if (isTabExplore) Typeface.BOLD else Typeface.NORMAL)
+        lblReports?.setTypeface(null, if (isTabReports) Typeface.BOLD else Typeface.NORMAL)
+        lblMessages?.setTypeface(null, if (isTabMessages) Typeface.BOLD else Typeface.NORMAL)
+        lblProfile?.setTypeface(null, if (isTabProfile) Typeface.BOLD else Typeface.NORMAL)
 
-        lblHome?.setTypeface(null, if (isTab1) Typeface.BOLD else Typeface.NORMAL)
-        lblExplore?.setTypeface(null, if (isTab2) Typeface.BOLD else Typeface.NORMAL)
-        lblMessages?.setTypeface(null, if (isTab4) Typeface.BOLD else Typeface.NORMAL)
-        lblProfile?.setTypeface(null, if (isTab5) Typeface.BOLD else Typeface.NORMAL)
-
-        imgHome?.setColorFilter(if (isTab1) activeColor else inactiveColor)
-        imgExplore?.setColorFilter(if (isTab2) activeColor else inactiveColor)
-        imgMessages?.setColorFilter(if (isTab4) activeColor else inactiveColor)
-        imgProfile?.setColorFilter(if (isTab5) activeColor else inactiveColor)
+        imgHome?.setColorFilter(if (isTabHome) activeColor else inactiveColor)
+        imgExplore?.setColorFilter(if (isTabExplore) activeColor else inactiveColor)
+        imgReports?.setColorFilter(if (isTabReports) activeColor else inactiveColor)
+        imgMessages?.setColorFilter(if (isTabMessages) activeColor else inactiveColor)
+        imgProfile?.setColorFilter(if (isTabProfile) activeColor else inactiveColor)
 
         tabHome.setOnClickListener {
             if (this !is HomeFragment) navigateTo(HomeFragment.newInstance())
         }
         tabExplore?.setOnClickListener {
             if (this !is ExploreFragment) navigateTo(ExploreFragment.newInstance())
+        }
+        tabReports?.setOnClickListener {
+            if (this !is ReportsFragment) navigateTo(ReportsFragment.newInstance())
         }
         val openPostAction = View.OnClickListener {
             if (this !is CreateReportFragment) navigateTo(CreateReportFragment.newInstance())

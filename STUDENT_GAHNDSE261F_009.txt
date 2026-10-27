@@ -1,0 +1,414 @@
+================================================================================
+FOUNDLY (LOST & FOUND SRI LANKA) - STUDENT SPECIFICATION & BACKEND MATRIX
+STUDENT INDEX: GAHNDSE261F-009
+================================================================================
+
+STUDENT SUMMARY
+---------------
+* Student Index Number: GAHNDSE261F-009
+* Responsibility / Scope: Core Platform Showcase, Administration, Analytics & Lifecycle Engine
+* Total Allocated Screens: 9 Screens & Modals
+
+Allocated Screens List:
+1. Home Dashboard
+2. Item Details Screen
+3. Admin Operations Dashboard
+4. Content Moderation Queue
+5. System Analytics & Insights
+6. User Management & Access Control
+7. My Reports Management
+8. Saved Items / Bookmarks
+9. Item Flyer & QR Code Export Modal
+
+
+================================================================================
+DETAILED SCREEN SPECIFICATIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. SCREEN: Home Dashboard
+--------------------------------------------------------------------------------
+* Screen Name: Home Dashboard
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_home.xml
+  - Item Layouts: app/src/main/res/layout/item_urgent_slider.xml, app/src/main/res/layout/item_report_card.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/HomeFragment.kt
+
+* Backend Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/HomeViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/ItemRepository.kt
+  - Database Manager: app/src/main/java/com/group3/lostandfound/FirebaseManager.kt
+  - Data Models: ReportItem, AnalyticsSummary in app/src/main/java/com/group3/lostandfound/Models.kt
+
+* UI Components & Features:
+  - Top header showing user greeting ("Hello, [Name]") and notification bell icon with unread count.
+  - Search bar that takes the user directly to the Explore screen when tapped.
+  - Horizontal carousel slider showing urgent lost items that have high cash rewards.
+  - Quick action buttons: "Report Lost Item" (Red button) and "Report Found Item" (Navy button).
+  - 6-icon category grid (Electronics, Wallets, Documents, Keys, Bags, Pets) to filter items quickly.
+  - Live community feed displaying the most recent lost and found reports.
+  - Fixed 5-tab bottom navigation bar for quick access across the app.
+
+* Backend Logic:
+  - HomeViewModel asks ItemRepository to stream the items list from the Firebase Realtime Database.
+  - The query orders items by timestamp and takes the latest 30 items.
+  - Filter logic hides flagged items (isFlagged == true) and already resolved items.
+  - High-reward lost items are placed into the urgent carousel list.
+  - Uses Kotlin StateFlow so the UI updates automatically whenever new items are added to Firebase.
+
+--------------------------------------------------------------------------------
+2. SCREEN: Item Details Screen
+--------------------------------------------------------------------------------
+* Screen Name: Item Details Screen
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_details.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/DetailsFragment.kt
+
+* Backend Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/DetailsViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/ItemRepository.kt
+  - Database Manager: app/src/main/java/com/group3/lostandfound/FirebaseManager.kt
+  - Notification Service: app/src/main/java/com/group3/lostandfound/service/FCMService.kt
+
+* UI Components & Features:
+  - Full-width image banner (260dp high) showing the photo of the lost or found item.
+  - Status badge pill showing "LOST ITEM" (red) or "FOUND ITEM" (green).
+  - Item title, category tag, reward amount (if any), and timestamp of when it was posted.
+  - Location details section with city, landmark, and a mini map view snapshot.
+  - Detailed story description explaining where and how the item was lost or found.
+  - Reporter profile card showing user avatar, name, trust score (e.g., "95% Trust Score"), and date joined.
+  - Sticky bottom action buttons:
+    * "Live Chat" button (Navy) to message the reporter inside the app.
+    * "WhatsApp" button (Green) to open direct WhatsApp chat with the reporter's phone number.
+    * "Mark RESOLVED & Reunited" button shown only if the current user is the owner of the report.
+  - Top bar share button that opens the Item Flyer & QR Code modal.
+
+* Backend Logic:
+  - DetailsViewModel attaches a real-time listener to the specific item at /items/{itemId}.
+  - It fetches the reporter's profile details from /users/{userId} to display their trust score.
+  - WhatsApp button reads the reporter's phone number, removes spaces, adds "+94" country code, and opens the WhatsApp app using an Android Intent.
+  - When the owner taps "Mark RESOLVED":
+    * Item status is updated to "RESOLVED" in Firebase.
+    * Finder is awarded +20 Trust Points and the "Reunited Hero" badge.
+    * Owner is awarded +15 Trust Points.
+    * A local push notification is sent to confirm the case is closed.
+
+--------------------------------------------------------------------------------
+3. SCREEN: Admin Operations Dashboard
+--------------------------------------------------------------------------------
+* Screen Name: Admin Operations Dashboard
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_admin.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/AdminFragment.kt
+
+* Backend Architecture Files:
+  - Database Manager: app/src/main/java/com/group3/lostandfound/FirebaseManager.kt
+  - Data Models: AdminAction, AnalyticsSummary, ReportItem in app/src/main/java/com/group3/lostandfound/Models.kt
+  - Preferences: SharedPreferences ("findit_prefs" keys "is_admin", "saved_email")
+
+* UI Components & Features:
+  - Admin header bar with admin shield badge and sign-out button.
+  - 4 KPI summary cards with counters:
+    * Total Reports Submitted
+    * Pending Review Reports
+    * Flagged Content
+    * Successfully Resolved Cases
+  - Navigation buttons to open:
+    * Content Moderation Queue
+    * System Analytics & Insights
+    * User Management & Access Control
+  - Live audit log list displaying recent actions taken by admins (approvals, rejections, bans) with timestamps.
+
+* Backend Logic:
+  - Checks if the logged-in email is the authorized admin email (admin@gmail.com). If not, blocks access.
+  - Reads data from /analytics_summary in Firebase Realtime Database to display the live counters.
+  - Listens to /admin_logs to show recent admin activities in real time.
+  - Handles screen transitions to other admin sub-screens.
+
+--------------------------------------------------------------------------------
+4. SCREEN: Content Moderation Queue
+--------------------------------------------------------------------------------
+* Screen Name: Content Moderation Queue
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_moderation.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/ModerationFragment.kt
+
+* Backend Architecture Files:
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/ItemRepository.kt
+  - Database Manager: app/src/main/java/com/group3/lostandfound/FirebaseManager.kt
+  - Data Models: ReportItem, AdminAction in app/src/main/java/com/group3/lostandfound/Models.kt
+
+* UI Components & Features:
+  - Top header showing queue title and count of pending items.
+  - Filter chips: "All", "Pending Review", "Community Flagged", "Inappropriate".
+  - List of reported item cards showing:
+    * Item image thumbnail and title.
+    * Reporter name and contact info.
+    * Reason why the post was flagged (e.g., "Suspicious contact number", "Fake report").
+    * Action button 1: [ Approve Post ] (Green).
+    * Action button 2: [ Reject / Delete ] (Red).
+
+* Backend Logic:
+  - Queries /items where isFlagged == true or status == "PENDING".
+  - When the admin taps "Approve":
+    * Changes /items/{itemId}/status to "APPROVED".
+    * Sets isFlagged = false.
+    * Writes an entry to /admin_logs recording who approved it.
+  - When the admin taps "Reject":
+    * Changes status to "REJECTED" or removes the item completely.
+    * Deducts 10 Trust Points from the user who submitted the bad report (/users/{userId}/trustScore).
+    * Writes an entry to /admin_logs.
+
+--------------------------------------------------------------------------------
+5. SCREEN: System Analytics & Insights
+--------------------------------------------------------------------------------
+* Screen Name: System Analytics & Insights
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_analytics.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/AnalyticsFragment.kt
+
+* Backend Architecture Files:
+  - Database Manager: app/src/main/java/com/group3/lostandfound/FirebaseManager.kt
+  - Data Models: AnalyticsSummary in app/src/main/java/com/group3/lostandfound/Models.kt
+
+* UI Components & Features:
+  - Header bar with screen title.
+  - KPI metric cards:
+    * Reunion Success Rate (e.g., "78% Reunited").
+    * Average Reunion Speed (e.g., "2.4 Days to Reconnect").
+  - Category breakdown bar chart showing counts for Electronics, Wallets, IDs, Keys, and Bags.
+  - City/District hotspot list showing where items are most frequently lost (Colombo, Kandy, Galle, Gampaha).
+  - 7-day velocity chart showing new reports compared to resolved cases.
+
+* Backend Logic:
+  - Reads all items from /items in Firebase Realtime Database.
+  - Calculates total items, total resolved items, and success rate:
+    Formula: (resolvedItems / totalItems) * 100
+  - Groups items by category and province to calculate percentages.
+  - Calculates dynamic bar heights and visual progress meters directly in Kotlin.
+
+--------------------------------------------------------------------------------
+6. SCREEN: User Management & Access Control
+--------------------------------------------------------------------------------
+* Screen Name: User Management & Access Control
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_user_management.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/UserManagementFragment.kt
+
+* Backend Architecture Files:
+  - Database Manager: app/src/main/java/com/group3/lostandfound/FirebaseManager.kt
+  - Data Models: UserData in app/src/main/java/com/group3/lostandfound/Models.kt
+
+* UI Components & Features:
+  - Header bar with title and "+" icon to add seed test users.
+  - Live search input field to search users by name or email.
+  - Summary metrics ribbon showing Total Users, Verified Accounts, and Suspended Accounts.
+  - User cards list showing:
+    * User profile picture, name, and email.
+    * Verified badge icon.
+    * Current Trust Score XP (e.g., "95 XP").
+    * Status indicator (Active vs Suspended/Banned).
+    * 3-dots menu button offering options: "Adjust Trust Score" and "Suspend / Ban Account".
+
+* Backend Logic:
+  - Attaches a listener to the /users node in Firebase Realtime Database.
+  - Filters users instantly as the admin types in the search bar.
+  - Banning a user: updates /users/{uid}/isBanned = true or false.
+  - Adjusting Trust Score: adds or subtracts points directly under /users/{uid}/trustScore.
+  - Logs every admin adjustment into /admin_logs.
+
+--------------------------------------------------------------------------------
+7. SCREEN: My Reports Management
+--------------------------------------------------------------------------------
+* Screen Name: My Reports Management
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_reports.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/ReportsFragment.kt
+
+* Backend Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/ReportsViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/ReportRepository.kt
+  - Data Models: ReportItem in app/src/main/java/com/group3/lostandfound/Models.kt
+
+* UI Components & Features:
+  - Top header with "My Reports" title.
+  - Two-tab filter bar: [ Active Reports ] and [ Resolved Reports ].
+  - List of report cards created by the currently logged-in user showing:
+    * Item photo thumbnail.
+    * Status badge ("LOST" or "FOUND").
+    * Item title, date posted, and location.
+    * Popup menu on each card with options:
+      1. "View Details" (opens Details screen)
+      2. "Mark as Resolved" (closes the case)
+      3. "Delete Report" (permanently deletes the item)
+
+* Backend Logic:
+  - ReportsViewModel queries /items where userId equals the current user's UID.
+  - Filters items into two lists: active items and resolved items based on the status field.
+  - Deleting an item calls .removeValue() on /items/{itemId} in Firebase Realtime Database.
+  - Marking as resolved updates status to "RESOLVED" and increments /users/{uid}/resolvedReports.
+
+--------------------------------------------------------------------------------
+8. SCREEN: Saved Items / Bookmarks
+--------------------------------------------------------------------------------
+* Screen Name: Saved Items / Bookmarks
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_saved_items.xml
+  - Sub-item Layout: app/src/main/res/layout/item_saved_card.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/SavedItemsFragment.kt
+
+* Backend Architecture Files:
+  - Database Path: /items in Firebase Realtime Database
+  - Local Storage: SharedPreferences ("findit_prefs", key "saved_item_ids_set")
+  - Data Models: ReportItem in app/src/main/java/com/group3/lostandfound/Models.kt
+
+* UI Components & Features:
+  - Header bar with back button, "Saved Items" title, and trash icon ("Clear All").
+  - Subtitle showing total items bookmarked (e.g., "4 items bookmarked").
+  - List of saved cards with item photo, status badge, title, location, bookmark ribbon icon, and tap-to-open action.
+  - Empty state view showing an icon and message when no items are bookmarked.
+
+* Backend Logic:
+  - Reads a Set of saved item IDs from Android SharedPreferences.
+  - Queries Firebase Realtime Database (/items) to fetch the latest details for each saved ID.
+  - Tapping the bookmark ribbon icon removes that ID from SharedPreferences and updates the list.
+  - Tapping "Clear All" deletes all saved IDs from SharedPreferences and shows the empty state.
+
+--------------------------------------------------------------------------------
+9. SCREEN: Item Flyer & QR Code Export Modal
+--------------------------------------------------------------------------------
+* Screen Name: Item Flyer & QR Code Export Modal
+* Frontend UI Files:
+  - Dialog Layout: app/src/main/res/layout/dialog_share_flyer.xml
+  - Flyer Poster Canvas: app/src/main/res/layout/layout_item_flyer.xml
+  - Kotlin UI Class: DetailsFragment.kt (method: showShareFlyerDialog)
+
+* Backend Architecture Files:
+  - QR Engine: Google ZXing QR code generator library
+  - Sharing & Storage: Android FileProvider, cacheDir/flyers/, Intent.ACTION_SEND
+  - Clipboard: Android ClipboardManager
+
+* UI Components & Features:
+  - Dialog pop-up with title "Item Flyer & QR Code" and close button.
+  - High-contrast printable poster preview containing:
+    * Red "LOST ITEM" alert banner.
+    * Full picture of the lost item.
+    * Foundly header and item title.
+    * City and last known location.
+    * Big scannable QR code linking to the item.
+    * Scanner instructions ("Scan this QR code to view details and contact owner").
+  - Action button 1: [ Copy Link ] (copies web URL to clipboard).
+  - Action button 2: [ Share Flyer ] (shares image to WhatsApp, social media, or print).
+
+* Backend Logic:
+  - Generates a 512x512 QR code bitmap using ZXing encoding the URL https://foundly.lk/item/{id}.
+  - Inflates layout_item_flyer.xml into an off-screen Android Bitmap canvas.
+  - Saves the bitmap as a PNG inside the app's cache directory (cacheDir/flyers/).
+  - Uses Android FileProvider and Intent.ACTION_SEND to send the PNG file to external apps like WhatsApp or printing services.
+  - Copy Link button uses ClipboardManager to copy the URL text.
+
+
+================================================================================
+BACKEND FILES & ARCHITECTURE EXPLANATION
+================================================================================
+
+1. HomeViewModel.kt
+   - Role: ViewModel for the Home screen.
+   - Why it is used: It manages UI state, holds the live list of reports and urgent carousel items, and keeps data alive during screen rotation so network requests are not repeated unnecessarily.
+
+2. DetailsViewModel.kt
+   - Role: ViewModel for the Item Details screen.
+   - Why it is used: Handles loading item details, reporter data, and managing case resolution actions without cluttering the UI fragment code.
+
+3. ReportsViewModel.kt
+   - Role: ViewModel for My Reports screen.
+   - Why it is used: Manages the active vs resolved report lists for the current user and triggers delete and status update commands.
+
+4. ItemRepository.kt
+   - Role: Data repository for lost and found items.
+   - Why it is used: Separates Firebase database calls from the ViewModels. Handles querying items, sorting, and filtering.
+
+5. ReportRepository.kt
+   - Role: Data repository for managing user reports.
+   - Why it is used: Handles deleting reports from Firebase, changing statuses, and updating user report counts.
+
+6. FirebaseManager.kt
+   - Role: Central Firebase helper class.
+   - Why it is used: Provides references to Firebase Realtime Database nodes, handles offline synchronization, and keeps database logic consistent in one place.
+
+7. FCMService.kt
+   - Role: Firebase Cloud Messaging & Local Notification service.
+   - Why it is used: Builds and displays high-importance notification banners on the device when an item case is resolved or updated.
+
+
+================================================================================
+FIREBASE OPERATIONS USED BY THIS STUDENT
+================================================================================
+
+1. Realtime Database Nodes Accessed:
+   - /items
+     * What it is: The root node where all lost and found item reports are stored.
+     * Why it is accessed: To load recent reports on the home screen, filter urgent items, and calculate system analytics.
+   - /items/{itemId}
+     * What it is: The record for a specific item.
+     * Why it is accessed: To read full details of an item on the Details screen.
+   - /items/{itemId}/status
+     * What it is: The current status of the item ("PENDING", "APPROVED", "REJECTED", "RESOLVED").
+     * Why it is accessed: To update the status when an admin approves/rejects an item or when an owner marks it resolved.
+   - /items/{itemId}/isFlagged
+     * What it is: A boolean flag indicating if an item has been reported by the community.
+     * Why it is accessed: Filtered on Home screen to hide bad content; updated in the Moderation Queue.
+   - /users/{userId}
+     * What it is: The profile data of a user.
+     * Why it is accessed: To display reporter name, avatar, and join date on the Details screen.
+   - /users/{userId}/trustScore
+     * What it is: The trust points score of a user.
+     * Why it is accessed: Awarding +20 points when an item is reunited, deducting 10 points when a user posts fake/flagged content, and manual admin adjustments.
+   - /users/{userId}/isBanned
+     * What it is: A boolean flag showing if a user account is suspended.
+     * Why it is accessed: Toggled by the admin in User Management to ban or unban malicious users.
+   - /admin_logs/{logId}
+     * What it is: Audit log records of administrative actions.
+     * Why it is accessed: Admin Dashboard and Moderation Queue write logs here whenever an admin approves, rejects, bans, or adjusts points.
+   - /announcements
+     * What it is: Broadcast announcements created by administrators.
+     * Why it is accessed: Displays global notices across the app.
+   - /analytics_summary
+     * What it is: Summary metrics node.
+     * Why it is accessed: Used by Admin Dashboard and Analytics screen to read and display platform statistics.
+
+2. Read & Stream Operations:
+   - ValueEventListener on /items with .orderByChild("timestamp").limitToLast(30)
+     * Why: Streams the latest 30 items for the home feed and urgent carousel.
+   - ValueEventListener on /items/{itemId}
+     * Why: Fetches live data for the item details screen.
+   - ValueEventListener on /users
+     * Why: Streams all user accounts for the User Management screen so the admin can search and manage them.
+   - ValueEventListener on /admin_logs
+     * Why: Displays a real-time list of recent admin actions on the Admin Dashboard.
+   - ValueEventListener on /items for Analytics
+     * Why: Scans reports to calculate reunion success rates and category distributions.
+
+3. Create & Write Operations:
+   - Writing to /admin_logs/{actionId}
+     * Why: Stores audit records with timestamp, admin email, action type, and target ID whenever an admin performs a moderation action.
+   - Writing to /announcements
+     * Why: Allows admins to publish broadcast announcements to all users.
+
+4. Update Operations:
+   - Updating /items/{itemId}/status
+     * Why: Changes status to "APPROVED", "REJECTED", or "RESOLVED".
+   - Updating /items/{itemId}/isFlagged
+     * Why: Resets flag to false when an admin approves a reported item.
+   - Updating /users/{userId}/trustScore
+     * Why: Increases trust points (+20) when a case is solved; reduces points (-10) for bad behavior.
+   - Updating /users/{userId}/isBanned
+     * Why: Changes account status to true/false when admin bans or unbans a user.
+
+5. Delete Operations:
+   - .removeValue() on /items/{itemId}
+     * Why: Allows users to permanently delete their own reports from the "My Reports" screen, and allows admins to remove rejected spam items.
+
+================================================================================
+END OF FILE: GAHNDSE261F-009
+================================================================================

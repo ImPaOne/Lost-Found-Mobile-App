@@ -10,13 +10,14 @@ import androidx.fragment.app.Fragment
 object NavigationHelper {
 
     enum class Tab {
-        HOME, EXPLORE, POST, MESSAGES, PROFILE, ADMIN, NONE
+        HOME, EXPLORE, REPORTS, POST, MESSAGES, PROFILE, ADMIN, NONE
     }
 
     fun setup(fragment: Fragment, rootView: View, currentTab: Tab) {
         val tabKey = when (currentTab) {
             Tab.HOME -> "home"
             Tab.EXPLORE -> "explore"
+            Tab.REPORTS -> "reports"
             Tab.POST -> "post"
             Tab.MESSAGES -> "messages"
             Tab.PROFILE -> "profile"
