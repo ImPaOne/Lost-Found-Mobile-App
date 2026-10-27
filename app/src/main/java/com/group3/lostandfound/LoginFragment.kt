@@ -177,6 +177,9 @@ class LoginFragment : Fragment() {
                             "Welcome back to Foundly. Signed in as $email."
                         )
 
+                        FirebaseManager.customUid = authViewModel.currentUid
+                        FirebaseManager.customEmail = email
+
                         (activity as? MainActivity)?.setupIncomingMessageNotifications()
 
                         ModernToast.show(

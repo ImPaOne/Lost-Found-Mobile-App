@@ -179,6 +179,9 @@ class SignUpFragment : Fragment() {
                             "Welcome to Foundly, $name. Your account has been created successfully."
                         )
 
+                        FirebaseManager.customUid = authViewModel.currentUid
+                        FirebaseManager.customEmail = inputEmail.text.toString().trim()
+
                         (activity as? MainActivity)?.setupIncomingMessageNotifications()
 
                         ModernToast.show(
