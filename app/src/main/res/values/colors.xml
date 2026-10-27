@@ -58,6 +58,10 @@
     <color name="badge_flagged_text">#FFC1121F</color>
     <color name="badge_pending_bg">#FFFFFBEB</color>
     <color name="badge_pending_text">#FFD97706</color>
+    <color name="badge_matched_bg">#FFD1FAE5</color>
+    <color name="badge_matched_text">#FF059669</color>
+    <color name="badge_resolved_bg">#FFD1FAE5</color>
+    <color name="badge_resolved_text">#FF059669</color>
 
     <!-- Compatibility aliases mapped to Emergency Theme -->
     <color name="nude_cream">#FFFFFFFF</color>
