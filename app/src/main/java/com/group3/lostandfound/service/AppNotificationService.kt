@@ -17,6 +17,8 @@ class AppNotificationService : Service() {
 
     private var myUid: String = ""
     private var serviceStartTime: Long = 0L
+    private val notifiedAlertIds = mutableSetOf<String>()
+    private var isAnnouncementListenerStarted = false
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -24,15 +26,23 @@ class AppNotificationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        serviceStartTime = System.currentTimeMillis()
+        serviceStartTime = System.currentTimeMillis() - 15000
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val user = FirebaseAuth.getInstance().currentUser
         val prefs = getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
         val savedUid = prefs.getString("user_uid", "") ?: ""
+        val intentUid = intent?.getStringExtra("user_uid") ?: ""
 
-        val activeUid = if (!user?.uid.isNullOrEmpty()) user!!.uid else savedUid
+        val activeUid = when {
+            intentUid.isNotEmpty() -> intentUid
+            !user?.uid.isNullOrEmpty() -> user!!.uid
+            else -> savedUid
+        }
+
+        // Global announcements are listened to regardless of user UID
+        startAnnouncementListening()
 
         if (activeUid.isNotEmpty() && activeUid != myUid) {
             myUid = activeUid
@@ -40,6 +50,41 @@ class AppNotificationService : Service() {
         }
 
         return START_STICKY
+    }
+
+    private fun startAnnouncementListening() {
+        if (isAnnouncementListenerStarted) return
+        isAnnouncementListenerStarted = true
+
+        val database = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+        val annRef = database.getReference("announcements")
+        annRef.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                try {
+                    val timestamp = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
+                    val annKey = snapshot.key ?: "ann_$timestamp"
+                    if (!notifiedAlertIds.contains(annKey) && timestamp > serviceStartTime) {
+                        notifiedAlertIds.add(annKey)
+                        val title = snapshot.child("title").getValue(String::class.java) ?: "Foundly Official Announcement"
+                        val message = snapshot.child("message").getValue(String::class.java) ?: ""
+                        val prefs = getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+                        val enabled = prefs.getBoolean("push_notifications_enabled", true)
+                        if (enabled && message.isNotEmpty()) {
+                            FCMService.triggerPushNotification(
+                                applicationContext,
+                                "📢 $title",
+                                message
+                            )
+                        }
+                    }
+                } catch (_: Exception) {}
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+            override fun onChildRemoved(snapshot: DataSnapshot) {}
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
 
     private fun startListening() {
@@ -67,7 +112,9 @@ class AppNotificationService : Service() {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 try {
                     val notif = snapshot.getValue(NotificationItem::class.java) ?: return
-                    if (notif.timestamp > serviceStartTime && notif.senderUserId != myUid && notif.type != "CHAT_MESSAGE") {
+                    val notifKey = notif.id.ifEmpty { "notif_${notif.timestamp}_${notif.title}" }
+                    if (!notifiedAlertIds.contains(notifKey) && notif.timestamp > serviceStartTime && notif.senderUserId != myUid) {
+                        notifiedAlertIds.add(notifKey)
                         val prefs = getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
                         val enabled = prefs.getBoolean("push_notifications_enabled", true)
                         if (enabled) {
@@ -94,7 +141,9 @@ class AppNotificationService : Service() {
         try {
             val conv = snapshot.getValue(ConversationMetadata::class.java) ?: return
             val isFromMe = conv.lastSenderId == myUid
-            if (!isFromMe && conv.lastUpdatedTimestamp > serviceStartTime && conv.otherUserId.isNotEmpty()) {
+            val convKey = "conv_${conv.chatConversationId}_${conv.lastUpdatedTimestamp}"
+            if (!isFromMe && !notifiedAlertIds.contains(convKey) && conv.lastUpdatedTimestamp > serviceStartTime && conv.otherUserId.isNotEmpty()) {
+                notifiedAlertIds.add(convKey)
                 val prefs = getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
                 val enabled = prefs.getBoolean("push_notifications_enabled", true)
                 if (enabled) {
