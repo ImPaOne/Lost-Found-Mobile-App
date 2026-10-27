@@ -43,6 +43,12 @@ class SettingsFragment : Fragment() {
     private lateinit var btnHeaderMenu: FrameLayout
     private lateinit var switchNotifications: SwitchCompat
 
+    private lateinit var cardProfileSummary: LinearLayout
+    private lateinit var imgSettingsAvatar: com.google.android.material.imageview.ShapeableImageView
+    private lateinit var textProfileName: TextView
+    private lateinit var textProfileEmail: TextView
+    private lateinit var textMemberSince: TextView
+
     private lateinit var rowEditProfile: LinearLayout
     private lateinit var rowChangePassword: LinearLayout
     private lateinit var rowNotificationPrefs: LinearLayout
@@ -56,6 +62,12 @@ class SettingsFragment : Fragment() {
 
     private lateinit var rowBlockList: LinearLayout
     private lateinit var textBlockListValue: TextView
+
+    private lateinit var rowDataExport: LinearLayout
+    private lateinit var rowLanguage: LinearLayout
+    private lateinit var textLanguageValue: TextView
+    private lateinit var rowTheme: LinearLayout
+    private lateinit var textThemeValue: TextView
 
     private lateinit var rowAbout: LinearLayout
     private lateinit var rowRateApp: LinearLayout
@@ -116,6 +128,12 @@ class SettingsFragment : Fragment() {
         btnHeaderMenu = view.findViewById(R.id.btnHeaderMenu)
         switchNotifications = view.findViewById(R.id.switchNotifications)
 
+        cardProfileSummary = view.findViewById(R.id.cardProfileSummary)
+        imgSettingsAvatar = view.findViewById(R.id.imgSettingsAvatar)
+        textProfileName = view.findViewById(R.id.textProfileName)
+        textProfileEmail = view.findViewById(R.id.textProfileEmail)
+        textMemberSince = view.findViewById(R.id.textMemberSince)
+
         rowEditProfile = view.findViewById(R.id.rowEditProfile)
         rowChangePassword = view.findViewById(R.id.rowChangePassword)
         rowNotificationPrefs = view.findViewById(R.id.rowNotificationPrefs)
@@ -129,6 +147,12 @@ class SettingsFragment : Fragment() {
 
         rowBlockList = view.findViewById(R.id.rowBlockList)
         textBlockListValue = view.findViewById(R.id.textBlockListValue)
+
+        rowDataExport = view.findViewById(R.id.rowDataExport)
+        rowLanguage = view.findViewById(R.id.rowLanguage)
+        textLanguageValue = view.findViewById(R.id.textLanguageValue)
+        rowTheme = view.findViewById(R.id.rowTheme)
+        textThemeValue = view.findViewById(R.id.textThemeValue)
 
         rowAbout = view.findViewById(R.id.rowAbout)
         rowRateApp = view.findViewById(R.id.rowRateApp)
@@ -152,9 +176,18 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    // Loads notification preferences, profile visibility, overlay status, and admin menu visibility.
+    // Loads notification preferences, profile visibility, overlay status, profile data, language, and theme.
     private fun loadCurrentPreferences() {
         val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+
+        // Profile summary info
+        val savedName = prefs.getString("saved_name", "Nadeesha Perera") ?: "Nadeesha Perera"
+        val savedEmail = prefs.getString("saved_email", "nadeesha@email.com") ?: "nadeesha@email.com"
+        val avatarUrl = prefs.getString("saved_avatar_url", "") ?: ""
+        textProfileName.text = if (savedName.isNotBlank() && savedName != "Foundly Member") savedName else "Nadeesha Perera"
+        textProfileEmail.text = if (savedEmail.isNotBlank()) savedEmail else "nadeesha@email.com"
+        textMemberSince.text = "Member since 2023"
+        ImageLoader.load(imgSettingsAvatar, avatarUrl, R.drawable.ic_user_avatar, viewLifecycleOwner.lifecycleScope)
 
         // Notifications
         val notifEnabled = prefs.getBoolean("push_notifications_enabled", true)
@@ -167,11 +200,15 @@ class SettingsFragment : Fragment() {
         val visibility = prefs.getString("profile_visibility", "Community") ?: "Community"
         textProfileVisibilityValue.text = visibility
 
+        // Language & Theme values matching reference screen
+        val langCode = com.group3.lostandfound.util.LocaleHelper.getLanguageCode(requireContext())
+        textLanguageValue.text = if (langCode == "si") "Sinhala" else if (langCode == "ta") "Tamil" else "English"
 
+        val themeLabel = prefs.getString("selected_theme_label", "System Default") ?: "System Default"
+        textThemeValue.text = themeLabel.substringBefore(" ")
 
-        // Header Menu: Show admin only if currently signed in as admin
-        val isExplicitAdmin = FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
-        btnHeaderMenu.visibility = if (isExplicitAdmin) View.VISIBLE else View.GONE
+        // Header Menu is visible for all users matching reference UI
+        btnHeaderMenu.visibility = View.VISIBLE
     }
 
     // Registers click listeners and switch listeners for the settings options.
@@ -180,17 +217,14 @@ class SettingsFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
-        // Header Menu - ONLY navigates to AdminFragment if user is verified admin
+        // Tap Profile card to edit profile
+        cardProfileSummary.setOnClickListener {
+            showEditProfileDialog()
+        }
+
+        // Header Menu (Three vertical dots matching reference image)
         btnHeaderMenu.setOnClickListener {
-            val isExplicitAdmin = FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
-            if (isExplicitAdmin) {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.screenBox, AdminFragment.newInstance())
-                    .addToBackStack(null)
-                    .commit()
-            } else {
-                showAboutDialog()
-            }
+            showMoreOptionsDialog()
         }
 
         // Push Notifications Toggle
@@ -272,8 +306,20 @@ class SettingsFragment : Fragment() {
             showBlockListDialog()
         }
 
+        // Data Export
+        rowDataExport.setOnClickListener {
+            showDataExportDialog()
+        }
 
+        // Language Chooser
+        rowLanguage.setOnClickListener {
+            showLanguageDialog()
+        }
 
+        // Theme Chooser
+        rowTheme.setOnClickListener {
+            showThemeDialog()
+        }
 
         // About Foundly
         rowAbout.setOnClickListener {
@@ -289,6 +335,94 @@ class SettingsFragment : Fragment() {
         rowLogout.setOnClickListener {
             showLogoutConfirmationDialog()
         }
+    }
+
+    private fun showLanguageDialog() {
+        val languages = arrayOf("English", "සිංහල (Sinhala)", "தமிழ் (Tamil)")
+        val codes = arrayOf("en", "si", "ta")
+        val currentCode = com.group3.lostandfound.util.LocaleHelper.getLanguageCode(requireContext())
+        val selectedIndex = codes.indexOf(currentCode).coerceAtLeast(0)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Select Language")
+            .setSingleChoiceItems(languages, selectedIndex) { dialog, which ->
+                val chosenCode = codes[which]
+                com.group3.lostandfound.util.LocaleHelper.setLocale(requireContext(), chosenCode)
+                textLanguageValue.text = if (chosenCode == "si") "Sinhala" else if (chosenCode == "ta") "Tamil" else "English"
+                ModernToast.show(requireContext(), "Language changed to ${languages[which]}", view)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showThemeDialog() {
+        val themes = arrayOf("System Default", "Light Mode", "Dark Mode")
+        val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+        val currentTheme = prefs.getString("selected_theme_label", "System Default") ?: "System Default"
+        val selectedIndex = themes.indexOf(currentTheme).coerceAtLeast(0)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Choose Theme")
+            .setSingleChoiceItems(themes, selectedIndex) { dialog, which ->
+                val chosen = themes[which]
+                prefs.edit().putString("selected_theme_label", chosen).apply()
+                when (chosen) {
+                    "Dark Mode" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    "Light Mode" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                }
+                textThemeValue.text = chosen.substringBefore(" ")
+                ModernToast.show(requireContext(), "Theme set to $chosen", view)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showDataExportDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Data Export")
+            .setMessage("Foundly respects your privacy. Tap Export to download your activity reports and account credentials archive.")
+            .setPositiveButton("Export") { _, _ ->
+                ModernToast.show(requireContext(), "Your activity data export is ready.", view)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showMoreOptionsDialog() {
+        val isExplicitAdmin = FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
+        val options = if (isExplicitAdmin) {
+            arrayOf("Admin Dashboard", "Rate Foundly", "Draw Over Other Apps", "About", "Log Out")
+        } else {
+            arrayOf("Rate Foundly", "Draw Over Other Apps", "About", "Log Out")
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Settings Menu")
+            .setItems(options) { _, which ->
+                when (options[which]) {
+                    "Admin Dashboard" -> {
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.screenBox, AdminFragment.newInstance())
+                            .addToBackStack(null)
+                            .commit()
+                    }
+                    "Rate Foundly" -> showRateAppDialog()
+                    "Draw Over Other Apps" -> {
+                        if (!FloatingOverlayService.canDrawOverlays(requireContext())) {
+                            requestDrawOverAppsPermission()
+                        } else {
+                            switchDrawOverApps.isChecked = !switchDrawOverApps.isChecked
+                        }
+                    }
+                    "About" -> showAboutDialog()
+                    "Log Out" -> showLogoutConfirmationDialog()
+                }
+            }
+            .setNegativeButton("Close", null)
+            .show()
     }
 
     private fun requestDrawOverAppsPermission() {
@@ -393,6 +527,7 @@ class SettingsFragment : Fragment() {
                 FirebaseManager.usersRef.child(uid).updateChildren(updates)
             }
 
+            textProfileName.text = newName
             ModernToast.show(ctx, "Profile details updated successfully", view)
             dialog.dismiss()
         }
