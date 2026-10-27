@@ -143,7 +143,8 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
             for (i in 0 until vg.childCount) {
                 val child = vg.getChildAt(i)
                 if (child is TextView) {
-                    child.visibility = View.GONE
+                    child.visibility = View.VISIBLE
+                    child.text = "+ Post"
                 }
                 if (child is ImageView) child.setImageResource(R.drawable.ic_plus)
             }
