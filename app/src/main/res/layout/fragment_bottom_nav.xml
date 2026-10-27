@@ -22,20 +22,21 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/boxHome"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="28dp"
             android:gravity="center">
 
             <ImageView
                 android:id="@+id/imgHome"
                 android:layout_width="22dp"
                 android:layout_height="22dp"
+                android:layout_gravity="center"
                 android:contentDescription="Home"
                 android:src="@drawable/ic_nav_home"
                 app:tint="@color/text_hint" />
-        </LinearLayout>
+        </FrameLayout>
 
         <TextView
             android:id="@+id/lblHome"
@@ -59,20 +60,21 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/boxExplore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="28dp"
             android:gravity="center">
 
             <ImageView
                 android:id="@+id/imgExplore"
                 android:layout_width="22dp"
                 android:layout_height="22dp"
+                android:layout_gravity="center"
                 android:contentDescription="Explore"
                 android:src="@drawable/ic_nav_explore"
                 app:tint="@color/text_hint" />
-        </LinearLayout>
+        </FrameLayout>
 
         <TextView
             android:id="@+id/lblExplore"
@@ -85,7 +87,45 @@
             android:textSize="11sp" />
     </LinearLayout>
 
-    <!-- 3. Center Post Button -->
+    <!-- 3. My Reports Tab (Matching reference image) -->
+    <LinearLayout
+        android:id="@+id/tabReports"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/boxReports"
+            android:layout_width="48dp"
+            android:layout_height="28dp"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/imgReports"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:contentDescription="My reports"
+                android:src="@drawable/ic_nav_my_reports"
+                app:tint="@color/text_hint" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/lblReports"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="sans-serif"
+            android:text="My reports"
+            android:textColor="@color/text_hint"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <!-- 4. Center Post Button (Used for Admin or post flow) -->
     <LinearLayout
         android:id="@+id/tabPost"
         android:layout_width="0dp"
@@ -93,7 +133,8 @@
         android:layout_weight="1"
         android:clickable="true"
         android:focusable="true"
-        android:gravity="center">
+        android:gravity="center"
+        android:visibility="gone">
 
         <LinearLayout
             android:id="@+id/btnPostPill"
@@ -123,7 +164,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 4. Messages Tab -->
+    <!-- 5. Messages Tab (Used for Admin Users tab or messages) -->
     <LinearLayout
         android:id="@+id/tabMessages"
         android:layout_width="0dp"
@@ -132,22 +173,24 @@
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/boxMessages"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="28dp"
             android:gravity="center">
 
             <ImageView
                 android:id="@+id/imgMessages"
                 android:layout_width="22dp"
                 android:layout_height="22dp"
+                android:layout_gravity="center"
                 android:contentDescription="Messages"
                 android:src="@drawable/ic_nav_messages"
                 app:tint="@color/text_hint" />
-        </LinearLayout>
+        </FrameLayout>
 
         <TextView
             android:id="@+id/lblMessages"
@@ -160,7 +203,7 @@
             android:textSize="11sp" />
     </LinearLayout>
 
-    <!-- 5. Profile Tab -->
+    <!-- 6. Profile Tab -->
     <LinearLayout
         android:id="@+id/tabProfile"
         android:layout_width="0dp"
@@ -171,20 +214,21 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/boxProfile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="28dp"
             android:gravity="center">
 
             <ImageView
                 android:id="@+id/imgProfile"
                 android:layout_width="22dp"
                 android:layout_height="22dp"
+                android:layout_gravity="center"
                 android:contentDescription="Profile"
                 android:src="@drawable/ic_nav_profile"
                 app:tint="@color/text_hint" />
-        </LinearLayout>
+        </FrameLayout>
 
         <TextView
             android:id="@+id/lblProfile"
