@@ -48,13 +48,13 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     fun navigateTo(dest: Fragment) {
         if (!isAdded) return
         val fragmentManager = parentFragmentManager
-        if (dest is HomeFragment) {
+        if (dest is HomeFragment || dest is AdminFragment) {
             fragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
         }
         fragmentManager.beginTransaction()
             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(R.id.screenBox, dest)
-            .addToBackStack(if (dest is HomeFragment) null else "main_flow")
+            .addToBackStack(if (dest is HomeFragment || dest is AdminFragment) null else "main_flow")
             .commit()
     }
 
