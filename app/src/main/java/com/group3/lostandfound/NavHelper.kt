@@ -58,7 +58,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
             .commit()
     }
 
-    // Always standard 5 tabs: Home, Explore, + Post, Messages, Profile
+    // Always standard 5 tabs: Home, Explore, (+) Center, Messages, Profile
     tabHome.visibility = View.VISIBLE
     tabExplore?.visibility = View.VISIBLE
     tabPost?.visibility = View.VISIBLE
@@ -67,7 +67,7 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
 
     lblHome?.text = "Home"
     lblExplore?.text = "Explore"
-    lblPost?.text = "+ Post"
+    lblPost?.visibility = View.GONE
     lblMessages?.text = "Messages"
     lblProfile?.text = "Profile"
 
@@ -83,14 +83,13 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     val isTabMessages = activeTab == "messages"
     val isTabProfile = activeTab == "profile" || activeTab == "settings"
 
-    boxHome?.setBackgroundResource(if (isTabHome) R.drawable.bg_nav_tab_active_pill else 0)
-    boxExplore?.setBackgroundResource(if (isTabExplore) R.drawable.bg_nav_tab_active_pill else 0)
-    boxMessages?.setBackgroundResource(if (isTabMessages) R.drawable.bg_nav_tab_active_pill else 0)
-    boxProfile?.setBackgroundResource(if (isTabProfile) R.drawable.bg_nav_tab_active_pill else 0)
+    boxHome?.setBackgroundResource(0)
+    boxExplore?.setBackgroundResource(0)
+    boxMessages?.setBackgroundResource(0)
+    boxProfile?.setBackgroundResource(0)
 
     lblHome?.setTextColor(if (isTabHome) activeColor else inactiveColor)
     lblExplore?.setTextColor(if (isTabExplore) activeColor else inactiveColor)
-    lblPost?.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
     lblMessages?.setTextColor(if (isTabMessages) activeColor else inactiveColor)
     lblProfile?.setTextColor(if (isTabProfile) activeColor else inactiveColor)
 
