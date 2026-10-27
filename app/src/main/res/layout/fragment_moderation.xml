@@ -34,12 +34,13 @@
 
             <ImageView
                 android:id="@+id/buttonBack"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_circle_icon_button"
                 android:clickable="true"
                 android:contentDescription="Go back"
                 android:focusable="true"
-                android:padding="8dp"
+                android:padding="10dp"
                 android:src="@drawable/ic_back_chevron"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -61,12 +62,13 @@
 
             <ImageView
                 android:id="@+id/buttonSearch"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_circle_icon_button"
                 android:clickable="true"
                 android:contentDescription="Search reports"
                 android:focusable="true"
-                android:padding="8dp"
+                android:padding="10dp"
                 android:src="@drawable/ic_search"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -78,7 +80,7 @@
             android:id="@+id/segmentedTabsContainer"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="18dp"
             android:background="@drawable/bg_segment_container"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -95,7 +97,7 @@
                 android:focusable="true"
                 android:gravity="center"
                 android:text="Pending Review"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/white"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -137,7 +139,7 @@
             <TextView
                 android:id="@+id/buttonSelectAll"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_btn_outline"
@@ -152,7 +154,7 @@
             <TextView
                 android:id="@+id/buttonApproveSelected"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1.2"
                 android:background="@drawable/bg_btn_approve"
@@ -170,10 +172,10 @@
             android:id="@+id/textReportsCountSummary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="18dp"
             android:layout_marginBottom="16dp"
             android:fontFamily="sans-serif-medium"
-            android:text="24 reports awaiting review"
+            android:text="• 24 reports awaiting review"
             android:textColor="@color/text_secondary"
             android:textSize="14sp" />
 
@@ -182,8 +184,11 @@
             android:id="@+id/cardReportPassport"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:orientation="vertical">
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_settings_card"
+            android:elevation="1dp"
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <!-- Title & Flagged Badge -->
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -247,7 +252,8 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:contentDescription="Alert Flag"
-                    android:src="@drawable/ic_flag_alert" />
+                    android:src="@drawable/ic_flag_alert"
+                    app:tint="@color/badge_flagged_text" />
 
                 <TextView
                     android:id="@+id/textPassportWarningNote"
@@ -256,7 +262,7 @@
                     android:layout_marginStart="8dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Sensitive document posted publicly"
-                    android:textColor="@color/see_all_color"
+                    android:textColor="@color/badge_flagged_text"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -309,7 +315,7 @@
                     android:focusable="true"
                     android:gravity="center"
                     android:text="Escalate"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/text_secondary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -320,8 +326,11 @@
             android:id="@+id/cardReportIPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:orientation="vertical">
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_settings_card"
+            android:elevation="1dp"
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <!-- Title & Pending Badge -->
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -375,7 +384,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="38dp"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/bg_warning_banner"
+                android:background="@drawable/bg_warning_banner_amber"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingStart="12dp"
@@ -385,7 +394,8 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:contentDescription="Alert Flag"
-                    android:src="@drawable/ic_flag_alert" />
+                    android:src="@drawable/ic_flag_alert"
+                    app:tint="@color/badge_pending_text" />
 
                 <TextView
                     android:id="@+id/textIPhoneWarningNote"
@@ -394,7 +404,7 @@
                     android:layout_marginStart="8dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Duplicate image detected"
-                    android:textColor="@color/see_all_color"
+                    android:textColor="@color/badge_pending_text"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -447,7 +457,7 @@
                     android:focusable="true"
                     android:gravity="center"
                     android:text="Escalate"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/text_secondary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -459,7 +469,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            android:orientation="vertical">
+            android:background="@drawable/bg_settings_card"
+            android:elevation="1dp"
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <!-- Title & Pending Badge -->
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -513,7 +526,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="38dp"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/bg_warning_banner"
+                android:background="@drawable/bg_warning_banner_amber"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingStart="12dp"
@@ -523,7 +536,8 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:contentDescription="Alert Flag"
-                    android:src="@drawable/ic_flag_alert" />
+                    android:src="@drawable/ic_flag_alert"
+                    app:tint="@color/badge_pending_text" />
 
                 <TextView
                     android:id="@+id/textBraceletWarningNote"
@@ -532,7 +546,7 @@
                     android:layout_marginStart="8dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="High-value item; proof required"
-                    android:textColor="@color/see_all_color"
+                    android:textColor="@color/badge_pending_text"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -585,7 +599,7 @@
                     android:focusable="true"
                     android:gravity="center"
                     android:text="Escalate"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/text_secondary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
