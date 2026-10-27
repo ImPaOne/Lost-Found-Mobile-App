@@ -83,6 +83,16 @@ class CreateReportFragment : Fragment() {
     private lateinit var tvCategoryValue: TextView
     private lateinit var inputTitle: EditText
     private lateinit var inputDescription: EditText
+    private lateinit var badgeStep2Type: TextView
+    private lateinit var tvStep2SummaryTitle: TextView
+    private lateinit var tvStep2SummarySubtitle: TextView
+    private lateinit var btnEditStep2Summary: TextView
+    private lateinit var chipCategoryPersonal: TextView
+    private lateinit var chipCategoryElectronics: TextView
+    private lateinit var chipCategoryDocuments: TextView
+    private lateinit var chipCategoryKeys: TextView
+    private lateinit var chipCategoryWallets: TextView
+    private lateinit var chipCategoryOther: TextView
 
     // Step 3 Views
     private lateinit var mapCard: View
@@ -135,7 +145,7 @@ class CreateReportFragment : Fragment() {
     private var currentStep = 1
     private var isLostSelected = true
     private var selectedDate = "Today"
-    private var selectedCategory = "Electronics"
+    private var selectedCategory = "Personal items"
     private var selectedArea = "Colombo 03"
     private var selectedLatitude = 6.9042
     private var selectedLongitude = 79.8530
@@ -420,6 +430,16 @@ class CreateReportFragment : Fragment() {
         tvCategoryValue = binding.tvCategoryValue
         inputTitle = binding.inputTitle
         inputDescription = binding.inputDescription
+        badgeStep2Type = binding.badgeStep2Type
+        tvStep2SummaryTitle = binding.tvStep2SummaryTitle
+        tvStep2SummarySubtitle = binding.tvStep2SummarySubtitle
+        btnEditStep2Summary = binding.btnEditStep2Summary
+        chipCategoryPersonal = binding.chipCategoryPersonal
+        chipCategoryElectronics = binding.chipCategoryElectronics
+        chipCategoryDocuments = binding.chipCategoryDocuments
+        chipCategoryKeys = binding.chipCategoryKeys
+        chipCategoryWallets = binding.chipCategoryWallets
+        chipCategoryOther = binding.chipCategoryOther
 
         // Step 3
         mapCard = binding.mapCard
@@ -498,8 +518,14 @@ class CreateReportFragment : Fragment() {
         btnBack.setOnClickListener(onBackAction)
         btnBackBottom.setOnClickListener(onBackAction)
 
-        // Real-time error clearing
-        inputTitle.doAfterTextChanged { inputTitle.error = null }
+        // Real-time error clearing & dynamic title preview
+        inputTitle.doAfterTextChanged {
+            inputTitle.error = null
+            if (::tvStep2SummaryTitle.isInitialized) {
+                val currentText = it?.toString()?.trim() ?: ""
+                tvStep2SummaryTitle.text = if (currentText.isNotEmpty()) currentText else "Black leather wallet"
+            }
+        }
         inputDescription.doAfterTextChanged { inputDescription.error = null }
         inputLocation.doAfterTextChanged { inputLocation.error = null }
 
@@ -522,22 +548,58 @@ class CreateReportFragment : Fragment() {
         cardLostItem.setOnClickListener { setItemType(true) }
         cardFoundItem.setOnClickListener { setItemType(false) }
 
-        // Step 2: Category dialog
+        // Step 2: Edit Summary button (returns to Step 1)
+        btnEditStep2Summary.setOnClickListener { jumpToStep(1) }
+
+        // Category chips selection
+        fun updateCategoryChipSelection(categoryName: String) {
+            selectedCategory = categoryName
+            tvCategoryValue.text = categoryName
+
+            val chipsList = listOf(
+                chipCategoryPersonal to "Personal items",
+                chipCategoryElectronics to "Electronics",
+                chipCategoryDocuments to "Documents",
+                chipCategoryKeys to "Keys & Cards",
+                chipCategoryWallets to "Wallets & Bags",
+                chipCategoryOther to "Other"
+            )
+
+            for ((chip, name) in chipsList) {
+                val isSelected = name.equals(categoryName, ignoreCase = true)
+                chip.setBackgroundResource(if (isSelected) R.drawable.bg_chip_selected else R.drawable.bg_chip_unselected)
+                chip.setTextColor(if (isSelected) ContextCompat.getColor(requireContext(), R.color.white) else android.graphics.Color.parseColor("#64748B"))
+            }
+
+            if (::tvStep2SummarySubtitle.isInitialized) {
+                val areaName = if (selectedArea.isNotEmpty()) selectedArea else "Colombo"
+                tvStep2SummarySubtitle.text = "$selectedCategory · $areaName"
+            }
+        }
+
+        chipCategoryPersonal.setOnClickListener { updateCategoryChipSelection("Personal items") }
+        chipCategoryElectronics.setOnClickListener { updateCategoryChipSelection("Electronics") }
+        chipCategoryDocuments.setOnClickListener { updateCategoryChipSelection("Documents") }
+        chipCategoryKeys.setOnClickListener { updateCategoryChipSelection("Keys & Cards") }
+        chipCategoryWallets.setOnClickListener { updateCategoryChipSelection("Wallets & Bags") }
+        chipCategoryOther.setOnClickListener { updateCategoryChipSelection("Other") }
+
+        updateCategoryChipSelection(selectedCategory)
+
+        // Step 2: Category dialog fallback
         boxCategory.setOnClickListener {
             val categories = arrayOf(
+                "Personal items",
                 "Electronics",
-                "Documents & IDs",
+                "Documents",
+                "Keys & Cards",
                 "Wallets & Bags",
-                "Pets & Animals",
-                "Keys",
-                "Jewelry & Watches",
                 "Other"
             )
             AlertDialog.Builder(requireContext())
                 .setTitle("Select Category")
                 .setItems(categories) { _, which ->
-                    selectedCategory = categories[which]
-                    tvCategoryValue.text = selectedCategory
+                    updateCategoryChipSelection(categories[which])
                 }
                 .show()
         }
@@ -852,6 +914,27 @@ class CreateReportFragment : Fragment() {
                 tvNextStepHint?.visibility = View.GONE
                 btnBackBottom.text = "Back"
                 btnContinue.text = "Continue"
+
+                // Update Step 2 Summary Card
+                if (::badgeStep2Type.isInitialized) {
+                    if (isLostSelected) {
+                        badgeStep2Type.text = "LOST"
+                        badgeStep2Type.setBackgroundResource(R.drawable.bg_badge_lost_pill)
+                        badgeStep2Type.setTextColor(android.graphics.Color.parseColor("#EF4444"))
+                    } else {
+                        badgeStep2Type.text = "FOUND"
+                        badgeStep2Type.setBackgroundResource(R.drawable.bg_badge_found_pill)
+                        badgeStep2Type.setTextColor(android.graphics.Color.parseColor("#16A34A"))
+                    }
+                }
+                if (::tvStep2SummaryTitle.isInitialized) {
+                    val currentTitle = inputTitle.text.toString().trim()
+                    tvStep2SummaryTitle.text = if (currentTitle.isNotEmpty()) currentTitle else "Black leather wallet"
+                }
+                if (::tvStep2SummarySubtitle.isInitialized) {
+                    val areaName = if (selectedArea.isNotEmpty()) selectedArea else "Colombo"
+                    tvStep2SummarySubtitle.text = "$selectedCategory · $areaName"
+                }
             }
             3 -> {
                 tvStepNumber.setBackgroundResource(android.R.color.transparent)

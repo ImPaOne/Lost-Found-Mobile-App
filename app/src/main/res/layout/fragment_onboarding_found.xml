@@ -4,185 +4,280 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EFF6FF"
+    android:background="@color/white"
     tools:context=".OnboardingFoundFragment">
 
-    <!-- 1. Top Concentric Circular Illustration Area -->
-    <FrameLayout
+    <!-- Top Right "Skip" Pill Button -->
+    <TextView
+        android:id="@+id/btnSkip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/bg_btn_skip_pill"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="sans-serif-medium"
+        android:paddingStart="16dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="6dp"
+        android:text="Skip"
+        android:textColor="#475569"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Center Concentric Rings Illustration Area -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/boxIllustrationArea"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/cardBottomSheet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/tvStepBadge"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/btnSkip"
+        app:layout_constraintVertical_bias="0.45">
 
-        <!-- Outer Ring -->
+        <!-- Outer Soft Mint Ring -->
         <FrameLayout
-            android:layout_width="260dp"
-            android:layout_height="260dp"
-            android:layout_gravity="center"
-            android:background="@drawable/bg_onboard_outer_circle">
+            android:id="@+id/ringOuter"
+            android:layout_width="240dp"
+            android:layout_height="240dp"
+            android:background="@drawable/bg_onboard_found_outer_ring"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <!-- Middle Ring -->
+            <!-- Inner White Ring -->
             <FrameLayout
-                android:layout_width="196dp"
-                android:layout_height="196dp"
+                android:layout_width="168dp"
+                android:layout_height="168dp"
                 android:layout_gravity="center"
-                android:background="@drawable/bg_onboard_inner_circle">
+                android:background="@drawable/bg_onboard_found_inner_ring">
 
-                <!-- Center Squircle with Navy Background and Bag Icon -->
+                <!-- Center Squircle with Teal Background and Backpack Icon -->
                 <FrameLayout
-                    android:layout_width="84dp"
-                    android:layout_height="84dp"
+                    android:layout_width="82dp"
+                    android:layout_height="82dp"
                     android:layout_gravity="center"
-                    android:background="@drawable/bg_onboard_squircle"
-                    android:elevation="6dp">
+                    android:background="@drawable/bg_onboard_squircle_teal"
+                    android:elevation="4dp">
 
                     <ImageView
                         android:id="@+id/iconBag"
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
                         android:layout_gravity="center"
                         android:contentDescription="Found Bag Icon"
                         android:src="@drawable/ic_onboard_bag" />
                 </FrameLayout>
             </FrameLayout>
         </FrameLayout>
-    </FrameLayout>
 
-    <!-- 2. Bottom Sheet Container (White card with rounded top corners) -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cardBottomSheet"
-        android:layout_width="match_parent"
+        <!-- Left Floating Pill: "Found" -->
+        <LinearLayout
+            android:id="@+id/pillFound"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_pill_white_shadow"
+            android:elevation="6dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="6dp"
+            app:layout_constraintBottom_toBottomOf="@+id/ringOuter"
+            app:layout_constraintEnd_toStartOf="@+id/ringOuter"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/ringOuter"
+            app:layout_constraintTop_toTopOf="@+id/ringOuter"
+            app:layout_constraintVertical_bias="0.38">
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_dot_found_green" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="sans-serif-bold"
+                android:text="Found"
+                android:textColor="#0F172A"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Right Floating Pill: "Safe" -->
+        <LinearLayout
+            android:id="@+id/pillSafe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_pill_white_shadow"
+            android:elevation="6dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="6dp"
+            app:layout_constraintBottom_toBottomOf="@+id/ringOuter"
+            app:layout_constraintEnd_toEndOf="@+id/ringOuter"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/ringOuter"
+            app:layout_constraintTop_toTopOf="@+id/ringOuter"
+            app:layout_constraintVertical_bias="0.54">
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_dot_safe_amber" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="sans-serif-bold"
+                android:text="Safe"
+                android:textColor="#0F172A"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Step Badge: "Step 2 of 3" -->
+    <TextView
+        android:id="@+id/tvStepBadge"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_bottom_sheet_rounded"
-        android:elevation="8dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="36dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_step_badge_mint"
+        android:fontFamily="sans-serif-bold"
+        android:paddingStart="14dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="4dp"
+        android:text="Step 2 of 3"
+        android:textColor="#168070"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Main Title -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="sans-serif-bold"
+        android:gravity="center"
+        android:text="Found Something?"
+        android:textColor="#0A2540"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvDescription"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Subtitle Description -->
+    <TextView
+        android:id="@+id/tvDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="28dp"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:lineSpacingExtra="3dp"
+        android:text="Share a secure found-item report and help its\nowner identify it safely."
+        android:textColor="#64748B"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/dotsIndicator"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- 3-Dot Page Indicator -->
+    <LinearLayout
+        android:id="@+id/dotsIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/btnNext"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <View
+            android:id="@+id/dotInactive1"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:background="@drawable/bg_onboard_dot_inactive" />
+
+        <View
+            android:id="@+id/dotActive"
+            android:layout_width="22dp"
+            android:layout_height="6dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_onboard_dot_active_teal" />
+
+        <View
+            android:id="@+id/dotInactive2"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_onboard_dot_inactive" />
+    </LinearLayout>
+
+    <!-- Primary Action "Next" Button -->
+    <LinearLayout
+        android:id="@+id/btnNext"
+        android:layout_width="0dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="28dp"
+        android:background="@drawable/bg_btn_onboard_navy"
+        android:clickable="true"
+        android:elevation="4dp"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- Drag Handle Pill -->
-        <View
-            android:id="@+id/handlePill"
-            android:layout_width="36dp"
-            android:layout_height="4dp"
-            android:background="@drawable/bg_sheet_drag_handle"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <!-- Top Right "Skip" Pill Button -->
         <TextView
-            android:id="@+id/btnSkip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="24dp"
-            android:background="@drawable/bg_btn_skip_pill"
-            android:clickable="true"
-            android:focusable="true"
-            android:fontFamily="sans-serif-medium"
-            android:paddingStart="16dp"
-            android:paddingTop="6dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="6dp"
-            android:text="Skip"
-            android:textColor="#475569"
-            android:textSize="13sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/handlePill" />
-
-        <!-- Main Title (Left aligned) -->
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="24dp"
             android:fontFamily="sans-serif-bold"
-            android:text="Found Something?"
-            android:textColor="#0B2032"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnSkip" />
-
-        <!-- Subtitle Description (Left aligned) -->
-        <TextView
-            android:id="@+id/tvDescription"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="24dp"
-            android:fontFamily="sans-serif"
-            android:lineSpacingExtra="4dp"
-            android:text="Share a secure found-item report and help its owner identify it safely."
-            android:textColor="#64748B"
-            android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
-
-        <!-- 3-Dot Page Indicator (Left aligned): 1st inactive, 2nd active, 3rd inactive -->
-        <LinearLayout
-            android:id="@+id/dotsIndicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="24dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvDescription">
-
-            <View
-                android:id="@+id/dotInactive1"
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:background="@drawable/bg_onboard_dot_inactive" />
-
-            <View
-                android:id="@+id/dotActive"
-                android:layout_width="22dp"
-                android:layout_height="6dp"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/bg_onboard_dot_active" />
-
-            <View
-                android:id="@+id/dotInactive2"
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/bg_onboard_dot_inactive" />
-        </LinearLayout>
-
-        <!-- Primary Action "Next" Button -->
-        <TextView
-            android:id="@+id/btnNext"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="28dp"
-            android:layout_marginEnd="24dp"
-            android:background="@drawable/bg_btn_onboard"
-            android:clickable="true"
-            android:focusable="true"
-            android:fontFamily="sans-serif-bold"
-            android:gravity="center"
             android:text="Next"
             android:textColor="@color/white"
             android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/dotsIndicator" />
+            android:textStyle="bold" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <FrameLayout
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_circle_arrow_navy">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_gravity="center"
+                android:contentDescription="Next Arrow"
+                android:src="@drawable/ic_arrow_forward_white" />
+        </FrameLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

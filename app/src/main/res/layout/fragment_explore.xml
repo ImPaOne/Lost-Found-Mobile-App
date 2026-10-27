@@ -252,6 +252,8 @@
     <!-- 6. Persistent Bottom Navigation Bar -->
     <include
         android:id="@+id/bottomNavBox"
-        layout="@layout/fragment_bottom_nav" />
+        layout="@layout/fragment_bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="64dp" />
 
 </LinearLayout>

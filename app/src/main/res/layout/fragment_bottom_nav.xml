@@ -24,8 +24,8 @@
 
         <LinearLayout
             android:id="@+id/boxHome"
-            android:layout_width="48dp"
-            android:layout_height="28dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center">
 
             <ImageView
@@ -34,7 +34,7 @@
                 android:layout_height="22dp"
                 android:contentDescription="Home"
                 android:src="@drawable/ic_nav_home"
-                app:tint="@color/text_secondary" />
+                app:tint="@color/text_hint" />
         </LinearLayout>
 
         <TextView
@@ -44,7 +44,7 @@
             android:layout_marginTop="2dp"
             android:fontFamily="sans-serif"
             android:text="Home"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/text_hint"
             android:textSize="11sp" />
     </LinearLayout>
 
@@ -61,8 +61,8 @@
 
         <LinearLayout
             android:id="@+id/boxExplore"
-            android:layout_width="48dp"
-            android:layout_height="28dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center">
 
             <ImageView
@@ -71,7 +71,7 @@
                 android:layout_height="22dp"
                 android:contentDescription="Explore"
                 android:src="@drawable/ic_nav_explore"
-                app:tint="@color/text_secondary" />
+                app:tint="@color/text_hint" />
         </LinearLayout>
 
         <TextView
@@ -81,7 +81,7 @@
             android:layout_marginTop="2dp"
             android:fontFamily="sans-serif"
             android:text="Explore"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/text_hint"
             android:textSize="11sp" />
     </LinearLayout>
 
@@ -98,14 +98,15 @@
         <LinearLayout
             android:id="@+id/btnPostPill"
             android:layout_width="54dp"
-            android:layout_height="44dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_nav_post_pill"
+            android:elevation="2dp"
             android:gravity="center"
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:contentDescription="Post"
                 android:src="@drawable/ic_plus"
                 app:tint="@color/white" />
@@ -117,7 +118,7 @@
                 android:fontFamily="sans-serif-bold"
                 android:text="+ Post"
                 android:textColor="@color/white"
-                android:textSize="9sp"
+                android:textSize="10sp"
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
@@ -135,10 +136,9 @@
 
         <LinearLayout
             android:id="@+id/boxMessages"
-            android:layout_width="48dp"
-            android:layout_height="28dp"
-            android:gravity="center"
-            tools:background="@drawable/bg_nav_tab_active_pill">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center">
 
             <ImageView
                 android:id="@+id/imgMessages"
@@ -146,8 +146,7 @@
                 android:layout_height="22dp"
                 android:contentDescription="Messages"
                 android:src="@drawable/ic_nav_messages"
-                app:tint="@color/text_secondary"
-                tools:tint="@color/text_primary" />
+                app:tint="@color/text_hint" />
         </LinearLayout>
 
         <TextView
@@ -155,11 +154,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:fontFamily="sans-serif-bold"
+            android:fontFamily="sans-serif"
             android:text="Messages"
-            android:textColor="@color/text_secondary"
-            android:textSize="11sp"
-            tools:textColor="@color/text_primary" />
+            android:textColor="@color/text_hint"
+            android:textSize="11sp" />
     </LinearLayout>
 
     <!-- 5. Profile Tab -->
@@ -175,8 +173,8 @@
 
         <LinearLayout
             android:id="@+id/boxProfile"
-            android:layout_width="48dp"
-            android:layout_height="28dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center">
 
             <ImageView
@@ -185,7 +183,7 @@
                 android:layout_height="22dp"
                 android:contentDescription="Profile"
                 android:src="@drawable/ic_nav_profile"
-                app:tint="@color/text_secondary" />
+                app:tint="@color/text_hint" />
         </LinearLayout>
 
         <TextView
@@ -195,7 +193,7 @@
             android:layout_marginTop="2dp"
             android:fontFamily="sans-serif"
             android:text="Profile"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/text_hint"
             android:textSize="11sp" />
     </LinearLayout>
 

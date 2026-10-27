@@ -80,6 +80,13 @@ class SignUpFragment : Fragment() {
         checkTerms = view.findViewById(R.id.checkTerms)
         btnCreateAccount = view.findViewById(R.id.btnCreateAccount)
         rowLogin = view.findViewById(R.id.rowLogin)
+
+        val textTerms = view.findViewById<TextView>(R.id.textTerms)
+        val termsHtml = "I agree to the <b><font color='#003049'>Terms of Service</font></b> and <b><font color='#003049'>Privacy Policy</font></b>"
+        textTerms.text = android.text.Html.fromHtml(termsHtml, android.text.Html.FROM_HTML_MODE_LEGACY)
+        textTerms.setOnClickListener {
+            checkTerms.isChecked = !checkTerms.isChecked
+        }
     }
 
     private fun setupListeners(view: View) {

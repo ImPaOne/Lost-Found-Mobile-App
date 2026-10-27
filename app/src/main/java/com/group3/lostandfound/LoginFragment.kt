@@ -174,7 +174,7 @@ class LoginFragment : Fragment() {
                     }
                     is AuthUiState.Success -> {
                         loginBtn.isEnabled = true
-                        loginBtn.text = "Sign in"
+                        loginBtn.text = "Login"
 
                         val safeCtx = context ?: return@collect
                         val email = emailInput.text.toString().trim()
@@ -218,7 +218,7 @@ class LoginFragment : Fragment() {
                     }
                     is AuthUiState.Error -> {
                         loginBtn.isEnabled = true
-                        loginBtn.text = "Sign in"
+                        loginBtn.text = "Login"
 
                         val safeCtx = context ?: return@collect
                         ModernToast.show(safeCtx, state.message, view)
@@ -227,7 +227,7 @@ class LoginFragment : Fragment() {
                     }
                     is AuthUiState.Idle -> {
                         loginBtn.isEnabled = true
-                        loginBtn.text = "Sign in"
+                        loginBtn.text = "Login"
                     }
                 }
             }
