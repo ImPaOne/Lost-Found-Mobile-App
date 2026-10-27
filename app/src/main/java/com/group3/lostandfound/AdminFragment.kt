@@ -90,7 +90,11 @@ class AdminFragment : Fragment() {
         }
 
         btnAnnounce.setOnClickListener {
+            showPostAnnouncementDialog()
+        }
+        btnAnnounce.setOnLongClickListener {
             showAdminToolsDialog()
+            true
         }
 
         val openAnalyticsScreen = View.OnClickListener {
@@ -101,8 +105,7 @@ class AdminFragment : Fragment() {
                 .commit()
         }
 
-        view.findViewById<View>(R.id.btnViewAdvancedAnalytics)?.setOnClickListener(openAnalyticsScreen)
-        view.findViewById<View>(R.id.btnQuickAnalytics)?.setOnClickListener(openAnalyticsScreen)
+        view.findViewById<View>(R.id.chartTimeRangeBadge)?.setOnClickListener(openAnalyticsScreen)
 
         view.findViewById<View>(R.id.trendGraph)?.setOnClickListener {
             parentFragmentManager.beginTransaction()
