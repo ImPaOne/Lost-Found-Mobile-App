@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#F8FAFC"
     android:orientation="vertical"
     tools:context=".AdminFragment">
 
@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/background_screen"
+        android:background="#F8FAFC"
         android:fillViewport="true"
         android:overScrollMode="never">
 
@@ -23,11 +23,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingStart="20dp"
-            android:paddingTop="14dp"
+            android:paddingTop="16dp"
             android:paddingEnd="20dp"
             android:paddingBottom="24dp">
 
-            <!-- 1. Header Row: Back button, Title with Admin Badge, Bell -->
+            <!-- 1. Header Row: Back button, Title, Bell Notification -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/headerRow"
                 android:layout_width="match_parent"
@@ -37,66 +37,47 @@
                     android:id="@+id/backButton"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="@drawable/bg_top_icon_btn"
                     android:clickable="true"
                     android:contentDescription="Back"
+                    android:elevation="1dp"
                     android:focusable="true"
-                    android:padding="9dp"
+                    android:padding="11dp"
                     android:src="@drawable/ic_back_chevron"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/text_primary" />
+                    app:tint="#0F172A" />
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/headerTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Admin Dashboard"
+                    android:textColor="#0F172A"
+                    android:textSize="19sp"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/notificationBell"
                     app:layout_constraintStart_toEndOf="@+id/backButton"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <TextView
-                        android:id="@+id/headerTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-bold"
-                        android:text="Admin Dashboard"
-                        android:textColor="@color/text_primary"
-                        android:textSize="19sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_badge_admin"
-                        android:paddingStart="6dp"
-                        android:paddingTop="2dp"
-                        android:paddingEnd="6dp"
-                        android:paddingBottom="2dp"
-                        android:text="PORTAL"
-                        android:textColor="#0369A1"
-                        android:textSize="9.5sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
                     android:id="@+id/notificationBell"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="@drawable/bg_top_icon_btn"
                     android:clickable="true"
                     android:contentDescription="Notifications"
+                    android:elevation="1dp"
                     android:focusable="true"
-                    android:padding="9dp"
+                    android:padding="10dp"
                     android:src="@drawable/ic_bell"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/text_primary" />
+                    app:tint="#0F172A" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- 2. Subheading: Date & Operations Overview -->
@@ -104,66 +85,25 @@
                 android:id="@+id/dateSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:fontFamily="sans-serif-black"
-                android:letterSpacing="0.04"
-                android:text="TODAY's OVERVIEW"
-                android:textColor="@color/text_secondary"
-                android:textSize="11.5sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="22dp"
+                android:fontFamily="sans-serif-bold"
+                android:letterSpacing="0.05"
+                android:text="SUNDAY, 13 SEPTEMBER"
+                android:textColor="#94A3B8"
+                android:textSize="12sp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/overviewHeading"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:fontFamily="sans-serif-black"
+                android:text="Operations overview"
+                android:textColor="#0F172A"
+                android:textSize="26sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/overviewHeading"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-black"
-                    android:text="Operations overview"
-                    android:textColor="@color/text_primary"
-                    android:textSize="26sp"
-                    android:textStyle="bold" />
-
-                <!-- Small Button to View Advanced Analytics Redirection -->
-                <LinearLayout
-                    android:id="@+id/btnQuickAnalytics"
-                    android:layout_width="wrap_content"
-                    android:layout_height="32dp"
-                    android:background="@drawable/bg_badge_today"
-                    android:backgroundTint="#003049"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp">
-
-                    <ImageView
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:contentDescription="Analytics"
-                        android:src="@drawable/ic_star_filled"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:fontFamily="sans-serif-bold"
-                        android:text="Analytics →"
-                        android:textColor="@color/white"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 3. Modern 2x2 Overview KPI Cards Grid -->
+            <!-- 3. Modern 2x2 Overview KPI Cards Grid with Icons -->
             <LinearLayout
                 android:id="@+id/statisticsGrid"
                 android:layout_width="match_parent"
@@ -171,7 +111,7 @@
                 android:layout_marginTop="18dp"
                 android:orientation="vertical">
 
-                <!-- Row 1: Total Reports and Active Cases -->
+                <!-- Row 1: Total Reports & Active Cases -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -184,30 +124,45 @@
                         android:layout_marginEnd="6dp"
                         android:layout_weight="1"
                         android:background="@drawable/bg_admin_kpi_card"
-                        android:elevation="2dp"
+                        android:elevation="1dp"
                         android:orientation="vertical"
                         android:padding="16dp">
+
+                        <FrameLayout
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:background="@drawable/bg_kpi_icon_blue">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Reports icon"
+                                android:src="@drawable/ic_document_text"
+                                app:tint="#0369A1" />
+                        </FrameLayout>
 
                         <TextView
                             android:id="@+id/totalReportsNumber"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
                             android:clickable="true"
                             android:focusable="true"
                             android:fontFamily="sans-serif-black"
                             android:text="1,284"
-                            android:textColor="@color/text_primary"
-                            android:textSize="26sp"
+                            android:textColor="#0F172A"
+                            android:textSize="25sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/totalReportsLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif-medium"
                             android:text="Total Reports"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="#94A3B8"
                             android:textSize="12.5sp" />
                     </LinearLayout>
 
@@ -218,120 +173,270 @@
                         android:layout_marginStart="6dp"
                         android:layout_weight="1"
                         android:background="@drawable/bg_admin_kpi_card"
-                        android:elevation="2dp"
+                        android:elevation="1dp"
                         android:orientation="vertical"
                         android:padding="16dp">
+
+                        <FrameLayout
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:background="@drawable/bg_kpi_icon_amber">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Active cases icon"
+                                android:src="@drawable/ic_warning_circle"
+                                app:tint="#D97706" />
+                        </FrameLayout>
 
                         <TextView
                             android:id="@+id/activeCasesNumber"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
                             android:clickable="true"
                             android:focusable="true"
                             android:fontFamily="sans-serif-black"
                             android:text="186"
-                            android:textColor="@color/text_primary"
-                            android:textSize="26sp"
+                            android:textColor="#0F172A"
+                            android:textSize="25sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/activeCasesLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif-medium"
                             android:text="Active Cases"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="#94A3B8"
                             android:textSize="12.5sp" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Row 2: Resolved Cases and Users -->
+                <!-- Row 2: Resolved & Users -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:orientation="horizontal">
 
-                    <!-- KPI Card 3: Resolved Reunions -->
+                    <!-- KPI Card 3: Resolved -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="6dp"
                         android:layout_weight="1"
                         android:background="@drawable/bg_admin_kpi_card"
-                        android:elevation="2dp"
+                        android:elevation="1dp"
                         android:orientation="vertical"
                         android:padding="16dp">
+
+                        <FrameLayout
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:background="@drawable/bg_kpi_icon_green">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Resolved icon"
+                                android:src="@drawable/ic_check_circle"
+                                app:tint="#059669" />
+                        </FrameLayout>
 
                         <TextView
                             android:id="@+id/resolvedCasesNumber"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
                             android:clickable="true"
                             android:focusable="true"
                             android:fontFamily="sans-serif-black"
                             android:text="1,098"
-                            android:textColor="@color/text_primary"
-                            android:textSize="26sp"
+                            android:textColor="#0F172A"
+                            android:textSize="25sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/resolvedCasesLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif-medium"
                             android:text="Resolved"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="#94A3B8"
                             android:textSize="12.5sp" />
                     </LinearLayout>
 
-                    <!-- KPI Card 4: Registered Users -->
+                    <!-- KPI Card 4: Users -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
                         android:layout_weight="1"
                         android:background="@drawable/bg_admin_kpi_card"
-                        android:elevation="2dp"
+                        android:elevation="1dp"
                         android:orientation="vertical"
                         android:padding="16dp">
+
+                        <FrameLayout
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:background="@drawable/bg_kpi_icon_purple">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Users icon"
+                                android:src="@drawable/ic_users_group"
+                                app:tint="#7C3AED" />
+                        </FrameLayout>
 
                         <TextView
                             android:id="@+id/totalUsersNumber"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
                             android:clickable="true"
                             android:focusable="true"
                             android:fontFamily="sans-serif-black"
                             android:text="8,420"
-                            android:textColor="@color/text_primary"
-                            android:textSize="26sp"
+                            android:textColor="#0F172A"
+                            android:textSize="25sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/totalUsersLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif-medium"
                             android:text="Users"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="#94A3B8"
                             android:textSize="12.5sp" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- 4. Moderation Queue Action Banner -->
+            <!-- 4. Reports Over Time Trend Section Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_admin_kpi_card"
+                android:elevation="1dp"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/chartHeaderRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/chartTimeRangeBadge"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <TextView
+                            android:id="@+id/chartSectionTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Reports over time"
+                            android:textColor="#0F172A"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/chartTimeRange"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="Last 30 days"
+                            android:textColor="#94A3B8"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/chartTimeRangeBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_30d"
+                        android:fontFamily="sans-serif-bold"
+                        android:paddingStart="12dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="4dp"
+                        android:text="30d"
+                        android:textColor="#64748B"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <ImageView
+                    android:id="@+id/trendGraph"
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:layout_marginTop="16dp"
+                    android:clickable="true"
+                    android:contentDescription="Reports over time trend graph"
+                    android:focusable="true"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/img_trend_line" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp">
+
+                    <TextView
+                        android:id="@+id/chartStartDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="15 Aug"
+                        android:textColor="#94A3B8"
+                        android:textSize="11sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/chartEndDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="13 Sep"
+                        android:textColor="#94A3B8"
+                        android:textSize="11sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
+
+            <!-- 5. Moderation Queue Action Banner -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/moderationQueueCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/bg_stat_banner"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_moderation_queue_card"
                 android:clickable="true"
-                android:elevation="2dp"
+                android:elevation="1dp"
                 android:focusable="true"
                 android:paddingStart="18dp"
                 android:paddingTop="16dp"
@@ -348,16 +453,31 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
-                    <TextView
-                        android:id="@+id/queueSectionLabel"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-black"
-                        android:letterSpacing="0.04"
-                        android:text="MODERATION QUEUE"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:contentDescription="Queue clock icon"
+                            android:src="@drawable/ic_clock"
+                            app:tint="#B45309" />
+
+                        <TextView
+                            android:id="@+id/queueSectionLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.04"
+                            android:text="MODERATION QUEUE"
+                            android:textColor="#B45309"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/awaitingReviewText"
@@ -366,158 +486,40 @@
                         android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif-black"
                         android:text="24 awaiting review"
-                        android:textColor="@color/text_primary"
-                        android:textSize="19sp"
+                        android:textColor="#78350F"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/todayBadge"
                     android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    android:background="@drawable/bg_badge_today"
+                    android:layout_height="32dp"
+                    android:background="@drawable/bg_badge_today_teal"
                     android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:text="+6 today"
-                    android:textColor="@color/text_primary"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- 5. Reports Over Time Trend Section -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/chartHeaderRow"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp">
-
-                <TextView
-                    android:id="@+id/chartSectionTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-black"
-                    android:letterSpacing="0.04"
-                    android:text="REPORTS OVER TIME"
-                    android:textColor="@color/text_primary"
-                    android:textSize="12.5sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/chartTimeRange"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Last 30 days"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12.5sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Trend Graph Container -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_admin_kpi_card"
-                android:elevation="1dp"
-                android:orientation="vertical"
-                android:padding="14dp">
-
-                <ImageView
-                    android:id="@+id/trendGraph"
-                    android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:clickable="true"
-                    android:contentDescription="Reports over time trend graph"
-                    android:focusable="true"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/img_trend_line" />
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp">
-
-                    <TextView
-                        android:id="@+id/chartStartDate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="15 Aug"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/chartEndDate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="13 Sep"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <!-- Small Button to View Advanced Analytics Redirection -->
-                <LinearLayout
-                    android:id="@+id/btnViewAdvancedAnalytics"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:layout_gravity="end"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/bg_badge_today"
-                    android:backgroundTint="#003049"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
                     android:paddingStart="14dp"
-                    android:paddingEnd="14dp">
+                    android:paddingEnd="14dp"
+                    android:text="+6 today"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-bold"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:contentDescription="Analytics"
-                        android:src="@drawable/ic_star_filled"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:fontFamily="sans-serif-bold"
-                        android:text="View Advanced Analytics →"
-                        android:textColor="@color/white"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 6. Quick Navigation Actions -->
+            <!-- 6. Quick Actions Section -->
             <TextView
                 android:id="@+id/quickActionsTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="22dp"
                 android:fontFamily="sans-serif-black"
                 android:letterSpacing="0.04"
                 android:text="QUICK ACTIONS"
-                android:textColor="@color/text_primary"
-                android:textSize="12.5sp"
+                android:textColor="#94A3B8"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -527,60 +529,117 @@
                 android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
-                <TextView
+                <!-- Quick Action 1: Review Reports (Navy filled card) -->
+                <LinearLayout
                     android:id="@+id/reviewReportsButton"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_btn_approve"
+                    android:background="@drawable/bg_admin_action_card_navy"
                     android:clickable="true"
-                    android:elevation="1dp"
+                    android:elevation="2dp"
                     android:focusable="true"
                     android:gravity="center"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
-                    android:text="Review Reports"
-                    android:textColor="@color/white"
-                    android:textSize="11.5sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:paddingStart="8dp"
+                    android:paddingTop="14dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="14dp">
 
-                <TextView
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:contentDescription="Review Reports"
+                        android:src="@drawable/ic_document_text"
+                        app:tint="#FFFFFF" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:gravity="center"
+                        android:text="Review Reports"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11.5sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Quick Action 2: Manage Users (White outlined card) -->
+                <LinearLayout
                     android:id="@+id/manageUsersButton"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_btn_outline"
+                    android:background="@drawable/bg_admin_action_card_white"
                     android:clickable="true"
                     android:elevation="1dp"
                     android:focusable="true"
                     android:gravity="center"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
-                    android:text="Manage Users"
-                    android:textColor="@color/text_primary"
-                    android:textSize="11.5sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:paddingStart="8dp"
+                    android:paddingTop="14dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="14dp">
 
-                <TextView
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:contentDescription="Manage Users"
+                        android:src="@drawable/ic_users_group"
+                        app:tint="#003049" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:gravity="center"
+                        android:text="Manage Users"
+                        android:textColor="#0F172A"
+                        android:textSize="11.5sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Quick Action 3: Send Announcement (White outlined card) -->
+                <LinearLayout
                     android:id="@+id/announcementButton"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_btn_outline"
+                    android:background="@drawable/bg_admin_action_card_white"
                     android:clickable="true"
                     android:elevation="1dp"
                     android:focusable="true"
                     android:gravity="center"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
-                    android:text="Admin Tools"
-                    android:textColor="@color/text_primary"
-                    android:textSize="11.5sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:paddingStart="6dp"
+                    android:paddingTop="14dp"
+                    android:paddingEnd="6dp"
+                    android:paddingBottom="14dp">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:contentDescription="Send Announcement"
+                        android:src="@drawable/ic_megaphone"
+                        app:tint="#003049" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:gravity="center"
+                        android:text="Send Announcement"
+                        android:textColor="#0F172A"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
 
             <!-- 7. Recent Activity Audit Trail -->
@@ -588,12 +647,12 @@
                 android:id="@+id/recentActivityTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="22dp"
                 android:fontFamily="sans-serif-black"
                 android:letterSpacing="0.04"
                 android:text="RECENT ACTIVITY"
-                android:textColor="@color/text_primary"
-                android:textSize="12.5sp"
+                android:textColor="#94A3B8"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -634,7 +693,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:text="Report #LF-2841 approved by Ama"
-                            android:textColor="@color/text_primary"
+                            android:textColor="#0F172A"
                             android:textSize="13sp" />
 
                         <TextView
@@ -644,7 +703,7 @@
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif-medium"
                             android:text="12m"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="#94A3B8"
                             android:textSize="11sp" />
                     </LinearLayout>
                 </LinearLayout>
@@ -685,7 +744,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:text="User verification completed · Kandy"
-                            android:textColor="@color/text_primary"
+                            android:textColor="#0F172A"
                             android:textSize="13sp" />
 
                         <TextView
@@ -695,7 +754,7 @@
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif-medium"
                             android:text="45m"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="#94A3B8"
                             android:textSize="11sp" />
                     </LinearLayout>
                 </LinearLayout>
@@ -736,7 +795,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:text="Flagged passport report escalated"
-                            android:textColor="@color/text_primary"
+                            android:textColor="#0F172A"
                             android:textSize="13sp" />
 
                         <TextView
@@ -746,7 +805,7 @@
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif-medium"
                             android:text="2h"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="#94A3B8"
                             android:textSize="11sp" />
                     </LinearLayout>
                 </LinearLayout>
