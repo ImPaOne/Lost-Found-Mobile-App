@@ -74,18 +74,20 @@
             android:paddingEnd="22dp"
             android:paddingBottom="24dp">
 
-            <!-- Trust Score & Guardian Level Row -->
+            <!-- Trust Score Card -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/bg_stat_banner"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:padding="16dp">
 
                 <!-- 96 Score Circle Badge -->
                 <LinearLayout
                     android:id="@+id/boxScoreCircle"
-                    android:layout_width="104dp"
-                    android:layout_height="104dp"
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
                     android:background="@drawable/bg_trust_circle"
                     android:gravity="center"
                     android:orientation="vertical">
@@ -97,8 +99,8 @@
                         android:fontFamily="sans-serif-bold"
                         android:includeFontPadding="false"
                         android:text="96"
-                        android:textColor="@color/text_primary"
-                        android:textSize="36sp"
+                        android:textColor="#1A9E7B"
+                        android:textSize="32sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -107,7 +109,7 @@
                         android:layout_marginTop="-2dp"
                         android:fontFamily="sans-serif"
                         android:text="Excellent"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="#1A9E7B"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -115,7 +117,7 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="18dp"
+                    android:layout_marginStart="16dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -130,8 +132,8 @@
                         android:paddingTop="4dp"
                         android:paddingEnd="12dp"
                         android:paddingBottom="4dp"
-                        android:text="Level 8 - Guardian"
-                        android:textColor="#675349"
+                        android:text="Level 8 · Guardian"
+                        android:textColor="#1A9E7B"
                         android:textSize="11sp" />
 
                     <!-- Title: Highly trusted member -->
@@ -142,7 +144,7 @@
                         android:fontFamily="sans-serif-bold"
                         android:text="Highly trusted member"
                         android:textColor="@color/text_primary"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
                     <!-- Subtitle: Top 4% ... -->
@@ -163,7 +165,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <TextView
@@ -181,6 +183,15 @@
                     android:fontFamily="sans-serif"
                     android:text="420 / 500 XP"
                     android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="84%"
+                    android:textColor="#1A9E7B"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -203,8 +214,8 @@
                 android:fontFamily="sans-serif-bold"
                 android:letterSpacing="0.04"
                 android:text="VERIFICATION BADGES EARNED"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -213,12 +224,52 @@
                 android:layout_marginTop="12dp"
                 android:orientation="horizontal">
 
-                <!-- Badge 1: Phone -->
+                <!-- Badge 1: ID Verified -->
+                <LinearLayout
+                    android:id="@+id/badgeId"
+                    android:layout_width="0dp"
+                    android:layout_height="90dp"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_card_badge"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:contentDescription="ID Verified"
+                        android:src="@drawable/ic_id_verified" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="ID Verified"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif"
+                        android:text="Confirmed"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- Badge 2: Phone -->
                 <LinearLayout
                     android:id="@+id/badgePhone"
                     android:layout_width="0dp"
                     android:layout_height="90dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_card_badge"
                     android:clickable="true"
@@ -235,20 +286,29 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="6dp"
                         android:fontFamily="sans-serif-bold"
-                        android:text="Phone Verified"
+                        android:text="Phone"
                         android:textColor="@color/text_primary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif"
+                        android:text="Confirmed"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
                 </LinearLayout>
 
-                <!-- Badge 2: Email -->
+                <!-- Badge 3: Email -->
                 <LinearLayout
                     android:id="@+id/badgeEmail"
                     android:layout_width="0dp"
                     android:layout_height="90dp"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_card_badge"
                     android:clickable="true"
@@ -265,12 +325,21 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="6dp"
                         android:fontFamily="sans-serif-bold"
-                        android:text="Email Verified"
+                        android:text="Email"
                         android:textColor="@color/text_primary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif"
+                        android:text="Confirmed"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -282,8 +351,8 @@
                 android:fontFamily="sans-serif-bold"
                 android:letterSpacing="0.04"
                 android:text="ACHIEVEMENTS"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <!-- Achievement 1: First Find -->
@@ -291,23 +360,19 @@
                 android:id="@+id/itemFirstFind"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_achievement_card"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:padding="14dp">
 
-                <FrameLayout
-                    android:layout_width="46dp"
-                    android:layout_height="46dp"
-                    android:background="@drawable/bg_squircle_dark">
-
-                    <ImageView
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_achievement_medal" />
-                </FrameLayout>
+                <ImageView
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:contentDescription="First Find"
+                    android:src="@drawable/ic_check_circle_teal" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -345,7 +410,7 @@
                     android:paddingEnd="12dp"
                     android:paddingBottom="5dp"
                     android:text="Earned"
-                    android:textColor="@color/text_primary"
+                    android:textColor="#1A9E7B"
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -355,23 +420,24 @@
                 android:id="@+id/itemCommunityHelper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_achievement_card"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:padding="14dp">
 
-                <FrameLayout
-                    android:layout_width="46dp"
-                    android:layout_height="46dp"
-                    android:background="@drawable/bg_squircle_dark">
-
-                    <ImageView
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_achievement_community" />
-                </FrameLayout>
+                <TextView
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_squircle_teal"
+                    android:fontFamily="sans-serif-bold"
+                    android:gravity="center"
+                    android:text="10"
+                    android:textColor="#1A9E7B"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -409,7 +475,7 @@
                     android:paddingEnd="12dp"
                     android:paddingBottom="5dp"
                     android:text="Earned"
-                    android:textColor="@color/text_primary"
+                    android:textColor="#1A9E7B"
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -419,23 +485,24 @@
                 android:id="@+id/itemTrustedReporter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_achievement_card"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:padding="14dp">
 
-                <FrameLayout
-                    android:layout_width="46dp"
-                    android:layout_height="46dp"
-                    android:background="@drawable/bg_squircle_light">
-
-                    <ImageView
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_achievement_shield" />
-                </FrameLayout>
+                <TextView
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_squircle_teal"
+                    android:fontFamily="sans-serif-bold"
+                    android:gravity="center"
+                    android:text="18/20"
+                    android:textColor="#1A9E7B"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -461,89 +528,60 @@
                         android:text="20 verified reports"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
+
+                    <!-- Progress bar for trusted reporter -->
+                    <ProgressBar
+                        android:id="@+id/progressReporter"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="5dp"
+                        android:layout_marginTop="6dp"
+                        android:max="20"
+                        android:progress="18"
+                        android:progressDrawable="@drawable/progress_xp_track" />
                 </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_tag_earned"
                     android:fontFamily="sans-serif-bold"
-                    android:paddingStart="12dp"
-                    android:paddingTop="5dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="5dp"
+                    android:paddingStart="8dp"
                     android:text="90%"
-                    android:textColor="@color/text_primary"
-                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Achievement 4: Reunited Hero -->
+            <!-- Achievement 4: Reunited Hero (hidden row kept for backward compat) -->
             <LinearLayout
                 android:id="@+id/itemReunitedHero"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
+                android:layout_height="0dp"
+                android:visibility="gone"
                 android:orientation="horizontal">
 
                 <FrameLayout
                     android:id="@+id/bgSquircleReunited"
-                    android:layout_width="46dp"
-                    android:layout_height="46dp"
-                    android:background="@drawable/bg_squircle_dark">
-
+                    android:layout_width="0dp"
+                    android:layout_height="0dp">
                     <ImageView
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:layout_gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
                         android:src="@drawable/ic_verified_badge"
                         app:tint="@color/white" />
                 </FrameLayout>
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tvReunitedHeroDesc"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-bold"
-                        android:text="Reunited Hero"
-                        android:textColor="@color/text_primary"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvReunitedHeroDesc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:fontFamily="sans-serif"
-                        android:text="Selected by reporter for returning items"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-                </LinearLayout>
+                    android:layout_height="0dp"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/tagReunitedHero"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_tag_earned"
-                    android:fontFamily="sans-serif-bold"
-                    android:paddingStart="12dp"
-                    android:paddingTop="5dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="5dp"
-                    android:text="Earned (+20 XP)"
-                    android:textColor="@color/text_primary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <!-- Section 3: Activity History -->
@@ -554,8 +592,8 @@
                 android:fontFamily="sans-serif-bold"
                 android:letterSpacing="0.04"
                 android:text="ACTIVITY HISTORY"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <!-- Activity Card 1 -->
@@ -563,7 +601,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_stat_banner"
+                android:background="@drawable/bg_achievement_card"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="14dp">
@@ -591,7 +629,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
-                        android:text="Item Handover Completed"
+                        android:text="Passport returned to owner"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -601,7 +639,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:fontFamily="sans-serif"
-                        android:text="Passport returned safely to owner · Oct 2026"
+                        android:text="Sep 2026"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -609,78 +647,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_tag_earned"
                     android:fontFamily="sans-serif-bold"
-                    android:paddingStart="8dp"
-                    android:paddingTop="3dp"
-                    android:paddingEnd="8dp"
-                    android:paddingBottom="3dp"
                     android:text="+40 XP"
-                    android:textColor="#2E7D32"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- Activity Card 2 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_stat_banner"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="14dp">
-
-                <FrameLayout
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
-                    android:background="@drawable/bg_squircle_dark">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_verified_check" />
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-bold"
-                        android:text="Report Verified by Admin"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:fontFamily="sans-serif"
-                        android:text="Listing validated with coordinates · Oct 2026"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_tag_earned"
-                    android:fontFamily="sans-serif-bold"
-                    android:paddingStart="8dp"
-                    android:paddingTop="3dp"
-                    android:paddingEnd="8dp"
-                    android:paddingBottom="3dp"
-                    android:text="+15 XP"
-                    android:textColor="#2E7D32"
-                    android:textSize="11sp"
+                    android:textColor="#1A9E7B"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
