@@ -92,12 +92,10 @@ class NotificationsFragment : Fragment() {
                 itemWallet.visibility = if (hasNotifs) View.VISIBLE else View.GONE
                 itemKasun.visibility = if (notifList.size > 1) View.VISIBLE else View.GONE
                 itemPassport.visibility = View.GONE
-                itemAdmin.visibility = View.GONE
                 itemAirPods.visibility = View.GONE
                 itemGalleFace.visibility = View.GONE
 
                 dotWallet.visibility = if (hasNotifs) View.VISIBLE else View.GONE
-                dotAdmin.visibility = View.GONE
                 dotGalleFace.visibility = View.GONE
 
                 if (hasNotifs) {
@@ -115,6 +113,42 @@ class NotificationsFragment : Fragment() {
                 lblEarlier?.visibility = View.GONE
             }
             // Handles Firebase errors when notification data cannot be retrieved.
+            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+        })
+
+        // Listen for Global Admin Announcements from /announcements
+        var latestAnnouncementTitle = "Foundly Official Announcement"
+        var latestAnnouncementMessage = ""
+        val announcementsRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+            .getReference("announcements")
+            .limitToLast(5)
+
+        announcementsRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                if (!isAdded) return
+                var foundAnn = false
+                for (child in snapshot.children.reversed()) {
+                    val msg = child.child("message").getValue(String::class.java) ?: ""
+                    val title = child.child("title").getValue(String::class.java) ?: "Foundly Official Announcement"
+                    if (msg.isNotEmpty()) {
+                        latestAnnouncementTitle = title
+                        latestAnnouncementMessage = msg
+                        val tvTitle = view.findViewById<TextView>(R.id.tvAdminNotifTitle)
+                        val tvDesc = view.findViewById<TextView>(R.id.tvAdminNotifDesc)
+                        tvTitle?.text = title
+                        tvDesc?.text = msg
+                        itemAdmin.visibility = View.VISIBLE
+                        dotAdmin.visibility = View.VISIBLE
+                        foundAnn = true
+                        break
+                    }
+                }
+                if (!foundAnn) {
+                    itemAdmin.visibility = View.GONE
+                    dotAdmin.visibility = View.GONE
+                }
+            }
+
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
         })
 
@@ -179,10 +213,18 @@ class NotificationsFragment : Fragment() {
 
         itemAdmin.setOnClickListener {
             dotAdmin.visibility = View.GONE
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, TrustFragment.newInstance())
-                .addToBackStack(null)
-                .commit()
+            if (latestAnnouncementMessage.isNotEmpty()) {
+                androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle(latestAnnouncementTitle)
+                    .setMessage(latestAnnouncementMessage)
+                    .setPositiveButton("Understood", null)
+                    .show()
+            } else {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.screenBox, TrustFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
 
         itemAirPods.setOnClickListener {
