@@ -44,15 +44,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-/**
- * DetailsFragment displays full item report details with:
- * - Live real-time single-item observer from `/items/{itemId}` via addValueEventListener
- * - Slideable multiple item photos via ViewPager2 with Coroutine ImageLoader
- * - Dynamic status updates (LOST / FOUND / RESOLVED)
- * - Tap to enlarge photos in full-screen modal
- * - Title, description, and location coordinates
- * - Contact reporter and listing resolution
- */
+
 class DetailsFragment : Fragment() {
 
     private lateinit var btnBack: ImageView
