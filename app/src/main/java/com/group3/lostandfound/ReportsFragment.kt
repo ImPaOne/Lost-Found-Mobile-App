@@ -77,7 +77,7 @@ class ReportsFragment : Fragment() {
 
         initViews(view)
         setupListeners()
-        setupBottomNav(view, "profile")
+        setupBottomNav(view, "reports")
         observeViewModel()
     }
 
