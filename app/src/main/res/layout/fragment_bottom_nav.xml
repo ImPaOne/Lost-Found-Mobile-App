@@ -25,7 +25,7 @@
         <FrameLayout
             android:id="@+id/boxHome"
             android:layout_width="48dp"
-            android:layout_height="28dp"
+            android:layout_height="26dp"
             android:gravity="center">
 
             <ImageView
@@ -63,7 +63,7 @@
         <FrameLayout
             android:id="@+id/boxExplore"
             android:layout_width="48dp"
-            android:layout_height="28dp"
+            android:layout_height="26dp"
             android:gravity="center">
 
             <ImageView
@@ -87,9 +87,9 @@
             android:textSize="11sp" />
     </LinearLayout>
 
-    <!-- 3. My Reports Tab (Matching reference image) -->
+    <!-- 3. Center Action Button (+) / Post -->
     <LinearLayout
-        android:id="@+id/tabReports"
+        android:id="@+id/tabPost"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -99,72 +99,32 @@
         android:orientation="vertical">
 
         <FrameLayout
-            android:id="@+id/boxReports"
-            android:layout_width="48dp"
-            android:layout_height="28dp"
+            android:id="@+id/btnPostCircle"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:background="@drawable/bg_dark_circle_button"
+            android:elevation="4dp"
             android:gravity="center">
 
             <ImageView
-                android:id="@+id/imgReports"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:id="@+id/imgPostPlus"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:layout_gravity="center"
-                android:contentDescription="My reports"
-                android:src="@drawable/ic_nav_my_reports"
-                app:tint="@color/text_hint" />
+                android:contentDescription="Post"
+                android:src="@drawable/ic_nav_plus"
+                app:tint="@color/white" />
         </FrameLayout>
 
-        <TextView
-            android:id="@+id/lblReports"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:fontFamily="sans-serif"
-            android:text="My reports"
-            android:textColor="@color/text_hint"
-            android:textSize="11sp" />
-    </LinearLayout>
-
-    <!-- 4. Center Post Button (Used for Admin or post flow) -->
-    <LinearLayout
-        android:id="@+id/tabPost"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:visibility="gone">
-
-        <LinearLayout
+        <!-- Dummy views keeping btnPostPill & lblPost IDs for backward compatibility -->
+        <View
             android:id="@+id/btnPostPill"
-            android:layout_width="54dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_nav_post_pill"
-            android:elevation="2dp"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:contentDescription="Post"
-                android:src="@drawable/ic_plus"
-                app:tint="@color/white" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
-                android:fontFamily="sans-serif-bold"
-                android:text="+ Post"
-                android:textColor="@color/white"
-                android:textSize="10sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
     </LinearLayout>
 
-    <!-- 5. Messages Tab (Used for Admin Users tab or messages) -->
+    <!-- 4. Messages Tab -->
     <LinearLayout
         android:id="@+id/tabMessages"
         android:layout_width="0dp"
@@ -173,13 +133,12 @@
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
+        android:orientation="vertical">
 
         <FrameLayout
             android:id="@+id/boxMessages"
             android:layout_width="48dp"
-            android:layout_height="28dp"
+            android:layout_height="26dp"
             android:gravity="center">
 
             <ImageView
@@ -203,7 +162,7 @@
             android:textSize="11sp" />
     </LinearLayout>
 
-    <!-- 6. Profile Tab -->
+    <!-- 5. Profile Tab -->
     <LinearLayout
         android:id="@+id/tabProfile"
         android:layout_width="0dp"
@@ -217,7 +176,7 @@
         <FrameLayout
             android:id="@+id/boxProfile"
             android:layout_width="48dp"
-            android:layout_height="28dp"
+            android:layout_height="26dp"
             android:gravity="center">
 
             <ImageView
@@ -239,6 +198,18 @@
             android:text="Profile"
             android:textColor="@color/text_hint"
             android:textSize="11sp" />
+    </LinearLayout>
+
+    <!-- Hidden tabReports keeping ID for backward compatibility -->
+    <LinearLayout
+        android:id="@+id/tabReports"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone">
+        <FrameLayout android:id="@+id/boxReports" android:layout_width="0dp" android:layout_height="0dp">
+            <ImageView android:id="@+id/imgReports" android:layout_width="0dp" android:layout_height="0dp" />
+        </FrameLayout>
+        <TextView android:id="@+id/lblReports" android:layout_width="0dp" android:layout_height="0dp" />
     </LinearLayout>
 
 </LinearLayout>
