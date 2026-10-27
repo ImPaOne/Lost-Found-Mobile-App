@@ -4,151 +4,185 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#F0FDF4"
     tools:context=".OnboardingReuniteFragment">
 
-    <!-- Top Right Skip Button -->
-    <TextView
-        android:id="@+id/btnSkip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="20dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:fontFamily="sans-serif"
-        android:padding="8dp"
-        android:text="Skip"
-        android:textColor="@color/text_secondary"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Center Content: Concentric Circles with Handshake Icon, Title & Description -->
-    <LinearLayout
-        android:id="@+id/boxCenterContent"
+    <!-- 1. Top Concentric Circular Illustration Area -->
+    <FrameLayout
+        android:id="@+id/boxIllustrationArea"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/dotsIndicator"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/cardBottomSheet"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSkip"
-        app:layout_constraintVertical_bias="0.42">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Outer Soft Beige Circle -->
+        <!-- Outer Ring -->
         <FrameLayout
-            android:id="@+id/boxIllustration"
-            android:layout_width="196dp"
-            android:layout_height="196dp"
+            android:layout_width="260dp"
+            android:layout_height="260dp"
+            android:layout_gravity="center"
             android:background="@drawable/bg_onboard_outer_circle">
 
-            <!-- Inner Light Circle -->
+            <!-- Middle Ring -->
             <FrameLayout
-                android:layout_width="156dp"
-                android:layout_height="156dp"
+                android:layout_width="196dp"
+                android:layout_height="196dp"
                 android:layout_gravity="center"
                 android:background="@drawable/bg_onboard_inner_circle">
 
-                <!-- Center Dark Brown Squircle -->
+                <!-- Center Squircle with Navy Background and Handshake Icon -->
                 <FrameLayout
-                    android:layout_width="86dp"
-                    android:layout_height="86dp"
+                    android:layout_width="84dp"
+                    android:layout_height="84dp"
                     android:layout_gravity="center"
-                    android:background="@drawable/bg_onboard_squircle">
+                    android:background="@drawable/bg_onboard_squircle"
+                    android:elevation="6dp">
 
                     <ImageView
                         android:id="@+id/iconHandshake"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="34dp"
+                        android:layout_height="34dp"
                         android:layout_gravity="center"
                         android:contentDescription="Reunite Icon"
                         android:src="@drawable/ic_onboard_handshake" />
                 </FrameLayout>
             </FrameLayout>
         </FrameLayout>
+    </FrameLayout>
 
-        <!-- Main Title -->
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:fontFamily="sans-serif-bold"
-            android:gravity="center"
-            android:text="Reunite &amp; Connect"
-            android:textColor="@color/text_primary"
-            android:textSize="26sp"
-            android:textStyle="bold" />
-
-        <!-- Subtitle Description -->
-        <TextView
-            android:id="@+id/tvDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:fontFamily="sans-serif"
-            android:gravity="center"
-            android:lineSpacingExtra="4dp"
-            android:paddingStart="36dp"
-            android:paddingEnd="36dp"
-            android:text="Private chat and verified claims bring\npeople and belongings back together."
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp" />
-    </LinearLayout>
-
-    <!-- Page Indicator Dots: 1st inactive, 2nd inactive, 3rd active pill -->
-    <LinearLayout
-        android:id="@+id/dotsIndicator"
-        android:layout_width="wrap_content"
+    <!-- 2. Bottom Sheet Container (White card with rounded top corners) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cardBottomSheet"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/btnGetStarted"
+        android:background="@drawable/bg_bottom_sheet_rounded"
+        android:elevation="8dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="36dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+        <!-- Drag Handle Pill -->
         <View
-            android:id="@+id/dotInactive1"
-            android:layout_width="5dp"
-            android:layout_height="5dp"
-            android:layout_marginEnd="6dp"
-            android:background="@drawable/bg_onboard_dot_inactive" />
+            android:id="@+id/handlePill"
+            android:layout_width="36dp"
+            android:layout_height="4dp"
+            android:background="@drawable/bg_sheet_drag_handle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <View
-            android:id="@+id/dotInactive2"
-            android:layout_width="5dp"
-            android:layout_height="5dp"
-            android:layout_marginEnd="6dp"
-            android:background="@drawable/bg_onboard_dot_inactive" />
+        <!-- Top Right "Skip" Pill Button -->
+        <TextView
+            android:id="@+id/btnSkip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/bg_btn_skip_pill"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="sans-serif-medium"
+            android:paddingStart="16dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="6dp"
+            android:text="Skip"
+            android:textColor="#475569"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/handlePill" />
 
-        <View
-            android:id="@+id/dotActive"
-            android:layout_width="22dp"
-            android:layout_height="5dp"
-            android:background="@drawable/bg_onboard_dot_active" />
-    </LinearLayout>
+        <!-- Main Title (Left aligned) -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:fontFamily="sans-serif-bold"
+            android:text="Reunite &amp; Connect"
+            android:textColor="#0B2032"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnSkip" />
 
-    <!-- Bottom "Get Started" Button -->
-    <TextView
-        android:id="@+id/btnGetStarted"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="68dp"
-        android:background="@drawable/bg_btn_onboard"
-        android:clickable="true"
-        android:focusable="true"
-        android:fontFamily="sans-serif-medium"
-        android:gravity="center"
-        android:text="Get Started"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <!-- Subtitle Description (Left aligned) -->
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="24dp"
+            android:fontFamily="sans-serif"
+            android:lineSpacingExtra="4dp"
+            android:text="Private chat and verified claims bring people and belongings back together."
+            android:textColor="#64748B"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+        <!-- 3-Dot Page Indicator (Left aligned): 1st inactive, 2nd inactive, 3rd active -->
+        <LinearLayout
+            android:id="@+id/dotsIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvDescription">
+
+            <View
+                android:id="@+id/dotInactive1"
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:background="@drawable/bg_onboard_dot_inactive" />
+
+            <View
+                android:id="@+id/dotInactive2"
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_onboard_dot_inactive" />
+
+            <View
+                android:id="@+id/dotActive"
+                android:layout_width="22dp"
+                android:layout_height="6dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_onboard_dot_active" />
+        </LinearLayout>
+
+        <!-- Primary Action "Get Started" Button -->
+        <TextView
+            android:id="@+id/btnGetStarted"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/bg_btn_onboard"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="sans-serif-bold"
+            android:gravity="center"
+            android:text="Get Started"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dotsIndicator" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

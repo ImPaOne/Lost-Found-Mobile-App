@@ -107,22 +107,22 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
         imgProfile?.setColorFilter(if (isTab5) activeColor else inactiveColor)
 
         tabHome.setOnClickListener {
-            if (!isTab1) navigateTo(AdminFragment.newInstance())
+            if (this !is AdminFragment) navigateTo(AdminFragment.newInstance())
         }
         tabExplore?.setOnClickListener {
-            if (!isTab2) navigateTo(ModerationFragment.newInstance())
+            if (this !is ModerationFragment) navigateTo(ModerationFragment.newInstance())
         }
         val openAnalytics = View.OnClickListener {
-            if (!isTab3) navigateTo(AnalyticsFragment.newInstance())
+            if (this !is AnalyticsFragment) navigateTo(AnalyticsFragment.newInstance())
         }
         tabPost?.setOnClickListener(openAnalytics)
         btnPostPill?.setOnClickListener(openAnalytics)
 
         tabMessages?.setOnClickListener {
-            if (!isTab4) navigateTo(UserManagementFragment.newInstance())
+            if (this !is UserManagementFragment) navigateTo(UserManagementFragment.newInstance())
         }
         tabProfile?.setOnClickListener {
-            if (!isTab5) navigateTo(SettingsFragment.newInstance())
+            if (this !is SettingsFragment) navigateTo(SettingsFragment.newInstance())
         }
     } else {
         // NORMAL USER NAVIGATION
@@ -172,22 +172,22 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
         imgProfile?.setColorFilter(if (isTab5) activeColor else inactiveColor)
 
         tabHome.setOnClickListener {
-            if (!isTab1) navigateTo(HomeFragment.newInstance())
+            if (this !is HomeFragment) navigateTo(HomeFragment.newInstance())
         }
         tabExplore?.setOnClickListener {
-            if (!isTab2) navigateTo(ExploreFragment.newInstance())
+            if (this !is ExploreFragment) navigateTo(ExploreFragment.newInstance())
         }
         val openPostAction = View.OnClickListener {
-            if (!isTab3) navigateTo(CreateReportFragment.newInstance())
+            if (this !is CreateReportFragment) navigateTo(CreateReportFragment.newInstance())
         }
         tabPost?.setOnClickListener(openPostAction)
         btnPostPill?.setOnClickListener(openPostAction)
 
         tabMessages?.setOnClickListener {
-            if (!isTab4) navigateTo(MessagesFragment.newInstance())
+            if (this !is MessagesFragment) navigateTo(MessagesFragment.newInstance())
         }
         tabProfile?.setOnClickListener {
-            if (!isTab5) navigateTo(ProfileFragment.newInstance())
+            if (this !is ProfileFragment) navigateTo(ProfileFragment.newInstance())
         }
     }
 }
