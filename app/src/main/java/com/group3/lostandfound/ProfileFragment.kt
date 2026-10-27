@@ -22,9 +22,9 @@ import com.group3.lostandfound.util.ModernToast
 import kotlinx.coroutines.launch
 
 /**
- * ProfileFragment displays user profile information, activity statistics,
- * and handles real-time synchronization with Firebase Realtime Database at `/users/{uid}`.
- * Provides controls to update displayName and preferredLanguage via updateChildren().
+ * Manages the Foundly user profile, including profile editing, photo uploads,
+ * real-time Firebase data, item statistics, trust scores, saved reports,
+ * settings navigation, help requests, and logout functionality.
  */
 class ProfileFragment : Fragment() {
 
@@ -57,6 +57,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Creates and displays the profile screen layout.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -65,6 +66,7 @@ class ProfileFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
+    // Initializes profile views, loads user data, and sets up click listeners.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -167,6 +169,7 @@ class ProfileFragment : Fragment() {
         setupBottomNav(view, "profile")
     }
 
+    // Retrieves and observes the user's profile information from Firebase in real time
     private fun observeUserProfile() {
         profileListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -204,6 +207,7 @@ class ProfileFragment : Fragment() {
         profileListener?.let { userRef.addValueEventListener(it) }
     }
 
+    // Counts the user's found and returned items and calculates the displayed trust score.
     private fun observeUserItemStats() {
         val uid = currentUid
         itemStatsListener = object : ValueEventListener {
@@ -236,6 +240,7 @@ class ProfileFragment : Fragment() {
         itemStatsListener?.let { FirebaseManager.itemsRef.addValueEventListener(it) }
     }
 
+    // Compresses and uploads the selected profile photo and saves its URL in Firebase.
     private fun uploadProfileImage(uri: android.net.Uri) {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
@@ -274,6 +279,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Displays a bottom sheet for editing the user's profile information.
     private fun showEditProfileDialog() {
         val bottomSheet = BottomSheetDialog(requireContext())
         val sheetView = layoutInflater.inflate(R.layout.dialog_edit_profile, null)
@@ -324,6 +330,7 @@ class ProfileFragment : Fragment() {
             bottomSheet.dismiss()
         }
 
+        // Displays bookmarked reports and allows the user to open or clear saved items.
         btnSaveProfile.setOnClickListener {
             val enteredName = etProfileName.text.toString().trim()
             val newName = if (enteredName.isNotEmpty()) enteredName else currentDisplayName
@@ -365,6 +372,7 @@ class ProfileFragment : Fragment() {
         bottomSheet.show()
     }
 
+    // Displays bookmarked reports and allows the user to open or clear saved items.
     private fun showSavedItemsDialog() {
         val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
         val savedIds = prefs.getStringSet("bookmarked_ids", emptySet()) ?: emptySet()
