@@ -733,14 +733,13 @@ class CreateReportFragment : Fragment() {
                 btnContinue.text = "Continue ➔"
             }
             2 -> {
-                tvStepNumber.setBackgroundResource(android.R.color.transparent)
-                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#64748B"))
+                tvStepNumber.setBackgroundResource(R.drawable.bg_badge_step_amber)
+                tvStepNumber.setTextColor(android.graphics.Color.parseColor("#B45309"))
                 tvStepTitle.text = "Category & details"
                 tvStepSubtitle.text = "Tell the community what to look for."
-                tvNextStepHint?.visibility = View.VISIBLE
-                tvNextStepHint?.text = "➔ Next: Where & when?"
+                tvNextStepHint?.visibility = View.GONE
                 btnBackBottom.text = "Back"
-                btnContinue.text = "Continue ➔"
+                btnContinue.text = "Continue"
             }
             3 -> {
                 tvStepNumber.setBackgroundResource(R.drawable.bg_badge_step_amber)
