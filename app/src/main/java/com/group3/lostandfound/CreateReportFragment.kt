@@ -402,15 +402,13 @@ class CreateReportFragment : Fragment() {
         tvTime = view.findViewById(R.id.tvTime)
 
         // Step 4
-        cardUploadDropzone = view.findViewById(R.id.cardUploadDropzone)
+        cardPhotoPreview = view.findViewById(R.id.cardPhotoPreview)
+        imgPhotoPreview = view.findViewById(R.id.imgPhotoPreview)
+        btnRemovePhoto = view.findViewById(R.id.btnRemovePhoto)
+        badgeCoverPhoto = view.findViewById(R.id.badgeCoverPhoto)
+        btnTakePhoto = view.findViewById(R.id.btnTakePhoto)
+        btnGallery = view.findViewById(R.id.btnGallery)
         tvPhotosCountStatus = view.findViewById(R.id.tvPhotosCountStatus)
-        rowThumbnails = view.findViewById(R.id.rowThumbnails)
-        cardThumbnail1 = view.findViewById(R.id.cardThumbnail1)
-        cardThumbnail2 = view.findViewById(R.id.cardThumbnail2)
-        cardThumbnail3 = view.findViewById(R.id.cardThumbnail3)
-        imgThumbnail1 = view.findViewById(R.id.imgThumbnail1)
-        imgThumbnail2 = view.findViewById(R.id.imgThumbnail2)
-        imgThumbnail3 = view.findViewById(R.id.imgThumbnail3)
 
         // Step 5
         badgeReviewStatus = view.findViewById(R.id.badgeReviewStatus)
