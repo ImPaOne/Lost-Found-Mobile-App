@@ -9,6 +9,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 
+/**
+ * Component Library Screen (Foundly UI Kit).
+ * Displays core buttons, inputs, tabs, chips, badges, item cards, and overlays.
+ */
 class UiKitFragment : Fragment() {
 
     private lateinit var btnPrimary: TextView
@@ -20,7 +24,6 @@ class UiKitFragment : Fragment() {
     private lateinit var inputFocused: EditText
     private lateinit var inputError: EditText
 
-    //Loads the UI Kit layout.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -29,16 +32,14 @@ class UiKitFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_ui_kit, container, false)
     }
 
-    //Initializes views and sets up click listeners and bottom navigation.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         initViews(view)
-        setupListeners()
+        setupListeners(view)
         setupBottomNav(view)
     }
 
-    //Connects Kotlin variables to XML views using their IDs.
     private fun initViews(view: View) {
         btnPrimary = view.findViewById(R.id.btnPrimary)
         btnSecondary = view.findViewById(R.id.btnSecondary)
@@ -50,9 +51,9 @@ class UiKitFragment : Fragment() {
         inputError = view.findViewById(R.id.inputError)
     }
 
-    //Handles button clicks and displays Toast messages.
-    private fun setupListeners() {
-        view?.findViewById<View>(R.id.tvKitTitle)?.setOnClickListener {
+    private fun setupListeners(view: View) {
+        // Back navigation on clicking title
+        view.findViewById<View>(R.id.tvKitTitle)?.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
@@ -69,7 +70,48 @@ class UiKitFragment : Fragment() {
         }
 
         btnDisabled.setOnClickListener {
-            // Disabled button does nothing
+            // Disabled state does nothing
+        }
+
+        // Chip clicks
+        view.findViewById<View>(R.id.chipAll)?.setOnClickListener {
+            Toast.makeText(requireContext(), "Filter: All", Toast.LENGTH_SHORT).show()
+        }
+        view.findViewById<View>(R.id.chipLost)?.setOnClickListener {
+            Toast.makeText(requireContext(), "Filter: Lost", Toast.LENGTH_SHORT).show()
+        }
+        view.findViewById<View>(R.id.chipFound)?.setOnClickListener {
+            Toast.makeText(requireContext(), "Filter: Found", Toast.LENGTH_SHORT).show()
+        }
+        view.findViewById<View>(R.id.chipPets)?.setOnClickListener {
+            Toast.makeText(requireContext(), "Filter: Pets", Toast.LENGTH_SHORT).show()
+        }
+
+        // Search Filter button
+        view.findViewById<View>(R.id.btnFilterInSearch)?.setOnClickListener {
+            Toast.makeText(requireContext(), "Search filters opened", Toast.LENGTH_SHORT).show()
+        }
+
+        // List item card click
+        view.findViewById<View>(R.id.cardListVariantItem)?.setOnClickListener {
+            Toast.makeText(requireContext(), "Selected: Sri Lankan passport", Toast.LENGTH_SHORT).show()
+        }
+
+        // Overlay feedback clicks
+        view.findViewById<View>(R.id.cardFilterOverlayPreview)?.setOnClickListener {
+            Toast.makeText(requireContext(), "Filter results bottom sheet", Toast.LENGTH_SHORT).show()
+        }
+        view.findViewById<View>(R.id.cardSuccessToastBanner)?.setOnClickListener {
+            Toast.makeText(requireContext(), "Report published successfully!", Toast.LENGTH_SHORT).show()
+        }
+        view.findViewById<View>(R.id.cardLoadingState)?.setOnClickListener {
+            Toast.makeText(requireContext(), "State: Loading results...", Toast.LENGTH_SHORT).show()
+        }
+        view.findViewById<View>(R.id.cardEmptyState)?.setOnClickListener {
+            Toast.makeText(requireContext(), "State: No items yet", Toast.LENGTH_SHORT).show()
+        }
+        view.findViewById<View>(R.id.cardErrorState)?.setOnClickListener {
+            Toast.makeText(requireContext(), "State: Couldn't load", Toast.LENGTH_SHORT).show()
         }
     }
 
