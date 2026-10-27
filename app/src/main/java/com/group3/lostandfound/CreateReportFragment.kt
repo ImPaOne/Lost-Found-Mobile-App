@@ -297,6 +297,15 @@ class CreateReportFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+        val isAdmin = prefs.getBoolean("is_admin", false) || FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
+        if (isAdmin) {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, AnalyticsFragment.newInstance())
+                .commit()
+            return
+        }
+
         createReportViewModel = ViewModelProvider(this)[CreateReportViewModel::class.java]
 
         initViews()
