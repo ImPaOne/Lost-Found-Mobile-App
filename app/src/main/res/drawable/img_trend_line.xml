@@ -4,13 +4,13 @@
     android:viewportWidth="320"
     android:viewportHeight="68">
 
-    <!-- Spline waveform matching exact curves in Figma design -->
+    <!-- Spline waveform matching exact curves in reference design -->
     <path
         android:fillColor="@android:color/transparent"
-        android:strokeColor="#675349"
+        android:strokeColor="#003049"
         android:strokeWidth="3.2"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M10,58 C35,46 55,26 80,26 C105,26 120,38 145,26 C170,14 185,22 215,14 C245,6 270,10 305,12" />
+        android:pathData="M10,58 C35,46 55,26 80,26 C105,26 120,38 145,26 C170,14 185,22 215,14 C245,6 270,10 310,12" />
 
 </vector>
