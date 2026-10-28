@@ -92,6 +92,7 @@ class ExploreFragment : Fragment() {
             openDetails(item)
         }
 
+        // Show two columns in grid mode.
         rvItems.layoutManager = GridLayoutManager(requireContext(), 2)
         rvItems.adapter = exploreAdapter
     }
