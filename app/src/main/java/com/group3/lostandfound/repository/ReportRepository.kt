@@ -130,6 +130,7 @@ class ReportRepository {
         // Stores the most recent exception if an attempt fails.
         var lastException: Exception? = null
 
+        // Retries the submission if an operation fails.
         for (attempt in 1..maxRetries) {
             try {
                 // Generate unique key using push()
