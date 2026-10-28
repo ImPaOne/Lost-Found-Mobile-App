@@ -135,6 +135,7 @@ class ReportRepository {
             try {
                 // Generate unique key using push()
                 val itemId = db.push().key ?: UUID.randomUUID().toString()
+                // Starts with any image URL already present in the report.
                 var downloadUrl = report.imageUrl
 
                 if (imageUri != null) {
