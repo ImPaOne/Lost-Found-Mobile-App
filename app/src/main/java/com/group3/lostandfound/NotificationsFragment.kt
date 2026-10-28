@@ -214,18 +214,41 @@ class NotificationsFragment : Fragment() {
                     }
                 }
 
+                list.sortByDescending { it.timestamp }
                 liveNotifications = list
+
                 if (list.isNotEmpty()) {
-                    view.findViewById<TextView>(R.id.tvNotifTitle1)?.text = list[0].title.ifEmpty { "Match found" }
-                    view.findViewById<TextView>(R.id.tvNotifDesc1)?.text = list[0].message.ifEmpty { "A wallet found in Kollupitiya is a 92% match." }
+                    val n0 = list[0]
+                    view.findViewById<TextView>(R.id.tvNotifTitle1)?.text = n0.title.ifEmpty { "Match found" }
+                    view.findViewById<TextView>(R.id.tvNotifDesc1)?.text = n0.message
+                    view.findViewById<TextView>(R.id.tvNotifTime1)?.text = formatNotificationTime(n0.timestamp)
                     dotWallet.visibility = View.VISIBLE
                     badgeNewToday.visibility = View.VISIBLE
                     badgeNewToday.text = "${list.size} new"
+                    itemWallet.setOnClickListener { openNotificationTarget(n0) }
                 }
 
                 if (list.size > 1) {
-                    view.findViewById<TextView>(R.id.tvNotifTitle2)?.text = list[1].title.ifEmpty { "Message received" }
-                    view.findViewById<TextView>(R.id.tvNotifDesc2)?.text = list[1].message.ifEmpty { "Kasun sent a message about your report." }
+                    val n1 = list[1]
+                    view.findViewById<TextView>(R.id.tvNotifTitle2)?.text = n1.title.ifEmpty { "Message received" }
+                    view.findViewById<TextView>(R.id.tvNotifDesc2)?.text = n1.message
+                    view.findViewById<TextView>(R.id.tvNotifTime2)?.text = formatNotificationTime(n1.timestamp)
+                    itemKasun.setOnClickListener { openNotificationTarget(n1) }
+                }
+
+                if (list.size > 2) {
+                    val n2 = list[2]
+                    view.findViewById<TextView>(R.id.tvNotifTitle3)?.text = n2.title
+                    view.findViewById<TextView>(R.id.tvNotifDesc3)?.text = n2.message
+                    view.findViewById<TextView>(R.id.tvNotifTime3)?.text = formatNotificationTime(n2.timestamp)
+                    itemPassport.setOnClickListener { openNotificationTarget(n2) }
+                }
+
+                if (list.size > 3) {
+                    val n3 = list[3]
+                    view.findViewById<TextView>(R.id.tvNotifTitle5)?.text = n3.title
+                    view.findViewById<TextView>(R.id.tvNotifDesc5)?.text = n3.message
+                    itemAirPods.setOnClickListener { openNotificationTarget(n3) }
                 }
             }
 
@@ -256,8 +279,27 @@ class NotificationsFragment : Fragment() {
         })
     }
 
+    private fun formatNotificationTime(timestamp: Long): String {
+        if (timestamp <= 0L) return "now"
+        val diff = System.currentTimeMillis() - timestamp
+        val mins = diff / 60000L
+        val hours = mins / 60L
+        return when {
+            mins < 1 -> "now"
+            mins < 60 -> "${mins}m"
+            hours < 24 -> "${hours}h"
+            else -> "${hours / 24}d"
+        }
+    }
+
     private fun openNotificationTarget(notif: NotificationItem) {
-        if (notif.type == "CHAT_MESSAGE" || notif.conversationId.isNotEmpty()) {
+        if (notif.type == "ANNOUNCEMENT") {
+            AlertDialog.Builder(requireContext())
+                .setTitle(notif.title)
+                .setMessage(notif.message)
+                .setPositiveButton("OK", null)
+                .show()
+        } else if (notif.type == "CHAT_MESSAGE" || notif.conversationId.isNotEmpty()) {
             parentFragmentManager.beginTransaction()
                 .replace(
                     R.id.screenBox,
