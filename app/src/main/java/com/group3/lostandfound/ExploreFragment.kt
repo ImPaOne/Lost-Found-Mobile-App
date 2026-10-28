@@ -130,6 +130,7 @@ class ExploreFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
+        // Navigate to the Map screen.
         btnMapView.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.screenBox, MapFragment.newInstance())
