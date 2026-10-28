@@ -171,6 +171,7 @@ class ExploreFragment : Fragment() {
             exploreViewModel.setFilterStatus("PETS")
         }
 
+        // Tell the ViewModel which layout mode the user selected.
         btnGridView.setOnClickListener {
             exploreViewModel.setViewMode(true)
         }
