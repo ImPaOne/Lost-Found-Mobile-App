@@ -69,6 +69,7 @@ class ExploreFragment : Fragment() {
     }
 
     private fun initViews(view: View) {
+        // Connect UI variables to their XML components using IDs
         btnClose = view.findViewById(R.id.btnClose)
         btnMapView = view.findViewById(R.id.btnMapView)
 
