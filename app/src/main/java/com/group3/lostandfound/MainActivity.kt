@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity() {
 
         // Set up real-time incoming message notification listener AFTER user credentials are restored
         setupIncomingMessageNotifications()
+        checkAndPromptPermissions()
 
         if (savedInstanceState == null) {
             val onboardingCompleted = prefs.getBoolean("onboarding_completed", false)
@@ -125,6 +126,32 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkAndPromptPermissions() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 101)
+            }
+        }
+
+        val prefs = getSharedPreferences("findit_prefs", MODE_PRIVATE)
+        val promptedOverlay = prefs.getBoolean("prompted_overlay_permission", false)
+        if (!android.provider.Settings.canDrawOverlays(this) && !promptedOverlay) {
+            prefs.edit().putBoolean("prompted_overlay_permission", true).apply()
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Background Alerts & Overlay")
+                .setMessage("To receive alerts and notifications when Foundly is closed, please grant 'Draw over other apps' permission.")
+                .setPositiveButton("Enable") { _, _ ->
+                    val intent = Intent(
+                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        android.net.Uri.parse("package:$packageName")
+                    )
+                    startActivity(intent)
+                }
+                .setNegativeButton("Later", null)
+                .show()
+        }
+    }
+
     private var isMessageListenerAttached = false
     private var isAnnouncementListenerAttached = false
     private val notifiedAlertIds = mutableSetOf<String>()
@@ -135,7 +162,7 @@ class MainActivity : AppCompatActivity() {
             val serviceIntent = Intent(this, com.group3.lostandfound.service.AppNotificationService::class.java).apply {
                 putExtra("user_uid", uid)
             }
-            startService(serviceIntent)
+            androidx.core.content.ContextCompat.startForegroundService(this, serviceIntent)
         } catch (_: Exception) {}
 
         val appStartTime = System.currentTimeMillis()
