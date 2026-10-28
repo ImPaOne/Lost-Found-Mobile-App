@@ -127,6 +127,7 @@ class ReportRepository {
         maxRetries: Int = 3,
         onProgress: (Int) -> Unit // Reports upload progress to the ViewModel.
     ): Result<ItemReport> = withContext(Dispatchers.IO) {
+        // Stores the most recent exception if an attempt fails.
         var lastException: Exception? = null
 
         for (attempt in 1..maxRetries) {
