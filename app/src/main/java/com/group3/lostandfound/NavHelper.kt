@@ -10,8 +10,6 @@ import androidx.fragment.app.Fragment
 
 /**
  * Consistent, functional bottom navigation helper across all app screens.
- * Renders 5 standard tabs matching the reference design:
- * Home, Explore, (+) Post, Messages, Profile.
  */
 fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     val tabHome = rootView.findViewById<View>(R.id.tabHome) ?: return
