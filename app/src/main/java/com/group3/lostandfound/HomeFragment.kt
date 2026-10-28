@@ -28,7 +28,6 @@ import kotlinx.coroutines.launch
 
 /**
  * HomeFragment displays the main dashboard of the Foundly app following MVVM architecture:
- * - Realtime Live Data from HomeViewModel (ZERO DUMMY DATA)
  * - Dynamic Urgent Item Highlights Carousel Slider from HomeViewModel
  * - Quick action cards: "Report Lost" & "Report Found"
  * - Live Community statistics
