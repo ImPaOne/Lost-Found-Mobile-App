@@ -694,6 +694,7 @@ class CreateReportFragment : Fragment() {
         }
 
         // Connects the JavaScript map to Android Kotlin.
+        // Receives the selected latitude and longitude, updates the location variables,
         webView.addJavascriptInterface(object {
             @android.webkit.JavascriptInterface
             fun onLocationChanged(lat: Double, lng: Double) {
