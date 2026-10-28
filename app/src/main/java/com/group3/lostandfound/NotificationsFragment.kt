@@ -37,6 +37,7 @@ class NotificationsFragment : Fragment() {
     private var adminAlertTitle = "Admin alert"
     private var adminAlertMessage = "Please verify your contact number."
 
+    //	Loads the notification screen layout from fragment_notifications.xml.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,6 +46,7 @@ class NotificationsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_notifications, container, false)
     }
 
+    //Initializes the screen and sets up listeners and notification loading.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
