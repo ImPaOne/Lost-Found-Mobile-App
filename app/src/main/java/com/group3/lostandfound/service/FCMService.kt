@@ -32,6 +32,7 @@ class FCMService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
+        // Gets the notification title; if unavailable, checks the data payload.
         val title = remoteMessage.notification?.title
             ?: remoteMessage.data["title"]
             ?: "Foundly"
