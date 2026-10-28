@@ -680,5 +680,4 @@ object FirebaseManager {
             override fun onCancelled(error: DatabaseError) {}
         })
     }
-    }
 }
