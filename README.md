@@ -1,83 +1,24 @@
-"# Lost-Found-Mobile-App"
+# Foundly - Lost & Found Mobile Application
 
-# FindIt LK - Lost & Found Mobile Application
+> **Tagline:** _Lost less. Found faster._
 
-A comprehensive Android application designed to connect individuals who have lost items with those who have found them. This app serves as a bridge between the finder and the loser, leveraging community effort to reunite people with their belongings.
+Foundly is a modern, community-driven Android application engineered to bridge the gap between people who have lost their belongings and good Samaritans who have found them across Sri Lanka. Built using 100% Kotlin and modern Android architecture, Foundly provides real-time reporting, interactive geo-spatial mapping, peer-to-peer messaging, automated printable flyers with scannable QR codes, a community trust engine, and a complete administrative moderation suite.
 
-## Features
+---
 
-- **Authentication**: Secure login and registration with email verification.
-- **User Profiles**: Management of user personal information.
-- **Item Management**:
-  - **Post Lost Items**: Users can create posts describing lost items with details and location.
-  - **Post Found Items**: Users can create posts describing items they have found.
-  - **Image Upload**: Upload images for lost/found items.
-- **Messaging System**: Built-in chat functionality to connect finders and losers.
-- **Home Feed**: Displays recent lost and found items with category filtering.
-- **Search Functionality**: Search for items by keywords or categories.
-- **Notifications**: Real-time push notifications for new messages and post updates.
-- **Analytics**: Visual dashboards to track application metrics and performance.
+## Key Features
 
-## Tech Stack
+### 1. Item Reporting & Management
 
-- **Language**: Kotlin
-- **UI Components**:
-  - Jetpack Compose (For modern UI elements and transitions)
-  - Material Design 3
-  - Lottie Animations
-  - WebView (For embedded Leaflet maps)
-- **Architecture**:
-  - MVVM (Model-View-ViewModel)
-- **Libraries**:
-  - **Firebase**: Authentication, Firestore Database, Storage, Cloud Messaging
-  - **Coil**: Image loading and caching
-  - **Material Icons**: Vector icons
+- **Report Lost & Found Items:** Multi-step submission flow capturing item title, category, detailed descriptions, date/time, and reward offerings.
+- **Location Pinning:** Precise location capture with an interactive Leaflet map picker mode.
+- **Media Uploads:** Direct image capture and gallery uploads processed via Cloudinary CDN or Firebase Storage.
+- **Status Lifecycle:** Comprehensive item state tracking (`LOST`, `FOUND`, `RESOLVED`, `CLAIMED`).
+- **Owner Resolution:** Reporters can mark their items as resolved and reunited, rewarding community members with trust points and badges.
 
-## Getting Started
+### 2. Interactive Geo-Spatial Map
 
-### Prerequisites
-
-- Android Studio installed
-- Android device or emulator
-- A Firebase project with:
-  - Email/Password Authentication enabled
-  - Cloud Firestore database set up
-  - Firebase Storage configured
-  - Firebase Cloud Messaging configured
-
-### Setup
-
-1. Clone the repository.
-2. Open the project in Android Studio.
-3. Add your `google-services.json` file to the `app/` directory.
-4. Ensure all Firebase configurations are correctly set up in the Firebase Console and linked to your Android app.
-5. Run the app on an emulator or physical device.
-
-## Project Structure
-
-The project follows a standard Android application structure with MVVM architecture:
-
-```
-com.group3.lostandfound/
-├── data/
-│   ├── model/          # Data classes (User, Item, Message, etc.)
-│   ├── repository/     # Data repositories for Firebase operations
-│   └── service/        # Service classes (e.g., FCMService)
-├── ui/
-│   ├── auth/           # Login, Register, Forgot Password screens
-│   ├── home/           # Home screen components (PostCard, FeedViewModel)
-│   ├── item/           # Item creation and details screens
-│   ├── messaging/      # Chat and message handling
-│   ├── main/           # Main activity and navigation
-│   ├── analytics/      # Analytics and dashboard components
-│   └── common/         # Reusable UI components and helpers
-└── utils/              # Utility functions and helpers
-```
-
-## Usage
-
-1. **Login/Register**: Users can sign up with their email and password or log in to their existing account.
-2. **Create Posts**: Navigate to the Home screen and tap the '+' button to create a new Lost or Found item post.
-3. **Browse Feed**: Scroll through the Home Feed to view recent posts from the community.
-4. **Chat**: When you find an item that matches a lost post, or vice versa, use the built-in chat to communicate and arrange the return.
-5. **View Profile**: Access your profile to edit your details or view your posts.
+- **Leaflet.js & OpenStreetMap Integration:** High-performance interactive map embedded inside an Android `WebView` with custom JavaScript interface bridging map events directly to native Kotlin components.
+- **Color-Coded Status Pins:** Visual distinction between Lost items (Red) and Found items (Blue).
+- **Interactive Card Previews:** Tapping any pin displays a detailed bottom preview card with instant navigation to the item's full details.
+- **Location Filtering:** Filter pins by status (`All`, `Lost`, `Found`, `Today`) with one-tap GPS centering.
