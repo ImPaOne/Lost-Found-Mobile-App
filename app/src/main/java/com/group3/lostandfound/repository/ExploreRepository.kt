@@ -90,6 +90,7 @@ class ExploreRepository {
     ): Flow<List<ItemReport>> = getItemsRealtime().map { items ->
         val cleanQuery = query.trim().lowercase()
         items.filter { item ->
+            // Match the search text against the title or description.
             val matchesQuery = if (cleanQuery.isNotEmpty()) {
                 item.title.lowercase().contains(cleanQuery) ||
                         item.description.lowercase().contains(cleanQuery)
