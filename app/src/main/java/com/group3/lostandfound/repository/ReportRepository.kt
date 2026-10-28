@@ -137,7 +137,7 @@ class ReportRepository {
                 if (imageUri != null) {
                     onProgress(10)
                     try {
-                        val compressedBytes = compressImageUri(context, imageUri, maxWidth = 2048, maxHeight = 2048, quality = 92)
+                        val compressedBytes = compressImageUri(context, imageUri, maxWidth = 1024, maxHeight = 1024, quality = 75)
                         var uploaded = false
 
                         // Tier 1: Try Cloudinary direct upload
@@ -156,7 +156,7 @@ class ReportRepository {
                         if (!uploaded) {
                             try {
                                 onProgress(60)
-                                val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance()
+                                val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance(FirebaseManager.STORAGE_BUCKET)
                                     .getReference("reports")
                                     .child("${itemId}_${System.currentTimeMillis()}.jpg")
                                 storageRef.putBytes(compressedBytes).await()
