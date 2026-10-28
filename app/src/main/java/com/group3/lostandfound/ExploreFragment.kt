@@ -153,6 +153,7 @@ class ExploreFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
+        // Change the report filter.
         chipAll.setOnClickListener {
             selectChip(chipAll)
             exploreViewModel.setFilterStatus("ALL")
