@@ -25,6 +25,7 @@ class ExploreViewModel(
     private var filterJob: Job? = null
 
     init {
+        // Load the initial reports when the ViewModel is created.
         applyFilter()
     }
 
