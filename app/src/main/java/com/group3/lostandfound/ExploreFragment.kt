@@ -125,6 +125,7 @@ class ExploreFragment : Fragment() {
     }
 
     private fun setupListeners() {
+        // Return to the previous Fragment.
         btnClose.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
