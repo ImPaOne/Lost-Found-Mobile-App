@@ -183,6 +183,7 @@ class ExploreFragment : Fragment() {
 
     private fun selectChip(active: TextView) {
         val chips = listOf(chipAll, chipLost, chipFound, chipPets)
+        // Highlight the selected chip and reset the others.
         for (chip in chips) {
             if (chip == active) {
                 chip.setBackgroundResource(R.drawable.bg_chip_selected)
