@@ -66,18 +66,19 @@
                     android:orientation="vertical">
 
                     <FrameLayout
-                        android:layout_width="54dp"
-                        android:layout_height="54dp"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
                         android:background="@drawable/bg_login_logo_card"
                         android:elevation="3dp">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:layout_gravity="center"
-                            android:contentDescription="Foundly Search Logo"
-                            android:src="@drawable/ic_search"
-                            app:tint="#0B283A" />
+                            android:adjustViewBounds="true"
+                            android:contentDescription="Foundly App Logo"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/logoo" />
                     </FrameLayout>
 
                     <TextView
