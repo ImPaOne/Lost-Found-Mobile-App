@@ -123,23 +123,26 @@
                 </FrameLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- 2. Main Hero Photo Card with Bottom Title & Status Badge Overlay -->
+            <!-- 2. Main Hero Photo Card (Full visible photo, no bottom overlay clipping) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardPhotoContainer"
                 android:layout_width="match_parent"
-                android:layout_height="260dp"
+                android:layout_height="270dp"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="6dp"
                 android:layout_marginEnd="16dp"
+                android:clickable="true"
+                android:focusable="true"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="0dp"
-                app:strokeWidth="0dp">
+                app:strokeColor="#E2E8F0"
+                app:strokeWidth="1dp">
 
                 <FrameLayout
                     android:id="@+id/boxPhoto"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#1E1612">
+                    android:background="#0A0E1A">
 
                     <!-- Default / Fallback Photo -->
                     <ImageView
@@ -147,7 +150,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:contentDescription="Item image"
-                        android:scaleType="centerCrop"
+                        android:scaleType="fitCenter"
                         android:src="@drawable/ic_item_placeholder" />
 
                     <!-- Dynamic Carousel ViewPager2 -->
@@ -156,65 +159,39 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
 
-                    <!-- Bottom Scrim Gradient for Text Legibility -->
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="100dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bg_scrim_bottom_fade" />
-
-                    <!-- Overlaid Title and Status Tag at Bottom of Photo -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        android:layout_marginBottom="16dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp">
-
-                        <TextView
-                            android:id="@+id/tvItemTitle"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:ellipsize="end"
-                            android:fontFamily="sans-serif-bold"
-                            android:maxLines="1"
-                            android:shadowColor="#CC000000"
-                            android:shadowDx="0"
-                            android:shadowDy="2"
-                            android:shadowRadius="4"
-                            android:text="Black leather wallet"
-                            android:textColor="@color/white"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tagStatus"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:background="@drawable/bg_badge_matched_pill"
-                            android:fontFamily="sans-serif-bold"
-                            android:gravity="center"
-                            android:paddingStart="14dp"
-                            android:paddingTop="5dp"
-                            android:paddingEnd="14dp"
-                            android:paddingBottom="5dp"
-                            android:text="Matched"
-                            android:textColor="@color/white"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <!-- Tap to enlarge hint badge (hidden by default) -->
+                    <!-- Tap to enlarge hint badge (Modern pill in bottom-right corner) -->
                     <LinearLayout
                         android:id="@+id/badgeEnlargeHint"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:visibility="gone" />
+                        android:layout_gravity="bottom|end"
+                        android:layout_marginEnd="12dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@drawable/bg_photo_counter_pill"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:paddingStart="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="6dp">
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:contentDescription="Zoom"
+                            android:src="@drawable/ic_pinch_frame"
+                            app:tint="#FFFFFF" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="Tap to expand"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp" />
+                    </LinearLayout>
 
                     <!-- Photo dots indicator (for multi-image) -->
                     <LinearLayout
@@ -235,19 +212,64 @@
 
                         <View
                             android:id="@+id/dotPhoto2"
-                            android:layout_width="4.5dp"
+                            android:layout_width="6dp"
                             android:layout_height="4.5dp"
                             android:layout_marginEnd="5dp"
                             android:background="@drawable/bg_photo_dot_inactive" />
 
                         <View
                             android:id="@+id/dotPhoto3"
-                            android:layout_width="4.5dp"
+                            android:layout_width="6dp"
                             android:layout_height="4.5dp"
                             android:background="@drawable/bg_photo_dot_inactive" />
                     </LinearLayout>
                 </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- 2b. Item Title & Status Badge Row (Directly below photo, never cut off) -->
+            <LinearLayout
+                android:id="@+id/rowItemTitleStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="4dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvItemTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-bold"
+                    android:lineSpacingExtra="3dp"
+                    android:maxLines="2"
+                    android:paddingBottom="2dp"
+                    android:text="Black leather wallet"
+                    android:textColor="#0F172A"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tagStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_badge_matched_pill"
+                    android:fontFamily="sans-serif-bold"
+                    android:gravity="center"
+                    android:paddingStart="14dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="6dp"
+                    android:text="RESOLVED"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <!-- 3. Card 1: REPORT PROGRESS (Matching Reference Image) -->
             <LinearLayout
