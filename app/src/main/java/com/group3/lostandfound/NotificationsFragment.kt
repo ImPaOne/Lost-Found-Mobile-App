@@ -46,6 +46,7 @@ class NotificationsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_notifications, container, false)
     }
 
+    //Initializes the screen and sets up listeners and notification loading.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
