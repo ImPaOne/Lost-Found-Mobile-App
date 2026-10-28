@@ -98,6 +98,7 @@ class NotificationsFragment : Fragment() {
         }
     }
 
+    //Defines what happens when a notification card is clicked.
     private fun setupCardClicks() {
         itemWallet.setOnClickListener {
             dotWallet.visibility = View.GONE
