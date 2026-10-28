@@ -43,7 +43,9 @@ class FCMService : FirebaseMessagingService() {
             ?: remoteMessage.data["message"]
             ?: "New update on your item."
 
+        // Retrieves the related item's ID from the message data, if available.
         val itemId = remoteMessage.data["itemId"]
+        // Displays the notification with its title, message, and optional item ID.
         showNotification(title, body, itemId)
     }
 

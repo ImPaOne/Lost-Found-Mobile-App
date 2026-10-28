@@ -101,7 +101,7 @@ class ChatFragment : Fragment() {
         setupPinnedReport()
     }
 
-    //// Loads the related item details and opens its details screen when clicked.
+    // Loads the related item details and opens its details screen when clicked.
     private fun setupPinnedReport() {
         val defaultTitle = if (relatedItemTitle.isNotBlank()) relatedItemTitle else "Black leather wallet"
         binding.tvPinnedItemTitle.text = defaultTitle
