@@ -194,6 +194,11 @@ class UserManagementFragment : Fragment() {
             strokeWidth = (1 * resources.displayMetrics.density).toInt()
             strokeColor = ContextCompat.getColor(requireContext(), R.color.stroke_light)
             setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                showEditUserDialog(user)
+            }
         }
 
         val contentLayout = LinearLayout(requireContext()).apply {
@@ -202,7 +207,7 @@ class UserManagementFragment : Fragment() {
             setPadding(pad, pad, pad, pad)
         }
 
-        // Row 1: Name and Role Badge
+        // Row 1: Name and Badges (Active Status + Role)
         val row1 = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = android.view.Gravity.CENTER_VERTICAL
@@ -211,12 +216,34 @@ class UserManagementFragment : Fragment() {
         val tvName = TextView(requireContext()).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             text = user.fullName
-            textSize = 16f
+            textSize = 15.5f
+            maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.END
             setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
             typeface = android.graphics.Typeface.DEFAULT_BOLD
         }
         row1.addView(tvName)
 
+        // Status Badge: "●  ACTIVE" / "●  BANNED" with proper spacing and background pill
+        val tvStatus = TextView(requireContext()).apply {
+            text = if (user.isBanned) "●  BANNED" else "●  ACTIVE"
+            textSize = 11f
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            setTextColor(if (user.isBanned) android.graphics.Color.parseColor("#C1121F") else android.graphics.Color.parseColor("#059669"))
+            setBackgroundResource(if (user.isBanned) R.drawable.bg_badge_admin else R.drawable.bg_badge_user)
+            val hPad = (9 * resources.displayMetrics.density).toInt()
+            val vPad = (3 * resources.displayMetrics.density).toInt()
+            setPadding(hPad, vPad, hPad, vPad)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginStart = (8 * resources.displayMetrics.density).toInt()
+            }
+        }
+        row1.addView(tvStatus)
+
+        // Role Badge: "ADMIN" / "USER"
         val tvRoleBadge = TextView(requireContext()).apply {
             text = user.role.uppercase()
             textSize = 11f
@@ -227,60 +254,84 @@ class UserManagementFragment : Fragment() {
             val hPad = (8 * resources.displayMetrics.density).toInt()
             val vPad = (3 * resources.displayMetrics.density).toInt()
             setPadding(hPad, vPad, hPad, vPad)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginStart = (6 * resources.displayMetrics.density).toInt()
+            }
         }
         row1.addView(tvRoleBadge)
         contentLayout.addView(row1)
 
-        // Row 2: Email & UID
+        // Row 2: Email & Phone & Trust Score
+        val phoneStr = if (user.phone.isNotEmpty()) " · ${user.phone}" else ""
         val tvEmail = TextView(requireContext()).apply {
-            text = "${user.email} · Trust: ${user.trustScore}/100"
+            text = "${user.email}$phoneStr · Trust: ${user.trustScore}/100"
             textSize = 13f
             setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
-            setPadding(0, (4 * resources.displayMetrics.density).toInt(), 0, (8 * resources.displayMetrics.density).toInt())
+            setPadding(0, (5 * resources.displayMetrics.density).toInt(), 0, (8 * resources.displayMetrics.density).toInt())
         }
         contentLayout.addView(tvEmail)
 
-        // Row 3: Status & Action buttons
+        // Row 3: Action Buttons inside HorizontalScrollView so they never get crushed
+        val hScrollView = android.widget.HorizontalScrollView(requireContext()).apply {
+            isHorizontalScrollBarEnabled = false
+            overScrollMode = View.OVER_SCROLL_NEVER
+        }
+
         val actionsRow = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = android.view.Gravity.CENTER_VERTICAL
         }
 
-        // Status Badge
-        val tvStatus = TextView(requireContext()).apply {
-            text = if (user.isBanned) "● BANNED" else "● ACTIVE"
-            textSize = 12f
+        // Action 1: Edit User Details
+        val btnEdit = TextView(requireContext()).apply {
+            text = "Edit Details"
+            textSize = 12.5f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
-            setTextColor(if (user.isBanned) android.graphics.Color.parseColor("#C1121F") else android.graphics.Color.parseColor("#059669"))
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            setTextColor(android.graphics.Color.parseColor("#003049"))
+            setBackgroundResource(R.drawable.bg_btn_outline)
+            val hPad = (11 * resources.displayMetrics.density).toInt()
+            val vPad = (6 * resources.displayMetrics.density).toInt()
+            setPadding(hPad, vPad, hPad, vPad)
+            setOnClickListener {
+                showEditUserDialog(user)
+            }
         }
-        actionsRow.addView(tvStatus)
+        actionsRow.addView(btnEdit)
 
-        // Ban / Unban Button
+        // Action 2: Ban / Unban Button
         val btnBan = TextView(requireContext()).apply {
             text = if (user.isBanned) "Unban" else "Ban User"
-            textSize = 13f
+            textSize = 12.5f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
             setTextColor(if (user.isBanned) android.graphics.Color.parseColor("#059669") else android.graphics.Color.parseColor("#C1121F"))
             setBackgroundResource(R.drawable.bg_btn_outline)
-            val hPad = (12 * resources.displayMetrics.density).toInt()
+            val hPad = (11 * resources.displayMetrics.density).toInt()
             val vPad = (6 * resources.displayMetrics.density).toInt()
             setPadding(hPad, vPad, hPad, vPad)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginStart = (8 * resources.displayMetrics.density).toInt()
+            }
             setOnClickListener {
                 toggleBanStatus(user)
             }
         }
         actionsRow.addView(btnBan)
 
-        // Role toggle button (Admin vs User)
+        // Action 3: Role toggle button (Admin vs User)
         val btnRole = TextView(requireContext()).apply {
             val isAdm = user.role.equals("ADMIN", ignoreCase = true)
             text = if (isAdm) "Make User" else "Make Admin"
-            textSize = 13f
+            textSize = 12.5f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
             setTextColor(android.graphics.Color.parseColor("#003049"))
             setBackgroundResource(R.drawable.bg_btn_outline)
-            val hPad = (10 * resources.displayMetrics.density).toInt()
+            val hPad = (11 * resources.displayMetrics.density).toInt()
             val vPad = (6 * resources.displayMetrics.density).toInt()
             setPadding(hPad, vPad, hPad, vPad)
             layoutParams = LinearLayout.LayoutParams(
@@ -295,14 +346,14 @@ class UserManagementFragment : Fragment() {
         }
         actionsRow.addView(btnRole)
 
-        // Verify & Assign Badge button (Admin Functional Requirement 3.2 #5)
+        // Action 4: Verify & Assign Badge button (Admin Functional Requirement 3.2 #5)
         val btnBadge = TextView(requireContext()).apply {
             text = "Verify & Badge"
-            textSize = 13f
+            textSize = 12.5f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
             setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
             setBackgroundResource(R.drawable.bg_btn_outline)
-            val hPad = (10 * resources.displayMetrics.density).toInt()
+            val hPad = (11 * resources.displayMetrics.density).toInt()
             val vPad = (6 * resources.displayMetrics.density).toInt()
             setPadding(hPad, vPad, hPad, vPad)
             layoutParams = LinearLayout.LayoutParams(
@@ -317,7 +368,8 @@ class UserManagementFragment : Fragment() {
         }
         actionsRow.addView(btnBadge)
 
-        contentLayout.addView(actionsRow)
+        hScrollView.addView(actionsRow)
+        contentLayout.addView(hScrollView)
         card.addView(contentLayout)
         return card
     }
@@ -454,40 +506,190 @@ class UserManagementFragment : Fragment() {
     }
 
     private fun showAddUserDialog() {
-        val inputName = EditText(requireContext()).apply { hint = "Full Name" }
-        val inputEmail = EditText(requireContext()).apply { hint = "Email Address" }
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_user_form, null)
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+        val etFullName = dialogView.findViewById<EditText>(R.id.etFullName)
+        val etEmail = dialogView.findViewById<EditText>(R.id.etEmail)
+        val etPhone = dialogView.findViewById<EditText>(R.id.etPhone)
+        val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
+        val spinnerRole = dialogView.findViewById<android.widget.Spinner>(R.id.spinnerRole)
+        val spinnerStatus = dialogView.findViewById<android.widget.Spinner>(R.id.spinnerStatus)
+        val etTrustScore = dialogView.findViewById<EditText>(R.id.etTrustScore)
+        val btnCancel = dialogView.findViewById<View>(R.id.btnCancelUser)
+        val btnSave = dialogView.findViewById<androidx.appcompat.widget.AppCompatButton>(R.id.btnSaveUser)
 
-        val layout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            val pad = (16 * resources.displayMetrics.density).toInt()
-            setPadding(pad, pad, pad, pad)
-            addView(inputName)
-            addView(inputEmail)
+        tvTitle.text = "Add Community User"
+        btnSave.text = "Save User"
+
+        val roleOptions = arrayOf("USER", "ADMIN")
+        val statusOptions = arrayOf("ACTIVE", "BANNED")
+        spinnerRole.adapter = android.widget.ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, roleOptions)
+        spinnerStatus.adapter = android.widget.ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, statusOptions)
+        spinnerRole.setSelection(0)
+        spinnerStatus.setSelection(0)
+        etTrustScore.setText("85")
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
         }
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("Create Community User")
-            .setView(layout)
-            .setPositiveButton("Save User") { _, _ ->
-                val name = inputName.text.toString().trim()
-                val email = inputEmail.text.toString().trim()
-                if (name.isNotEmpty() && email.isNotEmpty()) {
-                    val uid = "user_" + System.currentTimeMillis()
-                    val userDoc = mapOf(
-                        "uid" to uid,
-                        "fullName" to name,
-                        "email" to email,
-                        "role" to "USER",
-                        "isBanned" to false,
-                        "trustScore" to 85,
-                        "createdAt" to System.currentTimeMillis()
-                    )
-                    FirebaseManager.usersRef.child(uid).setValue(userDoc)
-                    Toast.makeText(requireContext(), "User created in database.", Toast.LENGTH_SHORT).show()
-                }
+        btnSave.setOnClickListener {
+            val name = etFullName.text.toString().trim()
+            val email = etEmail.text.toString().trim()
+            val phone = etPhone.text.toString().trim()
+            val pass = etPassword.text.toString().trim().ifEmpty { "123456" }
+            val chosenRole = roleOptions[spinnerRole.selectedItemPosition]
+            val isBanned = spinnerStatus.selectedItemPosition == 1
+            val score = etTrustScore.text.toString().toIntOrNull()?.coerceIn(0, 100) ?: 85
+
+            if (name.isEmpty()) {
+                etFullName.error = "Please enter full name"
+                etFullName.requestFocus()
+                return@setOnClickListener
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+            if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                etEmail.error = "Please enter a valid email address"
+                etEmail.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (allUsersList.any { it.email.equals(email, ignoreCase = true) }) {
+                Toast.makeText(requireContext(), "A user with this email already exists.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val uid = FirebaseManager.usersRef.push().key ?: "user_${System.currentTimeMillis()}"
+            val userDoc = mapOf(
+                "uid" to uid,
+                "fullName" to name,
+                "displayName" to name,
+                "email" to email,
+                "phone" to phone,
+                "password" to pass,
+                "role" to chosenRole,
+                "isBanned" to isBanned,
+                "trustScore" to score,
+                "createdAt" to System.currentTimeMillis()
+            )
+
+            FirebaseManager.usersRef.child(uid).setValue(userDoc)
+                .addOnSuccessListener {
+                    if (isAdded) {
+                        Toast.makeText(requireContext(), "User '$name' added successfully.", Toast.LENGTH_SHORT).show()
+                    }
+                    dialog.dismiss()
+                }
+                .addOnFailureListener { err ->
+                    if (isAdded) {
+                        Toast.makeText(requireContext(), "Failed to add user: ${err.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+        }
+
+        dialog.show()
+    }
+
+    private fun showEditUserDialog(user: UserData) {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_user_form, null)
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+        val tvSub = dialogView.findViewById<TextView>(R.id.tvDialogSubtitle)
+        val etFullName = dialogView.findViewById<EditText>(R.id.etFullName)
+        val etEmail = dialogView.findViewById<EditText>(R.id.etEmail)
+        val etPhone = dialogView.findViewById<EditText>(R.id.etPhone)
+        val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
+        val tvPasswordLabel = dialogView.findViewById<TextView>(R.id.tvPasswordLabel)
+        val spinnerRole = dialogView.findViewById<android.widget.Spinner>(R.id.spinnerRole)
+        val spinnerStatus = dialogView.findViewById<android.widget.Spinner>(R.id.spinnerStatus)
+        val etTrustScore = dialogView.findViewById<EditText>(R.id.etTrustScore)
+        val btnCancel = dialogView.findViewById<View>(R.id.btnCancelUser)
+        val btnSave = dialogView.findViewById<androidx.appcompat.widget.AppCompatButton>(R.id.btnSaveUser)
+
+        tvTitle.text = "Edit User Details"
+        tvSub.text = "Update profile information, privileges, and community trust rating."
+        tvPasswordLabel.text = "Update Password (Optional)"
+        etPassword.hint = "Leave blank to keep existing password"
+        btnSave.text = "Save Changes"
+
+        // Pre-fill existing user info
+        etFullName.setText(user.fullName)
+        etEmail.setText(user.email)
+        etPhone.setText(user.phone)
+        etTrustScore.setText(user.trustScore.toString())
+        if (user.password.isNotEmpty()) {
+            etPassword.setText(user.password)
+        }
+
+        val roleOptions = arrayOf("USER", "ADMIN")
+        val statusOptions = arrayOf("ACTIVE", "BANNED")
+        spinnerRole.adapter = android.widget.ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, roleOptions)
+        spinnerStatus.adapter = android.widget.ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, statusOptions)
+
+        val roleIndex = if (user.role.equals("ADMIN", ignoreCase = true)) 1 else 0
+        spinnerRole.setSelection(roleIndex)
+        spinnerStatus.setSelection(if (user.isBanned) 1 else 0)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnSave.setOnClickListener {
+            val name = etFullName.text.toString().trim()
+            val email = etEmail.text.toString().trim()
+            val phone = etPhone.text.toString().trim()
+            val newPass = etPassword.text.toString().trim()
+            val chosenRole = roleOptions[spinnerRole.selectedItemPosition]
+            val isBanned = spinnerStatus.selectedItemPosition == 1
+            val score = etTrustScore.text.toString().toIntOrNull()?.coerceIn(0, 100) ?: user.trustScore
+
+            if (name.isEmpty()) {
+                etFullName.error = "Please enter full name"
+                etFullName.requestFocus()
+                return@setOnClickListener
+            }
+            if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                etEmail.error = "Please enter a valid email address"
+                etEmail.requestFocus()
+                return@setOnClickListener
+            }
+
+            val updates = mutableMapOf<String, Any>(
+                "fullName" to name,
+                "displayName" to name,
+                "email" to email,
+                "phone" to phone,
+                "role" to chosenRole,
+                "isBanned" to isBanned,
+                "trustScore" to score
+            )
+            if (newPass.isNotEmpty()) {
+                updates["password"] = newPass
+            }
+
+            FirebaseManager.usersRef.child(user.uid).updateChildren(updates)
+                .addOnSuccessListener {
+                    if (isAdded) {
+                        Toast.makeText(requireContext(), "User '${user.fullName}' details updated.", Toast.LENGTH_SHORT).show()
+                    }
+                    dialog.dismiss()
+                }
+                .addOnFailureListener { err ->
+                    if (isAdded) {
+                        Toast.makeText(requireContext(), "Failed to update user: ${err.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+        }
+
+        dialog.show()
     }
 
 
