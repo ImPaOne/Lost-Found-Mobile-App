@@ -52,6 +52,7 @@ class ExploreFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Inflate and return the Explore screen's XML layout.
         return inflater.inflate(R.layout.fragment_explore, container, false)
     }
 
