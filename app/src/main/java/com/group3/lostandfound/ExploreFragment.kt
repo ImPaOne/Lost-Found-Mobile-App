@@ -43,6 +43,8 @@ class ExploreFragment : Fragment() {
     // RecyclerView displays reports; Adapter binds report data to cards.
     private lateinit var rvItems: RecyclerView
     private lateinit var exploreAdapter: ExploreAdapter
+
+    // ViewModel manages the Explore screen's UI state.
     private lateinit var exploreViewModel: ExploreViewModel
 
     override fun onCreateView(
