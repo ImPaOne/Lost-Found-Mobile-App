@@ -173,6 +173,7 @@ class ReportRepository {
                         }
 
                         // Tier 3: Guaranteed 100% resilient Base64 data URI fallback
+                        // This embeds the image data in the report instead of cloud storage.
                         if (!uploaded) {
                             android.util.Log.i("ReportRepository", "Using Tier 3 Base64 storage fallback")
                             val base64Str = android.util.Base64.encodeToString(compressedBytes, android.util.Base64.NO_WRAP)
