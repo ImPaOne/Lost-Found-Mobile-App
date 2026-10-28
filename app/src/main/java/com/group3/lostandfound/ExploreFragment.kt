@@ -59,6 +59,7 @@ class ExploreFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Create or retrieve the ViewModel for this Fragment.
         exploreViewModel = ViewModelProvider(this)[ExploreViewModel::class.java]
 
         initViews(view)//connects kotlin varibles to XML components
