@@ -63,7 +63,7 @@ class ExploreFragment : Fragment() {
         exploreViewModel = ViewModelProvider(this)[ExploreViewModel::class.java]
 
         initViews(view)//connects kotlin varibles to XML components
-        setupListeners()
+        setupListeners()// Handle user interactions.
         setupBottomNav(view, "explore")//configure the bottom navigation for the explore screen
         observeViewModel()//state and update UI.
     }
