@@ -75,6 +75,7 @@ class NotificationsFragment : Fragment() {
         dotGalleFace = view.findViewById(R.id.dotGalleFace)
     }
 
+    //Handles the back and mark-all-as-read buttons.
     private fun setupHeaderActions() {
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
