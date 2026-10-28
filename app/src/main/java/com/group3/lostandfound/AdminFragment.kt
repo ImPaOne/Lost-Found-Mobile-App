@@ -68,7 +68,7 @@ class AdminFragment : Fragment() {
 
         btnUsers.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, TrustFragment.newInstance())
+                .replace(R.id.screenBox, UserManagementFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
         }
