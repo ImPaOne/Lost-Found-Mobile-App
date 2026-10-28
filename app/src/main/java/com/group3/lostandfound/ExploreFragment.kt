@@ -138,6 +138,7 @@ class ExploreFragment : Fragment() {
                 .commit()
         }
 
+        // Display a message when the filter button is tapped.
         btnFilter.setOnClickListener {
             Toast.makeText(requireContext(), "Showing filter options", Toast.LENGTH_SHORT).show()
         }
