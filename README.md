@@ -191,3 +191,34 @@ Lost-Found-Mobile-App/
 - **JDK:** Java 11 or higher
 - **Physical Device or Emulator:** Running Android 7.0 (API 24) or newer
 - **Firebase Account:** With Authentication, Realtime Database, Cloud Storage, and Cloud Messaging enabled
+
+### Setup & Installation
+
+1. **Clone the Repository:**
+
+   ```bash
+   git clone https://github.com/LakshmanJaya/Lost-Found-Mobile-App.git
+   cd Lost-Found-Mobile-App
+   ```
+
+2. **Open in Android Studio:**
+   - Launch Android Studio and choose **Open an Existing Project**.
+   - Navigate to the cloned `Lost-Found-Mobile-App` folder and open it.
+   - Wait for Gradle to synchronize all dependencies.
+
+3. **Configure Firebase:**
+   - Place your active `google-services.json` file inside the `app/` folder.
+   - In the Firebase Console, verify the following services are enabled:
+     - **Authentication:** Enable _Email/Password_ provider.
+     - **Realtime Database:** Create a database instance and configure read/write rules.
+     - **Firebase Storage:** Set up storage bucket for media assets.
+     - **Cloud Messaging:** Configure server credentials for push alerts.
+
+4. **Build & Run:**
+   - Select your target device or emulator in Android Studio.
+   - Click **Run** (`Shift + F10`) or execute in the terminal:
+     ```bash
+     ./gradlew assembleDebug
+     ```
+
+---
