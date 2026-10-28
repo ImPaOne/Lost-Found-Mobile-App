@@ -222,3 +222,21 @@ Lost-Found-Mobile-App/
      ```
 
 ---
+
+## Usage Guide
+
+1. **Get Started & Onboard:** Swipe through the visual onboarding steps to understand reporting, finding, and reuniting items, or proceed directly to login/registration.
+2. **Browse the Dashboard:** Check urgent items on the highlights carousel, view live community statistics, and browse recently reported items.
+3. **Report an Item:** Tap **Report Lost** or **Report Found**, fill in item specifications, snap or upload a photo, pinpoint the location on the interactive map, and submit.
+4. **Discover on the Map:** Navigate to the **Map** tab to view all community pins across Sri Lanka. Tap any marker to view the summary card or jump to full details.
+5. **Search & Filter:** Use the **Explore** tab to filter listings by category (Electronics, Documents, Wallets, Pets, etc.) or search in real time by keyword.
+6. **Connect & Chat:** On an item's detail page, tap **Live Chat** to message the reporter in real time, or tap **WhatsApp** to reach out directly.
+7. **Share an Emergency Flyer:** Tap **Share Flyer** on any report to generate a high-res poster with a scannable QR code deep-linked to the post.
+8. **Resolve & Level Up:** When an item is safely returned, mark it as **Resolved**. The system automatically rewards trust score points, awards community achievements, and updates the public feed.
+9. **Admin Operations:** Logged-in administrators can access the **Admin Console** to moderate incoming posts, review user trust, broadcast announcements, and download system backups.
+
+---
+
+## License
+
+This project was developed for academic and community purposes as part of the Lost & Found Mobile Application initiative. All rights reserved.
