@@ -57,6 +57,7 @@ class NotificationsFragment : Fragment() {
         loadLiveNotifications(view)
     }
 
+    //Connects Kotlin variables to UI elements
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         btnCheckAll = view.findViewById(R.id.btnCheckAll)
