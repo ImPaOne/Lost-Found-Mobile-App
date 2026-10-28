@@ -21,6 +21,7 @@ class ExploreViewModel(
     private val _uiState = MutableStateFlow(ExploreUiState())
     val uiState: StateFlow<ExploreUiState> = _uiState.asStateFlow()
 
+    // Tracks the pending search/filter coroutine.
     private var filterJob: Job? = null
 
     init {
