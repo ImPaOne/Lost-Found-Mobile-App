@@ -36,6 +36,7 @@ class AdminFragment : Fragment() {
     private lateinit var activeCasesNumber: TextView
     private lateinit var resolvedCasesNumber: TextView
     private lateinit var totalUsersNumber: TextView
+    private var webAdminMap: android.webkit.WebView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,6 +51,7 @@ class AdminFragment : Fragment() {
 
         initStatViews(view)
         observeLiveFirebaseStats()
+        setupAdminMap(view)
         verifyAdminAccess()
 
         val btnBack = view.findViewById<ImageView>(R.id.backButton)
@@ -276,18 +278,143 @@ class AdminFragment : Fragment() {
     }
 
     private fun verifyAdminAccess() {
+        val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+        val isAdminLocally = prefs.getBoolean("is_admin", false) || FirebaseManager.currentUserEmail.equals("admin@gmail.com", ignoreCase = true)
+        if (isAdminLocally) return
+
         FirebaseManager.verifyAdminPrivilege(
             onAuthorized = {
                 // Access granted
             },
             onDenied = { errorMsg ->
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Admin Security Alert")
-                    .setMessage("$errorMsg\nPlease ensure you are logged in as admin@gmail.com.")
-                    .setPositiveButton("OK", null)
-                    .show()
+                if (isAdded) {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Admin Security Alert")
+                        .setMessage("$errorMsg\nPlease ensure you are logged in as admin@gmail.com.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                }
             }
         )
+    }
+
+    private fun setupAdminMap(view: View) {
+        val webView = view.findViewById<android.webkit.WebView>(R.id.webAdminMap) ?: return
+        webAdminMap = webView
+        val settings = webView.settings
+        settings.javaScriptEnabled = true
+        settings.domStorageEnabled = true
+        settings.useWideViewPort = true
+        settings.loadWithOverviewMode = true
+
+        webView.setOnTouchListener { v, event ->
+            when (event.action) {
+                android.view.MotionEvent.ACTION_DOWN, android.view.MotionEvent.ACTION_MOVE -> {
+                    v.parent?.requestDisallowInterceptTouchEvent(true)
+                }
+                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                    v.parent?.requestDisallowInterceptTouchEvent(false)
+                }
+            }
+            false
+        }
+
+        val html = """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #e2e8f0;
+        }
+        .leaflet-control-attribution {
+            display: none !important;
+        }
+        .custom-pin {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        var map = L.map('map', {
+            zoomControl: true,
+            dragging: true,
+            touchZoom: true,
+            scrollWheelZoom: true
+        }).setView([7.8731, 80.7718], 7);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        var markersLayer = L.layerGroup().addTo(map);
+
+        function updateMapPoints(points) {
+            markersLayer.clearLayers();
+            if (!points || points.length === 0) return;
+
+            var latlngs = [];
+            points.forEach(function(p) {
+                var pinColor = p.color || '#C1121F';
+                var pinSvg = '<svg width="24" height="34" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));">' +
+                    '<path d="M14 0C6.268 0 0 6.268 0 14C0 24.5 14 38 14 38C14 38 28 24.5 28 14C28 6.268 21.732 0 14 0Z" fill="' + pinColor + '"/>' +
+                    '<circle cx="14" cy="14" r="5" fill="#FFFFFF"/>' +
+                    '</svg>';
+
+                var icon = L.divIcon({
+                    className: 'custom-pin',
+                    html: pinSvg,
+                    iconSize: [24, 34],
+                    iconAnchor: [12, 34],
+                    popupAnchor: [0, -30]
+                });
+
+                var marker = L.marker([p.lat, p.lng], { icon: icon });
+                marker.bindPopup('<b>' + p.title + '</b><br/><span style="color:' + pinColor + ';font-weight:bold;">' + p.status + '</span>');
+                markersLayer.addLayer(marker);
+                latlngs.push([p.lat, p.lng]);
+            });
+
+            if (latlngs.length > 0) {
+                map.fitBounds(latlngs, { padding: [20, 20], maxZoom: 14 });
+            }
+        }
+    </script>
+</body>
+</html>
+        """.trimIndent()
+        webView.loadDataWithBaseURL("https://osm.org", html, "text/html", "UTF-8", null)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            FirebaseManager.analyticsFlow.collectLatest { summary ->
+                val points = summary.heatMapPoints
+                view.findViewById<TextView>(R.id.badgeLiveMapCount)?.text = "${points.size} Live Reports"
+                if (points.isNotEmpty()) {
+                    val jsPoints = points.joinToString(",") { point ->
+                        val safeTitle = point.title.replace("'", "\\'").replace("\"", "\\\"").ifEmpty { "Reported Item" }
+                        val color = when (point.status.uppercase()) {
+                            "LOST" -> "#DC2626"
+                            "FOUND" -> "#059669"
+                            "RESOLVED" -> "#002840"
+                            else -> "#F59E0B"
+                        }
+                        """{ lat: ${point.latitude}, lng: ${point.longitude}, title: '$safeTitle', status: '${point.status}', color: '$color' }"""
+                    }
+                    webView.evaluateJavascript("if (typeof updateMapPoints === 'function') { updateMapPoints([$jsPoints]); }", null)
+                }
+            }
+        }
     }
 
     private fun openModerationScreen() {
@@ -706,6 +833,12 @@ class AdminFragment : Fragment() {
                 Toast.makeText(requireContext(), "Failed to load audit logs: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        webAdminMap?.destroy()
+        webAdminMap = null
     }
 
     companion object {
