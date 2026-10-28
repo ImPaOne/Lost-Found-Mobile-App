@@ -45,11 +45,13 @@ class ExploreRepository {
 
         // Start listening for Firebase changes.
         db.addValueEventListener(listener)
+        // Remove the listener when the Flow is cancelled.
         awaitClose { db.removeEventListener(listener) }
     }
 
     // Gets item reports by category, such as a specific category or ALL.
     fun getItemsByCategory(category: String): Flow<List<ItemReport>> = callbackFlow {
+        // Build a Firebase query when a specific category is selected.
         val query = if (category.isNotEmpty() && category != "ALL") {
             db.orderByChild("category").equalTo(category)
         } else {
