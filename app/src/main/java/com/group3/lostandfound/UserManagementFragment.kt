@@ -91,6 +91,7 @@ class UserManagementFragment : Fragment() {
     private fun observeLiveFirebaseUsers() {
         FirebaseManager.usersRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                if (!isAdded) return
                 allUsersList.clear()
                 for (child in snapshot.children) {
                     try {
@@ -99,6 +100,8 @@ class UserManagementFragment : Fragment() {
                         val fullName = child.child("fullName").getValue(String::class.java)
                             ?: child.child("displayName").getValue(String::class.java)
                             ?: "Registered User"
+                        val phone = child.child("phone").getValue(String::class.java).orEmpty()
+                        val password = child.child("password").getValue(String::class.java).orEmpty()
                         val role = child.child("role").getValue(String::class.java) ?: "USER"
                         val rawBanned = child.child("isBanned").value
                         val isBanned = when (rawBanned) {
@@ -118,6 +121,8 @@ class UserManagementFragment : Fragment() {
                                 uid = uid,
                                 email = email,
                                 fullName = fullName,
+                                phone = phone,
+                                password = password,
                                 role = role,
                                 isBanned = isBanned,
                                 trustScore = trustScore
@@ -133,7 +138,9 @@ class UserManagementFragment : Fragment() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(requireContext(), "Failed to sync users: ${error.message}", Toast.LENGTH_SHORT).show()
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Failed to sync users: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         })
     }
@@ -144,8 +151,8 @@ class UserManagementFragment : Fragment() {
         val active = total - banned
 
         tvTotalUsersCount.text = "$total Users Registered"
-        tvActiveUsersCount.text = "· $active Active"
-        tvBannedUsersCount.text = "· $banned Banned"
+        tvActiveUsersCount.text = "·  $active Active"
+        tvBannedUsersCount.text = "·  $banned Banned"
     }
 
     private fun renderUserCards() {
