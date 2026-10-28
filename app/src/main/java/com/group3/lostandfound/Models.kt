@@ -113,6 +113,8 @@ data class UserData(
     val uid: String = "",
     val email: String = "",
     val fullName: String = "",
+    val phone: String = "",
+    val password: String = "",
     val role: String = "USER", // "ADMIN" or "USER"
     val isBanned: Boolean = false,
     val trustScore: Int = 85
