@@ -21,6 +21,7 @@ import java.util.UUID
  */
 class ReportRepository {
 
+    // Connects to the Firebase Realtime Database's items collection.
     private val db = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("items")
     private val storage = FirebaseStorage.getInstance(FirebaseManager.STORAGE_BUCKET).getReference("item_images")
 
@@ -126,17 +127,21 @@ class ReportRepository {
         maxRetries: Int = 3,
         onProgress: (Int) -> Unit // Reports upload progress to the ViewModel.
     ): Result<ItemReport> = withContext(Dispatchers.IO) {
+        // Stores the most recent exception if an attempt fails.
         var lastException: Exception? = null
 
+        // Retries the submission if an operation fails.
         for (attempt in 1..maxRetries) {
             try {
                 // Generate unique key using push()
                 val itemId = db.push().key ?: UUID.randomUUID().toString()
+                // Starts with any image URL already present in the report.
                 var downloadUrl = report.imageUrl
 
                 if (imageUri != null) {
                     onProgress(10)
                     try {
+                        // Compresses the selected image before uploading.
                         val compressedBytes = compressImageUri(context, imageUri, maxWidth = 1024, maxHeight = 1024, quality = 75)
                         var uploaded = false
 
@@ -168,6 +173,7 @@ class ReportRepository {
                         }
 
                         // Tier 3: Guaranteed 100% resilient Base64 data URI fallback
+                        // This embeds the image data in the report instead of cloud storage.
                         if (!uploaded) {
                             android.util.Log.i("ReportRepository", "Using Tier 3 Base64 storage fallback")
                             val base64Str = android.util.Base64.encodeToString(compressedBytes, android.util.Base64.NO_WRAP)
