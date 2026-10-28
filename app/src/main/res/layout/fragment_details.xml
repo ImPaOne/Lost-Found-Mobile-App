@@ -68,7 +68,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <!-- Hidden bookmark & share views for full backward compatibility -->
+                <!-- Hidden share view for full backward compatibility -->
                 <ImageView
                     android:id="@+id/btnShare"
                     android:layout_width="0dp"
@@ -77,13 +77,28 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageView
-                    android:id="@+id/btnBookmark"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:visibility="gone"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                <!-- Circular Top Bookmark / Save Button -->
+                <FrameLayout
+                    android:id="@+id/boxBookmark"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_circle_icon_button"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/boxOptions"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/btnBookmark"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:clickable="true"
+                        android:contentDescription="Save item"
+                        android:focusable="true"
+                        android:src="@drawable/ic_bookmark_outline"
+                        app:tint="#0F172A" />
+                </FrameLayout>
 
                 <!-- Circular Three Dots (...) Menu -->
                 <FrameLayout
@@ -155,7 +170,7 @@
                         android:layout_gravity="bottom"
                         android:paddingStart="16dp"
                         android:paddingEnd="16dp"
-                        android:paddingBottom="14dp">
+                        android:paddingBottom="18dp">
 
                         <TextView
                             android:id="@+id/tvItemTitle"
@@ -183,6 +198,7 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="8dp"
+                            android:layout_marginEnd="6dp"
                             android:background="@drawable/bg_badge_matched_pill"
                             android:fontFamily="sans-serif-bold"
                             android:paddingStart="14dp"
