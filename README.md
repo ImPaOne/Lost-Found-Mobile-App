@@ -181,3 +181,13 @@ Lost-Found-Mobile-App/
 ```
 
 ---
+
+## Getting Started
+
+### Prerequisites
+
+- **Android Studio:** Ladybug, Meerkat, or Koala (recommended)
+- **Android SDK:** Compile SDK 35 / Min SDK 24 / Target SDK 35
+- **JDK:** Java 11 or higher
+- **Physical Device or Emulator:** Running Android 7.0 (API 24) or newer
+- **Firebase Account:** With Authentication, Realtime Database, Cloud Storage, and Cloud Messaging enabled
