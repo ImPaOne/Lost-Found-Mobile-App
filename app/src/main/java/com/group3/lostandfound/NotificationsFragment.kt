@@ -262,6 +262,7 @@ class NotificationsFragment : Fragment() {
         })
     }
 
+    //Opens the correct screen based on the notification type.
     private fun openNotificationTarget(notif: NotificationItem) {
         if (notif.type == "CHAT_MESSAGE" || notif.conversationId.isNotEmpty()) {
             parentFragmentManager.beginTransaction()
