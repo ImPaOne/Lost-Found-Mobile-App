@@ -102,6 +102,7 @@ class ExploreFragment : Fragment() {
         // Collect UI state while this Fragment's view is active.
         viewLifecycleOwner.lifecycleScope.launch {
             exploreViewModel.uiState.collect { state ->
+                // Refresh the displayed reports when state changes.
                 exploreAdapter.updateItems(state.items)
 
                 if (state.isGridMode) {
