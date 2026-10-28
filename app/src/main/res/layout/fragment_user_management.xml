@@ -235,442 +235,53 @@
                     android:textStyle="bold" />
             </RelativeLayout>
 
-            <!-- 5. Card 1: Nadeesha Silva (Admin / You) -->
+            <!-- Loading Indicator -->
+            <ProgressBar
+                android:id="@+id/pbLoadingUsers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="32dp"
+                android:indeterminate="true"
+                android:indeterminateTint="#0B2238"
+                android:visibility="visible" />
+
+            <!-- Empty State -->
             <LinearLayout
-                android:id="@+id/cardNadeesha"
+                android:id="@+id/layoutEmptyUsers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:background="@drawable/bg_user_card"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:background="@drawable/bg_circle_avatar_ns"
-                    android:gravity="center"
-                    android:text="NS"
-                    android:textColor="#1D4ED8"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-bold"
-                            android:text="Nadeesha Silva"
-                            android:textColor="#0B1B2B"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_badge_you"
-                            android:fontFamily="sans-serif-bold"
-                            android:paddingStart="6dp"
-                            android:paddingTop="2dp"
-                            android:paddingEnd="6dp"
-                            android:paddingBottom="2dp"
-                            android:text="YOU"
-                            android:textColor="#1E3A5F"
-                            android:textSize="10sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Admin · Active · Colombo"
-                        android:textColor="#64748B"
-                        android:textSize="12.5sp" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:contentDescription="Protected"
-                    android:src="@drawable/ic_lock" />
-            </LinearLayout>
-
-            <!-- 6. Card 2: Tharindu Perera (Expanded Card) -->
-            <LinearLayout
-                android:id="@+id/cardTharindu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_user_card"
+                android:layout_marginTop="32dp"
+                android:gravity="center"
                 android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- Tharindu Header Row -->
-                <LinearLayout
-                    android:id="@+id/rowTharinduHeader"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        android:background="@drawable/bg_circle_avatar_tp"
-                        android:gravity="center"
-                        android:text="TP"
-                        android:textColor="#059669"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-bold"
-                            android:text="Tharindu Perera"
-                            android:textColor="#0B1B2B"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="Member · Active · Verified"
-                            android:textColor="#64748B"
-                            android:textSize="12.5sp" />
-                    </LinearLayout>
-
-                    <ImageView
-                        android:id="@+id/iconTharinduChevron"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:contentDescription="Expand or collapse"
-                        android:src="@drawable/ic_chevron_up" />
-                </LinearLayout>
-
-                <!-- Tharindu Expanded Details -->
-                <LinearLayout
-                    android:id="@+id/boxTharinduDetails"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:orientation="vertical"
-                    android:visibility="visible">
-
-                    <!-- Dropdowns: ROLE and ACCESS -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <!-- ROLE Selector -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-bold"
-                                android:letterSpacing="0.04"
-                                android:text="ROLE"
-                                android:textColor="#64748B"
-                                android:textSize="11sp"
-                                android:textStyle="bold" />
-
-                            <RelativeLayout
-                                android:id="@+id/boxRoleSelect"
-                                android:layout_width="match_parent"
-                                android:layout_height="44dp"
-                                android:layout_marginTop="6dp"
-                                android:background="@drawable/bg_dropdown_box"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:paddingStart="12dp"
-                                android:paddingEnd="12dp">
-
-                                <TextView
-                                    android:id="@+id/lblRoleValue"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_alignParentStart="true"
-                                    android:layout_centerVertical="true"
-                                    android:fontFamily="sans-serif-bold"
-                                    android:text="Member"
-                                    android:textColor="#0B1B2B"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
-
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:layout_alignParentEnd="true"
-                                    android:layout_centerVertical="true"
-                                    android:contentDescription="Select role"
-                                    android:src="@drawable/ic_chevron_down" />
-                            </RelativeLayout>
-                        </LinearLayout>
-
-                        <!-- ACCESS Selector -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-bold"
-                                android:letterSpacing="0.04"
-                                android:text="ACCESS"
-                                android:textColor="#64748B"
-                                android:textSize="11sp"
-                                android:textStyle="bold" />
-
-                            <RelativeLayout
-                                android:id="@+id/boxAccessSelect"
-                                android:layout_width="match_parent"
-                                android:layout_height="44dp"
-                                android:layout_marginTop="6dp"
-                                android:background="@drawable/bg_dropdown_box"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:paddingStart="12dp"
-                                android:paddingEnd="12dp">
-
-                                <TextView
-                                    android:id="@+id/lblAccessValue"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_alignParentStart="true"
-                                    android:layout_centerVertical="true"
-                                    android:fontFamily="sans-serif-bold"
-                                    android:text="Active"
-                                    android:textColor="#0B1B2B"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
-
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:layout_alignParentEnd="true"
-                                    android:layout_centerVertical="true"
-                                    android:contentDescription="Select access"
-                                    android:src="@drawable/ic_chevron_down" />
-                            </RelativeLayout>
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <!-- Actions: Review suspension & Save access -->
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="18dp">
-
-                        <TextView
-                            android:id="@+id/btnReviewSuspension"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:fontFamily="sans-serif-bold"
-                            android:text="Review suspension"
-                            android:textColor="#DC2626"
-                            android:textSize="13.5sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/btnSaveAccess"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:background="@drawable/bg_btn_save_access"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:fontFamily="sans-serif-bold"
-                            android:paddingStart="20dp"
-                            android:paddingTop="10dp"
-                            android:paddingEnd="20dp"
-                            android:paddingBottom="10dp"
-                            android:text="Save access"
-                            android:textColor="@color/white"
-                            android:textSize="13.5sp"
-                            android:textStyle="bold" />
-                    </RelativeLayout>
-
-                    <!-- Helper Note -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:text="Suspensions require a reason and confirmation."
-                        android:textColor="#94A3B8"
-                        android:textSize="11.5sp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 7. Card 3: Ama Fernando (Collapsed) -->
-            <LinearLayout
-                android:id="@+id/cardAma"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_user_card"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:background="@drawable/bg_circle_avatar_af"
-                    android:gravity="center"
-                    android:text="AF"
-                    android:textColor="#EA580C"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-bold"
-                        android:text="Ama Fernando"
-                        android:textColor="#0B1B2B"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Moderator · Active · Colombo"
-                        android:textColor="#64748B"
-                        android:textSize="12.5sp" />
-                </LinearLayout>
+                android:visibility="gone">
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:contentDescription="Expand"
-                    android:src="@drawable/ic_chevron_down" />
-            </LinearLayout>
-
-            <!-- 8. Card 4: Kasun Jayasinghe (Collapsed with Tag) -->
-            <LinearLayout
-                android:id="@+id/cardKasun"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_user_card"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="16dp">
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:alpha="0.4"
+                    android:contentDescription="No users found"
+                    android:src="@drawable/ic_users_group" />
 
                 <TextView
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:background="@drawable/bg_circle_avatar_kj"
-                    android:gravity="center"
-                    android:text="KJ"
-                    android:textColor="#E11D48"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
+                    android:id="@+id/tvEmptyTitle"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-bold"
-                        android:text="Kasun Jayasinghe"
-                        android:textColor="#0B1B2B"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Member · Restricted · "
-                            android:textColor="#64748B"
-                            android:textSize="12.5sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_badge_review_due"
-                            android:fontFamily="sans-serif-bold"
-                            android:paddingStart="7dp"
-                            android:paddingTop="2dp"
-                            android:paddingEnd="7dp"
-                            android:paddingBottom="2dp"
-                            android:text="Review due"
-                            android:textColor="#B45309"
-                            android:textSize="10.5sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:contentDescription="Expand"
-                    android:src="@drawable/ic_chevron_down" />
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="No matching users found"
+                    android:textColor="#64748B"
+                    android:textSize="14sp" />
             </LinearLayout>
+
+            <!-- Dynamic Real Users RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvUsersList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never" />
 
             <!-- 9. Notice Box Card -->
             <LinearLayout
