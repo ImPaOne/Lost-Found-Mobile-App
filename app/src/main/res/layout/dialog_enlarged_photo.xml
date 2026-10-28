@@ -6,14 +6,32 @@
     android:layout_height="match_parent"
     android:background="#000000">
 
-    <!-- Top Navigation Bar -->
+    <!-- Full Screen Center Scrollable & Zoomable Photo View (Base Canvas) -->
+    <FrameLayout
+        android:id="@+id/photoContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000">
+
+        <ImageView
+            android:id="@+id/imgEnlargedView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:contentDescription="Enlarged photo"
+            android:scaleType="fitCenter"
+            tools:src="@drawable/ic_item_placeholder" />
+    </FrameLayout>
+
+    <!-- Top Navigation Bar (Layered above photo) -->
     <RelativeLayout
         android:id="@+id/topBarEnlarged"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
+        android:elevation="12dp"
         android:paddingStart="20dp"
-        android:paddingTop="42dp"
+        android:paddingTop="36dp"
         android:paddingEnd="20dp"
         android:paddingBottom="12dp">
 
@@ -77,23 +95,6 @@
                 android:src="@drawable/ic_enlarged_zoom" />
         </FrameLayout>
     </RelativeLayout>
-
-    <!-- Full Screen Center Scrollable & Zoomable Photo View -->
-    <FrameLayout
-        android:id="@+id/photoContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#000000">
-
-        <ImageView
-            android:id="@+id/imgEnlargedView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:contentDescription="Enlarged photo"
-            android:scaleType="fitCenter"
-            tools:src="@drawable/img_wallet_details" />
-    </FrameLayout>
 
     <!-- Bottom Information Card -->
     <LinearLayout
