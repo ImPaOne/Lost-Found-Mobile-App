@@ -43,7 +43,7 @@
                     android:layout_height="26dp"
                     android:layout_gravity="center"
                     android:contentDescription="Foundly App Logo"
-                    android:src="@drawable/ic_splash_person_check" />
+                    android:src="@drawable/logoo" />
             </FrameLayout>
         </FrameLayout>
 
