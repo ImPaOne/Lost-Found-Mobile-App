@@ -196,6 +196,7 @@ class NotificationsFragment : Fragment() {
         }
     }
 
+    //Retrieves notifications and administrator announcements from Firebase
     private fun loadLiveNotifications(view: View) {
         val currentUid = FirebaseManager.currentUid
         if (currentUid.isEmpty()) return
