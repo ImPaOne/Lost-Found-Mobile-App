@@ -94,6 +94,7 @@ class ExploreFragment : Fragment() {
 
         // Show two columns in grid mode.
         rvItems.layoutManager = GridLayoutManager(requireContext(), 2)
+        // Connect the Adapter to the RecyclerView.
         rvItems.adapter = exploreAdapter
     }
 
