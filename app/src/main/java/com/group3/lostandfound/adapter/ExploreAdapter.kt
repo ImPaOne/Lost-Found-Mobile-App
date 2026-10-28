@@ -31,6 +31,7 @@ class ExploreAdapter(
         var imageJob: Job? = null
     }
 
+    // Creates a new item card using the XML layout.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_report_card, parent, false)
