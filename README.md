@@ -66,3 +66,27 @@ Foundly is a modern, community-driven Android application engineered to bridge t
 - **Saved Items / Bookmarks:** Save important listings for fast access from the profile drawer.
 
 ---
+
+## Architecture & Technology Stack
+
+Foundly follows the recommended Android **MVVM (Model-View-ViewModel)** architectural pattern combined with the **Repository Pattern** and Clean Architecture principles to ensure maintainability, scalability, and testability.
+
+### Technology Stack Matrix
+
+| Layer                     | Technologies & Libraries                                                                                                                           |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Language**              | 100% Kotlin                                                                                                                                        |
+| **Architecture**          | MVVM (Model-View-ViewModel), Repository Pattern, Clean Separation                                                                                  |
+| **UI & Layouts**          | Native Android XML Layouts, View Binding, Material Design 3 Components (`MaterialCardView`, `BottomSheetDialog`, `Snackbar`, `Chip`), `ViewPager2` |
+| **Custom Views**          | Custom Canvas Drawing (`PieChartView`)                                                                                                             |
+| **Database**              | Firebase Realtime Database (real-time JSON tree synchronization)                                                                                   |
+| **Authentication**        | Firebase Authentication (Email/Password authentication & role management)                                                                          |
+| **Cloud Storage & CDN**   | Cloudinary CDN API (direct image upload via multipart/form-data) & Firebase Storage                                                                |
+| **Push Notifications**    | Firebase Cloud Messaging (FCM) & Android Foreground Services                                                                                       |
+| **Geo-Spatial / Maps**    | Leaflet.js & OpenStreetMap embedded via Android `WebView` with bidirectional `JavascriptInterface`                                                 |
+| **QR Code Generation**    | ZXing Core (`com.google.zxing:core:3.5.3`)                                                                                                         |
+| **Concurrency & Async**   | Kotlin Coroutines (`kotlinx-coroutines-android`, `kotlinx-coroutines-play-services`), Kotlin `StateFlow`                                           |
+| **Image Loading & Cache** | Custom zero-dependency asynchronous `ImageLoader` with in-memory `LruCache` supporting URLs, Base64 data URIs, Content URIs, and local files       |
+| **Deep Linking**          | Android Intent Filters for `foundly://item/{id}` and `https://foundly.lk/item/{id}`                                                                |
+
+---
