@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 
 class ExploreFragment : Fragment() {
 
+    // References to UI components in the XML layout.
     private lateinit var btnClose: FrameLayout
     private lateinit var btnMapView: ImageView
 
