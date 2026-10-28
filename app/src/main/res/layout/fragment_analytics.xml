@@ -125,12 +125,13 @@
                     android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
-
+            <!--A chevron is a small V-shaped arrow, like ⌄-->
                 <ImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:contentDescription="Dropdown"
-                    android:src="@drawable/ic_chevron_down"
+                    
+                        android:src="@drawable/ic_chevron_down"
                     app:tint="#64748B" />
             </LinearLayout>
 

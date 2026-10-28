@@ -270,6 +270,7 @@ class AnalyticsFragment : Fragment() {
             allowFileAccess = true
             loadWithOverviewMode = true
             useWideViewPort = true
+            userAgentString = "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36 LostAndFoundApp/1.0"
         }
 
         // Prevent NestedScrollView from intercepting touch gestures on the map
@@ -282,6 +283,7 @@ class AnalyticsFragment : Fragment() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 isMapReady = true
+                view?.evaluateJavascript("if (typeof map !== 'undefined') { map.invalidateSize(); }", null)
                 loadRealPointsToMap(latestPoints)
             }
         }
@@ -395,7 +397,7 @@ class AnalyticsFragment : Fragment() {
             </body>
             </html>
         """.trimIndent()
-        webHeatMap.loadDataWithBaseURL("https://openstreetmap.org", html, "text/html", "UTF-8", null)
+        webHeatMap.loadDataWithBaseURL("https://unpkg.com", html, "text/html", "UTF-8", null)
     }
 
     private fun setupClickListeners() {

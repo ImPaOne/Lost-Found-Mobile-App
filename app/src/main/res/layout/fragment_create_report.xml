@@ -800,20 +800,39 @@
 
                         <!-- Move Pin Hint Pill -->
                         <TextView
+                            android:id="@+id/pillMapHint"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="bottom|start"
                             android:layout_marginStart="12dp"
                             android:layout_marginBottom="12dp"
                             android:background="@drawable/bg_map_hint_pill"
+                            android:clickable="true"
+                            android:focusable="true"
                             android:fontFamily="sans-serif"
                             android:paddingStart="12dp"
                             android:paddingTop="6dp"
                             android:paddingEnd="12dp"
                             android:paddingBottom="6dp"
-                            android:text="Move the pin to the last-seen area"
-                            android:textColor="#64748B"
+                            android:text="Tap to enlarge map ⤢"
+                            android:textColor="#002840"
                             android:textSize="11sp" />
+
+                        <!-- Enlarge Map Button -->
+                        <ImageView
+                            android:id="@+id/btnEnlargeMap"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:layout_gravity="bottom|end"
+                            android:layout_marginEnd="56dp"
+                            android:layout_marginBottom="12dp"
+                            android:background="@drawable/bg_circle_gps_button"
+                            android:clickable="true"
+                            android:contentDescription="Enlarge map"
+                            android:focusable="true"
+                            android:padding="9dp"
+                            android:src="@drawable/ic_enlarged_zoom"
+                            app:tint="#475569" />
 
                         <!-- GPS Locate Button -->
                         <ImageView
@@ -1079,7 +1098,7 @@
                             android:layout_height="match_parent"
                             android:contentDescription="Attached photo"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/img_wallet_details" />
+                            android:src="@drawable/ic_item_placeholder" />
 
                         <!-- Top Center Delete Button -->
                         <FrameLayout
@@ -1301,7 +1320,7 @@
                                     android:layout_height="match_parent"
                                     android:contentDescription="Attached photo"
                                     android:scaleType="centerCrop"
-                                    android:src="@drawable/img_wallet_details" />
+                                    android:src="@drawable/ic_item_placeholder" />
                             </com.google.android.material.card.MaterialCardView>
 
                             <!-- Details Column -->

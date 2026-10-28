@@ -1,8 +1,18 @@
 import React, { useState } from 'react';
 import { Copy, Check, ShieldCheck, Download, Smartphone } from 'lucide-react';
 
+const APK_DOWNLOAD_URL = "https://download1351.mediafire.com/ll4hx3iaubegyM2xP0I87v5hJqRC_ITjqclnBlh_WJ_tLNKFGkSun8c-nwe-pYyVpr8XNZUv0LtJpCsEZBiuEI0l5YUdp1mysRAKnX03S7KDHrDYISzf80FPmZHE2dFAML6ZU8pScVq3Z7NohH7L8n0JCG36Jh0Z1b9_py32YuJVc-bL/mwtagyhadwo9ssk/app-debug.apk";
+
 export default function TechSpecsSection({ onDownloadApk }) {
   const [copied, setCopied] = useState(false);
+
+  const handleDownload = () => {
+    if (onDownloadApk) {
+      onDownloadApk();
+    } else {
+      window.location.href = APK_DOWNLOAD_URL;
+    }
+  };
 
   const copyHash = () => {
     navigator.clipboard.writeText('9b2d8e4f1a5c68430b1e564d7c80ab3e');
@@ -77,7 +87,7 @@ export default function TechSpecsSection({ onDownloadApk }) {
           </div>
 
           <button 
-            onClick={onDownloadApk}
+            onClick={handleDownload}
             className="btn-apple-primary"
             style={{ padding: '14px 28px', fontSize: '0.92rem' }}
           >

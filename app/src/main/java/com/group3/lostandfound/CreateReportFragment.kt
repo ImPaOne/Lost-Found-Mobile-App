@@ -207,16 +207,16 @@ class CreateReportFragment : Fragment() {
             btnRemovePhoto.visibility = View.VISIBLE
             badgeCoverPhoto.visibility = View.VISIBLE
         } else if (::imgPhotoPreview.isInitialized) {
-            imgPhotoPreview.setImageResource(R.drawable.img_wallet_details)
-            btnRemovePhoto.visibility = View.VISIBLE
-            badgeCoverPhoto.visibility = View.VISIBLE
+            imgPhotoPreview.setImageResource(R.drawable.ic_item_placeholder)
+            btnRemovePhoto.visibility = View.GONE
+            badgeCoverPhoto.visibility = View.GONE
         }
 
         if (::imgReviewThumbnail.isInitialized) {
             if (attachedImagesList.isNotEmpty()) {
                 com.group3.lostandfound.util.ImageLoader.load(requireContext(), attachedImagesList[0].toString(), imgReviewThumbnail)
             } else {
-                imgReviewThumbnail.setImageResource(R.drawable.img_wallet_details)
+                imgReviewThumbnail.setImageResource(R.drawable.ic_item_placeholder)
             }
         }
     }
@@ -606,7 +606,25 @@ class CreateReportFragment : Fragment() {
                 .show()
         }
 
-        // Step 3: Map card, GPS, Search, and Date/Time pickers
+        // Step 3: Map card, GPS, Search, Enlarge, and Date/Time pickers
+        val openEnlargedMapAction = View.OnClickListener {
+            parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(
+                    R.id.screenBox,
+                    MapFragment.newInstance(
+                        isPickerMode = true,
+                        targetLat = selectedLatitude,
+                        targetLng = selectedLongitude,
+                        targetItemId = ""
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
+        }
+        binding.btnEnlargeMap.setOnClickListener(openEnlargedMapAction)
+        binding.pillMapHint.setOnClickListener(openEnlargedMapAction)
+
         btnGps.setOnClickListener {
             val lat = 6.9042
             val lng = 79.8530
@@ -678,8 +696,21 @@ class CreateReportFragment : Fragment() {
         val webSettings = webView.settings
         webSettings.javaScriptEnabled = true
         webSettings.domStorageEnabled = true
+        webSettings.databaseEnabled = true
+        webSettings.allowFileAccess = true
+        webSettings.allowContentAccess = true
         webSettings.useWideViewPort = true
         webSettings.loadWithOverviewMode = true
+
+        webView.webChromeClient = android.webkit.WebChromeClient()
+        webView.webViewClient = object : android.webkit.WebViewClient() {
+            override fun onPageFinished(view: android.webkit.WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                webView.postDelayed({
+                    webView.evaluateJavascript("if (typeof map !== 'undefined') { map.invalidateSize(); }", null)
+                }, 300)
+            }
+        }
 
         webView.setOnTouchListener { v, event ->
             when (event.action) {
@@ -779,11 +810,15 @@ class CreateReportFragment : Fragment() {
             map.setView([newLat, newLng], 15);
             marker.setLatLng([newLat, newLng]);
         }
+
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 400);
     </script>
 </body>
 </html>
         """.trimIndent()
-        binding.webViewStep3Map.loadDataWithBaseURL("https://osm.org", html, "text/html", "UTF-8", null)
+        binding.webViewStep3Map.loadDataWithBaseURL("https://unpkg.com", html, "text/html", "UTF-8", null)
     }
 
     private fun jumpToStep(targetStep: Int) {
@@ -1061,6 +1096,10 @@ class CreateReportFragment : Fragment() {
                 tvNextStepHint?.visibility = View.GONE
                 btnBackBottom.text = "Back"
                 btnContinue.text = "Continue"
+
+                binding.webViewStep3Map.postDelayed({
+                    binding.webViewStep3Map.evaluateJavascript("if (typeof map !== 'undefined') { map.invalidateSize(); }", null)
+                }, 350)
             }
             4 -> {
                 tvStepNumber.setBackgroundResource(android.R.color.transparent)
@@ -1111,7 +1150,7 @@ class CreateReportFragment : Fragment() {
                 if (selectedImageUri != null) {
                     com.group3.lostandfound.util.ImageLoader.load(requireContext(), selectedImageUri.toString(), imgReviewThumbnail)
                 } else {
-                    imgReviewThumbnail.setImageResource(R.drawable.img_wallet_details)
+                    imgReviewThumbnail.setImageResource(R.drawable.ic_item_placeholder)
                 }
             }
         }
@@ -1178,21 +1217,65 @@ class CreateReportFragment : Fragment() {
                         tvUploadPercentage.text = "100%"
                         tvUploadStatusText.text = "Successfully published"
 
-                        if (isLostSelected) {
-                            com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                                requireContext(),
-                                "Lost Item Broadcasted",
-                                "Search alert active for '${createdReport.title}'. Nearby community members notified.",
-                                createdReport.itemId
-                            )
+                        val notifTitle = if (isLostSelected) "Lost Item Broadcasted" else "Found Item Registered"
+                        val notifBody = if (isLostSelected) {
+                            "Search alert active for '${createdReport.title}'. Nearby community members notified."
                         } else {
-                            com.group3.lostandfound.service.FCMService.triggerPushNotification(
-                                requireContext(),
-                                "Found Item Registered",
-                                "Thank you for reporting '${createdReport.title}'. Searching for the verified owner.",
-                                createdReport.itemId
-                            )
+                            "Thank you for reporting '${createdReport.title}'. Searching for the verified owner."
                         }
+
+                        // Save user notification to Firebase /notifications/{uid}
+                        if (createdReport.userId.isNotEmpty()) {
+                            val userNotif = com.group3.lostandfound.NotificationItem(
+                                id = "notif_rep_${createdReport.itemId}_${System.currentTimeMillis()}",
+                                title = notifTitle,
+                                message = notifBody,
+                                timestamp = System.currentTimeMillis(),
+                                read = false,
+                                type = "REPORT_POSTED",
+                                itemId = createdReport.itemId,
+                                senderUserId = createdReport.userId,
+                                senderName = createdReport.authorName
+                            )
+                            FirebaseManager.database.getReference("notifications")
+                                .child(createdReport.userId)
+                                .push()
+                                .setValue(userNotif)
+                        }
+
+                        // Broadcast new report notification to other users in community
+                        FirebaseManager.database.getReference("users").addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
+                            override fun onDataChange(userSnap: com.google.firebase.database.DataSnapshot) {
+                                for (child in userSnap.children) {
+                                    val otherUid = child.key ?: continue
+                                    if (otherUid != createdReport.userId) {
+                                        val communityNotif = com.group3.lostandfound.NotificationItem(
+                                            id = "alert_${createdReport.itemId}_$otherUid",
+                                            title = "New ${if (isLostSelected) "Lost" else "Found"} Report: ${createdReport.title}",
+                                            message = "${createdReport.title} reported near ${createdReport.location}. Tap to view.",
+                                            timestamp = System.currentTimeMillis(),
+                                            read = false,
+                                            type = "COMMUNITY_REPORT",
+                                            itemId = createdReport.itemId,
+                                            senderUserId = createdReport.userId,
+                                            senderName = createdReport.authorName
+                                        )
+                                        FirebaseManager.database.getReference("notifications")
+                                            .child(otherUid)
+                                            .push()
+                                            .setValue(communityNotif)
+                                    }
+                                }
+                            }
+                            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+                        })
+
+                        com.group3.lostandfound.service.FCMService.triggerPushNotification(
+                            requireContext(),
+                            notifTitle,
+                            notifBody,
+                            createdReport.itemId
+                        )
 
                         com.group3.lostandfound.util.ModernToast.show(
                             requireContext(),

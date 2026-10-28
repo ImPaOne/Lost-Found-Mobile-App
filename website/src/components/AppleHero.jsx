@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 import { Smartphone, Download, QrCode, Radio, Camera, MapPin, Sparkles, CheckCircle2 } from 'lucide-react';
 
+const APK_DOWNLOAD_URL = "https://download1351.mediafire.com/ll4hx3iaubegyM2xP0I87v5hJqRC_ITjqclnBlh_WJ_tLNKFGkSun8c-nwe-pYyVpr8XNZUv0LtJpCsEZBiuEI0l5YUdp1mysRAKnX03S7KDHrDYISzf80FPmZHE2dFAML6ZU8pScVq3Z7NohH7L8n0JCG36Jh0Z1b9_py32YuJVc-bL/mwtagyhadwo9ssk/app-debug.apk";
+
 export default function AppleHero({ onDownloadApk, onOpenQR }) {
+  const handleDownload = () => {
+    if (onDownloadApk) {
+      onDownloadApk();
+    } else {
+      window.location.href = APK_DOWNLOAD_URL;
+    }
+  };
+
   const [activeTab, setActiveTab] = useState('radar');
 
   const screens = {
@@ -45,7 +55,7 @@ export default function AppleHero({ onDownloadApk, onOpenQR }) {
         {/* Action CTAs */}
         <div className="hero-cta-group">
           <button 
-            onClick={onDownloadApk}
+            onClick={handleDownload}
             className="btn-apple-primary"
             id="hero-download-apk-action"
             style={{ padding: '14px 28px', fontSize: '0.95rem' }}

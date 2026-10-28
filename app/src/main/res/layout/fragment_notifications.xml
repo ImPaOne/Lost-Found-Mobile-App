@@ -346,6 +346,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tvNotifTitle3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
@@ -355,6 +356,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvNotifDesc3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
@@ -372,6 +374,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tvNotifTime3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
@@ -520,6 +523,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tvNotifTitle5"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
@@ -529,6 +533,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvNotifDesc5"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"

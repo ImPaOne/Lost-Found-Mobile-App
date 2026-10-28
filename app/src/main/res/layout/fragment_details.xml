@@ -127,7 +127,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardPhotoContainer"
                 android:layout_width="match_parent"
-                android:layout_height="240dp"
+                android:layout_height="260dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="4dp"
                 android:layout_marginEnd="16dp"
@@ -148,7 +148,7 @@
                         android:layout_height="match_parent"
                         android:contentDescription="Item image"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/img_wallet_details" />
+                        android:src="@drawable/ic_item_placeholder" />
 
                     <!-- Dynamic Carousel ViewPager2 -->
                     <androidx.viewpager2.widget.ViewPager2
@@ -159,30 +159,30 @@
                     <!-- Bottom Scrim Gradient for Text Legibility -->
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="90dp"
+                        android:layout_height="100dp"
                         android:layout_gravity="bottom"
                         android:background="@drawable/bg_scrim_bottom_fade" />
 
                     <!-- Overlaid Title and Status Tag at Bottom of Photo -->
-                    <RelativeLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
+                        android:layout_marginBottom="16dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
                         android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:paddingBottom="18dp">
+                        android:paddingEnd="16dp">
 
                         <TextView
                             android:id="@+id/tvItemTitle"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true"
-                            android:layout_toStartOf="@id/tagStatus"
+                            android:layout_weight="1"
                             android:ellipsize="end"
                             android:fontFamily="sans-serif-bold"
                             android:maxLines="1"
-                            android:shadowColor="#99000000"
+                            android:shadowColor="#CC000000"
                             android:shadowDx="0"
                             android:shadowDy="2"
                             android:shadowRadius="4"
@@ -195,21 +195,19 @@
                             android:id="@+id/tagStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginEnd="6dp"
+                            android:layout_marginStart="10dp"
                             android:background="@drawable/bg_badge_matched_pill"
                             android:fontFamily="sans-serif-bold"
+                            android:gravity="center"
                             android:paddingStart="14dp"
                             android:paddingTop="5dp"
                             android:paddingEnd="14dp"
                             android:paddingBottom="5dp"
                             android:text="Matched"
                             android:textColor="@color/white"
-                            android:textSize="11.5sp"
+                            android:textSize="12sp"
                             android:textStyle="bold" />
-                    </RelativeLayout>
+                    </LinearLayout>
 
                     <!-- Tap to enlarge hint badge (hidden by default) -->
                     <LinearLayout
@@ -478,7 +476,7 @@
                         android:textSize="11sp"
                         android:textStyle="bold" />
 
-                    <!-- 92% match badge -->
+                    <!-- Dynamic match badge -->
                     <TextView
                         android:id="@+id/tvMatchScore"
                         android:layout_width="wrap_content"
@@ -489,7 +487,7 @@
                         android:paddingTop="2dp"
                         android:paddingEnd="10dp"
                         android:paddingBottom="2dp"
-                        android:text="92% match"
+                        android:text="Scanning..."
                         android:textColor="#0D9488"
                         android:textSize="11sp"
                         android:textStyle="bold" />
@@ -501,7 +499,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:fontFamily="sans-serif-bold"
-                    android:text="Wallet found near Kollupitiya"
+                    android:text="Checking matching suggestions..."
                     android:textColor="#0F172A"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -512,7 +510,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:fontFamily="sans-serif"
-                    android:text="Reported by Kasun P. · 1.2 km away"
+                    android:text="Scanning community lost &amp; found reports"
                     android:textColor="#64748B"
                     android:textSize="12sp" />
             </LinearLayout>
