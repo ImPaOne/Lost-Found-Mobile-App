@@ -196,6 +196,7 @@ class ExploreFragment : Fragment() {
     }
 
     private fun openDetails(item: ItemReport) {
+        // Open the selected report's details and pass its information.
         parentFragmentManager.beginTransaction()
             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(
