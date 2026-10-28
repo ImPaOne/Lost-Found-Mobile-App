@@ -17,6 +17,7 @@ class ExploreViewModel(
     private val exploreRepository: ExploreRepository = ExploreRepository()
 ) : ViewModel() {
 
+    // Holds the current UI state and allows the ViewModel to modify it.
     private val _uiState = MutableStateFlow(ExploreUiState())
     val uiState: StateFlow<ExploreUiState> = _uiState.asStateFlow()
 
