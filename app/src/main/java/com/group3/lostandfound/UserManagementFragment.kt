@@ -214,6 +214,17 @@ class UserManagementFragment : Fragment() {
 
                     // Retrieves the user's email or uses an empty string if unavailable.
                     val email = child.child("email").getValue(String::class.java).orEmpty()
+
+                    // Purge and ignore seeded dummy test records if they were saved in Firebase
+                    val isDummySeededUser = uid == "user_tharindu_001" || uid == "user_ama_002" || uid == "user_kasun_003"
+                        || uid.startsWith("user_tharindu") || uid.startsWith("user_ama") || uid.startsWith("user_kasun")
+                        || email.equals("tharindu.p@gmail.com", ignoreCase = true)
+                        || email.equals("ama.fernando@gmail.com", ignoreCase = true)
+                        || email.equals("kasun.j@gmail.com", ignoreCase = true)
+                    if (isDummySeededUser) {
+                        FirebaseManager.usersRef.child(uid).removeValue()
+                        continue
+                    }
                     // Retrieves the user's name from available database fields, using a fallback if necessary.
                     val fullName = child.child("fullName").getValue(String::class.java)
                         ?: child.child("displayName").getValue(String::class.java)
@@ -275,11 +286,6 @@ class UserManagementFragment : Fragment() {
                     )
                 }
 
-                // If Firebase has very few users, ensure standard demo community users are seeded so the admin has users to test with
-                if (userList.size < 3) {
-                    seedDefaultCommunityUsersIfEmpty(userList)
-                }
-
                 // Always sort: current admin first, then Admins, then Moderators, then Members
                 userList.sortWith(compareByDescending<ManageableUser> { it.isCurrentAdmin }
                     .thenBy { if (it.role == "Admin") 0 else if (it.role == "Moderator") 1 else 2 }
@@ -310,23 +316,6 @@ class UserManagementFragment : Fragment() {
         FirebaseManager.usersRef.addValueEventListener(usersListener as ValueEventListener)
     }
 
-    // Adds predefined demo community users when the current list contains too few users.
-    private fun seedDefaultCommunityUsersIfEmpty(currentUsers: MutableList<ManageableUser>) {
-        // Defines sample user records for testing the user management interface.
-        val sampleUsers = listOf(
-            UserData(uid = "user_tharindu_001", fullName = "Tharindu Perera", email = "tharindu.p@gmail.com", phone = "+94 77 123 4567", role = "USER", isBanned = false, trustScore = 95),
-            UserData(uid = "user_ama_002", fullName = "Ama Fernando", email = "ama.fernando@gmail.com", phone = "+94 71 987 6543", role = "MODERATOR", isBanned = false, trustScore = 92),
-            UserData(uid = "user_kasun_003", fullName = "Kasun Jayasinghe", email = "kasun.j@gmail.com", phone = "+94 75 456 7890", role = "USER", isBanned = false, trustScore = 78)
-        )
-
-        // Adds each sample user to Firebase if no user with the same email exists locally.
-        for (u in sampleUsers) {
-            if (currentUsers.none { it.email.equals(u.email, ignoreCase = true) }) {
-                FirebaseManager.usersRef.child(u.uid).setValue(u)
-            }
-        }
-    }
-
     // Filters the user list according to the current search query, role, and access status.
     private fun applyFilters() {
         // Clears the previous displayed results before applying the filters.
@@ -344,13 +333,21 @@ class UserManagementFragment : Fragment() {
             }
 
             // Checks whether the user matches the selected role filter.
-            val matchesRole = if (selectedRoleFilter == "All") true else {
-                user.role.equals(selectedRoleFilter, ignoreCase = true)
+            val matchesRole = when (selectedRoleFilter) {
+                "All" -> true
+                "Admin" -> user.role.equals("Admin", ignoreCase = true)
+                "Moderator" -> user.role.equals("Moderator", ignoreCase = true)
+                "Member" -> user.role.equals("Member", ignoreCase = true) || user.role.equals("User", ignoreCase = true)
+                else -> true
             }
 
             // Checks whether the user matches the selected access status filter.
-            val matchesStatus = if (selectedStatusFilter == "All") true else {
-                user.access.equals(selectedStatusFilter, ignoreCase = true)
+            val matchesStatus = when (selectedStatusFilter) {
+                "All" -> true
+                "Active" -> user.access.equals("Active", ignoreCase = true)
+                "Restricted" -> user.access.equals("Restricted", ignoreCase = true)
+                "Suspended" -> user.access.equals("Suspended", ignoreCase = true) || user.access.equals("Banned", ignoreCase = true)
+                else -> true
             }
 
             // Includes the user only when the search, role, and status conditions all match.
@@ -718,9 +715,11 @@ class UserManagementFragment : Fragment() {
                 if (user.isExpanded) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down
             )
 
-            holder.rowUserHeader.setOnClickListener {
+            val toggleExpand = View.OnClickListener {
                 onExpandToggle(holder.bindingAdapterPosition)
             }
+            holder.rowUserHeader.setOnClickListener(toggleExpand)
+            holder.iconChevron.setOnClickListener(toggleExpand)
 
             // Role selection dropdown
             holder.boxRoleSelect.setOnClickListener {
@@ -731,6 +730,22 @@ class UserManagementFragment : Fragment() {
                         val selectedRole = roles[which]
                         holder.lblRoleValue.text = selectedRole
                         user.role = selectedRole
+                        holder.tvUserSubtitle.text = "${user.role} · ${user.access} · ${user.email}"
+                        when (selectedRole) {
+                            "Admin" -> {
+                                holder.tvUserAvatar.setBackgroundResource(R.drawable.bg_circle_avatar_ns)
+                                holder.tvUserAvatar.setTextColor(0xFF1D4ED8.toInt())
+                            }
+                            "Moderator" -> {
+                                holder.tvUserAvatar.setBackgroundResource(R.drawable.bg_circle_avatar_af)
+                                holder.tvUserAvatar.setTextColor(0xFFEA580C.toInt())
+                            }
+                            else -> {
+                                holder.tvUserAvatar.setBackgroundResource(R.drawable.bg_circle_avatar_tp)
+                                holder.tvUserAvatar.setTextColor(0xFF059669.toInt())
+                            }
+                        }
+                        onSaveAccess(user, selectedRole, user.access)
                     }
                     .show()
             }
@@ -744,6 +759,21 @@ class UserManagementFragment : Fragment() {
                         val selectedAccess = accessOptions[which]
                         holder.lblAccessValue.text = selectedAccess
                         user.access = selectedAccess
+                        holder.tvUserSubtitle.text = "${user.role} · ${user.access} · ${user.email}"
+                        if (user.access == "Suspended") {
+                            holder.badgeStatusFlag.visibility = View.VISIBLE
+                            holder.badgeStatusFlag.text = "Suspended"
+                            holder.badgeStatusFlag.setTextColor(0xFFDC2626.toInt())
+                            holder.tvUserAvatar.setBackgroundResource(R.drawable.bg_circle_avatar_kj)
+                            holder.tvUserAvatar.setTextColor(0xFFE11D48.toInt())
+                        } else if (user.access == "Restricted") {
+                            holder.badgeStatusFlag.visibility = View.VISIBLE
+                            holder.badgeStatusFlag.text = "Restricted"
+                            holder.badgeStatusFlag.setTextColor(0xFFB45309.toInt())
+                        } else {
+                            holder.badgeStatusFlag.visibility = View.GONE
+                        }
+                        onSaveAccess(user, user.role, selectedAccess)
                     }
                     .show()
             }
