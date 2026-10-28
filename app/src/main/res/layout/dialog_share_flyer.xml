@@ -3,113 +3,358 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_stat_banner"
+    android:background="@drawable/bg_flyer_sheet"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="16dp">
 
-    <!-- Header bar -->
-    <LinearLayout
+    <!-- Drag Handle -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_drag_handle" />
+
+    <!-- Title & Close Button Row -->
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_toStartOf="@+id/btnCloseFlyerDialog"
+            android:orientation="vertical"
+            android:paddingEnd="12dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-black"
-                android:text="Item Flyer &amp; QR Code"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
+                android:fontFamily="sans-serif-bold"
+                android:text="Share an item flyer"
+                android:textColor="#0B1B2B"
+                android:textSize="19sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="3dp"
                 android:fontFamily="sans-serif"
-                android:text="Share this flyer on social media or print to find faster."
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:lineSpacingExtra="2dp"
+                android:text="Help this wallet find its way home. Share a flyer or save a print-ready copy."
+                android:textColor="#64748B"
+                android:textSize="12.5sp" />
         </LinearLayout>
 
-        <ImageView
+        <FrameLayout
             android:id="@+id/btnCloseFlyerDialog"
             android:layout_width="32dp"
             android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/bg_circle_close"
             android:clickable="true"
-            android:focusable="true"
-            android:padding="6dp"
-            android:src="@drawable/ic_close"
-            app:tint="@color/text_primary" />
-    </LinearLayout>
+            android:focusable="true">
 
-    <!-- Scrollable Flyer Preview Card -->
-    <androidx.core.widget.NestedScrollView
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_gravity="center"
+                android:contentDescription="Close"
+                android:src="@drawable/ic_close"
+                app:tint="#64748B" />
+        </FrameLayout>
+    </RelativeLayout>
+
+    <!-- Flyer Preview Card -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="360dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/bg_search_box"
-        android:fillViewport="true"
-        android:padding="8dp">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_saved_card"
+        android:orientation="vertical"
+        android:padding="12dp">
 
-        <ImageView
-            android:id="@+id/imgFlyerPreview"
+        <!-- Brand Dot + Foundly + LOST Badge -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="7dp"
+                    android:layout_height="7dp"
+                    android:background="@drawable/bg_pill_dark" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Foundly"
+                    android:textColor="#0B1B2B"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/bg_tag_lost"
+                android:fontFamily="sans-serif-bold"
+                android:paddingStart="8dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="2dp"
+                android:text="LOST"
+                android:textColor="#DC2626"
+                android:textSize="10.5sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
+        <!-- Flyer Item Image -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="115dp"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <ImageView
+                android:id="@+id/imgFlyerPreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="Wallet in cafe"
+                android:scaleType="centerCrop"
+                android:src="@drawable/img_wallet_details" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Details & QR Row -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:contentDescription="Flyer Preview"
-            android:scaleType="fitCenter" />
-    </androidx.core.widget.NestedScrollView>
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="Black leather wallet"
+                    android:textColor="#0B1B2B"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:fontFamily="sans-serif"
+                    android:text="Colombo 03 · Near Duplication Road"
+                    android:textColor="#64748B"
+                    android:textSize="11.5sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="sans-serif"
+                    android:text="12 Sep · 6:30 PM"
+                    android:textColor="#64748B"
+                    android:textSize="11.5sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Reported by Tharindu Perera"
+                    android:textColor="#475569"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="QR Code"
+                android:src="@drawable/ic_sample_qr" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Export As Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:fontFamily="sans-serif-bold"
+        android:text="Export as"
+        android:textColor="#0B1B2B"
+        android:textSize="13.5sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_pill_dark"
+            android:fontFamily="sans-serif-bold"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
+            android:text="PNG image"
+            android:textColor="@color/white"
+            android:textSize="12.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_pill_outline"
+            android:fontFamily="sans-serif-bold"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
+            android:text="PDF · A4"
+            android:textColor="#0B1B2B"
+            android:textSize="12.5sp" />
+    </LinearLayout>
+
+    <!-- Privacy Box -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_notice_box"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:contentDescription="Shield security"
+            android:src="@drawable/ic_shield_check"
+            app:tint="#0B1B2B" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif"
+            android:lineSpacingExtra="1.5dp"
+            android:text="Contact stays in Foundly. Personal ID and card numbers are never included."
+            android:textColor="#64748B"
+            android:textSize="11.5sp" />
+    </LinearLayout>
 
     <!-- Action Buttons Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center_vertical"
+        android:layout_marginTop="14dp"
         android:orientation="horizontal">
 
-        <!-- Copy Link Button -->
-        <TextView
+        <!-- Save Flyer Button (using existing id btnCopyFlyerLink for backwards compatibility) -->
+        <LinearLayout
             android:id="@+id/btnCopyFlyerLink"
             android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="8dp"
+            android:layout_height="46dp"
+            android:layout_marginEnd="6dp"
             android:layout_weight="1"
-            android:background="@drawable/bg_stat_banner"
+            android:background="@drawable/bg_btn_save_flyer"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
-            android:fontFamily="sans-serif-bold"
-            android:text="Copy Link"
-            android:textColor="@color/text_primary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal">
 
-        <!-- Share Flyer Button -->
-        <TextView
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:contentDescription="Save"
+                android:src="@drawable/ic_download"
+                app:tint="#0B1B2B" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="sans-serif-bold"
+                android:text="Save flyer"
+                android:textColor="#0B1B2B"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Share Button -->
+        <LinearLayout
             android:id="@+id/btnShareFlyerAction"
             android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1.2"
-            android:background="@drawable/bg_btn_contact"
+            android:layout_height="46dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_btn_share_flyer"
             android:clickable="true"
-            android:elevation="2dp"
             android:focusable="true"
             android:gravity="center"
-            android:fontFamily="sans-serif-bold"
-            android:text="Share Flyer"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:contentDescription="Share"
+                android:src="@drawable/ic_share"
+                app:tint="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="sans-serif-bold"
+                android:text="Share"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
+
+    <!-- Footnote -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="4dp"
+        android:fontFamily="sans-serif"
+        android:text="QR preview is illustrative, not a functional link."
+        android:textColor="#94A3B8"
+        android:textSize="11sp" />
 
 </LinearLayout>

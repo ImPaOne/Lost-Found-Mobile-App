@@ -57,6 +57,7 @@ class NotificationsFragment : Fragment() {
         loadLiveNotifications(view)
     }
 
+    //Connects Kotlin variables to UI elements
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         btnCheckAll = view.findViewById(R.id.btnCheckAll)
@@ -74,6 +75,7 @@ class NotificationsFragment : Fragment() {
         dotGalleFace = view.findViewById(R.id.dotGalleFace)
     }
 
+    //Handles the back and mark-all-as-read buttons.
     private fun setupHeaderActions() {
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
@@ -96,6 +98,7 @@ class NotificationsFragment : Fragment() {
         }
     }
 
+    //Defines what happens when a notification card is clicked.
     private fun setupCardClicks() {
         itemWallet.setOnClickListener {
             dotWallet.visibility = View.GONE
@@ -193,6 +196,7 @@ class NotificationsFragment : Fragment() {
         }
     }
 
+    //Retrieves notifications and administrator announcements from Firebase
     private fun loadLiveNotifications(view: View) {
         val currentUid = FirebaseManager.currentUid
         if (currentUid.isEmpty()) return
@@ -258,6 +262,7 @@ class NotificationsFragment : Fragment() {
         })
     }
 
+    //Opens the correct screen based on the notification type.
     private fun openNotificationTarget(notif: NotificationItem) {
         if (notif.type == "CHAT_MESSAGE" || notif.conversationId.isNotEmpty()) {
             parentFragmentManager.beginTransaction()
