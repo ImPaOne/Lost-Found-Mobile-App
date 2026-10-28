@@ -28,13 +28,16 @@ class FCMService : FirebaseMessagingService() {
         sendTokenToServer(token)
     }
 
+    // Called when the app receives a Firebase Cloud Messaging (FCM) message.
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
+        // Gets the notification title; if unavailable, checks the data payload.
         val title = remoteMessage.notification?.title
             ?: remoteMessage.data["title"]
             ?: "Foundly"
 
+        // Uses a default message if no message is provided.
         val body = remoteMessage.notification?.body
             ?: remoteMessage.data["body"]
             ?: remoteMessage.data["message"]
