@@ -103,19 +103,18 @@ class SavedItemsFragment : Fragment() {
             selectedCategory = "FOUND"
             updateChipStyles()
             filterItems()
-        }
-
-        // Search text watcher
+        }     // Search text watcher filters saved items whenever the search text changes.
         searchField.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Convert the search text to lowercase and remove extra spaces for matching.
                 searchQuery = s?.toString()?.trim()?.lowercase() ?: ""
                 filterItems()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        // Remove bookmark clicks
+        // Toggle the wallet bookmark and refresh its visibility, notification, and saved count.
         btnBookmarkWallet.setOnClickListener {
             isWalletSaved = !isWalletSaved
             cardWallet.visibility = if (isWalletSaved) View.VISIBLE else View.GONE
@@ -123,6 +122,7 @@ class SavedItemsFragment : Fragment() {
             updateCount()
         }
 
+        // Toggle the dog's saved status and update the displayed saved items.
         btnBookmarkDog.setOnClickListener {
             isDogSaved = !isDogSaved
             cardDog.visibility = if (isDogSaved) View.VISIBLE else View.GONE
@@ -130,6 +130,7 @@ class SavedItemsFragment : Fragment() {
             updateCount()
         }
 
+        // Toggle the card holder's saved status and refresh the saved list.
         btnBookmarkCardHolder.setOnClickListener {
             isCardHolderSaved = !isCardHolderSaved
             cardCardHolder.visibility = if (isCardHolderSaved) View.VISIBLE else View.GONE
@@ -137,10 +138,11 @@ class SavedItemsFragment : Fragment() {
             updateCount()
         }
 
-        // Setup bottom navigation for Profile tab
+        // Configure bottom navigation and mark the Profile tab as active.
         setupBottomNav(view, "profile")
     }
 
+    // Apply the appropriate background and text color to each category filter chip.
     private fun updateChipStyles() {
         val darkBg = ContextCompat.getDrawable(requireContext(), R.drawable.bg_pill_dark)
         val outlineBg = ContextCompat.getDrawable(requireContext(), R.drawable.bg_pill_outline)
@@ -150,7 +152,7 @@ class SavedItemsFragment : Fragment() {
         val foundColor = 0xFF059669.toInt()
         val darkNavy = 0xFF0B2238.toInt()
 
-        // Chip All
+        // Highlight the All chip when every category is selected.
         if (selectedCategory == "ALL") {
             chipAll.background = darkBg
             chipAll.setTextColor(whiteColor)
@@ -159,7 +161,7 @@ class SavedItemsFragment : Fragment() {
             chipAll.setTextColor(darkNavy)
         }
 
-        // Chip Lost
+        // Highlight the Lost chip and use red text when it is not selected.
         if (selectedCategory == "LOST") {
             chipLost.background = darkBg
             chipLost.setTextColor(whiteColor)
@@ -168,7 +170,7 @@ class SavedItemsFragment : Fragment() {
             chipLost.setTextColor(lostColor)
         }
 
-        // Chip Found
+        // Highlight the Found chip and use green text when it is not selected.
         if (selectedCategory == "FOUND") {
             chipFound.background = darkBg
             chipFound.setTextColor(whiteColor)
@@ -178,10 +180,12 @@ class SavedItemsFragment : Fragment() {
         }
     }
 
+    // Filter saved items by category and search text, then update their visibility and total count.
     private fun filterItems() {
         var visibleCount = 0
 
-        // Wallet (LOST, "Black leather wallet", "Colombo 03")
+        // Show the wallet only when it is saved and matches the selected category and search.
+        // Wallet details: LOST, "Black leather wallet", "Colombo 03".
         val walletMatchesCategory = (selectedCategory == "ALL" || selectedCategory == "LOST")
         val walletMatchesSearch = searchQuery.isEmpty() ||
                 "black leather wallet".contains(searchQuery) ||
@@ -190,7 +194,8 @@ class SavedItemsFragment : Fragment() {
         cardWallet.visibility = if (showWallet) View.VISIBLE else View.GONE
         if (showWallet) visibleCount++
 
-        // Dog (FOUND, "Golden retriever, Milo", "Viharamahadevi Park")
+        // Show the dog only when it is saved and matches the selected category and search.
+        // Dog details: FOUND, "Golden retriever, Milo", "Viharamahadevi Park".
         val dogMatchesCategory = (selectedCategory == "ALL" || selectedCategory == "FOUND")
         val dogMatchesSearch = searchQuery.isEmpty() ||
                 "golden retriever, milo".contains(searchQuery) ||
@@ -199,7 +204,8 @@ class SavedItemsFragment : Fragment() {
         cardDog.visibility = if (showDog) View.VISIBLE else View.GONE
         if (showDog) visibleCount++
 
-        // Card Holder (FOUND, "Brown card holder", "Kollupitiya")
+        // Show the card holder only when it is saved and matches the selected category and search.
+        // Card holder details: FOUND, "Brown card holder", "Kollupitiya".
         val cardHolderMatchesCategory = (selectedCategory == "ALL" || selectedCategory == "FOUND")
         val cardHolderMatchesSearch = searchQuery.isEmpty() ||
                 "brown card holder".contains(searchQuery) ||
@@ -208,14 +214,17 @@ class SavedItemsFragment : Fragment() {
         cardCardHolder.visibility = if (showCardHolder) View.VISIBLE else View.GONE
         if (showCardHolder) visibleCount++
 
+        // Display the number of matching saved items with the correct singular or plural wording.
         tvSavedCount.text = "$visibleCount saved item${if (visibleCount == 1) "" else "s"}"
     }
 
+    // Reapply the filters to refresh the saved item list and count after bookmark changes.
     private fun updateCount() {
         filterItems()
     }
 
     companion object {
+        // Provide a standard way to create a new SavedItemsFragment instance.
         fun newInstance(): SavedItemsFragment = SavedItemsFragment()
     }
 }

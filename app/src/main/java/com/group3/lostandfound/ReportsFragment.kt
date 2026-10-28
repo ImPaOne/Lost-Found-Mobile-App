@@ -117,7 +117,7 @@ class ReportsFragment : Fragment() {
         opt2 = view.findViewById(R.id.opt2)
         opt3 = view.findViewById(R.id.opt3)
     }
-
+    // Observes ViewModel state changes and refreshes the local reports list.
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             reportsViewModel.uiState.collect { state ->
@@ -128,6 +128,7 @@ class ReportsFragment : Fragment() {
         }
     }
 
+    // Filters reports and updates the three report cards and empty-state UI.
     private fun updateReportsListUI() {
         val filtered = when (currentFilter) {
             "ACTIVE" -> userReports.filter { !it.status.equals("RESOLVED", ignoreCase = true) }
@@ -135,10 +136,11 @@ class ReportsFragment : Fragment() {
             else -> userReports
         }
 
+        // Updates the report count and shows the empty-state message when no reports match.
         tvCount.text = "${filtered.size} reports · updated live"
         tvEmptyReports.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
 
-        // Item 1
+        // Item 1: Displays the first filtered report and configures its click actions.
         if (filtered.isNotEmpty()) {
             val item1 = filtered[0]
             card1.visibility = View.VISIBLE
@@ -152,7 +154,7 @@ class ReportsFragment : Fragment() {
             card1.visibility = View.GONE
         }
 
-        // Item 2
+        // Item 2: Displays the second filtered report when available.
         if (filtered.size > 1) {
             val item2 = filtered[1]
             card2.visibility = View.VISIBLE
@@ -166,7 +168,7 @@ class ReportsFragment : Fragment() {
             card2.visibility = View.GONE
         }
 
-        // Item 3
+        // Item 3: Displays the third filtered report when available.
         if (filtered.size > 2) {
             val item3 = filtered[2]
             card3.visibility = View.VISIBLE
@@ -183,6 +185,7 @@ class ReportsFragment : Fragment() {
 
     /** Applies the correct badge background and text color based on item status. */
     private fun applyBadgeStyle(badge: TextView, status: String) {
+        // Selects the badge label and appearance according to the report status.
         when {
             status.equals("RESOLVED", ignoreCase = true) -> {
                 badge.text = "Resolved"
@@ -200,7 +203,7 @@ class ReportsFragment : Fragment() {
                 badge.setTextColor(ContextCompat.getColor(requireContext(), R.color.badge_matched_text))
             }
             else -> {
-                // LOST or PENDING
+                // LOST or PENDING: Uses the pending badge style for other statuses.
                 badge.text = if (status.equals("LOST", ignoreCase = true)) "Pending" else status
                 badge.setBackgroundResource(R.drawable.bg_badge_pending)
                 badge.setTextColor(ContextCompat.getColor(requireContext(), R.color.badge_pending_text))
@@ -208,9 +211,11 @@ class ReportsFragment : Fragment() {
         }
     }
 
+    // Registers click listeners for navigation, report creation, and filtering tabs.
     private fun setupListeners() {
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
 
+        // Opens the report creation screen and adds the current screen to the back stack.
         btnAdd.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.screenBox, CreateReportFragment.newInstance())
@@ -218,18 +223,21 @@ class ReportsFragment : Fragment() {
                 .commit()
         }
 
+        // Filters the list to show active reports.
         tabAct.setOnClickListener {
             currentFilter = "ACTIVE"
             pickTab(tabAct)
             updateReportsListUI()
         }
 
+        // Filters the list to show resolved reports.
         tabRes.setOnClickListener {
             currentFilter = "RESOLVED"
             pickTab(tabRes)
             updateReportsListUI()
         }
 
+        // Removes the status filter to display all reports.
         tabAll.setOnClickListener {
             currentFilter = "ALL"
             pickTab(tabAll)
@@ -237,20 +245,24 @@ class ReportsFragment : Fragment() {
         }
     }
 
+    // Displays available actions for the selected report.
     private fun showItemMenu(item: ItemReport) {
         val options = arrayOf("View Live Details", "Mark as Resolved", "Delete Report")
         AlertDialog.Builder(requireContext())
             .setTitle(item.title)
             .setItems(options) { _, which ->
+                // Performs the action selected from the report menu.
                 when (which) {
                     0 -> openItemDetails(item)
                     1 -> promptResolveItemWithChattedUser(item)
                     2 -> {
+                        // Requests confirmation before permanently deleting the report.
                         AlertDialog.Builder(requireContext())
                             .setTitle("Delete Listing")
                             .setMessage("Remove '${item.title}' from database?")
                             .setPositiveButton("Delete") { _, _ ->
                                 reportsViewModel.deleteItem(item.itemId) { success ->
+                                    // Displays confirmation when the deletion succeeds.
                                     if (success) {
                                         ModernToast.show(requireContext(), "'${item.title}' deleted.", view)
                                     }
@@ -264,9 +276,12 @@ class ReportsFragment : Fragment() {
             .show()
     }
 
+    // Navigates to the details screen for the selected report.
     private fun openItemDetails(item: ItemReport) {
         parentFragmentManager.beginTransaction()
+            // Applies fade animations when opening and closing the details screen.
             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+            // Replaces the current fragment with a DetailsFragment populated with the report data.
             .replace(
                 R.id.screenBox,
                 DetailsFragment.newInstance(
@@ -284,6 +299,7 @@ class ReportsFragment : Fragment() {
             .commit()
     }
 
+    // Updates the selected tab's styling and resets the appearance of the other tabs.
     private fun pickTab(target: TextView) {
         val tabs = listOf(tabAct, tabRes, tabAll)
         for (tab in tabs) {
@@ -297,21 +313,27 @@ class ReportsFragment : Fragment() {
         }
     }
 
+    // Finds users who have chatted about the report so the administrator can select who helped reunite the item.
     private fun promptResolveItemWithChattedUser(item: ItemReport) {
         val currentUid = FirebaseManager.currentUid
+        // References the current user's conversations in the Firebase database.
         val convRef = com.google.firebase.database.FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
             .getReference("user_conversations")
             .child(currentUid)
 
+        // Fetches the conversations once to identify potential helpers.
         convRef.addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
             override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                // Stores each eligible helper's user ID and display name.
                 val chattedUsers = mutableListOf<Pair<String, String>>()
+                // Checks each conversation for a matching report and another participant.
                 for (child in snapshot.children) {
                     val relatedId = child.child("relatedItemId").getValue(String::class.java) ?: ""
                     val otherUid = child.child("otherUserId").getValue(String::class.java) ?: ""
                     val otherName = child.child("otherUserName").getValue(String::class.java) ?: "Chat Contact"
                     if (otherUid.isNotEmpty() && otherUid != currentUid) {
                         if (relatedId == item.itemId || relatedId.isEmpty()) {
+                            // Avoids adding the same user more than once.
                             if (!chattedUsers.any { it.first == otherUid }) {
                                 chattedUsers.add(Pair(otherUid, otherName))
                             }
@@ -319,16 +341,20 @@ class ReportsFragment : Fragment() {
                     }
                 }
 
+                // Displays helper options if eligible chat contacts exist and the fragment is attached.
                 if (chattedUsers.isNotEmpty() && isAdded) {
                     val options = mutableListOf<String>()
+                    // Adds an option for each potential helper.
                     chattedUsers.forEach { user ->
                         options.add("👤 ${user.second} (Award Reunited Hero Achievement)")
                     }
+                    // Allows the report to be resolved without selecting a chat contact.
                     options.add("🤝 Resolved offline without chat contact")
 
                     AlertDialog.Builder(requireContext())
                         .setTitle("Select Who Helped Reunited '${item.title}'")
                         .setItems(options.toTypedArray()) { _, which ->
+                            // Awards the selected helper if one was chosen; otherwise resolves without a helper.
                             if (which < chattedUsers.size) {
                                 val selectedUser = chattedUsers[which]
                                 executeResolveReport(item, selectedUser.first, selectedUser.second)
@@ -339,30 +365,37 @@ class ReportsFragment : Fragment() {
                         .setNegativeButton("Cancel", null)
                         .show()
                 } else if (isAdded) {
+                    // Resolves the report without a helper when no eligible chat contacts are found.
                     executeResolveReport(item, null, null)
                 }
             }
 
+            // Falls back to resolving the report without a helper if loading conversations fails.
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
                 if (isAdded) executeResolveReport(item, null, null)
             }
         })
     }
 
+    // Marks a report as resolved and awards achievements to the selected helper and reporting user.
     private fun executeResolveReport(item: ItemReport, targetUserId: String?, targetUserName: String?) {
         val currentUid = FirebaseManager.currentUid
+        // Prepares the database fields required to mark the report as resolved.
         val updateData = mutableMapOf<String, Any>(
             "status" to "RESOLVED",
             "resolvedTimestamp" to System.currentTimeMillis()
         )
+        // Records helper details when a helper has been selected.
         if (targetUserId != null && targetUserName != null) {
             updateData["resolvedWithUserId"] = targetUserId
             updateData["resolvedWithUserName"] = targetUserName
             updateData["resolvedByUserId"] = currentUid
         }
 
+        // Updates the report in Firebase and handles the result when the operation completes.
         FirebaseManager.itemsRef.child(item.itemId).updateChildren(updateData).addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                // Finds the report in the local list and updates its status immediately.
                 val idx = userReports.indexOfFirst { it.itemId == item.itemId }
                 if (idx != -1) {
                     userReports[idx] = userReports[idx].copy(status = "RESOLVED")
@@ -371,11 +404,15 @@ class ReportsFragment : Fragment() {
 
                 // Award chatted user if chosen
                 if (targetUserId != null && targetUserName != null) {
+                    // References the selected helper's Firebase user record.
                     val userDbRef = FirebaseManager.usersRef.child(targetUserId)
+                    // Increments the helper's returned-item count and trust score.
                     userDbRef.child("itemsReturned").setValue(com.google.firebase.database.ServerValue.increment(1))
                     userDbRef.child("trustScore").setValue(com.google.firebase.database.ServerValue.increment(20))
 
+                    // Creates a unique ID for the helper's achievement.
                     val achievementKey = "reunited_hero_${System.currentTimeMillis()}"
+                    // Defines the achievement details to be saved to Firebase.
                     val achievement = mapOf(
                         "id" to achievementKey,
                         "title" to "🤝 Reunited Hero",
@@ -384,8 +421,10 @@ class ReportsFragment : Fragment() {
                         "badge" to "HERO_REUNITED",
                         "xpAwarded" to 20
                     )
+                    // Saves the Reunited Hero achievement to the helper's account.
                     userDbRef.child("achievements").child(achievementKey).setValue(achievement)
 
+                    // Creates a notification informing the helper about the achievement and trust points.
                     val notif = mapOf(
                         "id" to "notif_${System.currentTimeMillis()}",
                         "title" to "🏆 Achievement Unlocked: Reunited Hero!",
@@ -396,23 +435,29 @@ class ReportsFragment : Fragment() {
                         "senderUserId" to currentUid,
                         "read" to false
                     )
+                    // Sends the achievement notification to the selected helper's notification records.
                     FirebaseManager.database.getReference("notifications").child(targetUserId).push().setValue(notif)
                 }
 
                 // Award reporting user
                 if (currentUid.isNotEmpty()) {
+                    // References the current user's Firebase record to award report-resolution credit.
                     val reporterRef = FirebaseManager.usersRef.child(currentUid)
+                    // Increments the reporting user's returned-item count and trust score.
                     reporterRef.child("itemsReturned").setValue(com.google.firebase.database.ServerValue.increment(1))
                     reporterRef.child("trustScore").setValue(com.google.firebase.database.ServerValue.increment(15))
+                    // Defines the achievement details awarded to the reporting user.
                     val reporterAch = mapOf(
                         "id" to "case_resolved_${System.currentTimeMillis()}",
                         "title" to "Honest Finder & Case Closed",
                         "description" to "Successfully resolved '${item.title}' and reunited with owner!",
                         "timestamp" to System.currentTimeMillis()
                     )
+                    // Saves the achievement to the reporting user's account.
                     reporterRef.child("achievements").push().setValue(reporterAch)
                 }
 
+                // Sends a push notification that the item has been resolved and reunited.
                 com.group3.lostandfound.service.FCMService.triggerPushNotification(
                     requireContext(),
                     "Item Resolved & Reunited!",
@@ -420,6 +465,7 @@ class ReportsFragment : Fragment() {
                     item.itemId
                 )
 
+                // Creates a success message based on whether a helper was selected.
                 val msg = if (targetUserName != null) {
                     "'${item.title}' marked as RESOLVED with $targetUserName! Achievements awarded."
                 } else {
@@ -427,11 +473,13 @@ class ReportsFragment : Fragment() {
                 }
                 ModernToast.show(requireContext(), msg, view)
             } else {
+                // Displays the database error if the report update fails.
                 ModernToast.show(requireContext(), "Update failed: ${task.exception?.message}", view, durationLong = true)
             }
         }
     }
 
+    // Provides a factory method for creating a ReportsFragment instance.
     companion object {
         fun newInstance(): ReportsFragment = ReportsFragment()
     }

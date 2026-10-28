@@ -47,7 +47,7 @@ class UserManagementFragment : Fragment() {
     private var searchQuery = ""
 
     private var usersListener: ValueEventListener? = null
-
+    // Data class representing a user whose role and access status can be managed by an administrator.
     data class ManageableUser(
         val uid: String,
         val fullName: String,
@@ -60,6 +60,7 @@ class UserManagementFragment : Fragment() {
         var isExpanded: Boolean = false
     )
 
+    // Inflates the XML layout for the user management screen.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -68,22 +69,31 @@ class UserManagementFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_user_management, container, false)
     }
 
+    // Runs after the fragment's view has been created.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Connects the Kotlin variables to their XML views.
         initViews(view)
+        // Configures the RecyclerView used to display users.
         setupRecyclerView()
+        // Registers click listeners for the screen's buttons and filter chips.
         setupListeners()
+        // Configures the search field to filter users as text changes.
         setupSearch()
+        // Loads user records from Firebase.
         loadRealUsersFromFirebase()
+        // Sets up the bottom navigation with the profile section selected.
         setupBottomNav(view, "profile")
     }
 
+    // Finds and initializes the views defined in the XML layout.
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         btnShield = view.findViewById(R.id.btnShield)
         searchField = view.findViewById(R.id.searchField)
 
+        // Initializes the user and filter selection chips.
         chipAllUsers = view.findViewById(R.id.chipAllUsers)
         chipRole = view.findViewById(R.id.chipRole)
         lblChipRole = view.findViewById(R.id.lblChipRole)
@@ -91,44 +101,56 @@ class UserManagementFragment : Fragment() {
         lblChipStatus = view.findViewById(R.id.lblChipStatus)
         btnAuditLog = view.findViewById(R.id.btnAuditLog)
 
+        // Initializes the loading indicator, empty-state views, and users list.
         pbLoadingUsers = view.findViewById(R.id.pbLoadingUsers)
         layoutEmptyUsers = view.findViewById(R.id.layoutEmptyUsers)
         tvEmptyTitle = view.findViewById(R.id.tvEmptyTitle)
         rvUsersList = view.findViewById(R.id.rvUsersList)
     }
 
+    // Configures the RecyclerView and connects it to the user management adapter.
     private fun setupRecyclerView() {
         adapter = UserManagementAdapter(
             users = displayedUsersList,
+            // Expands or collapses the selected user's details.
             onExpandToggle = { position ->
                 val user = displayedUsersList[position]
                 user.isExpanded = !user.isExpanded
                 adapter.notifyItemChanged(position)
             },
+            // Saves changes to the selected user's role and access status.
             onSaveAccess = { user, newRole, newAccess ->
                 saveUserAccess(user, newRole, newAccess)
             },
+            // Opens the dialog for reviewing a user's suspension.
             onReviewSuspension = { user ->
                 showSuspensionDialog(user)
             }
         )
+        // Sets a vertical layout manager for the user list.
         rvUsersList.layoutManager = LinearLayoutManager(requireContext())
+        // Attaches the adapter to the RecyclerView.
         rvUsersList.adapter = adapter
     }
 
+    // Sets up click listeners for navigation, security, audit logs, and filters.
     private fun setupListeners() {
+        // Returns to the previous fragment when the back button is clicked.
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
+        // Opens the security metrics dialog.
         btnShield.setOnClickListener {
             showSecurityMetricsDialog()
         }
 
+        // Opens the administrator audit log dialog.
         btnAuditLog.setOnClickListener {
             showAuditLogDialog()
         }
 
+        // Resets the role and status filters and clears the search field.
         chipAllUsers.setOnClickListener {
             selectedRoleFilter = "All"
             selectedStatusFilter = "All"
@@ -137,80 +159,108 @@ class UserManagementFragment : Fragment() {
             applyFilters()
         }
 
+        // Opens the dialog for filtering users by role.
         chipRole.setOnClickListener {
             showRoleFilterDialog()
         }
 
+        // Opens the dialog for filtering users by access status.
         chipStatus.setOnClickListener {
             showStatusFilterDialog()
         }
     }
 
+    // Listens for text changes in the search field.
     private fun setupSearch() {
         searchField.addTextChangedListener(object : TextWatcher {
+            // Called before the text in the search field changes.
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            // Updates the search query and refreshes the filtered user list.
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 searchQuery = s?.toString()?.trim()?.lowercase().orEmpty()
                 applyFilters()
             }
+            // Called after the text in the search field changes.
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
+    // Loads user records from Firebase and listens for real-time database changes.
     private fun loadRealUsersFromFirebase() {
+        // Displays the loading indicator while users are being retrieved.
         pbLoadingUsers.visibility = View.VISIBLE
 
+        // Removes the previous Firebase listener to avoid duplicate listeners.
         usersListener?.let { FirebaseManager.usersRef.removeEventListener(it) }
+        // Creates a listener to receive updates to the users database.
         usersListener = object : ValueEventListener {
+            // Processes the user records whenever Firebase data changes.
             override fun onDataChange(snapshot: DataSnapshot) {
+                // Stops processing if the fragment is no longer attached.
                 if (!isAdded) return
 
+                // Creates a temporary list to hold the users retrieved from Firebase.
                 val userList = mutableListOf<ManageableUser>()
+                // Retrieves the currently authenticated user's ID and email.
                 val currentUid = FirebaseManager.currentUid
                 val currentEmail = FirebaseManager.currentUserEmail
 
+                // Iterates through each user record in the Firebase snapshot.
                 for (child in snapshot.children) {
+                    // Retrieves the user's unique ID from the database key.
                     val uid = child.key.orEmpty()
+                    // Skips records that do not have a user ID.
                     if (uid.isEmpty()) continue
 
+                    // Retrieves the user's email or uses an empty string if unavailable.
                     val email = child.child("email").getValue(String::class.java).orEmpty()
+                    // Retrieves the user's name from available database fields, using a fallback if necessary.
                     val fullName = child.child("fullName").getValue(String::class.java)
                         ?: child.child("displayName").getValue(String::class.java)
                         ?: child.child("name").getValue(String::class.java)
                         ?: if (email.isNotEmpty()) email.substringBefore("@").replaceFirstChar { it.uppercase() } else "Community Member"
 
+                    // Retrieves the user's phone number from either supported field.
                     val phone = child.child("phone").getValue(String::class.java)
                         ?: child.child("phoneNumber").getValue(String::class.java)
                         ?: "Not provided"
 
+                    // Reads the role and converts it to uppercase for consistent comparison.
                     val roleRaw = child.child("role").getValue(String::class.java).orEmpty().uppercase()
+                    // Converts the stored role into the role labels used by the interface.
                     val role = when {
                         roleRaw == "ADMIN" || email.equals("admin@gmail.com", ignoreCase = true) -> "Admin"
                         roleRaw == "MODERATOR" -> "Moderator"
                         else -> "Member"
                     }
 
+                    // Checks whether the user is banned or has a suspended status.
                     val isBanned = child.child("isBanned").getValue(Boolean::class.java) == true
                         || child.child("status").getValue(String::class.java).equals("BANNED", ignoreCase = true)
                         || child.child("status").getValue(String::class.java).equals("SUSPENDED", ignoreCase = true)
                         || child.child("access").getValue(String::class.java).equals("Suspended", ignoreCase = true)
 
+                    // Checks whether the user has been restricted.
                     val isRestricted = child.child("isRestricted").getValue(Boolean::class.java) == true
                         || child.child("access").getValue(String::class.java).equals("Restricted", ignoreCase = true)
 
+                    // Determines the displayed access status based on the user's restrictions.
                     val access = when {
                         isBanned -> "Suspended"
                         isRestricted -> "Restricted"
                         else -> "Active"
                     }
 
+                    // Retrieves the user's trust score or assigns a default based on their role.
                     val trustScore = child.child("trustScore").getValue(Int::class.java)
                         ?: if (role == "Admin") 100 else 85
 
+                    // Identifies the current administrator using the user ID, email, or configured admin email.
                     val isCurrentAdmin = (uid == currentUid && currentUid.isNotEmpty())
                         || (email.isNotEmpty() && email.equals(currentEmail, ignoreCase = true))
                         || email.equals("admin@gmail.com", ignoreCase = true)
 
+                    // Creates a ManageableUser object and adds it to the retrieved user list.
                     userList.add(
                         ManageableUser(
                             uid = uid,
@@ -235,30 +285,41 @@ class UserManagementFragment : Fragment() {
                     .thenBy { if (it.role == "Admin") 0 else if (it.role == "Moderator") 1 else 2 }
                     .thenBy { it.fullName })
 
+                // Replaces the previous user data with the newly retrieved records.
                 allUsersList.clear()
                 allUsersList.addAll(userList)
 
+                // Hides the loading indicator after processing the records.
                 pbLoadingUsers.visibility = View.GONE
+                // Refreshes the list using the current search and filter settings.
                 applyFilters()
             }
 
+            // Handles errors that occur while retrieving users from Firebase.
             override fun onCancelled(error: DatabaseError) {
+                // Stops processing if the fragment is no longer attached.
                 if (!isAdded) return
+                // Hides the loading indicator after the request fails.
                 pbLoadingUsers.visibility = View.GONE
+                // Displays an error message describing the failed request.
                 Toast.makeText(requireContext(), "Failed to load users: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         }
 
+        // Registers the listener so Firebase can deliver initial data and subsequent updates.
         FirebaseManager.usersRef.addValueEventListener(usersListener as ValueEventListener)
     }
 
+    // Adds predefined demo community users when the current list contains too few users.
     private fun seedDefaultCommunityUsersIfEmpty(currentUsers: MutableList<ManageableUser>) {
+        // Defines sample user records for testing the user management interface.
         val sampleUsers = listOf(
             UserData(uid = "user_tharindu_001", fullName = "Tharindu Perera", email = "tharindu.p@gmail.com", phone = "+94 77 123 4567", role = "USER", isBanned = false, trustScore = 95),
             UserData(uid = "user_ama_002", fullName = "Ama Fernando", email = "ama.fernando@gmail.com", phone = "+94 71 987 6543", role = "MODERATOR", isBanned = false, trustScore = 92),
             UserData(uid = "user_kasun_003", fullName = "Kasun Jayasinghe", email = "kasun.j@gmail.com", phone = "+94 75 456 7890", role = "USER", isBanned = false, trustScore = 78)
         )
 
+        // Adds each sample user to Firebase if no user with the same email exists locally.
         for (u in sampleUsers) {
             if (currentUsers.none { it.email.equals(u.email, ignoreCase = true) }) {
                 FirebaseManager.usersRef.child(u.uid).setValue(u)
@@ -266,10 +327,14 @@ class UserManagementFragment : Fragment() {
         }
     }
 
+    // Filters the user list according to the current search query, role, and access status.
     private fun applyFilters() {
+        // Clears the previous displayed results before applying the filters.
         displayedUsersList.clear()
 
+        // Selects users who match all active filtering conditions.
         val filtered = allUsersList.filter { user ->
+            // Checks whether the search query matches any supported user field.
             val matchesSearch = if (searchQuery.isEmpty()) true else {
                 user.fullName.lowercase().contains(searchQuery) ||
                 user.email.lowercase().contains(searchQuery) ||
@@ -278,51 +343,69 @@ class UserManagementFragment : Fragment() {
                 user.access.lowercase().contains(searchQuery)
             }
 
+            // Checks whether the user matches the selected role filter.
             val matchesRole = if (selectedRoleFilter == "All") true else {
                 user.role.equals(selectedRoleFilter, ignoreCase = true)
             }
 
+            // Checks whether the user matches the selected access status filter.
             val matchesStatus = if (selectedStatusFilter == "All") true else {
                 user.access.equals(selectedStatusFilter, ignoreCase = true)
             }
 
+            // Includes the user only when the search, role, and status conditions all match.
             matchesSearch && matchesRole && matchesStatus
         }
 
+        // Adds the filtered users to the list displayed by the RecyclerView.
         displayedUsersList.addAll(filtered)
+        // Notifies the adapter that the displayed data has changed.
         adapter.notifyDataSetChanged()
 
+        // Shows an empty-state message when no users match the current filters.
         if (displayedUsersList.isEmpty()) {
             layoutEmptyUsers.visibility = View.VISIBLE
+            // Displays a message appropriate to whether a search query is active.
             tvEmptyTitle.text = if (searchQuery.isNotEmpty()) {
                 "No users matching \"$searchQuery\""
             } else {
                 "No users match the selected filters"
             }
         } else {
+            // Hides the empty-state view when matching users are available.
             layoutEmptyUsers.visibility = View.GONE
         }
     }
 
+    // Updates the appearance and labels of the role and status filter chips.
     private fun updateFilterChipsUi() {
+        // Checks whether both role and status filters are set to their default values.
         val isAllDefault = selectedRoleFilter == "All" && selectedStatusFilter == "All"
 
+        // Highlights the All Users chip when no specific filters are active.
         if (isAllDefault) {
             chipAllUsers.setBackgroundResource(R.drawable.bg_pill_dark)
             chipAllUsers.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
         } else {
+            // Uses the outlined style when a specific filter is active.
             chipAllUsers.setBackgroundResource(R.drawable.bg_pill_outline)
             chipAllUsers.setTextColor(ContextCompat.getColor(requireContext(), R.color.deep_blue))
         }
 
+        // Updates the role chip label to show the selected role, if any.
         lblChipRole.text = if (selectedRoleFilter == "All") "Role" else "Role: $selectedRoleFilter"
+        // Updates the status chip label to show the selected status, if any.
         lblChipStatus.text = if (selectedStatusFilter == "All") "Status" else "Status: $selectedStatusFilter"
     }
 
+    // Displays a dialog allowing the administrator to filter users by role.
     private fun showRoleFilterDialog() {
+        // Defines the available role filter options.
         val roles = arrayOf("All Roles", "Admin", "Moderator", "Member")
         AlertDialog.Builder(requireContext())
+            // Sets the dialog title.
             .setTitle("Filter by Role")
+            // Updates the selected role when an option is clicked.
             .setItems(roles) { _, which ->
                 selectedRoleFilter = when (which) {
                     1 -> "Admin"
@@ -330,16 +413,22 @@ class UserManagementFragment : Fragment() {
                     3 -> "Member"
                     else -> "All"
                 }
+                // Refreshes the filter chip labels and the displayed user list.
                 updateFilterChipsUi()
                 applyFilters()
             }
+            // Displays the role filter dialog.
             .show()
     }
 
+    // Displays a dialog allowing the administrator to filter users by access status.
     private fun showStatusFilterDialog() {
+        // Defines the available access status filter options.
         val statuses = arrayOf("All Statuses", "Active", "Restricted", "Suspended")
         AlertDialog.Builder(requireContext())
+            // Sets the dialog title.
             .setTitle("Filter by Status")
+            // Updates the selected status when an option is clicked.
             .setItems(statuses) { _, which ->
                 selectedStatusFilter = when (which) {
                     1 -> "Active"
@@ -347,21 +436,27 @@ class UserManagementFragment : Fragment() {
                     3 -> "Suspended"
                     else -> "All"
                 }
+                // Refreshes the filter chip labels and the displayed user list.
                 updateFilterChipsUi()
                 applyFilters()
             }
+            // Displays the status filter dialog.
             .show()
     }
 
+    // Updates a user's role and access status in Firebase.
     private fun saveUserAccess(user: ManageableUser, newRole: String, newAccess: String) {
+        // Prevents the current administrator from removing or restricting their own admin access.
         if (user.isCurrentAdmin && (newRole != "Admin" || newAccess != "Active")) {
             Toast.makeText(requireContext(), "You cannot alter your own admin privileges.", Toast.LENGTH_SHORT).show()
             return
         }
 
+        // Updates the user object with the newly selected role and access status.
         user.role = newRole
         user.access = newAccess
 
+        // Prepares the Firebase fields that must be updated for the selected user.
         val updates = mapOf<String, Any>(
             "role" to newRole.uppercase(),
             "isBanned" to (newAccess == "Suspended"),
@@ -370,13 +465,19 @@ class UserManagementFragment : Fragment() {
             "access" to newAccess
         )
 
+        // Updates the selected user's record in the Firebase database.
         FirebaseManager.usersRef.child(user.uid).updateChildren(updates)
+            // Handles a successful database update.
             .addOnSuccessListener {
+                // Stops processing if the fragment is no longer attached.
                 if (!isAdded) return@addOnSuccessListener
+                // Confirms the updated role and access status to the administrator.
                 Toast.makeText(requireContext(), "Updated access for ${user.fullName}: $newRole ($newAccess)", Toast.LENGTH_SHORT).show()
 
                 // Log audit action to Firebase /admin_logs
+                // Generates a unique ID for the audit record, with a fallback if unavailable.
                 val logId = FirebaseManager.adminLogsRef.push().key ?: "log_${System.currentTimeMillis()}"
+                // Creates an audit record describing the administrator's action.
                 val log = AdminAction(
                     actionId = logId,
                     adminUid = FirebaseManager.currentUid,
@@ -384,34 +485,49 @@ class UserManagementFragment : Fragment() {
                     actionType = "USER_ACCESS_UPDATE",
                     timestamp = System.currentTimeMillis()
                 )
+                // Saves the audit record to the Firebase admin logs.
                 FirebaseManager.adminLogsRef.child(logId).setValue(log)
             }
+            // Handles errors that occur while updating the user's record.
             .addOnFailureListener { e ->
+                // Stops processing if the fragment is no longer attached.
                 if (!isAdded) return@addOnFailureListener
+                // Displays the database update error.
                 Toast.makeText(requireContext(), "Failed to update: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
+    // Displays the appropriate dialog for suspending or reactivating a user.
     private fun showSuspensionDialog(user: ManageableUser) {
+        // Prevents the current administrator from suspending their own account.
         if (user.isCurrentAdmin) {
             Toast.makeText(requireContext(), "You cannot suspend your own admin account.", Toast.LENGTH_SHORT).show()
             return
         }
 
+        // Checks whether the user is already suspended and offers to reactivate the account.
         if (user.access == "Suspended") {
             AlertDialog.Builder(requireContext())
+                // Sets the dialog title for reactivating the account.
                 .setTitle("Reactivate Account")
+                // Asks the administrator to confirm lifting the suspension.
                 .setMessage("Lift suspension for ${user.fullName} and restore active status?")
+                // Restores the user's access to Active when confirmed.
                 .setPositiveButton("Reactivate") { _, _ ->
                     saveUserAccess(user, user.role, "Active")
+                    // Finds the user's position in the displayed list.
                     val index = displayedUsersList.indexOfFirst { it.uid == user.uid }
+                    // Refreshes the user's row if it is still present in the list.
                     if (index >= 0) adapter.notifyItemChanged(index)
                 }
+                // Closes the dialog without changing the user's status.
                 .setNegativeButton("Cancel", null)
+                // Displays the reactivation confirmation dialog.
                 .show()
             return
         }
 
+        // Defines common reasons for suspending a user account.
         val reasons = arrayOf(
             "Spam or false report submissions",
             "Multiple scam reports flagged by community",
@@ -419,20 +535,29 @@ class UserManagementFragment : Fragment() {
             "Harassment in live chat"
         )
 
+        // Displays the available suspension reasons.
         AlertDialog.Builder(requireContext())
+            // Sets the dialog title to include the user's name.
             .setTitle("Suspend ${user.fullName}")
+            // Suspends the user when an administrator selects a reason.
             .setItems(reasons) { _, which ->
+                // Retrieves the selected suspension reason.
                 val reason = reasons[which]
+                // Updates the user's access status to Suspended.
                 saveUserAccess(user, user.role, "Suspended")
+                // Finds the user's position in the displayed list.
                 val index = displayedUsersList.indexOfFirst { it.uid == user.uid }
+                // Refreshes the user's row if it is still present in the list.
                 if (index >= 0) adapter.notifyItemChanged(index)
 
+                // Displays a message explaining why the account was suspended.
                 Toast.makeText(requireContext(), "Suspended ${user.fullName} for: $reason", Toast.LENGTH_LONG).show()
             }
+            // Closes the dialog without suspending the account.
             .setNegativeButton("Cancel", null)
+            // Displays the suspension dialog.
             .show()
     }
-
     private fun showSecurityMetricsDialog() {
         val total = allUsersList.size
         val admins = allUsersList.count { it.role == "Admin" }

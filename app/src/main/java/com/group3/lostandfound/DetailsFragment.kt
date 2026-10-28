@@ -185,109 +185,215 @@ class DetailsFragment : Fragment() {
         setupEmbeddedMap()
     }
 
-    private fun bindData() {
-        val initialTitle = arguments?.getString(ARG_TITLE) ?: "Black leather wallet"
-        val initialDesc = arguments?.getString(ARG_DESC) ?: "Slim wallet with national ID and two bank cards. Small scratch near the clasp."
-        val initialStatus = arguments?.getString(ARG_STATUS) ?: "LOST"
-        val initialLocation = arguments?.getString(ARG_LOCATION) ?: "Colombo 03"
-        itemId = arguments?.getString(ARG_ITEM_ID)
-        val initialReporter = arguments?.getString(ARG_REPORTER_UID).orEmpty()
-        val initialAuthorName = arguments?.getString(ARG_AUTHOR_NAME).orEmpty()
-        reporterName = if (initialAuthorName.isNotEmpty()) initialAuthorName else "Tharindu Perera"
-        view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
-        if (initialReporter.isNotEmpty()) {
-            reporterUserId = initialReporter
-        }
-        if (reporterUserId.isEmpty() && !itemId.isNullOrEmpty()) {
-            reporterUserId = "user_${itemId.orEmpty().replace("-", "").takeLast(6)}"
-        }
-        detailsViewModel.loadItem(itemId.orEmpty())
+private fun bindData() {
 
-        // Set initial bundle data
-        tvItemTitle.text = initialTitle
-        tvDescription.text = initialDesc
-        updateStatusTag(initialStatus)
-        tvLocationText.text = initialLocation
+    // Read the item details passed from the previous screen.
+    // Use default values if any arguments are missing.
+    val initialTitle = arguments?.getString(ARG_TITLE) ?: "Black leather wallet"
+    val initialDesc = arguments?.getString(ARG_DESC)
+        ?: "Slim wallet with national ID and two bank cards. Small scratch near the clasp."
+    val initialStatus = arguments?.getString(ARG_STATUS) ?: "LOST"
+    val initialLocation = arguments?.getString(ARG_LOCATION) ?: "Colombo 03"
 
-        // Setup Photo Carousel with initialImageUrl or wallet details default
-        val initialImageUrl = arguments?.getString("arg_image_url").orEmpty()
-        if (initialImageUrl.isNotEmpty()) {
-            activeImageUrl = initialImageUrl
-            itemPhotoList = listOf(initialImageUrl)
-            pagerPhotos.adapter = PhotoSliderAdapter(itemPhotoList, viewLifecycleOwner.lifecycleScope) { url ->
-                showEnlargedPhotoDialog(url, tvItemTitle.text.toString())
-            }
-        } else {
-            val fallbackPhotos = listOf("")
-            itemPhotoList = fallbackPhotos
-            pagerPhotos.adapter = PhotoSliderAdapter(itemPhotoList, viewLifecycleOwner.lifecycleScope) { url ->
-                showEnlargedPhotoDialog(url, tvItemTitle.text.toString())
-            }
+    // Retrieve the item's unique ID.
+    itemId = arguments?.getString(ARG_ITEM_ID)
+
+    // Get the reporter's user ID and display name, using empty strings if missing.
+    val initialReporter = arguments?.getString(ARG_REPORTER_UID).orEmpty()
+    val initialAuthorName = arguments?.getString(ARG_AUTHOR_NAME).orEmpty()
+
+    // Use the supplied author name or display a default name.
+    reporterName = if (initialAuthorName.isNotEmpty()) {
+        initialAuthorName
+    } else {
+        "Tharindu Perera"
+    }
+
+    // Display the reporter's name if the TextView exists.
+    view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
+
+    // Store the reporter's actual user ID when it is available.
+    if (initialReporter.isNotEmpty()) {
+        reporterUserId = initialReporter
+    }
+
+    // Generate a fallback identifier if the reporter ID is missing
+    // but the item ID is available.
+    if (reporterUserId.isEmpty() && !itemId.isNullOrEmpty()) {
+        reporterUserId = "user_${itemId.orEmpty().replace("-", "").takeLast(6)}"
+    }
+
+    // Ask the ViewModel to load the item's details.
+    detailsViewModel.loadItem(itemId.orEmpty())
+
+    // Display the initial item information on the screen.
+    tvItemTitle.text = initialTitle
+    tvDescription.text = initialDesc
+    updateStatusTag(initialStatus)
+    tvLocationText.text = initialLocation
+
+    // Retrieve the initial photo URL, or use an empty string if missing.
+    val initialImageUrl = arguments?.getString("arg_image_url").orEmpty()
+
+    // Display the supplied photo when a valid URL is available.
+    if (initialImageUrl.isNotEmpty()) {
+        activeImageUrl = initialImageUrl
+
+        // Store the image URL in the photo carousel's data list.
+        itemPhotoList = listOf(initialImageUrl)
+
+        // Configure the photo carousel and open an enlarged photo when clicked.
+        pagerPhotos.adapter = PhotoSliderAdapter(
+            itemPhotoList,
+            viewLifecycleOwner.lifecycleScope
+        ) { url ->
+            showEnlargedPhotoDialog(url, tvItemTitle.text.toString())
         }
 
-        val initialCategory = arguments?.getString("arg_category").orEmpty()
-        val fallbackReport = ItemReport(
-            itemId = itemId.orEmpty(),
-            title = initialTitle,
-            description = initialDesc,
-            category = initialCategory,
-            status = initialStatus,
-            location = initialLocation,
-            imageUrl = initialImageUrl,
-            authorName = reporterName
-        )
-        observeMatchingSuggestions(fallbackReport)
+    } else {
+        // Provide an empty image entry when no photo URL is supplied.
+        val fallbackPhotos = listOf("")
+        itemPhotoList = fallbackPhotos
+
+        // Configure the carousel with the fallback entry.
+        pagerPhotos.adapter = PhotoSliderAdapter(
+            itemPhotoList,
+            viewLifecycleOwner.lifecycleScope
+        ) { url ->
+            // Open the selected photo in an enlarged dialog.
+            showEnlargedPhotoDialog(url, tvItemTitle.text.toString())
+        }
+    }
+
+    // Retrieve the item's category, or use an empty string if unavailable.
+    val initialCategory = arguments?.getString("arg_category").orEmpty()
+
+    // Create a fallback report using the item details already available.
+    val fallbackReport = ItemReport(
+        itemId = itemId.orEmpty(),
+        title = initialTitle,
+        description = initialDesc,
+        category = initialCategory,
+        status = initialStatus,
+        location = initialLocation,
+        imageUrl = initialImageUrl,
+        authorName = reporterName
+    )
+
+    // Observe suggestions for items that may match this report.
+    observeMatchingSuggestions(fallbackReport)
+
+
 
         // Live status updates from DetailsViewModel
+     
+        // Load live report details only when a valid item ID is available.
         if (!itemId.isNullOrEmpty()) {
+
+            // Cancel any previous collection job to avoid duplicate observers.
             detailsJob?.cancel()
+
+            // Launch a coroutine tied to the Fragment's view lifecycle.
             detailsJob = viewLifecycleOwner.lifecycleScope.launch {
+
+                // Observe report updates from the ViewModel.
                 detailsViewModel.itemState.collectLatest { report ->
+
+                    // Update the UI only when report data is available.
                     if (report != null) {
+
+                        // Display the report title, description and current status.
                         tvItemTitle.text = report.title.ifEmpty { "Report Details" }
                         tvDescription.text = report.description.ifEmpty { "No description provided." }
                         updateStatusTag(report.status)
 
-                        if (report.authorName.isNotEmpty() && (reporterName == "Community Reporter" || reporterName.startsWith("User #"))) {
+                        // Replace a generic reporter name with the actual report author's name.
+                        if (report.authorName.isNotEmpty() &&
+                            (reporterName == "Community Reporter" || reporterName.startsWith("User #"))
+                        ) {
                             reporterName = report.authorName
                             view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
                         }
 
+                        // Configure ownership-related actions when the report has a user ID.
                         if (report.userId.isNotEmpty()) {
                             reporterUserId = report.userId
+
+                            // Compare the signed-in user's ID with the report owner's ID.
                             val currentUid = FirebaseManager.currentUid
-                            val isOwner = currentUid.isNotEmpty() && (reporterUserId == currentUid || report.userId == currentUid)
+                            val isOwner = currentUid.isNotEmpty() &&
+                                (reporterUserId == currentUid || report.userId == currentUid)
+
+                            // Show or hide actions according to report ownership.
                             btnBookmark.visibility = View.VISIBLE
                             rowOwnerActions?.visibility = if (isOwner) View.VISIBLE else View.GONE
                             btnDeleteReport?.visibility = if (isOwner) View.VISIBLE else View.GONE
                             sectionVisitorActions?.visibility = if (isOwner) View.GONE else View.VISIBLE
-                            btnMarkResolved.visibility = if (isOwner && !report.status.equals("RESOLVED", ignoreCase = true)) View.VISIBLE else View.GONE
-                            FirebaseManager.usersRef.child(report.userId).addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
-                                override fun onDataChange(userSnapshot: com.google.firebase.database.DataSnapshot) {
-                                    val name = userSnapshot.child("fullName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
-                                        ?: userSnapshot.child("displayName").getValue(String::class.java)?.takeIf { it.isNotBlank() }
-                                        ?: userSnapshot.child("email").getValue(String::class.java)?.substringBefore("@")?.takeIf { it.isNotBlank() }
-                                        ?: report.authorName.takeIf { it.isNotBlank() }
-                                        ?: "User #${report.userId.takeLast(4)}"
-                                    reporterName = name
-                                    view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
 
-                                    val phone = userSnapshot.child("phone").getValue(String::class.java)
-                                        ?: userSnapshot.child("phoneNumber").getValue(String::class.java)
-                                        ?: ""
-                                    reporterPhone = phone.trim()
-                                    if (reporterPhone.isNotBlank()) {
-                                        btnWhatsApp.visibility = View.VISIBLE
-                                    } else {
-                                        btnWhatsApp.visibility = View.GONE
-                                    }
+                            // Allow the owner to resolve a report only if it is not already resolved.
+                            btnMarkResolved.visibility =
+                                if (isOwner && !report.status.equals("RESOLVED", ignoreCase = true)) {
+                                    View.VISIBLE
+                                } else {
+                                    View.GONE
                                 }
-                                override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
-                            })
+
+                            // Fetch the report owner's profile from Firebase.
+                            FirebaseManager.usersRef.child(report.userId)
+                                .addListenerForSingleValueEvent(
+                                    object : com.google.firebase.database.ValueEventListener {
+
+                                        override fun onDataChange(
+                                            userSnapshot: com.google.firebase.database.DataSnapshot
+                                        ) {
+                                            // Select the best available name from the user's profile.
+                                            val name =
+                                                userSnapshot.child("fullName")
+                                                    .getValue(String::class.java)
+                                                    ?.takeIf { it.isNotBlank() }
+                                                    ?: userSnapshot.child("displayName")
+                                                        .getValue(String::class.java)
+                                                        ?.takeIf { it.isNotBlank() }
+                                                    ?: userSnapshot.child("email")
+                                                        .getValue(String::class.java)
+                                                        ?.substringBefore("@")
+                                                        ?.takeIf { it.isNotBlank() }
+                                                    ?: report.authorName.takeIf { it.isNotBlank() }
+                                                    ?: "User #${report.userId.takeLast(4)}"
+
+                                            // Update the reporter's displayed name.
+                                            reporterName = name
+                                            view?.findViewById<TextView>(R.id.tvReporterName)?.text = reporterName
+
+                                            // Retrieve the phone number using either supported field.
+                                            val phone =
+                                                userSnapshot.child("phone")
+                                                    .getValue(String::class.java)
+                                                    ?: userSnapshot.child("phoneNumber")
+                                                        .getValue(String::class.java)
+                                                    ?: ""
+
+                                            // Show the WhatsApp button only when a phone number exists.
+                                            reporterPhone = phone.trim()
+                                            btnWhatsApp.visibility =
+                                                if (reporterPhone.isNotBlank()) View.VISIBLE else View.GONE
+                                        }
+
+                                        // Handle Firebase profile-read failures.
+                                        override fun onCancelled(
+                                            error: com.google.firebase.database.DatabaseError
+                                        ) {
+                                            // No action is performed when the request fails.
+                                        }
+                                    }
+                                )
                         }
 
+                        // Store the currently displayed report and refresh matching suggestions.
                         currentItemReport = report
                         observeMatchingSuggestions(report)
+
+                        // Use the report's coordinates when available; otherwise resolve its location.
                         if (report.latitude != 0.0 || report.longitude != 0.0) {
                             itemLatitude = report.latitude
                             itemLongitude = report.longitude
@@ -297,20 +403,41 @@ class DetailsFragment : Fragment() {
                             itemLongitude = resolved.second
                         }
 
-                        val loc = if (report.latitude != 0.0 || report.longitude != 0.0) {
-                            "${report.latitude}, ${report.longitude}"
-                        } else {
-                            report.location.ifEmpty { "Colombo 03" }
-                        }
+                        // Prepare the location text shown to the user.
+                        val loc =
+                            if (report.latitude != 0.0 || report.longitude != 0.0) {
+                                "${report.latitude}, ${report.longitude}"
+                            } else {
+                                report.location.ifEmpty { "Colombo 03" }
+                            }
+
+                        // Display the coordinates or fallback location and the street/location name.
                         tvLocationText.text = loc
-                        view?.findViewById<TextView>(R.id.tvStreetName)?.text = if (report.location.isNotBlank()) report.location else "Colombo, Western Province"
+                        view?.findViewById<TextView>(R.id.tvStreetName)?.text =
+                            if (report.location.isNotBlank()) {
+                                report.location
+                            } else {
+                                "Colombo, Western Province"
+                            }
 
-                        loadEmbeddedMap(itemLatitude, itemLongitude, report.status, report.title)
+                        // Load the embedded map using the report's location and details.
+                        loadEmbeddedMap(
+                            itemLatitude,
+                            itemLongitude,
+                            report.status,
+                            report.title
+                        )
 
+                        // Update the photo carousel if the report contains an image URL.
                         if (report.imageUrl.isNotEmpty()) {
                             activeImageUrl = report.imageUrl
                             itemPhotoList = listOf(report.imageUrl)
-                            pagerPhotos.adapter = PhotoSliderAdapter(itemPhotoList, viewLifecycleOwner.lifecycleScope) { url ->
+
+                            // Configure the carousel to enlarge the selected photo when tapped.
+                            pagerPhotos.adapter = PhotoSliderAdapter(
+                                itemPhotoList,
+                                viewLifecycleOwner.lifecycleScope
+                            ) { url ->
                                 showEnlargedPhotoDialog(url, report.title)
                             }
                         }
@@ -319,175 +446,299 @@ class DetailsFragment : Fragment() {
             }
         }
 
-        pagerPhotos.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                updateDots(position)
-            }
-        })
-    }
+        // Listen for photo carousel page changes.
+        pagerPhotos.registerOnPageChangeCallback(
+            object : ViewPager2.OnPageChangeCallback() {
 
-    private fun updateStatusTag(status: String) {
-        val norm = status.trim().uppercase()
-        when (norm) {
-            "LOST" -> {
-                tagStatus.text = "Lost"
-                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                tagStatus.setBackgroundResource(R.drawable.bg_badge_lost_hero)
-            }
-            "FOUND" -> {
-                tagStatus.text = "Found"
-                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                tagStatus.setBackgroundResource(R.drawable.bg_badge_found_hero)
-            }
-            "RESOLVED" -> {
-                tagStatus.text = "Resolved"
-                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                tagStatus.setBackgroundResource(R.drawable.bg_badge_resolved_green)
-            }
-            "MATCHED" -> {
-                tagStatus.text = "Matched"
-                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                tagStatus.setBackgroundResource(R.drawable.bg_badge_matched_pill)
-            }
-            else -> {
-                tagStatus.text = if (norm.isNotEmpty()) norm.lowercase().replaceFirstChar { it.uppercase() } else "Active"
-                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                tagStatus.setBackgroundResource(R.drawable.bg_badge_matched_pill)
-            }
-        }
-        updateReportProgressUI(status)
-    }
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
 
-    private fun updateReportProgressUI(status: String) {
-        val norm = status.trim().uppercase()
-        val navyColor = Color.parseColor("#002840")
-        val grayColor = Color.parseColor("#94A3B8")
-        val lineInactiveColor = Color.parseColor("#E2E8F0")
-
-        when (norm) {
-            "RESOLVED" -> {
-                dotStep1?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
-                lineStep1to2?.setBackgroundColor(navyColor)
-                dotStep2?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
-                lineStep2to3?.setBackgroundColor(navyColor)
-                dotStep3?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
-                lineStep3to4?.setBackgroundColor(navyColor)
-                dotStep4?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
-
-                lblStep1?.setTextColor(navyColor)
-                lblStep2?.setTextColor(navyColor)
-                lblStep3?.setTextColor(navyColor)
-                lblStep4?.setTextColor(navyColor)
-                lblStep4?.setTypeface(null, android.graphics.Typeface.BOLD)
-            }
-            "UNDER REVIEW", "REVIEW" -> {
-                dotStep1?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
-                lineStep1to2?.setBackgroundColor(navyColor)
-                dotStep2?.setBackgroundResource(R.drawable.bg_dot_progress_active)
-                lineStep2to3?.setBackgroundColor(lineInactiveColor)
-                dotStep3?.setBackgroundResource(R.drawable.bg_dot_progress_inactive)
-                lineStep3to4?.setBackgroundColor(lineInactiveColor)
-                dotStep4?.setBackgroundResource(R.drawable.bg_dot_progress_inactive)
-
-                lblStep1?.setTextColor(navyColor)
-                lblStep2?.setTextColor(navyColor)
-                lblStep2?.setTypeface(null, android.graphics.Typeface.BOLD)
-                lblStep3?.setTextColor(grayColor)
-                lblStep4?.setTextColor(grayColor)
-            }
-            else -> {
-                // MATCHED, PENDING, LOST
-                dotStep1?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
-                lineStep1to2?.setBackgroundColor(navyColor)
-                dotStep2?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
-                lineStep2to3?.setBackgroundColor(navyColor)
-                dotStep3?.setBackgroundResource(R.drawable.bg_dot_progress_active)
-                lineStep3to4?.setBackgroundColor(lineInactiveColor)
-                dotStep4?.setBackgroundResource(R.drawable.bg_dot_progress_inactive)
-
-                lblStep1?.setTextColor(navyColor)
-                lblStep2?.setTextColor(navyColor)
-                lblStep3?.setTextColor(navyColor)
-                lblStep3?.setTypeface(null, android.graphics.Typeface.BOLD)
-                lblStep4?.setTextColor(grayColor)
-                lblStep4?.setTypeface(null, android.graphics.Typeface.NORMAL)
-            }
-        }
-    }
-
-    private fun promptDeleteReport() {
-        val currentItemId = itemId ?: return
-        val title = tvItemTitle.text.toString()
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("Delete Report")
-            .setMessage("Are you sure you want to delete '$title'? This cannot be undone.")
-            .setPositiveButton("Delete") { _, _ ->
-                FirebaseManager.itemsRef.child(currentItemId).removeValue().addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Toast.makeText(requireContext(), "'$title' deleted successfully.", Toast.LENGTH_SHORT).show()
-                        parentFragmentManager.popBackStack()
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to delete: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                    }
+                    // Update the carousel indicator dots for the selected photo.
+                    updateDots(position)
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
-    private fun promptEditReport() {
-        val currentItemId = itemId ?: return
-        val currentTitle = tvItemTitle.text.toString()
-        val currentDesc = tvDescription.text.toString()
-        val currentLocation = tvLocationText.text.toString().substringBefore(" · ")
+/**
+ * Updates the status badge based on the report's current status.
+ * Each status gets its own label, text color, and background drawable.
+ */
+private fun updateStatusTag(status: String) {
+    // Remove surrounding spaces and convert the status to uppercase.
+    // Example: " lost " becomes "LOST".
+    val norm = status.trim().uppercase()
 
-        val layout = android.widget.LinearLayout(requireContext()).apply {
-            orientation = android.widget.LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 12)
+    // Select the badge appearance based on the normalized status.
+    when (norm) {
+        "LOST" -> {
+            tagStatus.text = "Lost"
+            tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            tagStatus.setBackgroundResource(R.drawable.bg_badge_lost_hero)
         }
-        val inputTitle = android.widget.EditText(requireContext()).apply {
-            hint = "Item Title"
-            setText(currentTitle)
+        "FOUND" -> {
+            tagStatus.text = "Found"
+            tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            tagStatus.setBackgroundResource(R.drawable.bg_badge_found_hero)
         }
-        val inputDesc = android.widget.EditText(requireContext()).apply {
-            hint = "Description"
-            setText(currentDesc)
+        "RESOLVED" -> {
+            tagStatus.text = "Resolved"
+            tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            tagStatus.setBackgroundResource(R.drawable.bg_badge_resolved_green)
         }
-        val inputLocation = android.widget.EditText(requireContext()).apply {
-            hint = "Location"
-            setText(currentLocation)
+        "MATCHED" -> {
+            tagStatus.text = "Matched"
+            tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            tagStatus.setBackgroundResource(R.drawable.bg_badge_matched_pill)
         }
-        layout.addView(inputTitle)
-        layout.addView(inputDesc)
-        layout.addView(inputLocation)
+        else -> {
+            // Display unknown statuses with a formatted label.
+            // If the status is empty, display "Active" instead.
+            tagStatus.text = if (norm.isNotEmpty()) {
+                norm.lowercase().replaceFirstChar { it.uppercase() }
+            } else {
+                "Active"
+            }
 
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("Edit Report")
-            .setView(layout)
-            .setPositiveButton("Save Changes") { _, _ ->
-                val newTitle = inputTitle.text.toString().trim()
-                val newDesc = inputDesc.text.toString().trim()
-                val newLoc = inputLocation.text.toString().trim()
-                if (newTitle.isNotEmpty()) {
-                    val updates = mapOf<String, Any>(
-                        "title" to newTitle,
-                        "description" to newDesc,
-                        "location" to newLoc
-                    )
-                    FirebaseManager.itemsRef.child(currentItemId).updateChildren(updates).addOnCompleteListener { task ->
+            tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            tagStatus.setBackgroundResource(R.drawable.bg_badge_matched_pill)
+        }
+    }
+
+    // Update the progress indicator to reflect the report's status.
+    updateReportProgressUI(status)
+}
+
+/**
+ * Updates the report progress indicator.
+ * Changes the step dots, connecting lines, and labels according to status.
+ */
+private fun updateReportProgressUI(status: String) {
+    // Normalize the status so comparisons are case-insensitive.
+    val norm = status.trim().uppercase()
+
+    // Define colors used by the progress indicator.
+    val navyColor = Color.parseColor("#002840")
+    val grayColor = Color.parseColor("#94A3B8")
+    val lineInactiveColor = Color.parseColor("#E2E8F0")
+
+    // Select the progress display based on the report status.
+    when (norm) {
+        "RESOLVED" -> {
+            // Mark all four progress steps as completed.
+            dotStep1?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+            lineStep1to2?.setBackgroundColor(navyColor)
+            dotStep2?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+            lineStep2to3?.setBackgroundColor(navyColor)
+            dotStep3?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+            lineStep3to4?.setBackgroundColor(navyColor)
+            dotStep4?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+
+            // Highlight all labels to indicate completion.
+            lblStep1?.setTextColor(navyColor)
+            lblStep2?.setTextColor(navyColor)
+            lblStep3?.setTextColor(navyColor)
+            lblStep4?.setTextColor(navyColor)
+            lblStep4?.setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+
+        "UNDER REVIEW", "REVIEW" -> {
+            // Mark step 1 as completed and step 2 as active.
+            dotStep1?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+            lineStep1to2?.setBackgroundColor(navyColor)
+            dotStep2?.setBackgroundResource(R.drawable.bg_dot_progress_active)
+
+            // Keep the remaining steps inactive.
+            lineStep2to3?.setBackgroundColor(lineInactiveColor)
+            dotStep3?.setBackgroundResource(R.drawable.bg_dot_progress_inactive)
+            lineStep3to4?.setBackgroundColor(lineInactiveColor)
+            dotStep4?.setBackgroundResource(R.drawable.bg_dot_progress_inactive)
+
+            // Highlight the completed and active step labels.
+            lblStep1?.setTextColor(navyColor)
+            lblStep2?.setTextColor(navyColor)
+            lblStep2?.setTypeface(null, android.graphics.Typeface.BOLD)
+
+            // Show future steps in gray.
+            lblStep3?.setTextColor(grayColor)
+            lblStep4?.setTextColor(grayColor)
+        }
+
+        else -> {
+            // Default progress display for statuses such as MATCHED,
+            // PENDING, and LOST: steps 1 and 2 are completed,
+            // step 3 is active, and step 4 is inactive.
+            dotStep1?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+            lineStep1to2?.setBackgroundColor(navyColor)
+            dotStep2?.setBackgroundResource(R.drawable.bg_dot_progress_completed)
+            lineStep2to3?.setBackgroundColor(navyColor)
+            dotStep3?.setBackgroundResource(R.drawable.bg_dot_progress_active)
+            lineStep3to4?.setBackgroundColor(lineInactiveColor)
+            dotStep4?.setBackgroundResource(R.drawable.bg_dot_progress_inactive)
+
+            // Highlight the first three labels.
+            lblStep1?.setTextColor(navyColor)
+            lblStep2?.setTextColor(navyColor)
+            lblStep3?.setTextColor(navyColor)
+            lblStep3?.setTypeface(null, android.graphics.Typeface.BOLD)
+
+            // Keep the final step inactive and not bold.
+            lblStep4?.setTextColor(grayColor)
+            lblStep4?.setTypeface(null, android.graphics.Typeface.NORMAL)
+        }
+    }
+}
+
+/**
+ * Shows a confirmation dialog before deleting a report.
+ * Deletes the report from Firebase only when the user confirms.
+ */
+private fun promptDeleteReport() {
+    // Stop if there is no current report ID.
+    val currentItemId = itemId ?: return
+
+    // Get the report title to display in the confirmation dialog.
+    val title = tvItemTitle.text.toString()
+
+    // Build the delete confirmation dialog.
+    androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        .setTitle("Delete Report")
+        .setMessage("Are you sure you want to delete '$title'? This cannot be undone.")
+
+        // Execute this block when the user presses Delete.
+        .setPositiveButton("Delete") { _, _ ->
+
+            // Remove the report from Firebase using its ID.
+            FirebaseManager.itemsRef.child(currentItemId)
+                .removeValue()
+                .addOnCompleteListener { task ->
+
+                    // Check whether the Firebase deletion succeeded.
+                    if (task.isSuccessful) {
+                        Toast.makeText(
+                            requireContext(),
+                            "'$title' deleted successfully.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        // Return to the previous screen.
+                        parentFragmentManager.popBackStack()
+                    } else {
+                        // Display the error if deletion failed.
+                        Toast.makeText(
+                            requireContext(),
+                            "Failed to delete: ${task.exception?.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+        }
+
+        // Close the dialog without deleting anything.
+        .setNegativeButton("Cancel", null)
+        .show()
+}
+
+/**
+ * Opens an edit dialog containing the report's current details.
+ * Saves the updated title, description, and location to Firebase.
+ */
+private fun promptEditReport() {
+    // Stop if there is no current report ID.
+    val currentItemId = itemId ?: return
+
+    // Read the existing report details from the UI.
+    val currentTitle = tvItemTitle.text.toString()
+    val currentDesc = tvDescription.text.toString()
+
+    // Remove any extra date text after the location separator.
+    val currentLocation = tvLocationText.text.toString().substringBefore(" · ")
+
+    // Create a vertical layout to hold the three input fields.
+    val layout = android.widget.LinearLayout(requireContext()).apply {
+        orientation = android.widget.LinearLayout.VERTICAL
+
+        // Set the layout's internal spacing in pixels.
+        setPadding(48, 24, 48, 12)
+    }
+
+    // Create the title input and prefill it with the current title.
+    val inputTitle = android.widget.EditText(requireContext()).apply {
+        hint = "Item Title"
+        setText(currentTitle)
+    }
+
+    // Create the description input and prefill it with the current description.
+    val inputDesc = android.widget.EditText(requireContext()).apply {
+        hint = "Description"
+        setText(currentDesc)
+    }
+
+    // Create the location input and prefill it with the current location.
+    val inputLocation = android.widget.EditText(requireContext()).apply {
+        hint = "Location"
+        setText(currentLocation)
+    }
+
+    // Add the input fields to the dialog's layout.
+    layout.addView(inputTitle)
+    layout.addView(inputDesc)
+    layout.addView(inputLocation)
+
+    // Build the edit dialog and display the custom input layout.
+    androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        .setTitle("Edit Report")
+        .setView(layout)
+
+        // Read and save the edited values when Save Changes is pressed.
+        .setPositiveButton("Save Changes") { _, _ ->
+            val newTitle = inputTitle.text.toString().trim()
+            val newDesc = inputDesc.text.toString().trim()
+            val newLoc = inputLocation.text.toString().trim()
+
+            // Require a non-empty title before saving.
+            if (newTitle.isNotEmpty()) {
+
+                // Create a map containing only the fields to update.
+                val updates = mapOf<String, Any>(
+                    "title" to newTitle,
+                    "description" to newDesc,
+                    "location" to newLoc
+                )
+
+                // Update the report fields in Firebase.
+                FirebaseManager.itemsRef.child(currentItemId)
+                    .updateChildren(updates)
+                    .addOnCompleteListener { task ->
+
+                        // Update the visible UI after a successful save.
                         if (task.isSuccessful) {
                             tvItemTitle.text = newTitle
                             tvDescription.text = newDesc
-                            tvLocationText.text = if (newLoc.isNotEmpty()) "$newLoc · Today" else tvLocationText.text
-                            Toast.makeText(requireContext(), "Report updated successfully", Toast.LENGTH_SHORT).show()
+
+                            // Display the new location while preserving the
+                            // existing location text if the field is empty.
+                            tvLocationText.text = if (newLoc.isNotEmpty()) {
+                                "$newLoc · Today"
+                            } else {
+                                tvLocationText.text
+                            }
+
+                            // Notify the user that the update succeeded.
+                            Toast.makeText(
+                                requireContext(),
+                                "Report updated successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
-                }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
+        }
+
+        // Close the dialog without saving changes.
+        .setNegativeButton("Cancel", null)
+        .show()
+}
 
     private fun showOptionsMenu() {
         val options = arrayOf("Share Flyer & QR Code", "Edit Report", "Mark as Resolved", "Delete Report")
@@ -950,222 +1201,467 @@ class DetailsFragment : Fragment() {
             ViewGroup.LayoutParams.MATCH_PARENT
         )
     }
+/**
+ * Enables image dragging, pinch-to-zoom, double-tap zoom,
+ * and button-based zoom for an ImageView.
+ */
+private fun setupScrollAndZoom(imageView: ImageView, btnZoom: View) {
 
-    private fun setupScrollAndZoom(imageView: ImageView, btnZoom: View) {
-        val baseMatrix = Matrix()
-        val currentMatrix = Matrix()
-        val savedMatrix = Matrix()
-        val startPoint = PointF()
-        val midPoint = PointF()
-        var oldDist = 1f
-        var mode = 0 // 0: None, 1: Drag/Scroll, 2: Pinch Zoom
-        var isZoomed = false
+    // Stores the image's original fitted position and scale.
+    val baseMatrix = Matrix()
 
-        fun resetToCenter() {
-            val drawable = imageView.drawable ?: return
-            val dw = drawable.intrinsicWidth.toFloat()
-            val dh = drawable.intrinsicHeight.toFloat()
-            val vw = imageView.width.toFloat()
-            val vh = imageView.height.toFloat()
-            if (dw <= 0f || dh <= 0f || vw <= 0f || vh <= 0f) return
+    // Stores the image's current transformation.
+    val currentMatrix = Matrix()
 
-            val scale = minOf(vw / dw, vh / dh)
-            val dx = (vw - dw * scale) / 2f
-            val dy = (vh - dh * scale) / 2f
+    // Saves the transformation at the beginning of a gesture.
+    val savedMatrix = Matrix()
 
-            baseMatrix.reset()
-            baseMatrix.postScale(scale, scale)
-            baseMatrix.postTranslate(dx, dy)
-            currentMatrix.set(baseMatrix)
+    // Stores the starting touch position when dragging.
+    val startPoint = PointF()
+
+    // Stores the midpoint between two fingers during pinch zoom.
+    val midPoint = PointF()
+
+    // Distance between the two fingers at the beginning of a pinch.
+    var oldDist = 1f
+
+    // Tracks the current gesture: 0 = None, 1 = Drag, 2 = Pinch Zoom.
+    var mode = 0
+
+    // Tracks whether the image is currently considered zoomed.
+    var isZoomed = false
+
+    // Fits the image inside the ImageView and centers it.
+    fun resetToCenter() {
+        // Get the image drawable; stop if no image is available.
+        val drawable = imageView.drawable ?: return
+
+        // Get the original image dimensions.
+        val dw = drawable.intrinsicWidth.toFloat()
+        val dh = drawable.intrinsicHeight.toFloat()
+
+        // Get the available ImageView dimensions.
+        val vw = imageView.width.toFloat()
+        val vh = imageView.height.toFloat()
+
+        // Avoid invalid calculations when dimensions are zero or negative.
+        if (dw <= 0f || dh <= 0f || vw <= 0f || vh <= 0f) return
+
+        // Calculate a scale that fits the entire image inside the view.
+        val scale = minOf(vw / dw, vh / dh)
+
+        // Calculate offsets to center the scaled image horizontally and vertically.
+        val dx = (vw - dw * scale) / 2f
+        val dy = (vh - dh * scale) / 2f
+
+        // Reset the base matrix and apply the initial scale and position.
+        baseMatrix.reset()
+        baseMatrix.postScale(scale, scale)
+        baseMatrix.postTranslate(dx, dy)
+
+        // Apply the fitted transformation to the image.
+        currentMatrix.set(baseMatrix)
+        imageView.imageMatrix = currentMatrix
+
+        // Mark the image as not zoomed.
+        isZoomed = false
+    }
+
+    // Toggles between the fitted image and an enlarged image.
+    fun toggleZoomAt(focusX: Float, focusY: Float) {
+        if (isZoomed) {
+            // Return the image to its original fitted position.
+            resetToCenter()
+        } else {
+            // Start from the fitted position before applying zoom.
+            resetToCenter()
+
+            // Enlarge the image by 2.2 times around the specified focus point.
+            currentMatrix.postScale(2.2f, 2.2f, focusX, focusY)
+
+            // Display the enlarged image.
             imageView.imageMatrix = currentMatrix
-            isZoomed = false
+            isZoomed = true
         }
+    }
 
-        fun toggleZoomAt(focusX: Float, focusY: Float) {
-            if (isZoomed) {
-                resetToCenter()
-            } else {
-                resetToCenter()
-                currentMatrix.postScale(2.2f, 2.2f, focusX, focusY)
-                imageView.imageMatrix = currentMatrix
-                isZoomed = true
-            }
-        }
+    // Wait until the ImageView has been laid out before centering the image.
+    imageView.post { resetToCenter() }
 
-        imageView.post { resetToCenter() }
+    // Detect gestures such as double-tapping the image.
+    val gestureDetector = GestureDetector(
+        imageView.context,
+        object : GestureDetector.SimpleOnGestureListener() {
 
-        val gestureDetector = GestureDetector(imageView.context, object : GestureDetector.SimpleOnGestureListener() {
+            // Called when the user double-taps the image.
             override fun onDoubleTap(e: MotionEvent): Boolean {
+                // Toggle zoom around the tapped position.
                 toggleZoomAt(e.x, e.y)
                 return true
             }
-        })
+        }
+    )
 
-        imageView.setOnTouchListener { _, event ->
-            gestureDetector.onTouchEvent(event)
+    // Handle touch events on the image.
+    imageView.setOnTouchListener { _, event ->
 
-            when (event.action and MotionEvent.ACTION_MASK) {
-                MotionEvent.ACTION_DOWN -> {
+        // Pass the touch event to the gesture detector.
+        gestureDetector.onTouchEvent(event)
+
+        // Determine which touch action occurred.
+        when (event.action and MotionEvent.ACTION_MASK) {
+
+            MotionEvent.ACTION_DOWN -> {
+                // Save the current image transformation before dragging.
+                savedMatrix.set(currentMatrix)
+
+                // Record the initial finger position.
+                startPoint.set(event.x, event.y)
+
+                // Enter drag mode.
+                mode = 1
+            }
+
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                // Calculate the distance between the two fingers.
+                oldDist = getSpacing(event)
+
+                // Continue only if the fingers are far enough apart.
+                if (oldDist > 10f) {
+                    // Save the current transformation before zooming.
                     savedMatrix.set(currentMatrix)
-                    startPoint.set(event.x, event.y)
-                    mode = 1 // Drag / Pan / Scroll
+
+                    // Calculate the midpoint between the two fingers.
+                    getMidPoint(midPoint, event)
+
+                    // Enter pinch-zoom mode.
+                    mode = 2
                 }
-                MotionEvent.ACTION_POINTER_DOWN -> {
-                    oldDist = getSpacing(event)
-                    if (oldDist > 10f) {
-                        savedMatrix.set(currentMatrix)
-                        getMidPoint(midPoint, event)
-                        mode = 2 // Pinch Zoom
-                    }
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    if (mode == 1) {
+            }
+
+            MotionEvent.ACTION_MOVE -> {
+                if (mode == 1) {
+                    // Restore the transformation saved at the start of the drag.
+                    currentMatrix.set(savedMatrix)
+
+                    // Calculate the horizontal and vertical finger movement.
+                    val dx = event.x - startPoint.x
+                    val dy = event.y - startPoint.y
+
+                    // Move the image according to the finger movement.
+                    currentMatrix.postTranslate(dx, dy)
+
+                    // Apply the updated image position.
+                    imageView.imageMatrix = currentMatrix
+
+                } else if (mode == 2) {
+                    // Measure the current distance between the two fingers.
+                    val newDist = getSpacing(event)
+
+                    if (newDist > 10f) {
+                        // Restore the transformation saved at the start of the pinch.
                         currentMatrix.set(savedMatrix)
-                        val dx = event.x - startPoint.x
-                        val dy = event.y - startPoint.y
-                        currentMatrix.postTranslate(dx, dy)
+
+                        // Calculate the scale factor from the change in finger distance.
+                        val scale = newDist / oldDist
+
+                        // Scale the image around the fingers' midpoint.
+                        currentMatrix.postScale(
+                            scale,
+                            scale,
+                            midPoint.x,
+                            midPoint.y
+                        )
+
+                        // Display the updated image transformation.
                         imageView.imageMatrix = currentMatrix
-                    } else if (mode == 2) {
-                        val newDist = getSpacing(event)
-                        if (newDist > 10f) {
-                            currentMatrix.set(savedMatrix)
-                            val scale = newDist / oldDist
-                            currentMatrix.postScale(scale, scale, midPoint.x, midPoint.y)
-                            imageView.imageMatrix = currentMatrix
-                            isZoomed = scale > 1.15f
-                        }
+
+                        // Update the zoom flag based on the current gesture scale.
+                        isZoomed = scale > 1.15f
                     }
                 }
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
-                    mode = 0
-                }
             }
-            true
-        }
 
-        btnZoom.setOnClickListener {
-            val cx = imageView.width / 2f
-            val cy = imageView.height / 2f
-            toggleZoomAt(cx, cy)
-        }
-    }
-
-    private fun getSpacing(event: MotionEvent): Float {
-        val x = event.getX(0) - event.getX(1)
-        val y = event.getY(0) - event.getY(1)
-        return kotlin.math.sqrt(x * x + y * y)
-    }
-
-    private fun getMidPoint(point: PointF, event: MotionEvent) {
-        val x = event.getX(0) + event.getX(1)
-        val y = event.getY(0) + event.getY(1)
-        point.set(x / 2f, y / 2f)
-    }
-
-    private fun shareEnlargedPhoto(title: String, imageUrl: String, imageView: ImageView) {
-        try {
-            val drawable = imageView.drawable as? BitmapDrawable
-            if (drawable != null) {
-                val bitmap = drawable.bitmap
-                val cacheDir = File(requireContext().cacheDir, "images").apply { mkdirs() }
-                val tempFile = File(cacheDir, "shared_item.png")
-                FileOutputStream(tempFile).use { out ->
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 95, out)
-                }
-                val uri = FileProvider.getUriForFile(
-                    requireContext(),
-                    "${requireContext().packageName}.fileprovider",
-                    tempFile
-                )
-                val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "image/png"
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    putExtra(Intent.EXTRA_SUBJECT, title)
-                    putExtra(Intent.EXTRA_TEXT, "Lost & Found Item: $title")
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
-                startActivity(Intent.createChooser(shareIntent, "Share Item Photo"))
-                return
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
+                // Reset the gesture mode when a finger is released.
+                mode = 0
             }
-        } catch (_: Exception) {
-            // Fallback to text link if file share fails
         }
 
-        val textIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, title)
-            putExtra(Intent.EXTRA_TEXT, "Lost & Found Item: $title\n$imageUrl")
-        }
-        startActivity(Intent.createChooser(textIntent, "Share Item Photo"))
+        // Consume the touch event so this listener handles the gesture.
+        true
     }
 
-    @Suppress("DEPRECATION")
-    private fun saveEnlargedPhotoToGallery(imageView: ImageView) {
-        val drawable = imageView.drawable as? BitmapDrawable ?: run {
-            Toast.makeText(requireContext(), "Photo not ready to save", Toast.LENGTH_SHORT).show()
+    // Zoom around the center of the image when the zoom button is clicked.
+    btnZoom.setOnClickListener {
+        val cx = imageView.width / 2f
+        val cy = imageView.height / 2f
+
+        // Toggle between zoomed and fitted views.
+        toggleZoomAt(cx, cy)
+    }
+}
+
+/**
+ * Calculates the distance between the first two fingers.
+ * Used to determine the amount of pinch zoom.
+ */
+private fun getSpacing(event: MotionEvent): Float {
+
+    // Calculate the horizontal distance between the fingers.
+    val x = event.getX(0) - event.getX(1)
+
+    // Calculate the vertical distance between the fingers.
+    val y = event.getY(0) - event.getY(1)
+
+    // Use the Pythagorean theorem to calculate the total distance.
+    return kotlin.math.sqrt(x * x + y * y)
+}
+
+/**
+ * Calculates the midpoint between the first two fingers.
+ * This point is used as the focus of the pinch-zoom gesture.
+ */
+private fun getMidPoint(point: PointF, event: MotionEvent) {
+
+    // Add the horizontal coordinates of both fingers.
+    val x = event.getX(0) + event.getX(1)
+
+    // Add the vertical coordinates of both fingers.
+    val y = event.getY(0) + event.getY(1)
+
+    // Divide the totals by two to obtain the midpoint.
+    point.set(x / 2f, y / 2f)
+}
+
+/**
+ * Shares the displayed photo using Android's share chooser.
+ * If image sharing fails, falls back to sharing the photo URL as text.
+ */
+private fun shareEnlargedPhoto(
+    title: String,
+    imageUrl: String,
+    imageView: ImageView
+) {
+    try {
+        // Check whether the displayed drawable is a BitmapDrawable.
+        val drawable = imageView.drawable as? BitmapDrawable
+
+        if (drawable != null) {
+            // Extract the bitmap currently displayed in the ImageView.
+            val bitmap = drawable.bitmap
+
+            // Create a temporary images directory inside the app's cache.
+            val cacheDir = File(requireContext().cacheDir, "images").apply {
+                mkdirs()
+            }
+
+            // Create a temporary file for the image being shared.
+            val tempFile = File(cacheDir, "shared_item.png")
+
+            // Write the bitmap to the temporary PNG file.
+            FileOutputStream(tempFile).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 95, out)
+            }
+
+            // Generate a content URI that other apps can access through FileProvider.
+            val uri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider",
+                tempFile
+            )
+
+            // Build an intent for sharing the image.
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                // Specify the shared content type.
+                type = "image/png"
+
+                // Attach the image URI.
+                putExtra(Intent.EXTRA_STREAM, uri)
+
+                // Include the title and descriptive text.
+                putExtra(Intent.EXTRA_SUBJECT, title)
+                putExtra(Intent.EXTRA_TEXT, "Lost & Found Item: $title")
+
+                // Grant the receiving app temporary permission to read the URI.
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+
+            // Display Android's app chooser for sharing the photo.
+            startActivity(
+                Intent.createChooser(shareIntent, "Share Item Photo")
+            )
+
+            // Stop because the image-sharing flow has been started.
             return
         }
-        val bitmap = drawable.bitmap
-        try {
-            val filename = "LostFound_${System.currentTimeMillis()}.jpg"
-            val resolver = requireContext().contentResolver
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
-                    put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/LostAndFound")
-                }
-                val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-                if (uri != null) {
-                    resolver.openOutputStream(uri)?.use { stream ->
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 95, stream)
-                    }
-                    Toast.makeText(requireContext(), "Photo saved to Gallery", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(requireContext(), "Failed to save photo", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                val savedUri = MediaStore.Images.Media.insertImage(
-                    resolver,
-                    bitmap,
-                    "Lost & Found Photo",
-                    "Saved from Lost & Found app"
-                )
-                if (savedUri != null) {
-                    Toast.makeText(requireContext(), "Photo saved to Gallery", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(requireContext(), "Failed to save photo", Toast.LENGTH_SHORT).show()
-                }
-            }
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Failed to save photo: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
+    } catch (_: Exception) {
+        // Continue to the text-sharing fallback if image sharing fails.
     }
 
-    private fun showReportPhotoDialog(title: String) {
-        val reasons = arrayOf(
-            "Inappropriate or offensive content",
-            "False or misleading photo",
-            "Violates privacy / personal info",
-            "Wrong item photo",
-            "Other"
+    // Build a plain-text sharing intent as a fallback.
+    val textIntent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_SUBJECT, title)
+
+        // Include the item title and image URL in the shared text.
+        putExtra(
+            Intent.EXTRA_TEXT,
+            "Lost & Found Item: $title\n$imageUrl"
         )
-        var selectedReason = reasons[0]
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Report Photo")
-            .setSingleChoiceItems(reasons, 0) { _, which ->
-                selectedReason = reasons[which]
+    }
+
+    // Display the chooser for sharing the text link.
+    startActivity(
+        Intent.createChooser(textIntent, "Share Item Photo")
+    )
+}
+
+/**
+ * Saves the displayed photo to the device gallery.
+ * Uses MediaStore for Android 10+ and a legacy API for older versions.
+ */
+@Suppress("DEPRECATION")
+private fun saveEnlargedPhotoToGallery(imageView: ImageView) {
+
+    // Get the displayed image as a bitmap.
+    // If the drawable is unavailable or has another type, stop the operation.
+    val drawable = imageView.drawable as? BitmapDrawable ?: run {
+        Toast.makeText(
+            requireContext(),
+            "Photo not ready to save",
+            Toast.LENGTH_SHORT
+        ).show()
+        return
+    }
+
+    // Extract the bitmap to save.
+    val bitmap = drawable.bitmap
+
+    try {
+        // Generate a unique filename using the current timestamp.
+        val filename = "LostFound_${System.currentTimeMillis()}.jpg"
+
+        // Obtain the ContentResolver for accessing Android media storage.
+        val resolver = requireContext().contentResolver
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Android 10 and later: define the image's metadata.
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+
+                // Save the image under Pictures/LostAndFound.
+                put(
+                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    Environment.DIRECTORY_PICTURES + "/LostAndFound"
+                )
             }
-            .setPositiveButton("Submit Report") { _, _ ->
+
+            // Create a new image entry in the device's media collection.
+            val uri = resolver.insert(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+            )
+
+            if (uri != null) {
+                // Open the destination and write the bitmap as a JPEG.
+                resolver.openOutputStream(uri)?.use { stream ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 95, stream)
+                }
+
+                // Notify the user that the image was saved.
                 Toast.makeText(
                     requireContext(),
-                    "Thank you. Photo reported for: $selectedReason",
-                    Toast.LENGTH_LONG
+                    "Photo saved to Gallery",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                // Notify the user if creating the media entry failed.
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to save photo",
+                    Toast.LENGTH_SHORT
                 ).show()
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        } else {
+            // Older Android versions: use the deprecated insertImage method.
+            val savedUri = MediaStore.Images.Media.insertImage(
+                resolver,
+                bitmap,
+                "Lost & Found Photo",
+                "Saved from Lost & Found app"
+            )
+
+            // Check whether the image was inserted successfully.
+            if (savedUri != null) {
+                Toast.makeText(
+                    requireContext(),
+                    "Photo saved to Gallery",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to save photo",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    } catch (e: Exception) {
+        // Display the exception message if saving fails.
+        Toast.makeText(
+            requireContext(),
+            "Failed to save photo: ${e.message}",
+            Toast.LENGTH_SHORT
+        ).show()
     }
+}
+
+/**
+ * Displays a dialog allowing the user to select a reason for reporting a photo.
+ * Currently, the selection is confirmed with a toast; it is not saved to Firebase.
+ */
+private fun showReportPhotoDialog(title: String) {
+
+    // Define the available reasons for reporting a photo.
+    val reasons = arrayOf(
+        "Inappropriate or offensive content",
+        "False or misleading photo",
+        "Violates privacy / personal info",
+        "Wrong item photo",
+        "Other"
+    )
+
+    // Set the first reason as the default selection.
+    var selectedReason = reasons[0]
+
+    // Build a Material Design alert dialog.
+    MaterialAlertDialogBuilder(requireContext())
+        .setTitle("Report Photo")
+
+        // Display the available reasons as a single-choice list.
+        .setSingleChoiceItems(reasons, 0) { _, which ->
+            // Store the reason selected by the user.
+            selectedReason = reasons[which]
+        }
+
+        // Handle the user's submission.
+        .setPositiveButton("Submit Report") { _, _ ->
+
+            // Display a confirmation message with the selected reason.
+            Toast.makeText(
+                requireContext(),
+                "Thank you. Photo reported for: $selectedReason",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+
+        // Close the dialog without submitting.
+        .setNegativeButton("Cancel", null)
+        .show()
+}
+
 
     /**
      * ViewPager2 adapter for slideable photos with Coroutine ImageLoader.
@@ -1563,38 +2059,59 @@ class DetailsFragment : Fragment() {
         val distanceKm: Double?
     )
 
+   
+    // Observes community reports and updates the matching suggestion for the current item.
     private fun observeMatchingSuggestions(current: ItemReport) {
+        // Cancel the previous matching job before starting a new one.
         matchingJob?.cancel()
+        // Launch a coroutine that follows the Fragment view lifecycle.
         matchingJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
+                // Collect updated item reports from the repository.
                 ItemRepository().streamAllItems().collectLatest { allItems ->
+                    // Find the best matching report from the available items.
                     val candidate = findBestMatch(current, allItems)
+                    // Display the candidate only when its score is at least 20.
                     if (candidate != null && candidate.score >= 20) {
+                        // Retrieve the matched item from the result.
                         val matchedItem = candidate.item
+                        // Display the matching score.
                         tvMatchScore?.text = "${candidate.score}% match"
                         tvMatchScore?.visibility = View.VISIBLE
+                        // Display the matched item's title or a fallback message.
                         tvMatchTitle?.text = matchedItem.title.ifEmpty { "Similar item reported" }
 
+                        // Determine the distance or location text to display.
                         val distText = if (candidate.distanceKm != null) {
+                            // Convert distances below 1 kilometre into metres.
                             if (candidate.distanceKm < 1.0) {
                                 "${(candidate.distanceKm * 1000).toInt()} m away"
                             } else {
+                                // Display distances of 1 kilometre or more to one decimal place.
                                 "%.1f km away".format(java.util.Locale.US, candidate.distanceKm)
                             }
                         } else if (matchedItem.location.isNotBlank()) {
+                            // Use the location text when the distance is unavailable.
                             matchedItem.location
                         } else {
+                            // Use a fallback when no location information is available.
                             "Nearby"
                         }
 
+                        // Use a default name if the reporter's name is empty.
                         val author = matchedItem.authorName.ifEmpty { "Community Member" }
+                        // Display the reporter's name and the item's location or distance.
                         tvMatchSubtitle?.text = "Reported by $author · $distText"
 
+                        // Open the matched report when the suggestion card is clicked.
                         cardMatchingSuggestions?.setOnClickListener {
+                            // Start a Fragment transaction with fade animations.
                             parentFragmentManager.beginTransaction()
                                 .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                                // Replace the current Fragment with the matched item's details.
                                 .replace(
                                     R.id.screenBox,
+                                    // Pass the selected report's information to the new Fragment.
                                     newInstance(
                                         itemId = matchedItem.itemId,
                                         title = matchedItem.title,
@@ -1606,17 +2123,22 @@ class DetailsFragment : Fragment() {
                                         authorName = matchedItem.authorName
                                     )
                                 )
+                                // Add the current Fragment to the back stack for back navigation.
                                 .addToBackStack(null)
+                                // Commit the Fragment transaction.
                                 .commit()
                         }
                     } else {
+                        // Show the active-search message when no suitable match is found.
                         tvMatchScore?.text = "Active Search"
                         tvMatchTitle?.text = "No direct match found yet"
+                        // Display a search message based on the current item's category.
                         tvMatchSubtitle?.text = if (current.category.isNotBlank()) {
                             "Actively searching community reports for ${current.category}..."
                         } else {
                             "Actively searching community reports for matching items..."
                         }
+                        // Show a message when the user taps the suggestion card.
                         cardMatchingSuggestions?.setOnClickListener {
                             Toast.makeText(
                                 requireContext(),
@@ -1626,113 +2148,151 @@ class DetailsFragment : Fragment() {
                         }
                     }
                 }
+            // Catch exceptions without interrupting the coroutine with an uncaught error.
             } catch (_: Exception) {}
         }
     }
 
+    // Finds and returns the highest-scoring match for the current report.
     private fun findBestMatch(current: ItemReport, allItems: List<ItemReport>): MatchResult? {
+        // Return null when there are no reports to compare.
         if (allItems.isEmpty()) return null
 
+        // Exclude reports without IDs and the current report itself.
         val otherItems = allItems.filter { it.itemId.isNotEmpty() && it.itemId != current.itemId }
+        // Return null when no eligible reports remain.
         if (otherItems.isEmpty()) return null
 
+        // Check whether the current report has a LOST or FOUND status.
         val currentIsLost = current.status.equals("LOST", ignoreCase = true)
         val currentIsFound = current.status.equals("FOUND", ignoreCase = true)
 
+        // Extract meaningful keywords from the supplied text.
         fun extractKeywords(text: String): Set<String> {
+            // Words that should be ignored during keyword matching.
             val stopWords = setOf("the", "and", "with", "for", "near", "from", "item", "lost", "found", "small", "large", "this", "that", "have", "please")
+            // Convert the text to lowercase, split it into words, remove short and common words, and eliminate duplicates.
             return text.lowercase(java.util.Locale.US)
                 .split(Regex("[^a-zA-Z0-9]+"))
                 .filter { it.length > 2 && it !in stopWords }
                 .toSet()
         }
 
+        // Extract keywords from the current report's title and description.
         val currentKeywords = extractKeywords("${current.title} ${current.description}")
+        // Store the highest-scoring match found so far.
         var bestResult: MatchResult? = null
 
+        // Evaluate each eligible report.
         for (item in otherItems) {
+            // Start the candidate's score at zero.
             var score = 0
 
+            // Check whether the candidate report is lost or found.
             val itemIsLost = item.status.equals("LOST", ignoreCase = true)
             val itemIsFound = item.status.equals("FOUND", ignoreCase = true)
 
-            // Status complementarity boost
+            // Status complementarity boost: reward reports where one is lost and the other is found.
             if ((currentIsLost && itemIsFound) || (currentIsFound && itemIsLost)) {
                 score += 25
             } else if (currentIsLost == itemIsLost) {
+                // Give a smaller bonus when the LOST/FOUND flags match.
                 score += 5
             }
 
-            // Category match
+            // Category match: reward reports with the same nonempty category.
             if (current.category.isNotBlank() && item.category.isNotBlank() &&
                 current.category.equals(item.category, ignoreCase = true)) {
                 score += 35
             }
 
-            // Keyword overlap
+            // Keyword overlap: identify words shared by both reports.
             val itemKeywords = extractKeywords("${item.title} ${item.description}")
             val commonKeywords = currentKeywords.intersect(itemKeywords)
+            // Add points for shared keywords, up to a maximum bonus of 35.
             if (commonKeywords.isNotEmpty()) {
                 val keywordBoost = (commonKeywords.size * 15).coerceAtMost(35)
                 score += keywordBoost
             }
 
-            // Substring title match
+            // Substring title match: normalize both titles before comparing them.
             val currentTitleLower = current.title.trim().lowercase(java.util.Locale.US)
             val itemTitleLower = item.title.trim().lowercase(java.util.Locale.US)
+            // Reward titles when one nonempty title contains the other.
             if (currentTitleLower.isNotEmpty() && itemTitleLower.isNotEmpty()) {
                 if (currentTitleLower.contains(itemTitleLower) || itemTitleLower.contains(currentTitleLower)) {
                     score += 15
                 }
             }
 
-            // Distance calculation
+            // Distance calculation: store the distance when coordinates are available.
             var distanceKm: Double? = null
+            // Check that all coordinates are nonzero before calculating distance.
             if (current.latitude != 0.0 && current.longitude != 0.0 && item.latitude != 0.0 && item.longitude != 0.0) {
+                // Calculate the geographical distance between the two reports.
                 val dist = calculateDistanceKm(current.latitude, current.longitude, item.latitude, item.longitude)
                 distanceKm = dist
+                // Give a higher score to reports that are geographically closer.
                 when {
                     dist < 1.0 -> score += 20
                     dist < 3.0 -> score += 15
                     dist < 10.0 -> score += 10
                     dist < 25.0 -> score += 5
                 }
+            // Use the location text as a fallback when coordinates are unavailable.
             } else if (current.location.isNotBlank() && item.location.isNotBlank()) {
+                // Normalize both location strings for case-insensitive comparison.
                 val loc1 = current.location.lowercase(java.util.Locale.US)
                 val loc2 = item.location.lowercase(java.util.Locale.US)
+                // Add points when one location string contains the other.
                 if (loc1.contains(loc2) || loc2.contains(loc1)) {
                     score += 10
                 }
             }
 
+            // Restrict the final score to the range 0–98.
             val finalScore = score.coerceIn(0, 98)
+            // Keep this candidate if it scores higher than the current best result.
             if (bestResult == null || finalScore > bestResult.score) {
                 bestResult = MatchResult(item, finalScore, distanceKm)
             }
         }
 
+        // Return the highest-scoring candidate, or null if none was evaluated.
         return bestResult
     }
 
+    // Calculates the distance between two geographical coordinates in kilometres.
     private fun calculateDistanceKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        // Approximate radius of the Earth in kilometres.
         val r = 6371.0
+        // Convert the latitude and longitude differences from degrees to radians.
         val dLat = Math.toRadians(lat2 - lat1)
         val dLon = Math.toRadians(lon2 - lon1)
+        // Apply the Haversine formula to calculate the distance between the coordinates.
         val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                 Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
                 Math.sin(dLon / 2) * Math.sin(dLon / 2)
+        // Calculate the central angle between the two points.
         val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        // Multiply the angle by Earth's radius to obtain the distance.
         return r * c
     }
 
+    // Called when the Fragment's view is destroyed.
     override fun onDestroyView() {
+        // Execute the parent Fragment's cleanup implementation.
         super.onDestroyView()
+        // Cancel ongoing jobs to prevent work from continuing unnecessarily.
         detailsJob?.cancel()
         matchingJob?.cancel()
+        // Release the WebView's resources.
         webViewItemMap?.destroy()
     }
 
+    // Holds constants and factory functions associated with DetailsFragment.
     companion object {
+        // Bundle keys used to pass item details between Fragment instances.
         private const val ARG_ITEM_ID = "arg_item_id"
         private const val ARG_TITLE = "arg_title"
         private const val ARG_DESC = "arg_desc"
@@ -1742,6 +2302,7 @@ class DetailsFragment : Fragment() {
         private const val ARG_REPORTER_UID = "arg_reporter_uid"
         private const val ARG_AUTHOR_NAME = "arg_author_name"
 
+        // Creates a DetailsFragment using a drawable resource for the item image.
         fun newInstance(
             title: String = "Item Report",
             desc: String = "No description provided.",
@@ -1752,7 +2313,9 @@ class DetailsFragment : Fragment() {
             reporterUserId: String? = null,
             authorName: String? = null
         ): DetailsFragment {
+            // Create a new Fragment instance.
             val fragment = DetailsFragment()
+            // Store the supplied report information in a Bundle.
             val args = Bundle().apply {
                 putString(ARG_ITEM_ID, itemId)
                 putString(ARG_TITLE, title)
@@ -1763,10 +2326,13 @@ class DetailsFragment : Fragment() {
                 putString(ARG_REPORTER_UID, reporterUserId)
                 putString(ARG_AUTHOR_NAME, authorName)
             }
+            // Attach the arguments to the Fragment.
             fragment.arguments = args
+            // Return the configured Fragment.
             return fragment
         }
 
+        // Creates a DetailsFragment using a remote image URL.
         fun newInstance(
             itemId: String,
             title: String,
@@ -1777,7 +2343,9 @@ class DetailsFragment : Fragment() {
             reporterUserId: String? = null,
             authorName: String? = null
         ): DetailsFragment {
+            // Create a new Fragment instance.
             val fragment = DetailsFragment()
+            // Store the report information and remote image URL in a Bundle.
             val args = Bundle().apply {
                 putString(ARG_ITEM_ID, itemId)
                 putString(ARG_TITLE, title)
@@ -1785,11 +2353,14 @@ class DetailsFragment : Fragment() {
                 putString(ARG_STATUS, status)
                 putString(ARG_LOCATION, location)
                 putString("arg_image_url", imageUrl)
+                // Set the placeholder drawable as the default image resource.
                 putInt(ARG_IMAGE_RES, R.drawable.ic_item_placeholder)
                 putString(ARG_REPORTER_UID, reporterUserId)
                 putString(ARG_AUTHOR_NAME, authorName)
             }
+            // Attach the arguments to the Fragment.
             fragment.arguments = args
+            // Return the configured Fragment.
             return fragment
         }
     }
