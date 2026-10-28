@@ -37,6 +37,7 @@ class FCMService : FirebaseMessagingService() {
             ?: remoteMessage.data["title"]
             ?: "Foundly"
 
+        // Uses a default message if no message is provided.
         val body = remoteMessage.notification?.body
             ?: remoteMessage.data["body"]
             ?: remoteMessage.data["message"]
