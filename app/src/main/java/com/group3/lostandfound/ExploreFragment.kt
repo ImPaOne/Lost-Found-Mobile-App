@@ -113,6 +113,7 @@ class ExploreFragment : Fragment() {
                     btnGridView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
                     btnListView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_secondary))
                 } else {
+                    // List mode displays one item per row.
                     if (rvItems.layoutManager !is LinearLayoutManager || rvItems.layoutManager is GridLayoutManager) {
                         rvItems.layoutManager = LinearLayoutManager(requireContext())
                     }
