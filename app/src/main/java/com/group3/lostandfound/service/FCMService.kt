@@ -28,6 +28,7 @@ class FCMService : FirebaseMessagingService() {
         sendTokenToServer(token)
     }
 
+    // Called when the app receives a Firebase Cloud Messaging (FCM) message.
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
