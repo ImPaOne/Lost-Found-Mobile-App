@@ -79,6 +79,7 @@ class ExploreAdapter(
     // Returns the total number of items to display.
     override fun getItemCount(): Int = items.size
 
+    // Updates the list and refreshes the displayed cards.
     fun updateItems(newItems: List<ItemReport>) {
         items = newItems
         notifyDataSetChanged()
