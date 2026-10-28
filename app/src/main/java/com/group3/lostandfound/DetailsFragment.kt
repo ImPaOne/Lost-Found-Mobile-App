@@ -207,11 +207,20 @@ class DetailsFragment : Fragment() {
         updateStatusTag(initialStatus)
         tvLocationText.text = initialLocation
 
-        // Setup Photo Carousel with wallet details default
-        val fallbackPhotos = listOf("")
-        itemPhotoList = fallbackPhotos
-        pagerPhotos.adapter = PhotoSliderAdapter(itemPhotoList, viewLifecycleOwner.lifecycleScope) { url ->
-            showEnlargedPhotoDialog(url, tvItemTitle.text.toString())
+        // Setup Photo Carousel with initialImageUrl or wallet details default
+        val initialImageUrl = arguments?.getString("arg_image_url").orEmpty()
+        if (initialImageUrl.isNotEmpty()) {
+            activeImageUrl = initialImageUrl
+            itemPhotoList = listOf(initialImageUrl)
+            pagerPhotos.adapter = PhotoSliderAdapter(itemPhotoList, viewLifecycleOwner.lifecycleScope) { url ->
+                showEnlargedPhotoDialog(url, tvItemTitle.text.toString())
+            }
+        } else {
+            val fallbackPhotos = listOf("")
+            itemPhotoList = fallbackPhotos
+            pagerPhotos.adapter = PhotoSliderAdapter(itemPhotoList, viewLifecycleOwner.lifecycleScope) { url ->
+                showEnlargedPhotoDialog(url, tvItemTitle.text.toString())
+            }
         }
 
         // Live status updates from DetailsViewModel
@@ -232,8 +241,7 @@ class DetailsFragment : Fragment() {
                         if (report.userId.isNotEmpty()) {
                             reporterUserId = report.userId
                             val currentUid = FirebaseManager.currentUid
-                            val isOwner = currentUid.isEmpty() || (reporterUserId == currentUid || report.userId == currentUid)
-                            btnBookmark.visibility = if (isOwner) View.GONE else View.VISIBLE
+                            btnBookmark.visibility = View.VISIBLE
                             rowOwnerActions?.visibility = if (isOwner) View.VISIBLE else View.GONE
                             btnDeleteReport?.visibility = if (isOwner) View.VISIBLE else View.GONE
                             sectionVisitorActions?.visibility = if (isOwner) View.GONE else View.VISIBLE
@@ -305,23 +313,28 @@ class DetailsFragment : Fragment() {
     private fun updateStatusTag(status: String) {
         val norm = status.trim().uppercase()
         when (norm) {
-            "MATCHED" -> {
-                tagStatus.text = "Matched"
+            "LOST" -> {
+                tagStatus.text = "Lost"
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-                tagStatus.setBackgroundResource(R.drawable.bg_badge_matched_pill)
+                tagStatus.setBackgroundResource(R.drawable.bg_badge_lost_hero)
+            }
+            "FOUND" -> {
+                tagStatus.text = "Found"
+                tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                tagStatus.setBackgroundResource(R.drawable.bg_badge_found_hero)
             }
             "RESOLVED" -> {
                 tagStatus.text = "Resolved"
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                 tagStatus.setBackgroundResource(R.drawable.bg_badge_resolved_green)
             }
-            "FOUND" -> {
-                tagStatus.text = "Found"
+            "MATCHED" -> {
+                tagStatus.text = "Matched"
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                 tagStatus.setBackgroundResource(R.drawable.bg_badge_matched_pill)
             }
             else -> {
-                tagStatus.text = "Matched"
+                tagStatus.text = if (norm.isNotEmpty()) norm.lowercase().replaceFirstChar { it.uppercase() } else "Active"
                 tagStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                 tagStatus.setBackgroundResource(R.drawable.bg_badge_matched_pill)
             }
@@ -510,10 +523,7 @@ class DetailsFragment : Fragment() {
         isBookmarked = itemId != null && currentSet.contains(itemId)
         btnBookmark.setImageResource(if (isBookmarked) R.drawable.ic_nav_my_reports else R.drawable.ic_bookmark_outline)
 
-        val currentUid = FirebaseManager.currentUid
-        if (currentUid.isNotEmpty() && reporterUserId == currentUid) {
-            btnBookmark.visibility = View.GONE
-        }
+        btnBookmark.visibility = View.VISIBLE
 
         btnBookmark.setOnClickListener {
             val curId = itemId ?: return@setOnClickListener
@@ -902,6 +912,10 @@ class DetailsFragment : Fragment() {
         }
 
         dialog.show()
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
     }
 
     private fun setupScrollAndZoom(imageView: ImageView, btnZoom: View) {
