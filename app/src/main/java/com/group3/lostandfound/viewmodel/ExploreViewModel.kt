@@ -12,11 +12,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel for Explore search screen in MVVM architecture.
- * Manages search query debounce, filter chip state, grid/list layout mode, and real-time filtering.
- */
 class ExploreViewModel(
+    // Repository provides filtered report data.
     private val exploreRepository: ExploreRepository = ExploreRepository()
 ) : ViewModel() {
 
