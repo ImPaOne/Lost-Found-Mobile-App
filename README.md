@@ -41,3 +41,28 @@ Foundly is a modern, community-driven Android application engineered to bridge t
 - **Trust Scores:** Algorithmic trust ratings (e.g., "95% Verified Community Member") based on successful returns, account verification, and community feedback.
 - **Verification Badges:** Multi-level verification for Email, Phone number, and Government ID.
 - **Achievement System:** Unlockable milestone badges including _First Find_, _Community Helper_, _Trusted Reporter_, and _Reunited Hero_.
+
+### 6. Administration, Moderation & Analytics
+
+- **Admin Dashboard:** Centralized operations console tracking active cases, resolution rates, user metrics, and system health.
+- **Content Moderation Queue:** Review, approve, edit, flag, or remove suspicious/inappropriate listings.
+- **User Access Management:** Audit user trust scores, grant verified badges, or ban abusive users.
+- **Real-Time Analytics:** Live-streamed metric aggregations from Firebase:
+  - Custom Canvas-rendered animated `PieChartView` for item category distribution.
+  - City-level resolution benchmarks (Colombo, Kandy, Galle).
+  - Density-gradient Leaflet.js geographic heat map.
+- **Global Announcements:** Broadcast urgent platform alerts and safety advisories to all users.
+- **System Maintenance:** Complete database JSON backup and restore capabilities directly from the admin panel.
+
+### 7. Background Services & Notifications
+
+- **Foreground Synchronization:** `AppNotificationService` maintains real-time listeners for live messages, match alerts, and community announcements even when the app is in the background.
+- **Firebase Cloud Messaging (FCM):** Push notifications with custom Apple-style sound effects (`apple_tri_tone`, `apple_aurora`, `apple_chord`).
+
+### 8. Localization & Personalization
+
+- **Trilingual Localization:** Seamless runtime switching between English (`en`), Sinhala (`si`), and Tamil (`ta`) via `LocaleHelper`.
+- **Material Design 3 Theme:** Full support for dynamic Day and Night (Dark Mode) themes.
+- **Saved Items / Bookmarks:** Save important listings for fast access from the profile drawer.
+
+---
