@@ -224,7 +224,10 @@ class SettingsFragment : Fragment() {
 
         // Header Menu (Three vertical dots matching reference image)
         btnHeaderMenu.setOnClickListener {
-            showMoreOptionsDialog()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, AdminFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         // Push Notifications Toggle
