@@ -270,12 +270,12 @@ class ReportsFragment : Fragment() {
             .replace(
                 R.id.screenBox,
                 DetailsFragment.newInstance(
+                    itemId = item.itemId,
                     title = item.title,
                     desc = item.description,
                     status = item.status,
                     location = item.location,
-                    imageResId = R.drawable.ic_item_placeholder,
-                    itemId = item.itemId,
+                    imageUrl = item.imageUrl,
                     reporterUserId = item.userId,
                     authorName = item.authorName
                 )
