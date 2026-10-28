@@ -783,12 +783,6 @@ class CreateReportFragment : Fragment() {
         binding.webViewStep3Map.loadDataWithBaseURL("https://osm.org", html, "text/html", "UTF-8", null)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding.webViewStep3Map.destroy()
-        _binding = null
-    }
-
     private fun jumpToStep(targetStep: Int) {
         if (targetStep in 1..5 && targetStep != currentStep) {
             currentStep = targetStep
@@ -1258,6 +1252,7 @@ class CreateReportFragment : Fragment() {
         if (::inputLocation.isInitialized) {
             savedLandmark = inputLocation.text.toString()
         }
+        _binding?.webViewStep3Map?.destroy()
         _binding = null
         super.onDestroyView()
     }
