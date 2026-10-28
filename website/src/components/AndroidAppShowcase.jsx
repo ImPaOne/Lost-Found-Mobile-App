@@ -20,36 +20,7 @@ export default function AndroidAppShowcase({ onOpenQR }) {
   const [activeTab, setActiveTab] = useState('features');
 
   const startApkDownload = () => {
-    if (isDownloading) return;
-    setIsDownloading(true);
-    setDownloadProgress(5);
-    setDownloadComplete(false);
-
-    const interval = setInterval(() => {
-      setDownloadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsDownloading(false);
-          setDownloadComplete(true);
-
-          // Trigger simulated file download
-          const blob = new Blob([
-            `FOUNDIT Android Client v2.4.2 (Release Package)\nChecksum SHA256: 9b2d8e4f1a5c68430b1e564d7c80ab3e\nArchitecture: Universal ARM64-v8a\nWebsite: https://foundit-app.io`
-          ], { type: 'application/vnd.android.package-archive' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'FOUNDIT-v2.4.2-release.apk';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-
-          return 100;
-        }
-        return prev + Math.floor(Math.random() * 20) + 12;
-      });
-    }, 180);
+    window.location.href = "https://download1351.mediafire.com/ll4hx3iaubegyM2xP0I87v5hJqRC_ITjqclnBlh_WJ_tLNKFGkSun8c-nwe-pYyVpr8XNZUv0LtJpCsEZBiuEI0l5YUdp1mysRAKnX03S7KDHrDYISzf80FPmZHE2dFAML6ZU8pScVq3Z7NohH7L8n0JCG36Jh0Z1b9_py32YuJVc-bL/mwtagyhadwo9ssk/app-debug.apk";
   };
 
   return (
