@@ -10,6 +10,9 @@ import { Download, QrCode } from 'lucide-react';
 import { playSuccessSound } from './utils/audio';
 import './App.css';
 
+export const APK_DOWNLOAD_URL = "https://download1351.mediafire.com/ll4hx3iaubegyM2xP0I87v5hJqRC_ITjqclnBlh_WJ_tLNKFGkSun8c-nwe-pYyVpr8XNZUv0LtJpCsEZBiuEI0l5YUdp1mysRAKnX03S7KDHrDYISzf80FPmZHE2dFAML6ZU8pScVq3Z7NohH7L8n0JCG36Jh0Z1b9_py32YuJVc-bL/mwtagyhadwo9ssk/app-debug.apk";
+export const QR_CODE_IMAGE_URL = "https://i.postimg.cc/GmQmXXNG/Untitled-(1).png";
+
 export default function App() {
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -27,28 +30,14 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Simple Android App Download Trigger
+  // Android App Download Trigger -> Redirects directly to the direct APK link
   const triggerAndroidDownload = () => {
     playSuccessSound();
     setDownloadToast(true);
     setTimeout(() => setDownloadToast(false), 4500);
 
-    const blob = new Blob([
-      `Foundly Android Application\n` +
-      `Lost & Found Community Recovery Network\n` +
-      `Compatible with Android 8.0 and newer\n` +
-      `Downloaded from: https://foundly.app\n` +
-      `Date: ${new Date().toLocaleDateString()}`
-    ], { type: 'application/vnd.android.package-archive' });
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Foundly-Android.apk';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Direct redirect to MediaFire APK download
+    window.location.href = APK_DOWNLOAD_URL;
   };
 
   return (
