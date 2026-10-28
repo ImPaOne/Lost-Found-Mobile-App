@@ -784,6 +784,9 @@ private fun promptEditReport() {
         badgeEnlargeHint.setOnClickListener {
             showEnlargedPhotoDialog(activeImageUrl, tvItemTitle.text.toString())
         }
+        view?.findViewById<View>(R.id.cardPhotoContainer)?.setOnClickListener {
+            showEnlargedPhotoDialog(activeImageUrl, tvItemTitle.text.toString())
+        }
 
         // Bookmarks persistence in findit_prefs & Firebase
         val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
@@ -1116,7 +1119,7 @@ private fun promptEditReport() {
     }
 
     private fun showEnlargedPhotoDialog(imageUrl: String, title: String) {
-        val dialog = Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar)
+        val dialog = Dialog(requireContext(), R.style.Theme_LostAndFound_FullScreenDialog)
         dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_enlarged_photo)
         dialog.setCancelable(true)
@@ -1134,11 +1137,12 @@ private fun promptEditReport() {
         }
 
         val topBarEnlarged = dialog.findViewById<View>(R.id.topBarEnlarged)
+        topBarEnlarged?.bringToFront()
         if (topBarEnlarged != null) {
             androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(topBarEnlarged) { v, insets ->
                 val statusBarHeight = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.statusBars()).top
-                val topPadding = if (statusBarHeight > 0) statusBarHeight + 10 else 36
-                v.setPadding(v.paddingLeft, topPadding, v.paddingRight, v.paddingBottom)
+                val safeTop = if (statusBarHeight > 0) statusBarHeight + 12 else (v.resources.displayMetrics.density * 36).toInt()
+                v.setPadding(v.paddingLeft, safeTop, v.paddingRight, v.paddingBottom)
                 insets
             }
         }
@@ -1194,6 +1198,7 @@ private fun promptEditReport() {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
+            topBarEnlarged?.bringToFront()
         }
         dialog.show()
         dialog.window?.setLayout(
@@ -1682,7 +1687,8 @@ private fun showReportPhotoDialog(title: String) {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
-                scaleType = ImageView.ScaleType.CENTER_CROP
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                adjustViewBounds = true
             }
             return PhotoViewHolder(img)
         }
