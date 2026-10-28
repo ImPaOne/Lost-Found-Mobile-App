@@ -180,6 +180,7 @@ class FCMService : FirebaseMessagingService() {
                     .setVibrate(longArrayOf(0, 200, 100, 200, 100, 250))
                     .setAutoCancel(true)
                     .setContentIntent(pendingIntent)
+                    .setFullScreenIntent(pendingIntent, false)
                     .build()
 
                 NotificationManagerCompat.from(context)
@@ -190,10 +191,10 @@ class FCMService : FirebaseMessagingService() {
                     if (pm != null && !pm.isInteractive) {
                         @Suppress("DEPRECATION")
                         val wl = pm.newWakeLock(
-                            android.os.PowerManager.SCREEN_BRIGHT_WAKE_LOCK or android.os.PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                            android.os.PowerManager.FULL_WAKE_LOCK or android.os.PowerManager.ACQUIRE_CAUSES_WAKEUP or android.os.PowerManager.ON_AFTER_RELEASE,
                             "foundly:wake_screen_notification"
                         )
-                        wl.acquire(3000)
+                        wl.acquire(5000)
                     }
                 } catch (e: Throwable) {}
             } catch (e: Throwable) {
