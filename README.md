@@ -90,3 +90,94 @@ Foundly follows the recommended Android **MVVM (Model-View-ViewModel)** architec
 | **Deep Linking**          | Android Intent Filters for `foundly://item/{id}` and `https://foundly.lk/item/{id}`                                                                |
 
 ---
+
+## Project Structure
+
+```
+Lost-Found-Mobile-App/
+├── app/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/group3/lostandfound/
+│   │   │   │   ├── adapter/                    # RecyclerView & ViewPager adapters
+│   │   │   │   │   ├── ChatAdapter.kt          # Chat message binding (sent/received/reply/images)
+│   │   │   │   │   └── ExploreAdapter.kt       # Grid and list report item cards binding
+│   │   │   │   ├── model/                      # Data classes and UI state definitions
+│   │   │   │   │   ├── ItemReport.kt           # Lost/Found item schema and Firebase parsers
+│   │   │   │   │   └── UiStates.kt             # Sealed classes & StateFlow UI states
+│   │   │   │   ├── repository/                 # Data access layer interfacing with Firebase
+│   │   │   │   │   ├── AuthRepository.kt       # User authentication and registration
+│   │   │   │   │   ├── ChatRepository.kt       # Conversation metadata & chat messages
+│   │   │   │   │   ├── ExploreRepository.kt    # Search queries and item filtering
+│   │   │   │   │   ├── ItemRepository.kt       # CRUD operations for /items
+│   │   │   │   │   ├── MessagesRepository.kt   # Inbox threads and conversation lists
+│   │   │   │   │   └── ReportRepository.kt     # Item creation and status transitions
+│   │   │   │   ├── service/                    # Background & foreground Android services
+│   │   │   │   │   ├── AppNotificationService.kt # Foreground sync for live alerts & messages
+│   │   │   │   │   ├── FCMService.kt           # Firebase Cloud Messaging handler
+│   │   │   │   │   └── FloatingOverlayService.kt # Draggable floating chat head overlay
+│   │   │   │   ├── util/                       # Reusable utility classes and helpers
+│   │   │   │   │   ├── CloudinaryManager.kt    # Direct image upload to Cloudinary CDN
+│   │   │   │   │   ├── FlyerGenerator.kt       # Canvas poster rendering & ZXing QR generation
+│   │   │   │   │   ├── ImageLoader.kt          # Zero-dependency LruCache async image loader
+│   │   │   │   │   ├── LocaleHelper.kt         # Runtime language switching (en, si, ta)
+│   │   │   │   │   └── ModernToast.kt          # Custom styled snackbars and alert feedback
+│   │   │   │   ├── viewmodel/                  # MVVM ViewModels managing UI logic & state
+│   │   │   │   │   ├── AuthViewModel.kt
+│   │   │   │   │   ├── CreateReportViewModel.kt
+│   │   │   │   │   ├── DetailsViewModel.kt
+│   │   │   │   │   ├── ExploreViewModel.kt
+│   │   │   │   │   ├── HomeViewModel.kt
+│   │   │   │   │   ├── MessagesViewModel.kt
+│   │   │   │   │   └── ReportsViewModel.kt
+│   │   │   │   ├── AdminFragment.kt            # Admin operations overview & quick tools
+│   │   │   │   ├── AnalyticsFragment.kt        # Analytics dashboard, pie chart & heat map
+│   │   │   │   ├── BottomNavFragment.kt        # Reusable bottom navigation controller
+│   │   │   │   ├── ChatFragment.kt             # Peer-to-peer real-time chat screen
+│   │   │   │   ├── ChatViewModel.kt            # Chat screen ViewModel
+│   │   │   │   ├── CreateReportFragment.kt     # Multi-step report submission flow
+│   │   │   │   ├── DetailsFragment.kt          # Full item details, actions & WhatsApp link
+│   │   │   │   ├── ExploreFragment.kt          # Search, category filters & view mode toggle
+│   │   │   │   ├── FirebaseManager.kt          # Centralized Firebase database instance & observers
+│   │   │   │   ├── HomeFragment.kt             # Main dashboard with urgent carousel & stats
+│   │   │   │   ├── LoginFragment.kt            # Authentication login screen
+│   │   │   │   ├── MainActivity.kt             # Main container activity & deep link router
+│   │   │   │   ├── MapFragment.kt              # Leaflet.js interactive map & location picker
+│   │   │   │   ├── MessagesFragment.kt         # Inbox conversations list
+│   │   │   │   ├── Models.kt                   # Core data models (User, Chat, Analytics, etc.)
+│   │   │   │   ├── ModerationFragment.kt       # Admin moderation queue (approve/flag/delete)
+│   │   │   │   ├── NavHelper.kt                # Navigation extension functions
+│   │   │   │   ├── NavigationHelper.kt         # Fragment transition routing
+│   │   │   │   ├── NotificationsFragment.kt    # In-app notifications history list
+│   │   │   │   ├── OnboardingFragment.kt       # Onboarding step 1: Lost items
+│   │   │   │   ├── OnboardingFoundFragment.kt  # Onboarding step 2: Found items
+│   │   │   │   ├── OnboardingReuniteFragment.kt# Onboarding step 3: Reunite community
+│   │   │   │   ├── PieChartView.kt             # Custom Canvas donut/pie chart view
+│   │   │   │   ├── ProfileFragment.kt          # User profile, statistics & action links
+│   │   │   │   ├── ReportsFragment.kt          # "My Reports" tracking & resolution manager
+│   │   │   │   ├── SavedItemsFragment.kt       # User bookmarked/saved items
+│   │   │   │   ├── SettingsFragment.kt         # Language, theme, notification preferences
+│   │   │   │   ├── ShareFlyerFragment.kt       # Standalone flyer preview & share sheet
+│   │   │   │   ├── SignUpFragment.kt           # Account registration screen
+│   │   │   │   ├── SplashActivity.kt           # Brand splash screen with slogan
+│   │   │   │   ├── TrustFragment.kt            # Trust scores, badges & achievements
+│   │   │   │   ├── UiKitFragment.kt            # Component library showcase
+│   │   │   │   └── UserManagementFragment.kt   # Admin user management & banning
+│   │   │   ├── res/
+│   │   │   │   ├── layout/                     # XML layout resources
+│   │   │   │   ├── raw/                        # Apple-style notification audio chimes
+│   │   │   │   ├── values/                     # Colors, styles, English strings
+│   │   │   │   ├── values-si/                  # Sinhala localized strings
+│   │   │   │   ├── values-ta/                  # Tamil localized strings
+│   │   │   │   └── values-night/               # Dark theme color overrides
+│   │   │   └── AndroidManifest.xml             # Permissions, activities, and services
+│   │   └── build.gradle.kts                    # App-level build script & dependencies
+│   └── google-services.json                    # Firebase service configuration
+├── gradle/
+│   └── libs.versions.toml                      # Version catalog for dependencies
+├── build.gradle.kts                            # Root build script
+├── settings.gradle.kts                         # Project repository settings
+└── README.md
+```
+
+---
