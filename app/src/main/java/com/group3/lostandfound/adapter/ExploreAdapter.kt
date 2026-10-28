@@ -76,6 +76,7 @@ class ExploreAdapter(
         }
     }
 
+    // Returns the total number of items to display.
     override fun getItemCount(): Int = items.size
 
     fun updateItems(newItems: List<ItemReport>) {
