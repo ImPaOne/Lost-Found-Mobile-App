@@ -78,6 +78,7 @@ class ExploreRepository {
         }
 
         query.addValueEventListener(listener)
+        // Clean up the Firebase query listener.
         awaitClose { query.removeEventListener(listener) }
     }
 
