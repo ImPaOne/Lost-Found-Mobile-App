@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.map
 // Repository handles communication between the ViewModel and Firebase.
 class ExploreRepository {
 
+    // Reference to the "items" node in Firebase.
     private val db = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("items")
 
     // Gets all item reports and keeps listening for database changes.
