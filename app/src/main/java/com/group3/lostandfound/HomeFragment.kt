@@ -324,12 +324,12 @@ class HomeFragment : Fragment() {
             .replace(
                 R.id.screenBox,
                 DetailsFragment.newInstance(
+                    itemId = report.itemId,
                     title = report.title,
                     desc = report.description,
                     status = report.status,
                     location = report.location,
-                    imageResId = R.drawable.ic_item_placeholder,
-                    itemId = report.itemId,
+                    imageUrl = report.imageUrl,
                     reporterUserId = report.userId,
                     authorName = report.authorName
                 )
