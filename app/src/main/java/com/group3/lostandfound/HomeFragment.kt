@@ -351,6 +351,14 @@ class HomeFragment : Fragment() {
         }
 
         buttonNotifications.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(R.id.screenBox, NotificationsFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        buttonFilterSettings.setOnClickListener {
             val bottomSheet = com.google.android.material.bottomsheet.BottomSheetDialog(requireContext())
             val sheetView = layoutInflater.inflate(R.layout.dialog_notification_options, null)
             bottomSheet.setContentView(sheetView)
@@ -409,10 +417,6 @@ class HomeFragment : Fragment() {
             }
 
             bottomSheet.show()
-        }
-
-        buttonFilterSettings.setOnClickListener {
-            Toast.makeText(requireContext(), "Filtering: All recent items", Toast.LENGTH_SHORT).show()
         }
 
         buttonSeeAllRecent.setOnClickListener {
