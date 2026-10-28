@@ -78,13 +78,11 @@
         </FrameLayout>
     </RelativeLayout>
 
-    <!-- Center Scrollable & Zoomable Photo View -->
+    <!-- Full Screen Center Scrollable & Zoomable Photo View -->
     <FrameLayout
         android:id="@+id/photoContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/bottomInfoCard"
-        android:layout_below="@+id/topBarEnlarged"
         android:background="#000000">
 
         <ImageView
@@ -93,7 +91,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:contentDescription="Enlarged photo"
-            android:scaleType="matrix"
+            android:scaleType="fitCenter"
             tools:src="@drawable/img_wallet_details" />
     </FrameLayout>
 
