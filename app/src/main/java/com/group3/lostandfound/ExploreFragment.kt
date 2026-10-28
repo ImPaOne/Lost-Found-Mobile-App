@@ -40,6 +40,7 @@ class ExploreFragment : Fragment() {
     private lateinit var btnGridView: ImageView
     private lateinit var btnListView: ImageView
 
+    // RecyclerView displays reports; Adapter binds report data to cards.
     private lateinit var rvItems: RecyclerView
     private lateinit var exploreAdapter: ExploreAdapter
     private lateinit var exploreViewModel: ExploreViewModel
