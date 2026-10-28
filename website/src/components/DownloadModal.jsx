@@ -69,35 +69,17 @@ export default function DownloadModal({ isOpen, onClose, onDownloadAndroid }) {
               flexDirection: 'column',
               alignItems: 'center'
             }}>
-              <svg width="86" height="86" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="5" y="5" width="28" height="28" rx="4" fill="#1E1510" />
-                <rect x="9" y="9" width="20" height="20" rx="2" fill="#FFFFFF" />
-                <rect x="13" y="13" width="12" height="12" fill="#8C5E3C" />
-
-                <rect x="67" y="5" width="28" height="28" rx="4" fill="#1E1510" />
-                <rect x="71" y="9" width="20" height="20" rx="2" fill="#FFFFFF" />
-                <rect x="75" y="13" width="12" height="12" fill="#8C5E3C" />
-
-                <rect x="5" y="67" width="28" height="28" rx="4" fill="#1E1510" />
-                <rect x="9" y="71" width="20" height="20" rx="2" fill="#FFFFFF" />
-                <rect x="13" y="75" width="12" height="12" fill="#8C5E3C" />
-
-                <rect x="38" y="10" width="8" height="8" fill="#1E1510" />
-                <rect x="50" y="10" width="10" height="8" fill="#8C5E3C" />
-                <rect x="38" y="24" width="22" height="8" fill="#1E1510" />
-                
-                <rect x="10" y="38" width="8" height="16" fill="#1E1510" />
-                <rect x="24" y="42" width="12" height="8" fill="#B69372" />
-                <rect x="42" y="38" width="16" height="16" rx="3" fill="#8C5E3C" />
-                <rect x="64" y="38" width="8" height="8" fill="#1E1510" />
-                <rect x="78" y="44" width="16" height="10" fill="#1E1510" />
-
-                <rect x="38" y="67" width="10" height="8" fill="#1E1510" />
-                <rect x="52" y="67" width="14" height="18" fill="#1E1510" />
-                <rect x="72" y="67" width="22" height="8" fill="#8C5E3C" />
-                <rect x="72" y="81" width="10" height="12" fill="#1E1510" />
-                <rect x="38" y="81" width="8" height="12" fill="#1E1510" />
-              </svg>
+              <img 
+                src="https://i.postimg.cc/GmQmXXNG/Untitled-(1).png" 
+                alt="Scan QR Code to Download Foundly" 
+                style={{ 
+                  width: '110px', 
+                  height: '110px', 
+                  objectFit: 'contain', 
+                  borderRadius: '6px',
+                  display: 'block'
+                }} 
+              />
               <span style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--text-tertiary)', marginTop: '4px' }}>
                 CAMERA SCAN
               </span>
