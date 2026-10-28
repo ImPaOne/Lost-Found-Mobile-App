@@ -36,6 +36,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.group3.lostandfound.model.ItemReport
 import com.group3.lostandfound.repository.ChatRepository
+import com.group3.lostandfound.repository.ItemRepository
 import com.group3.lostandfound.util.FlyerGenerator
 import com.group3.lostandfound.util.ImageLoader
 import com.group3.lostandfound.viewmodel.DetailsViewModel
@@ -112,6 +113,7 @@ class DetailsFragment : Fragment() {
     private lateinit var detailsViewModel: DetailsViewModel
     private var itemId: String? = null
     private var detailsJob: Job? = null
+    private var matchingJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -223,6 +225,19 @@ class DetailsFragment : Fragment() {
             }
         }
 
+        val initialCategory = arguments?.getString("arg_category").orEmpty()
+        val fallbackReport = ItemReport(
+            itemId = itemId.orEmpty(),
+            title = initialTitle,
+            description = initialDesc,
+            category = initialCategory,
+            status = initialStatus,
+            location = initialLocation,
+            imageUrl = initialImageUrl,
+            authorName = reporterName
+        )
+        observeMatchingSuggestions(fallbackReport)
+
         // Live status updates from DetailsViewModel
         if (!itemId.isNullOrEmpty()) {
             detailsJob?.cancel()
@@ -272,6 +287,7 @@ class DetailsFragment : Fragment() {
                         }
 
                         currentItemReport = report
+                        observeMatchingSuggestions(report)
                         if (report.latitude != 0.0 || report.longitude != 0.0) {
                             itemLatitude = report.latitude
                             itemLongitude = report.longitude
@@ -585,9 +601,6 @@ class DetailsFragment : Fragment() {
         btnMoreOptions?.setOnClickListener { showOptionsMenu() }
         btnEdit?.setOnClickListener { promptEditReport() }
         btnDeleteReport?.setOnClickListener { promptDeleteReport() }
-        cardMatchingSuggestions?.setOnClickListener {
-            Toast.makeText(requireContext(), "Matching Suggestion: 92% similarity with found item.", Toast.LENGTH_SHORT).show()
-        }
 
         // Instant Live Messaging & WhatsApp actions
         btnLiveChat.setOnClickListener {
@@ -863,9 +876,32 @@ class DetailsFragment : Fragment() {
     }
 
     private fun showEnlargedPhotoDialog(imageUrl: String, title: String) {
-        val dialog = Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        val dialog = Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar)
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_enlarged_photo)
         dialog.setCancelable(true)
+
+        dialog.window?.apply {
+            setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK))
+            clearFlags(android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            addFlags(android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            statusBarColor = android.graphics.Color.BLACK
+            navigationBarColor = android.graphics.Color.BLACK
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                attributes.layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
+        }
+
+        val topBarEnlarged = dialog.findViewById<View>(R.id.topBarEnlarged)
+        if (topBarEnlarged != null) {
+            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(topBarEnlarged) { v, insets ->
+                val statusBarHeight = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.statusBars()).top
+                val topPadding = if (statusBarHeight > 0) statusBarHeight + 10 else 36
+                v.setPadding(v.paddingLeft, topPadding, v.paddingRight, v.paddingBottom)
+                insets
+            }
+        }
 
         val imgEnlargedView = dialog.findViewById<ImageView>(R.id.imgEnlargedView)
         val btnCloseLargePhoto = dialog.findViewById<View>(R.id.btnCloseLargePhoto)
@@ -877,11 +913,11 @@ class DetailsFragment : Fragment() {
         val btnSavePhoto = dialog.findViewById<View>(R.id.btnSavePhoto)
         val btnReportPhoto = dialog.findViewById<View>(R.id.btnReportPhoto)
 
-        tvEnlargedTitle.text = if (title.isNotBlank()) title else "Black leather wallet"
+        tvEnlargedTitle.text = if (title.isNotBlank()) title else "Report Details"
         val reporter = if (reporterName.isNotBlank() && reporterName != "Community Reporter") {
             reporterName
         } else {
-            "Tharindu Perera"
+            "Community Reporter"
         }
         tvEnlargedReporter.text = "Photo from $reporter's report"
 
@@ -890,9 +926,9 @@ class DetailsFragment : Fragment() {
         tvPhotoCounter.text = "$photoIndex/$totalCount"
 
         if (imageUrl.isNotBlank()) {
-            ImageLoader.load(imgEnlargedView, imageUrl, R.drawable.img_wallet_details, viewLifecycleOwner.lifecycleScope)
+            ImageLoader.load(imgEnlargedView, imageUrl, R.drawable.ic_item_placeholder, viewLifecycleOwner.lifecycleScope)
         } else {
-            imgEnlargedView.setImageResource(R.drawable.img_wallet_details)
+            imgEnlargedView.setImageResource(R.drawable.ic_item_placeholder)
         }
 
         setupScrollAndZoom(imgEnlargedView, btnZoomPhoto)
@@ -913,6 +949,12 @@ class DetailsFragment : Fragment() {
             showReportPhotoDialog(tvEnlargedTitle.text.toString())
         }
 
+        dialog.setOnShowListener {
+            dialog.window?.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
         dialog.show()
         dialog.window?.setLayout(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -1164,9 +1206,9 @@ class DetailsFragment : Fragment() {
             val url = photos[position]
             holder.job?.cancel()
             if (url.isBlank()) {
-                holder.imageView.setImageResource(R.drawable.img_wallet_details)
+                holder.imageView.setImageResource(R.drawable.ic_item_placeholder)
             } else {
-                holder.job = ImageLoader.load(holder.imageView, url, R.drawable.img_wallet_details, scope)
+                holder.job = ImageLoader.load(holder.imageView, url, R.drawable.ic_item_placeholder, scope)
             }
 
             holder.imageView.setOnClickListener {
@@ -1526,9 +1568,178 @@ class DetailsFragment : Fragment() {
         """.trimIndent()
     }
 
+    private data class MatchResult(
+        val item: ItemReport,
+        val score: Int,
+        val distanceKm: Double?
+    )
+
+    private fun observeMatchingSuggestions(current: ItemReport) {
+        matchingJob?.cancel()
+        matchingJob = viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                ItemRepository().streamAllItems().collectLatest { allItems ->
+                    val candidate = findBestMatch(current, allItems)
+                    if (candidate != null && candidate.score >= 20) {
+                        val matchedItem = candidate.item
+                        tvMatchScore?.text = "${candidate.score}% match"
+                        tvMatchScore?.visibility = View.VISIBLE
+                        tvMatchTitle?.text = matchedItem.title.ifEmpty { "Similar item reported" }
+
+                        val distText = if (candidate.distanceKm != null) {
+                            if (candidate.distanceKm < 1.0) {
+                                "${(candidate.distanceKm * 1000).toInt()} m away"
+                            } else {
+                                "%.1f km away".format(java.util.Locale.US, candidate.distanceKm)
+                            }
+                        } else if (matchedItem.location.isNotBlank()) {
+                            matchedItem.location
+                        } else {
+                            "Nearby"
+                        }
+
+                        val author = matchedItem.authorName.ifEmpty { "Community Member" }
+                        tvMatchSubtitle?.text = "Reported by $author · $distText"
+
+                        cardMatchingSuggestions?.setOnClickListener {
+                            parentFragmentManager.beginTransaction()
+                                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                                .replace(
+                                    R.id.screenBox,
+                                    newInstance(
+                                        itemId = matchedItem.itemId,
+                                        title = matchedItem.title,
+                                        desc = matchedItem.description,
+                                        status = matchedItem.status,
+                                        location = matchedItem.location,
+                                        imageUrl = matchedItem.imageUrl,
+                                        reporterUserId = matchedItem.userId,
+                                        authorName = matchedItem.authorName
+                                    )
+                                )
+                                .addToBackStack(null)
+                                .commit()
+                        }
+                    } else {
+                        tvMatchScore?.text = "Active Search"
+                        tvMatchTitle?.text = "No direct match found yet"
+                        tvMatchSubtitle?.text = if (current.category.isNotBlank()) {
+                            "Actively searching community reports for ${current.category}..."
+                        } else {
+                            "Actively searching community reports for matching items..."
+                        }
+                        cardMatchingSuggestions?.setOnClickListener {
+                            Toast.makeText(
+                                requireContext(),
+                                "No close match found yet for \"${current.title}\". We'll notify you when one is posted!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            } catch (_: Exception) {}
+        }
+    }
+
+    private fun findBestMatch(current: ItemReport, allItems: List<ItemReport>): MatchResult? {
+        if (allItems.isEmpty()) return null
+
+        val otherItems = allItems.filter { it.itemId.isNotEmpty() && it.itemId != current.itemId }
+        if (otherItems.isEmpty()) return null
+
+        val currentIsLost = current.status.equals("LOST", ignoreCase = true)
+        val currentIsFound = current.status.equals("FOUND", ignoreCase = true)
+
+        fun extractKeywords(text: String): Set<String> {
+            val stopWords = setOf("the", "and", "with", "for", "near", "from", "item", "lost", "found", "small", "large", "this", "that", "have", "please")
+            return text.lowercase(java.util.Locale.US)
+                .split(Regex("[^a-zA-Z0-9]+"))
+                .filter { it.length > 2 && it !in stopWords }
+                .toSet()
+        }
+
+        val currentKeywords = extractKeywords("${current.title} ${current.description}")
+        var bestResult: MatchResult? = null
+
+        for (item in otherItems) {
+            var score = 0
+
+            val itemIsLost = item.status.equals("LOST", ignoreCase = true)
+            val itemIsFound = item.status.equals("FOUND", ignoreCase = true)
+
+            // Status complementarity boost
+            if ((currentIsLost && itemIsFound) || (currentIsFound && itemIsLost)) {
+                score += 25
+            } else if (currentIsLost == itemIsLost) {
+                score += 5
+            }
+
+            // Category match
+            if (current.category.isNotBlank() && item.category.isNotBlank() &&
+                current.category.equals(item.category, ignoreCase = true)) {
+                score += 35
+            }
+
+            // Keyword overlap
+            val itemKeywords = extractKeywords("${item.title} ${item.description}")
+            val commonKeywords = currentKeywords.intersect(itemKeywords)
+            if (commonKeywords.isNotEmpty()) {
+                val keywordBoost = (commonKeywords.size * 15).coerceAtMost(35)
+                score += keywordBoost
+            }
+
+            // Substring title match
+            val currentTitleLower = current.title.trim().lowercase(java.util.Locale.US)
+            val itemTitleLower = item.title.trim().lowercase(java.util.Locale.US)
+            if (currentTitleLower.isNotEmpty() && itemTitleLower.isNotEmpty()) {
+                if (currentTitleLower.contains(itemTitleLower) || itemTitleLower.contains(currentTitleLower)) {
+                    score += 15
+                }
+            }
+
+            // Distance calculation
+            var distanceKm: Double? = null
+            if (current.latitude != 0.0 && current.longitude != 0.0 && item.latitude != 0.0 && item.longitude != 0.0) {
+                val dist = calculateDistanceKm(current.latitude, current.longitude, item.latitude, item.longitude)
+                distanceKm = dist
+                when {
+                    dist < 1.0 -> score += 20
+                    dist < 3.0 -> score += 15
+                    dist < 10.0 -> score += 10
+                    dist < 25.0 -> score += 5
+                }
+            } else if (current.location.isNotBlank() && item.location.isNotBlank()) {
+                val loc1 = current.location.lowercase(java.util.Locale.US)
+                val loc2 = item.location.lowercase(java.util.Locale.US)
+                if (loc1.contains(loc2) || loc2.contains(loc1)) {
+                    score += 10
+                }
+            }
+
+            val finalScore = score.coerceIn(0, 98)
+            if (bestResult == null || finalScore > bestResult.score) {
+                bestResult = MatchResult(item, finalScore, distanceKm)
+            }
+        }
+
+        return bestResult
+    }
+
+    private fun calculateDistanceKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val r = 6371.0
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2)
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        return r * c
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         detailsJob?.cancel()
+        matchingJob?.cancel()
         webViewItemMap?.destroy()
     }
 
