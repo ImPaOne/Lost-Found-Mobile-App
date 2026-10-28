@@ -234,6 +234,19 @@
             android:text="Never send ID numbers, card details or money. Verify ownership before arranging a public handover."
             android:textColor="#334155"
             android:textSize="11.5sp" />
+
+        <ImageView
+            android:id="@+id/btnCloseSafetyNotice"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="6dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="Close safety notice"
+            android:focusable="true"
+            android:padding="4dp"
+            android:src="@drawable/ic_close"
+            app:tint="#64748B" />
     </LinearLayout>
 
     <!-- Case Resolution Banner -->
@@ -547,37 +560,6 @@
                 app:tint="@color/text_secondary" />
         </LinearLayout>
 
-        <!-- Outlined Action Button: "Start secure ownership check" -->
-        <LinearLayout
-            android:id="@+id/btnStartOwnershipCheck"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_ownership_check_btn"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:contentDescription="Ownership check"
-                android:src="@drawable/ic_shield_check"
-                app:tint="#0D9488" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:fontFamily="sans-serif-bold"
-                android:text="Start secure ownership check"
-                android:textColor="#0D9488"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-        </LinearLayout>
 
         <!-- Message Input Bar -->
         <LinearLayout
