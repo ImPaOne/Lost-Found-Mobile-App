@@ -24,27 +24,21 @@
         <!-- Outer Rounded Card with Soft Ambient Shadow/Glow -->
         <FrameLayout
             android:id="@+id/logoOuterBox"
-            android:layout_width="98dp"
-            android:layout_height="98dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:background="@drawable/bg_splash_outer_card"
             android:elevation="6dp">
 
-            <!-- Inner Dark Navy Rounded Container -->
-            <FrameLayout
-                android:layout_width="54dp"
-                android:layout_height="54dp"
+            <!-- App Logo -->
+            <ImageView
+                android:id="@+id/logoIcon"
+                android:layout_width="68dp"
+                android:layout_height="68dp"
                 android:layout_gravity="center"
-                android:background="@drawable/bg_splash_inner_card">
-
-                <!-- Verified User Checkmark Icon -->
-                <ImageView
-                    android:id="@+id/logoIcon"
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:layout_gravity="center"
-                    android:contentDescription="Foundly App Logo"
-                    android:src="@drawable/ic_splash_person_check" />
-            </FrameLayout>
+                android:adjustViewBounds="true"
+                android:contentDescription="Foundly App Logo"
+                android:scaleType="fitCenter"
+                android:src="@drawable/logoo" />
         </FrameLayout>
 
         <!-- App Name: Foundly in rich dark navy -->

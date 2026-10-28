@@ -64,7 +64,6 @@ class SignUpFragment : Fragment() {
         initViews(view)
         setupListeners(view)
         observeViewModel()
-        setupBottomNav(view, "")
     }
 
     private fun initViews(view: View) {

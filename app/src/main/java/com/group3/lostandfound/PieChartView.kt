@@ -72,12 +72,16 @@ class PieChartView @JvmOverloads constructor(
      * Updates the chart data with real category distributions and triggers an animation.
      */
     fun setData(newSlices: List<PieSlice>) {
-        slices = newSlices.filter { it.count > 0 }
+        val filtered = newSlices.filter { it.count > 0 }
+        if (slices == filtered && totalCount == filtered.sumOf { it.count }) {
+            return
+        }
+        slices = filtered
         totalCount = slices.sumOf { it.count }
 
         animator?.cancel()
         animator = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = 750
+            duration = 600
             interpolator = DecelerateInterpolator()
             addUpdateListener { va ->
                 animationProgress = va.animatedValue as Float

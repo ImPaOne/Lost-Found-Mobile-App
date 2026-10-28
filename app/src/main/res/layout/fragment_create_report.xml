@@ -725,13 +725,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <!-- Map Preview Image -->
-                        <ImageView
+                        <!-- Interactive Leaflet JS Moveable & Scrollable Map -->
+                        <WebView
+                            android:id="@+id/webViewStep3Map"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:contentDescription="Map preview"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/img_map_bg" />
+                            android:overScrollMode="never" />
 
                         <!-- Floating Search Bar -->
                         <LinearLayout

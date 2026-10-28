@@ -104,7 +104,12 @@
         <service
             android:name=".service.AppNotificationService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Background listening for real-time lost and found chat messages, matching alerts, and community announcements" />
+        </service>
     </application>
 
 </manifest>

@@ -7,6 +7,34 @@
     android:background="#FEF2F2"
     tools:context=".OnboardingFragment">
 
+    <!-- Top Brand Logo -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:contentDescription="Foundly Logo"
+            android:src="@drawable/logoo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:fontFamily="sans-serif-bold"
+            android:text="Foundly"
+            android:textColor="#0B2032"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
     <!-- 1. Top Concentric Circular Radar Illustration Area -->
     <FrameLayout
         android:id="@+id/boxIllustrationArea"
@@ -38,7 +66,7 @@
                     android:layout_gravity="center"
                     android:background="@drawable/bg_onboard_ring_inner">
 
-                    <!-- Center Squircle with Red Background and Search Icon -->
+                    <!-- Center Squircle with Logo -->
                     <FrameLayout
                         android:layout_width="84dp"
                         android:layout_height="84dp"
@@ -48,11 +76,12 @@
 
                         <ImageView
                             android:id="@+id/iconSearch"
-                            android:layout_width="34dp"
-                            android:layout_height="34dp"
+                            android:layout_width="54dp"
+                            android:layout_height="54dp"
                             android:layout_gravity="center"
-                            android:contentDescription="Search Icon"
-                            android:src="@drawable/ic_onboard_search" />
+                            android:contentDescription="Foundly App Logo"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/logoo" />
                     </FrameLayout>
                 </FrameLayout>
             </FrameLayout>

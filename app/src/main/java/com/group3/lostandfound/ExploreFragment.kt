@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 
 class ExploreFragment : Fragment() {
 
+    // References to UI components in the XML layout.
     private lateinit var btnClose: FrameLayout
     private lateinit var btnMapView: ImageView
 
@@ -39,8 +40,11 @@ class ExploreFragment : Fragment() {
     private lateinit var btnGridView: ImageView
     private lateinit var btnListView: ImageView
 
+    // RecyclerView displays reports; Adapter binds report data to cards.
     private lateinit var rvItems: RecyclerView
     private lateinit var exploreAdapter: ExploreAdapter
+
+    // ViewModel manages the Explore screen's UI state.
     private lateinit var exploreViewModel: ExploreViewModel
 
     override fun onCreateView(
@@ -48,21 +52,24 @@ class ExploreFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Inflate and return the Explore screen's XML layout.
         return inflater.inflate(R.layout.fragment_explore, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Create or retrieve the ViewModel for this Fragment.
         exploreViewModel = ViewModelProvider(this)[ExploreViewModel::class.java]
 
         initViews(view)//connects kotlin varibles to XML components
-        setupListeners()
+        setupListeners()// Handle user interactions.
         setupBottomNav(view, "explore")//configure the bottom navigation for the explore screen
         observeViewModel()//state and update UI.
     }
 
     private fun initViews(view: View) {
+        // Connect UI variables to their XML components using IDs
         btnClose = view.findViewById(R.id.btnClose)
         btnMapView = view.findViewById(R.id.btnMapView)
 
@@ -79,26 +86,34 @@ class ExploreFragment : Fragment() {
 
         rvItems = view.findViewById(R.id.rvItems)
 
+        // Create the Adapter with an empty initial list.
+        // Clicking an item opens its details.
         exploreAdapter = ExploreAdapter(emptyList(), viewLifecycleOwner.lifecycleScope) { item ->
             openDetails(item)
         }
 
+        // Show two columns in grid mode.
         rvItems.layoutManager = GridLayoutManager(requireContext(), 2)
+        // Connect the Adapter to the RecyclerView.
         rvItems.adapter = exploreAdapter
     }
 
     private fun observeViewModel() {
+        // Collect UI state while this Fragment's view is active.
         viewLifecycleOwner.lifecycleScope.launch {
             exploreViewModel.uiState.collect { state ->
+                // Refresh the displayed reports when state changes.
                 exploreAdapter.updateItems(state.items)
 
                 if (state.isGridMode) {
+                    // Grid mode displays two columns.
                     if (rvItems.layoutManager !is GridLayoutManager) {
                         rvItems.layoutManager = GridLayoutManager(requireContext(), 2)
                     }
                     btnGridView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_primary))
                     btnListView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.text_secondary))
                 } else {
+                    // List mode displays one item per row.
                     if (rvItems.layoutManager !is LinearLayoutManager || rvItems.layoutManager is GridLayoutManager) {
                         rvItems.layoutManager = LinearLayoutManager(requireContext())
                     }
@@ -110,10 +125,12 @@ class ExploreFragment : Fragment() {
     }
 
     private fun setupListeners() {
+        // Return to the previous Fragment.
         btnClose.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
+        // Navigate to the Map screen.
         btnMapView.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.screenBox, MapFragment.newInstance())
@@ -121,18 +138,22 @@ class ExploreFragment : Fragment() {
                 .commit()
         }
 
+        // Display a message when the filter button is tapped.
         btnFilter.setOnClickListener {
             Toast.makeText(requireContext(), "Showing filter options", Toast.LENGTH_SHORT).show()
         }
 
+        // Perform real-time search whenever the text changes.
         inputSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Send the latest search text to the ViewModel.
                 exploreViewModel.setSearchQuery(s?.toString().orEmpty())
             }
             override fun afterTextChanged(s: Editable?) {}
         })
 
+        // Change the report filter.
         chipAll.setOnClickListener {
             selectChip(chipAll)
             exploreViewModel.setFilterStatus("ALL")
@@ -150,6 +171,7 @@ class ExploreFragment : Fragment() {
             exploreViewModel.setFilterStatus("PETS")
         }
 
+        // Tell the ViewModel which layout mode the user selected.
         btnGridView.setOnClickListener {
             exploreViewModel.setViewMode(true)
         }
@@ -161,6 +183,7 @@ class ExploreFragment : Fragment() {
 
     private fun selectChip(active: TextView) {
         val chips = listOf(chipAll, chipLost, chipFound, chipPets)
+        // Highlight the selected chip and reset the others.
         for (chip in chips) {
             if (chip == active) {
                 chip.setBackgroundResource(R.drawable.bg_chip_selected)
@@ -173,6 +196,7 @@ class ExploreFragment : Fragment() {
     }
 
     private fun openDetails(item: ItemReport) {
+        // Open the selected report's details and pass its information.
         parentFragmentManager.beginTransaction()
             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(

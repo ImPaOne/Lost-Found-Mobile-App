@@ -58,7 +58,6 @@ class LoginFragment : Fragment() {
         initViews(view)
         setupListeners()
         observeViewModel()
-        setupBottomNav(view, "")
     }
 
     private fun initViews(view: View) {

@@ -382,11 +382,8 @@ class ChatFragment : Fragment() {
             binding.etChatMessageInput.requestFocus()
         }
 
-        binding.btnStartOwnershipCheck.setOnClickListener {
-            val ownershipPrompt = "Could you describe a detail that isn't in the report? You can use Foundly's secure ownership check."
-            binding.etChatMessageInput.setText(ownershipPrompt)
-            binding.etChatMessageInput.setSelection(ownershipPrompt.length)
-            binding.etChatMessageInput.requestFocus()
+        binding.btnCloseSafetyNotice.setOnClickListener {
+            binding.layoutSafetyNotice.visibility = View.GONE
         }
 
         binding.btnSendChatMessage.setOnClickListener {

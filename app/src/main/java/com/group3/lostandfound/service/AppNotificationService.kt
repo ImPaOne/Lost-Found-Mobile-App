@@ -1,17 +1,25 @@
 package com.group3.lostandfound.service
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
+import androidx.core.app.NotificationCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.group3.lostandfound.ConversationMetadata
+import com.group3.lostandfound.MainActivity
 import com.group3.lostandfound.NotificationItem
 import com.group3.lostandfound.FirebaseManager
+import com.group3.lostandfound.R
 
 class AppNotificationService : Service() {
 
@@ -30,6 +38,8 @@ class AppNotificationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        startAsForegroundService()
+
         val user = FirebaseAuth.getInstance().currentUser
         val prefs = getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
         val savedUid = prefs.getString("user_uid", "") ?: ""
@@ -50,6 +60,43 @@ class AppNotificationService : Service() {
         }
 
         return START_STICKY
+    }
+
+    private fun startAsForegroundService() {
+        val channelId = "foundly_bg_channel"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                "Foundly Background Sync",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Maintains connection for instant notification delivery"
+                setShowBadge(false)
+            }
+            val manager = getSystemService(NotificationManager::class.java)
+            manager?.createNotificationChannel(channel)
+        }
+
+        val notificationIntent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            notificationIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+        )
+
+        val notification: Notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("Foundly Alert Service")
+            .setContentText("Listening for live messages and matched reports")
+            .setSmallIcon(R.drawable.logoo)
+            .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true)
+            .build()
+
+        startForeground(2002, notification)
     }
 
     private fun startAnnouncementListening() {

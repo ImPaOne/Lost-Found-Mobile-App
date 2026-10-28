@@ -237,8 +237,15 @@ object FirebaseManager {
 
         // Fast-path: if email is admin@gmail.com, auto-ensure admin role
         if (currentUserEmail.equals("admin@gmail.com", ignoreCase = true)) {
-            usersRef.child(uid).child("role").setValue("ADMIN")
+            if (uid.isNotEmpty()) {
+                usersRef.child(uid).child("role").setValue("ADMIN")
+            }
             onAuthorized()
+            return
+        }
+
+        if (uid.isEmpty()) {
+            onDenied("Unauthorized: Please sign in as Administrator.")
             return
         }
 
@@ -648,112 +655,25 @@ object FirebaseManager {
             })
         }
 
-        // 2. Ensure /items has community listings for 100% working live analytics and heatmap
+        // 2. Clean up any dummy/sample items and users to ensure 100% genuine user data
         itemsRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (!snapshot.exists() || snapshot.childrenCount == 0L) {
-                    val sampleItems = listOf(
-                        mapOf(
-                            "itemId" to "item_sample_01",
-                            "title" to "MacBook Pro 16\" Space Gray",
-                            "category" to "Electronics",
-                            "location" to "Colombo Fort Railway Station",
-                            "status" to "LOST",
-                            "latitude" to 6.9319,
-                            "longitude" to 79.8478,
-                            "userId" to "sample_user_1",
-                            "authorName" to "Kasun Perera",
-                            "timestamp" to System.currentTimeMillis() - 86400000L * 2
-                        ),
-                        mapOf(
-                            "itemId" to "item_sample_02",
-                            "title" to "Sri Lankan National Identity Card (NIC)",
-                            "category" to "Documents",
-                            "location" to "Peradeniya Campus, Kandy",
-                            "status" to "FOUND",
-                            "latitude" to 7.2906,
-                            "longitude" to 80.6337,
-                            "userId" to "sample_user_2",
-                            "authorName" to "Dilshan Silva",
-                            "timestamp" to System.currentTimeMillis() - 86400000L
-                        ),
-                        mapOf(
-                            "itemId" to "item_sample_03",
-                            "title" to "Golden Retriever Puppy 'Buddy'",
-                            "category" to "Pets",
-                            "location" to "Galle Dutch Fort",
-                            "status" to "LOST",
-                            "latitude" to 6.0535,
-                            "longitude" to 80.2210,
-                            "userId" to "sample_user_3",
-                            "authorName" to "Nimali Fernando",
-                            "timestamp" to System.currentTimeMillis() - 43200000L
-                        ),
-                        mapOf(
-                            "itemId" to "item_sample_04",
-                            "title" to "Brown Leather Bifold Wallet & Driving License",
-                            "category" to "Wallets",
-                            "location" to "Liberty Plaza, Colombo 03",
-                            "status" to "RESOLVED",
-                            "latitude" to 6.9040,
-                            "longitude" to 79.8530,
-                            "userId" to "sample_user_4",
-                            "authorName" to "Arjuna Ranatunga",
-                            "timestamp" to System.currentTimeMillis() - 86400000L * 5
-                        ),
-                        mapOf(
-                            "itemId" to "item_sample_05",
-                            "title" to "Sony WH-1000XM5 Wireless Headphones",
-                            "category" to "Electronics",
-                            "location" to "Bandaranaike International Airport, Negombo",
-                            "status" to "FOUND",
-                            "latitude" to 7.1808,
-                            "longitude" to 79.8836,
-                            "userId" to "sample_user_5",
-                            "authorName" to "Pradeep Kumara",
-                            "timestamp" to System.currentTimeMillis() - 3600000L * 4
-                        ),
-                        mapOf(
-                            "itemId" to "item_sample_06",
-                            "title" to "Academic Certificates & Passport Folder",
-                            "category" to "Documents",
-                            "location" to "Kollupitiya Junction, Colombo",
-                            "status" to "RESOLVED",
-                            "latitude" to 6.9120,
-                            "longitude" to 79.8510,
-                            "userId" to "sample_user_6",
-                            "authorName" to "Chamari Atapattu",
-                            "timestamp" to System.currentTimeMillis() - 86400000L * 3
-                        ),
-                        mapOf(
-                            "itemId" to "item_sample_07",
-                            "title" to "Persian Cat with Red Collar",
-                            "category" to "Pets",
-                            "location" to "Kandy City Centre",
-                            "status" to "FOUND",
-                            "latitude" to 7.2930,
-                            "longitude" to 80.6350,
-                            "userId" to "sample_user_7",
-                            "authorName" to "Sajith Warnapura",
-                            "timestamp" to System.currentTimeMillis() - 86400000L * 4
-                        ),
-                        mapOf(
-                            "itemId" to "item_sample_08",
-                            "title" to "Honda Smart Car Key with Leather Fob",
-                            "category" to "Other",
-                            "location" to "Gampaha Bus Stand",
-                            "status" to "LOST",
-                            "latitude" to 7.0840,
-                            "longitude" to 79.9940,
-                            "userId" to "sample_user_8",
-                            "authorName" to "Ramesh Mendis",
-                            "timestamp" to System.currentTimeMillis() - 7200000L
-                        )
-                    )
+                for (child in snapshot.children) {
+                    val key = child.key.orEmpty()
+                    if (key.startsWith("item_sample_") || key.startsWith("sample_")) {
+                        itemsRef.child(key).removeValue()
+                    }
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
 
-                    sampleItems.forEach { itemMap ->
-                        val id = itemMap["itemId"] as String
-                        itemsRef.child(id).setValue(itemMap)
+        usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (child in snapshot.children) {
+                    val key = child.key.orEmpty()
+                    if (key.startsWith("sample_user_")) {
+                        usersRef.child(key).removeValue()
                     }
                 }
             }

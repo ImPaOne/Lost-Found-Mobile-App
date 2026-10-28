@@ -321,8 +321,8 @@ class AnalyticsFragment : Fragment() {
                     <span>High Density</span>
                 </div>
                 <script>
-                    var map = L.map('map', { zoomControl: false, attributionControl: false }).setView([7.8731, 80.7718], 7);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+                    var map = L.map('map', { zoomControl: true, dragging: true, touchZoom: true, scrollWheelZoom: true, attributionControl: false }).setView([7.8731, 80.7718], 7);
+                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
 
                     var dynamicLayerGroup = L.layerGroup().addTo(map);
 
