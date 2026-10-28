@@ -86,6 +86,8 @@ class ExploreFragment : Fragment() {
 
         rvItems = view.findViewById(R.id.rvItems)
 
+        // Create the Adapter with an empty initial list.
+        // Clicking an item opens its details.
         exploreAdapter = ExploreAdapter(emptyList(), viewLifecycleOwner.lifecycleScope) { item ->
             openDetails(item)
         }
