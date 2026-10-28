@@ -11,6 +11,19 @@
 
     <style name="Theme.LostAndFound" parent="Base.Theme.LostAndFound" />
 
+    <!-- Full-screen immersive photo viewer dialog theme -->
+    <style name="Theme.LostAndFound.FullScreenDialog" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:colorBackground">@android:color/black</item>
+        <item name="android:statusBarColor">@android:color/black</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
     <!-- Rounded image corners -->
     <style name="ShapeAppearance.RoundedSquare" parent="">
         <item name="cornerFamily">rounded</item>
