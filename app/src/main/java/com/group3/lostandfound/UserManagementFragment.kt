@@ -467,11 +467,10 @@ class UserManagementFragment : Fragment() {
                 for (child in snapshot.children) {
                     val action = child.child("actionType").getValue(String::class.java) ?: "ACTION"
                     val target = child.child("targetId").getValue(String::class.java) ?: ""
-                    val details = child.child("details").getValue(String::class.java) ?: ""
                     val time = child.child("timestamp").getValue(Long::class.java) ?: System.currentTimeMillis()
                     val sdf = java.text.SimpleDateFormat("MMM dd, HH:mm", java.util.Locale.US)
                     val timeStr = sdf.format(java.util.Date(time))
-                    logs.add("$action · $target\n$details · $timeStr")
+                    logs.add("$action · $target\n$timeStr")
                 }
 
                 if (logs.isEmpty()) {
