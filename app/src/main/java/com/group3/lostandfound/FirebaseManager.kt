@@ -237,8 +237,15 @@ object FirebaseManager {
 
         // Fast-path: if email is admin@gmail.com, auto-ensure admin role
         if (currentUserEmail.equals("admin@gmail.com", ignoreCase = true)) {
-            usersRef.child(uid).child("role").setValue("ADMIN")
+            if (uid.isNotEmpty()) {
+                usersRef.child(uid).child("role").setValue("ADMIN")
+            }
             onAuthorized()
+            return
+        }
+
+        if (uid.isEmpty()) {
+            onDenied("Unauthorized: Please sign in as Administrator.")
             return
         }
 
