@@ -12,20 +12,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel for Explore search screen in MVVM architecture.
- * Manages search query debounce, filter chip state, grid/list layout mode, and real-time filtering.
- */
 class ExploreViewModel(
+    // Repository provides filtered report data.
     private val exploreRepository: ExploreRepository = ExploreRepository()
 ) : ViewModel() {
 
+    // Holds the current UI state and allows the ViewModel to modify it.
     private val _uiState = MutableStateFlow(ExploreUiState())
     val uiState: StateFlow<ExploreUiState> = _uiState.asStateFlow()
 
+    // Tracks the pending search/filter coroutine.
     private var filterJob: Job? = null
 
     init {
+        // Load the initial reports when the ViewModel is created.
         applyFilter()
     }
 
@@ -56,7 +56,7 @@ class ExploreViewModel(
         _uiState.value = _uiState.value.copy(isGridMode = isGrid)
     }
 
-    //// Retrieves items from the repository using the current search and filter.
+    // Retrieves items from the repository using the current search and filter.
     private fun applyFilter() {
         val currentQuery = _uiState.value.query
         val currentStatus = _uiState.value.filterStatus

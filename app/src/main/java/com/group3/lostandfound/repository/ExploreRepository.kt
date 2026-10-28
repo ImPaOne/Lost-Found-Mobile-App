@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.map
 // Repository handles communication between the ViewModel and Firebase.
 class ExploreRepository {
 
+    // Reference to the "items" node in Firebase.
     private val db = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("items")
 
     // Gets all item reports and keeps listening for database changes.
@@ -21,6 +22,7 @@ class ExploreRepository {
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val items = mutableListOf<ItemReport>()
+                // Convert Firebase records into ItemReport objects.
                 for (child in snapshot.children) {
                     try {
                         val report = ItemReport.fromSnapshot(child)
@@ -41,12 +43,15 @@ class ExploreRepository {
             }
         }
 
+        // Start listening for Firebase changes.
         db.addValueEventListener(listener)
+        // Remove the listener when the Flow is cancelled.
         awaitClose { db.removeEventListener(listener) }
     }
 
     // Gets item reports by category, such as a specific category or ALL.
     fun getItemsByCategory(category: String): Flow<List<ItemReport>> = callbackFlow {
+        // Build a Firebase query when a specific category is selected.
         val query = if (category.isNotEmpty() && category != "ALL") {
             db.orderByChild("category").equalTo(category)
         } else {
@@ -73,6 +78,7 @@ class ExploreRepository {
         }
 
         query.addValueEventListener(listener)
+        // Clean up the Firebase query listener.
         awaitClose { query.removeEventListener(listener) }
     }
 
@@ -84,6 +90,7 @@ class ExploreRepository {
     ): Flow<List<ItemReport>> = getItemsRealtime().map { items ->
         val cleanQuery = query.trim().lowercase()
         items.filter { item ->
+            // Match the search text against the title or description.
             val matchesQuery = if (cleanQuery.isNotEmpty()) {
                 item.title.lowercase().contains(cleanQuery) ||
                         item.description.lowercase().contains(cleanQuery)
