@@ -18,7 +18,6 @@ import com.group3.lostandfound.util.ModernToast
  */
 class NotificationsFragment : Fragment() {
 
-    //	Loads the notification screen layout from fragment_notifications.xml.
     private lateinit var btnBack: FrameLayout
     private lateinit var btnCheckAll: FrameLayout
     private lateinit var badgeNewToday: TextView
@@ -38,6 +37,7 @@ class NotificationsFragment : Fragment() {
     private var adminAlertTitle = "Admin alert"
     private var adminAlertMessage = "Please verify your contact number."
 
+    //	Loads the notification screen layout from fragment_notifications.xml.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
