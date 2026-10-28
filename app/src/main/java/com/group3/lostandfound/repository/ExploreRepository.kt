@@ -43,6 +43,7 @@ class ExploreRepository {
             }
         }
 
+        // Start listening for Firebase changes.
         db.addValueEventListener(listener)
         awaitClose { db.removeEventListener(listener) }
     }
