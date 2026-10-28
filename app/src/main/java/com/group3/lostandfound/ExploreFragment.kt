@@ -106,6 +106,7 @@ class ExploreFragment : Fragment() {
                 exploreAdapter.updateItems(state.items)
 
                 if (state.isGridMode) {
+                    // Grid mode displays two columns.
                     if (rvItems.layoutManager !is GridLayoutManager) {
                         rvItems.layoutManager = GridLayoutManager(requireContext(), 2)
                     }
