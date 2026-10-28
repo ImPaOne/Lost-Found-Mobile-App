@@ -58,6 +58,7 @@ data class ReportItem(
     val imageUrl: String = ""
 ) {
     companion object {
+        // Converts data from a Firebase DataSnapshot into a Kotlin ReportItem object.
         fun fromSnapshot(child: DataSnapshot): ReportItem {
             return try {
                 val key = child.key.orEmpty()
