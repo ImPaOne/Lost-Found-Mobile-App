@@ -186,6 +186,7 @@ view.findViewById<View>(R.id.activityItemEscalated)?.setOnClickListener {
 
 // Configure the bottom navigation bar for the Admin Dashboard.
 setupBottomNav(view, "admin")
+}
 
     private lateinit var dateSubtitle: TextView
     private lateinit var awaitingReviewText: TextView
