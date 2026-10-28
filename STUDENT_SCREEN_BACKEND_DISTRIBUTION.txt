@@ -1,0 +1,813 @@
+================================================================================
+FOUNDLY (LOST & FOUND SRI LANKA) - COMPLETE COURSEWORK SPECIFICATION & BACKEND MATRIX
+================================================================================
+Comprehensive Module Breakdown, UI Screen Hierarchies, Frontend File Paths,
+Backend Architecture, Firebase Realtime Database Endpoints, and Logic Descriptions.
+
+================================================================================
+MODULE ALLOCATION SUMMARY
+================================================================================
+Total System Components: 28 Screens & Modals across 4 Students.
+
+* GAHNDSE261F-009 -> 9 Screens
+  Scope: Core Platform Showcase, Administration, Analytics & Lifecycle Engine
+  Screens:
+    1. Home Dashboard
+    2. Item Details Screen
+    3. Admin Operations Dashboard
+    4. Content Moderation Queue
+    5. System Analytics & Insights
+    6. User Management & Access Control
+    7. My Reports Management
+    8. Saved Items / Bookmarks
+    9. Item Flyer & QR Code Export Modal
+
+* GAHNDSE261F-010 -> 7 Screens
+  Scope: Discovery, Multi-Step Report Creation, UI Kit & Feedback Modals
+  Screens:
+    1. Explore & Search Screen
+    2. Onboarding Screen 1 ("Lost Something?")
+    3. 5-Step Create Report Flow
+    4. UI Component Library (UI Kit)
+    5. High-Resolution Photo Lightbox Modal
+    6. Rate App & Community Feedback Modal
+    7. Notification Options Bottom Sheet Modal
+
+* GAHNDSE261F-011 -> 6 Screens
+  Scope: Application Entry, Onboarding Experience & User Account Management
+  Screens:
+    1. Splash Screen
+    2. Onboarding Screen 2 ("Found Something?")
+    3. Onboarding Screen 3 ("Reunite & Connect")
+    4. Login Screen
+    5. User Profile Screen
+    6. Edit Profile Bottom Sheet Modal
+
+* GAHNDSE261F-015 -> 6 Screens
+  Scope: Geo-Spatial Tracking, Trust Engine & Real-time Communication Services
+  Screens:
+    1. Sign Up & Account Registration Screen
+    2. Interactive Map View Screen
+    3. App Settings Screen
+    4. Trust & Achievements Screen
+    5. Notifications & Alerts Screen
+    6. Live Chat Room & Messages Inbox
+
+================================================================================
+PART 1: GAHNDSE261F-009 (9 SCREENS) - DETAILED SPECIFICATIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. SCREEN: Home Dashboard
+--------------------------------------------------------------------------------
+* Screen Name: Home Dashboard
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_home.xml
+  - Sub-item Layouts: app/src/main/res/layout/item_urgent_slider.xml, app/src/main/res/layout/item_report_card.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/HomeFragment.kt
+* Backend & Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/HomeViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/ItemRepository.kt
+  - Database Manager: app/src/main/java/com/group3/lostandfound/FirebaseManager.kt
+  - Data Models: ReportItem, AnalyticsSummary in app/src/main/java/com/group3/lostandfound/Models.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Top branded header with user greeting ("Hello, [Name]") and notification bell; quick search bar linking to Explore; horizontal swiping carousel of urgent items; quick-action report cards (Report Lost in Red #C1121F / Report Found in Navy #003049); 6-icon category grid; live community feed of recent reports; fixed 5-tab bottom navigation.
+  - Backend Logic: HomeViewModel calls ItemRepository to stream the /items node from Firebase Realtime Database. Queries records with .orderByChild("timestamp").limitToLast(30). Automatically filters for urgent lost items with high rewards for the carousel. Excludes flagged items (isFlagged == false) and resolved items. Uses Kotlin StateFlow to push updates to HomeFragment in real time without manual page refreshes.
+
+--------------------------------------------------------------------------------
+2. SCREEN: Item Details Screen
+--------------------------------------------------------------------------------
+* Screen Name: Item Details Screen
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_details.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/DetailsFragment.kt
+* Backend & Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/DetailsViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/ItemRepository.kt
+  - Database Manager: app/src/main/java/com/group3/lostandfound/FirebaseManager.kt
+  - Service: app/src/main/java/com/group3/lostandfound/service/FCMService.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Full-width high-resolution item image (260dp); status badge ("LOST ITEM" in red outline or "FOUND ITEM" in green outline); item title, category chip, and post timestamp; location details with mini interactive map snapshot; story description text box; reporter profile card showing avatar, verified trust score (e.g., "95% Verified"), and join date; sticky bottom action row featuring Live Chat button (#003049) and official WhatsApp button (#25D366); "Mark RESOLVED & Reunited" button for owners.
+  - Backend Logic: DetailsViewModel attaches a ValueEventListener to /items/{itemId} to pull live data. Queries /users/{userId} to load reporter trust metrics. WhatsApp button extracts the reporter's phone number, sanitizes "+94", and fires Intent.ACTION_VIEW (https://wa.me/...) directly launching the WhatsApp mobile application. Live Chat button opens ChatFragment. Case resolution updates /items/{itemId}/status to "RESOLVED", awards +20 Trust Points and the "Reunited Hero" achievement to the finder, +15 points to the owner, and triggers a local push notification.
+
+--------------------------------------------------------------------------------
+3. SCREEN: Admin Operations Dashboard
+--------------------------------------------------------------------------------
+* Screen Name: Admin Operations Dashboard
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_admin.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/AdminFragment.kt
+* Backend & Architecture Files:
+  - Database Manager: app/src/main/java/com/group3/lostandfound/FirebaseManager.kt
+  - Data Models: AdminAction, AnalyticsSummary, ReportItem in app/src/main/java/com/group3/lostandfound/Models.kt
+  - Preferences: SharedPreferences ("findit_prefs" keys "is_admin", "saved_email")
+* Detailed Description & Backend Integration:
+  - UI Components: Administrative header with admin badge; 4 overview KPI counter cards (Total Reports, Pending Review, Flagged Content, Resolved Reunions); navigation shortcut buttons to Moderation Queue, System Analytics, and User Management; live audit trail log list showing timestamped admin events.
+  - Backend Logic: Validates that the active session matches admin credentials (admin@gmail.com). Queries /analytics_summary in Firebase Realtime Database to render live counters. Listens to /admin_logs to display recent administrative actions (approvals, bans, overrides). Dispatches navigation intents to Admin sub-screens.
+
+--------------------------------------------------------------------------------
+4. SCREEN: Content Moderation Queue
+--------------------------------------------------------------------------------
+* Screen Name: Content Moderation Queue
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_moderation.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/ModerationFragment.kt
+* Backend & Architecture Files:
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/ItemRepository.kt
+  - Database Manager: app/src/main/java/com/group3/lostandfound/FirebaseManager.kt
+  - Data Models: ReportItem, AdminAction in app/src/main/java/com/group3/lostandfound/Models.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Top bar with moderation queue title and counter; filter chips (All, Pending Review, Community Flagged, Inappropriate); list of reported cards showing item photo, reporter name, flagged reason (e.g., "Suspicious contact number", "Duplicate listing"), and two prominent action buttons: [ Approve Post ] in green and [ Reject / Remove ] in red.
+  - Backend Logic: Queries /items where isFlagged == true or status == "PENDING". When admin clicks Approve, updates /items/{itemId}/status to "APPROVED", sets isFlagged = false, and logs an entry in /admin_logs. When admin clicks Reject, marks the item as "REJECTED" or removes the node, and deducts 10 Trust Points from the reporting user's /users/{userId}/trustScore to enforce community standards.
+
+--------------------------------------------------------------------------------
+5. SCREEN: System Analytics & Insights
+--------------------------------------------------------------------------------
+* Screen Name: System Analytics & Insights
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_analytics.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/AnalyticsFragment.kt
+* Backend & Architecture Files:
+  - Database Manager: app/src/main/java/com/group3/lostandfound/FirebaseManager.kt
+  - Data Models: AnalyticsSummary in app/src/main/java/com/group3/lostandfound/Models.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Top bar with analytics title; executive KPI metric cards showing Reunion Success Rate (e.g., "78% Reunited") and Average Reunion Speed ("2.4 Days"); dynamic Category Distribution bar charts (Electronics, Wallets, Documents, Keys); Geographic Hotspot breakdown (Colombo, Kandy, Galle, Gampaha); 7-day velocity chart comparing new reports vs resolved cases.
+  - Backend Logic: Traverses /items in Firebase Realtime Database to calculate metrics in real time. Aggregates counts by category and province. Calculates the success rate formula: (resolvedItems / totalItems) * 100. Renders custom dynamic bar heights and visual progress meters directly in Kotlin.
+
+--------------------------------------------------------------------------------
+6. SCREEN: User Management & Access Control
+--------------------------------------------------------------------------------
+* Screen Name: User Management & Access Control
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_user_management.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/UserManagementFragment.kt
+* Backend & Architecture Files:
+  - Database Manager: app/src/main/java/com/group3/lostandfound/FirebaseManager.kt
+  - Data Models: UserData in app/src/main/java/com/group3/lostandfound/Models.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Header with title and "+" seed user icon; search bar with real-time text input; summary metrics ribbon (Total Users, Verified, Suspended); list of user cards displaying avatar, display name, email, verified badge, current Trust Score (e.g., "95 XP"), and a 3-dots moderation menu offering: "Adjust Trust Score" and "Suspend / Ban Account".
+  - Backend Logic: Listens to the /users node in Firebase Realtime Database. Performs real-time client-side substring matching on user names and emails. Toggling Ban writes isBanned = true/false under /users/{uid}. Adjusting trust score writes manual XP increments/decrements. All actions write an audit record to /admin_logs.
+
+--------------------------------------------------------------------------------
+7. SCREEN: My Reports Management
+--------------------------------------------------------------------------------
+* Screen Name: My Reports Management
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_reports.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/ReportsFragment.kt
+* Backend & Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/ReportsViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/ReportRepository.kt
+  - Data Models: ReportItem in app/src/main/java/com/group3/lostandfound/Models.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Top bar with title; two-tab filter bar: [ Active Reports ] vs [ Resolved Reports ]; card list of user-created items showing item thumbnail, status badge, title, location, post date, and popup menu with options: "View Details", "Mark as Resolved", and "Delete Report".
+  - Backend Logic: ReportsViewModel queries /items where userId matches FirebaseManager.currentUid. Splits items into active and resolved lists. Delete action calls .removeValue() on /items/{itemId}. Mark resolved action updates the status field to "RESOLVED" and increments /users/{uid}/resolvedReports.
+
+--------------------------------------------------------------------------------
+8. SCREEN: Saved Items / Bookmarks
+--------------------------------------------------------------------------------
+* Screen Name: Saved Items / Bookmarks
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_saved_items.xml
+  - Sub-item Layout: app/src/main/res/layout/item_saved_card.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/SavedItemsFragment.kt
+* Backend & Architecture Files:
+  - Database Path: /items in Firebase Realtime Database
+  - Preferences: SharedPreferences ("findit_prefs" key "saved_item_ids_set")
+  - Data Models: ReportItem in app/src/main/java/com/group3/lostandfound/Models.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Top bar with back button, "Saved Items" title, and trash icon ("Clear All"); subtitle counter ("4 items bookmarked"); list of saved item cards with photo thumbnail, status badge, title, location, bookmark ribbon icon, and tap-to-view navigation; empty state placeholder when no items are bookmarked.
+  - Backend Logic: Reads a StringSet of bookmarked item IDs from SharedPreferences. Queries Firebase /items for each ID to retrieve live titles, photos, and statuses. Tapping the bookmark icon removes the ID from SharedPreferences and updates the UI list. "Clear All" wipes the set and displays the empty state.
+
+--------------------------------------------------------------------------------
+9. SCREEN: Item Flyer & QR Code Export Modal
+--------------------------------------------------------------------------------
+* Screen Name: Item Flyer & QR Code Export Modal
+* Frontend Files:
+  - Dialog Layout: app/src/main/res/layout/dialog_share_flyer.xml
+  - Poster Canvas Layout: app/src/main/res/layout/layout_item_flyer.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/DetailsFragment.kt (showShareFlyerDialog)
+* Backend & Architecture Files:
+  - QR Code Engine: Google ZXing / bitmap matrix generator
+  - Storage & Sharing: Android FileProvider, cacheDir/flyers/, Intent.ACTION_SEND
+  - Clipboard: Android ClipboardManager
+* Detailed Description & Backend Integration:
+  - UI Components: Centered modal dialog with header "Item Flyer & QR Code" and close button; preview card showing a high-contrast poster with red "LOST ITEM" alert banner, full item photo, brand header, title, location, scannable QR code, and scanner instructions; bottom action buttons: [ Copy Link ] and [ Share Flyer ] (#003049).
+  - Backend Logic: Generates a 512x512 matrix QR code from the item web link (https://foundly.lk/item/{id}). Measures and renders layout_item_flyer.xml onto an off-screen bitmap canvas. Compresses the canvas into a high-res PNG file stored in cacheDir/flyers/. Triggers Android native Intent.ACTION_SEND with FileProvider URI to share to WhatsApp, Facebook, or print. Copy Link writes the web URL to Android ClipboardManager.
+
+================================================================================
+PART 2: GAHNDSE261F-010 (7 SCREENS) - DETAILED SPECIFICATIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. SCREEN: Explore & Search Screen
+--------------------------------------------------------------------------------
+* Screen Name: Explore & Search Screen
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_explore.xml
+  - Sub-item Layout: app/src/main/res/layout/item_report_card.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/ExploreFragment.kt
+* Backend & Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/ExploreViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/ExploreRepository.kt
+  - Data Models: ReportItem in app/src/main/java/com/group3/lostandfound/Models.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Full-width search input field with filter button; two-segment tab control: [ Lost Items ] vs [ Found Items ]; horizontally scrolling category chips (All, Electronics, Wallets, IDs, Keys, Bags, Pets); city/province dropdown selector; 2-column grid of report cards showing item picture, status tag, title, and location.
+  - Backend Logic: ExploreViewModel calls ExploreRepository to stream /items using Kotlin Flow. Performs multi-criteria filtering: matches text search against title, description, and landmarks; matches selected status tab; matches category chip; matches geographic area. Emits filtered list to RecyclerView adapter.
+
+--------------------------------------------------------------------------------
+2. SCREEN: Onboarding Screen 1 ("Lost Something?")
+--------------------------------------------------------------------------------
+* Screen Name: Onboarding Screen 1 ("Lost Something?")
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_onboarding.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/OnboardingFragment.kt
+* Backend & Architecture Files:
+  - Preferences: SharedPreferences ("findit_prefs" key "onboarding_completed")
+* Detailed Description & Backend Integration:
+  - UI Components: Top bar with right-aligned "Skip" text button; central illustration featuring search magnifying glass and map pins; heading "Lost Something?" and description; 3-dot page indicator with dot 1 active (pill shape in #003049); primary "Next" button.
+  - Backend Logic: Acts as the first-launch gatekeeper. "Skip" button writes onboarding_completed = true to SharedPreferences and redirects to LoginFragment. "Next" button transitions smoothly to Onboarding Screen 2.
+
+--------------------------------------------------------------------------------
+3. SCREEN: 5-Step Create Report Flow
+--------------------------------------------------------------------------------
+* Screen Name: 5-Step Create Report Flow
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_create_report.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/CreateReportFragment.kt
+* Backend & Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/CreateReportViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/ReportRepository.kt
+  - Image Cache: Android FileProvider, internal cacheDir/images/
+  - Cloud Upload: Cloudinary Upload API / Firebase Storage
+  - Push Service: app/src/main/java/com/group3/lostandfound/service/FCMService.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Top app bar with back navigation and step title; 5-segment horizontal progress bar; ViewFlipper animating through 5 steps:
+    * Step 1 (Status): Two selectable cards [ I Lost an Item ] (red outline) vs [ I Found an Item ] (green outline).
+    * Step 2 (Category & Details): Category dropdown, item title input, description text area.
+    * Step 3 (Location): City input, landmark field, "Pick on Map" button opening MapFragment.
+    * Step 4 (Photos): Action buttons [ Choose from Gallery ] and [ Take Photo ]; 3-thumbnail preview row (cardThumbnail1, 2, 3) displaying attached photos simultaneously with delete buttons.
+    * Step 5 (Review & Publish): Summary card showing selected photo, title, status tag, location, and community pledge; sticky "Publish Report" button (#003049).
+  - Backend Logic: Uses ActivityResultContracts.TakePicture() with FileProvider URI to capture full-resolution camera photos. Maintains attachedImagesList merging gallery uploads and camera captures so photos never vanish. ReportRepository compresses photos to max 2048x2048 at 92% quality preserving high resolution. Uploads to Cloudinary, creates item record under /items/{itemId}, increments /users/{uid}/itemsReported, and triggers a local push notification.
+
+--------------------------------------------------------------------------------
+4. SCREEN: UI Component Library (UI Kit)
+--------------------------------------------------------------------------------
+* Screen Name: UI Component Library (UI Kit)
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_ui_kit.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/UiKitFragment.kt
+* Backend & Architecture Files:
+  - Styling Resources: res/values/colors.xml, res/values/styles.xml, res/values/themes.xml
+  - Utilities: app/src/main/java/com/group3/lostandfound/util/ModernToast.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Design System showcase displaying color swatches (Navy #003049, Red #C1121F, Green #2A9D8F, WhatsApp #25D366); typography hierarchy; button variants (Primary, Outlined, Danger, WhatsApp Green, Disabled, Icon Buttons); status badge pills ("LOST ITEM", "FOUND ITEM", "URGENT", "RESOLVED"); text input states (Default, Active Focus, Error); interactive ModernToast test buttons.
+  - Backend Logic: Provides a living style guide ensuring all developers maintain consistent padding, color tokens, and elevation across all application screens.
+
+--------------------------------------------------------------------------------
+5. SCREEN: High-Resolution Photo Lightbox
+--------------------------------------------------------------------------------
+* Screen Name: High-Resolution Photo Lightbox
+* Frontend Files:
+  - Dialog Layout: app/src/main/res/layout/dialog_enlarged_photo.xml
+  - Kotlin UI Class: Invoked from DetailsFragment.kt & ChatFragment.kt
+* Backend & Architecture Files:
+  - Image Loader: app/src/main/java/com/group3/lostandfound/util/ImageLoader.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Fullscreen dark modal dialog (#000000); top-right circular close button with white "X"; full-screen zoomable image view scaled fit-center; bottom label showing item title.
+  - Backend Logic: Loads the original uncompressed photo URL from Firebase /items/{itemId}/imageUrl into memory; provides smooth dismiss on background tap or back press.
+
+--------------------------------------------------------------------------------
+6. SCREEN: Rate App & Community Feedback Modal
+--------------------------------------------------------------------------------
+* Screen Name: Rate App & Community Feedback Modal
+* Frontend Files:
+  - Dialog Layout: app/src/main/res/layout/dialog_rate_app.xml
+  - Kotlin UI Class: Invoked from ProfileFragment.kt & SettingsFragment.kt
+* Backend & Architecture Files:
+  - Database Path: /app_feedback in Firebase Realtime Database
+* Detailed Description & Backend Integration:
+  - UI Components: Centered modal dialog card; top star icon graphic; title "Enjoying Foundly?" and subtitle; interactive 5-star rating selector (gold stars #F59E0B); multi-line feedback comments EditText; action buttons: "Maybe Later" and "Submit Feedback" (#003049).
+  - Backend Logic: Captures selected star rating (1 to 5) and feedback text. Pushes payload { userId, rating, feedbackText, timestamp } to Firebase /app_feedback/{feedbackId}. Displays a thank-you ModernToast upon submission.
+
+--------------------------------------------------------------------------------
+7. SCREEN: Notification Options Bottom Sheet Modal
+--------------------------------------------------------------------------------
+* Screen Name: Notification Options Bottom Sheet Modal
+* Frontend Files:
+  - Dialog Layout: app/src/main/res/layout/dialog_notification_options.xml
+  - Kotlin UI Class: Invoked from NotificationsFragment.kt & SettingsFragment.kt
+* Backend & Architecture Files:
+  - Service: app/src/main/java/com/group3/lostandfound/service/FCMService.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Rounded top bottom sheet modal; drag handle; title "Notifications & Alerts"; Option 1: "Open Notification Inbox" with bell icon; Option 2: "Test Notification Sound & Vibration" with audio icon; bottom "Close" button.
+  - Backend Logic: Option 1 navigates directly to NotificationsFragment. Option 2 calls FCMService.triggerPushNotification() to verify the custom notification channel, Apple chime sound, and vibration haptics on the user's device.
+
+================================================================================
+PART 3: GAHNDSE261F-011 (6 SCREENS) - DETAILED SPECIFICATIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. SCREEN: Splash Screen
+--------------------------------------------------------------------------------
+* Screen Name: Splash Screen
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/activity_splash.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/SplashActivity.kt
+* Backend & Architecture Files:
+  - Service: app/src/main/java/com/group3/lostandfound/service/AppNotificationService.kt
+  - Preferences: SharedPreferences ("findit_prefs" keys "onboarding_completed", "is_logged_in")
+  - Auth: com.google.firebase.auth.FirebaseAuth
+* Detailed Description & Backend Integration:
+  - UI Components: Solid white background (#FFFFFF); centered Foundly logo image (@drawable/logoo) sized 120x120 without background card or drop shadow; clean static branding (no animations or loading dots); title "FOUNDLY" (26sp Bold Black #000000) and subtitle "Sri Lanka's Community Lost & Found" (13sp dark).
+  - Backend Logic: Starts background AppNotificationService early so incoming alerts are never missed. Checks login state in SharedPreferences:
+    * If !onboarding_completed -> Dispatches to OnboardingFragment
+    * If is_logged_in -> Dispatches to HomeFragment
+    * Else -> Dispatches to LoginFragment
+  - Transitions after 1800ms delay or on screen tap with overridePendingTransition.
+
+--------------------------------------------------------------------------------
+2. SCREEN: Onboarding Screen 2 ("Found Something?")
+--------------------------------------------------------------------------------
+* Screen Name: Onboarding Screen 2 ("Found Something?")
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_onboarding_found.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/OnboardingFoundFragment.kt
+* Backend & Architecture Files:
+  - Preferences: SharedPreferences ("findit_prefs")
+* Detailed Description & Backend Integration:
+  - UI Components: Top "Skip" button; backpack/item illustration; heading "Found Something?" and description explaining how to list found items safely; 3-dot indicator with dot 2 active; primary "Next" button.
+  - Backend Logic: Skip button writes onboarding_completed = true and navigates to LoginFragment. Next button navigates forward to Onboarding Screen 3.
+
+--------------------------------------------------------------------------------
+3. SCREEN: Onboarding Screen 3 ("Reunite & Connect")
+--------------------------------------------------------------------------------
+* Screen Name: Onboarding Screen 3 ("Reunite & Connect")
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_onboarding_reunite.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/OnboardingReuniteFragment.kt
+* Backend & Architecture Files:
+  - Preferences: SharedPreferences ("findit_prefs" key "onboarding_completed")
+* Detailed Description & Backend Integration:
+  - UI Components: Top bar; community handshake trust illustration; heading "Reunite & Connect" and description explaining secure handover and Trust Points; 3-dot indicator with dot 3 active; full-width "Get Started" button (#003049).
+  - Backend Logic: Both "Get Started" and "Skip" write onboarding_completed = true to SharedPreferences and transition into LoginFragment.
+
+--------------------------------------------------------------------------------
+4. SCREEN: Login Screen
+--------------------------------------------------------------------------------
+* Screen Name: Login Screen
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_login.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/LoginFragment.kt
+* Backend & Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/AuthViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/AuthRepository.kt
+  - Auth: FirebaseAuth.signInWithEmailAndPassword
+  - Service: app/src/main/java/com/group3/lostandfound/service/AppNotificationService.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Small app logo and "Welcome Back" header; email input field; password input field with eye visibility toggle; right-aligned "Forgot Password?" link; primary "Sign In" button (#003049); Quick Demo shortcuts row: [ Admin Demo ] (admin@gmail.com) and [ User Demo ]; bottom navigation link: "Don't have an account? Sign Up".
+  - Backend Logic: Validates email and password inputs. Authenticates credentials against FirebaseAuth. Writes session state to findit_prefs ("is_logged_in", "user_uid", "saved_email"). Starts AppNotificationService for background alerts. Admin Demo button immediately sets admin session and opens AdminFragment. User Demo opens HomeFragment.
+
+--------------------------------------------------------------------------------
+5. SCREEN: User Profile Screen
+--------------------------------------------------------------------------------
+* Screen Name: User Profile Screen
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_profile.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/ProfileFragment.kt
+* Backend & Architecture Files:
+  - Database Path: /users/{currentUid} in Firebase Realtime Database
+  - Auth: FirebaseAuth.getInstance()
+  - Preferences: SharedPreferences ("findit_prefs")
+  - Data Models: User in app/src/main/java/com/group3/lostandfound/Models.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Top profile card with user avatar circle and edit badge; user full name and email; Trust Level badge (e.g., "Level 2 Finder"); 3-card stat summary row: Items Reported, Items Reunited, Trust XP; menu action rows with chevrons: Edit Profile, Trust & Achievements, Saved Items, App Settings, Rate App, Support; red "Sign Out" button at bottom.
+  - Backend Logic: Attaches ValueEventListener to /users/{currentUid} to populate name, avatar, and statistics. Sign Out calls FirebaseAuth.getInstance().signOut(), clears session flags in findit_prefs, stops background notification listeners, and returns to LoginFragment.
+
+--------------------------------------------------------------------------------
+6. SCREEN: Edit Profile Bottom Sheet Modal
+--------------------------------------------------------------------------------
+* Screen Name: Edit Profile Bottom Sheet Modal
+* Frontend Files:
+  - Dialog Layout: app/src/main/res/layout/dialog_edit_profile.xml
+  - Kotlin UI Class: Invoked from ProfileFragment.kt (showEditProfileDialog)
+* Backend & Architecture Files:
+  - Database Path: /users/{currentUid} in Firebase Realtime Database
+  - Storage: Cloudinary / Firebase Storage API
+* Detailed Description & Backend Integration:
+  - UI Components: Bottom sheet modal; drag handle; title "Edit Profile Details"; avatar photo row with "Upload ->" action; input fields: Full Name, Phone Number (+94), and City; action buttons: [ Cancel ] and [ Save Changes ] (#003049).
+  - Backend Logic: Loads current values from /users/{currentUid}. Allows selecting new avatar from gallery, compresses to 512x512, uploads image, and updates fields in /users/{currentUid} upon saving.
+
+================================================================================
+PART 4: GAHNDSE261F-015 (6 SCREENS) - DETAILED SPECIFICATIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. SCREEN: Sign Up & Account Registration Screen
+--------------------------------------------------------------------------------
+* Screen Name: Sign Up & Account Registration Screen
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_signup.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/SignUpFragment.kt
+* Backend & Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/AuthViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/AuthRepository.kt
+  - Auth: FirebaseAuth.createUserWithEmailAndPassword
+  - Database: /users/{uid}
+  - Service: app/src/main/java/com/group3/lostandfound/service/AppNotificationService.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Back chevron; "Create Account" header; input fields: Full Name, Email Address, Phone Number (+94), Password, and Confirm Password; Terms of Service and Community Pledge checkbox; primary "Create Account" button (#003049); bottom link to Sign In.
+  - Backend Logic: Validates name, email, Sri Lankan phone format, and matching passwords. Creates account in FirebaseAuth. Seeds initial user record in /users/{uid} with default 85 Trust XP, isTrustedFinder = false, and createdAt timestamp. Starts AppNotificationService and opens HomeFragment.
+
+--------------------------------------------------------------------------------
+2. SCREEN: Interactive Map View Screen
+--------------------------------------------------------------------------------
+* Screen Name: Interactive Map View Screen
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_map.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/MapFragment.kt
+* Backend & Architecture Files:
+  - Database Path: /items in Firebase Realtime Database
+  - Models: MapMarkerItem in app/src/main/java/com/group3/lostandfound/Models.kt
+  - Location Services: Android Location API (FusedLocationProviderClient)
+* Detailed Description & Backend Integration:
+  - UI Components: Floating top search bar with filter button; filter chips (All, Lost, Found); full-screen map canvas displaying custom Red pins (Lost Items) and Green pins (Found Items); my-location FAB; floating bottom preview card appearing when a pin is tapped, showing item picture, title, location, distance, and "View Details" button.
+  - Backend Logic: Queries /items where latitude != 0.0 and longitude != 0.0. Converts items into MapMarkerItem objects and places pins. In coordinate picker mode (invoked from CreateReportFragment), allows users to tap anywhere on the map to pin precise coordinates and returns lat/lng via FragmentResultListener.
+
+--------------------------------------------------------------------------------
+3. SCREEN: App Settings Screen
+--------------------------------------------------------------------------------
+* Screen Name: App Settings Screen
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_settings.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/SettingsFragment.kt
+* Backend & Architecture Files:
+  - Preferences: SharedPreferences ("findit_prefs" keys "push_notifications_enabled", "sound_chime_enabled")
+  - Services: app/src/main/java/com/group3/lostandfound/service/AppNotificationService.kt, FCMService.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Back button; "Settings" header; Notification settings section with Push Alerts toggle switch and Sound Chime toggle switch; "Test Notification Sound & Vibration" action row; Privacy section with "Blocked Users" and "Clear Cached Media" actions; About section showing app version "Foundly v1.0.0" and Terms. *(Language and Theme settings completely removed)*.
+  - Backend Logic: Toggling switches writes booleans to SharedPreferences. Test button triggers FCMService.triggerPushNotification(). Clear cache purges temporary image files from cacheDir.
+
+--------------------------------------------------------------------------------
+4. SCREEN: Trust & Achievements Screen
+--------------------------------------------------------------------------------
+* Screen Name: Trust & Achievements Screen
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_trust.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/TrustFragment.kt
+* Backend & Architecture Files:
+  - Database Paths: /users/{uid}/trustScore and /users/{uid}/achievements in Firebase Realtime Database
+  - Data Models: UserData in app/src/main/java/com/group3/lostandfound/Models.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Top banner with circular Trust Score meter (e.g., 95 / 100, "Community Hero"); XP progress bar showing distance to next tier; 2-column Achievements grid displaying unlocked and locked badges ("First Report", "Reunited Hero", "Trusted Finder", "Community Guardian"); info card explaining community trust rules.
+  - Backend Logic: Streams user trust score from /users/{uid}/trustScore. Reads achievement records from /users/{uid}/achievements. Renders dynamic circular progress arc and badge status cards.
+
+--------------------------------------------------------------------------------
+5. SCREEN: Notifications & Alerts Screen
+--------------------------------------------------------------------------------
+* Screen Name: Notifications & Alerts Screen
+* Frontend Files:
+  - Main Layout: app/src/main/res/layout/fragment_notifications.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/NotificationsFragment.kt
+* Backend & Architecture Files:
+  - Database Path: /notifications/{currentUid} in Firebase Realtime Database
+  - Models: NotificationItem in app/src/main/java/com/group3/lostandfound/Models.kt
+  - Background Service: app/src/main/java/com/group3/lostandfound/service/AppNotificationService.kt
+* Detailed Description & Backend Integration:
+  - UI Components: Top bar with title and "Mark all read" action; filter tabs (All, Messages, Matches, System); list of notification cards displaying category icon, bold title, description snippet, relative timestamp ("15 mins ago"), and blue unread indicator dot.
+  - Backend Logic: Attaches ChildEventListener to /notifications/{currentUid}. Displays alerts for new chat messages, case resolutions, and reward offers. "Mark all read" updates read = true across all child nodes in Firebase. Tapping an alert navigates directly to the referenced item or chat conversation.
+
+--------------------------------------------------------------------------------
+6. SCREEN: Live Chat Room & Messages Inbox
+--------------------------------------------------------------------------------
+* Screen Name: Live Chat Room & Messages Inbox
+* Frontend Files:
+  - Layouts: app/src/main/res/layout/fragment_messages.xml, app/src/main/res/layout/fragment_chat.xml,
+             app/src/main/res/layout/item_conversation.xml, app/src/main/res/layout/item_chat_message.xml,
+             app/src/main/res/layout/layout_floating_bubble.xml
+  - Kotlin UI Classes: app/src/main/java/com/group3/lostandfound/MessagesFragment.kt,
+                       app/src/main/java/com/group3/lostandfound/ChatFragment.kt
+* Backend & Architecture Files:
+  - ViewModels: app/src/main/java/com/group3/lostandfound/viewmodel/MessagesViewModel.kt, ChatViewModel.kt
+  - Repositories: app/src/main/java/com/group3/lostandfound/repository/MessagesRepository.kt, ChatRepository.kt
+  - Services: app/src/main/java/com/group3/lostandfound/service/AppNotificationService.kt, FloatingOverlayService.kt
+  - Data Models: ConversationMetadata, ChatMessage in app/src/main/java/com/group3/lostandfound/Models.kt
+* Detailed Description & Backend Integration:
+  - UI Components:
+    * Messages Inbox (MessagesFragment): Search bar, conversation list where each conversation item displays the Foundly app logo (@drawable/logoo) as the left avatar, partner name, item title, message preview, timestamp, and unread badge.
+    * Live Chat Room (ChatFragment): Top bar showing app logo avatar, user name, and online indicator; sticky item context banner with thumbnail and "Resolve Case" button; quick reply chips; outgoing message bubble (navy #003049, right-aligned) and incoming bubble (white with border, left-aligned); embedded quote-reply box with min-width: 270dp so replied-to user names are never clipped; photo attachment card; bottom typing bar positioned right above keyboard.
+  - Backend Logic: Streams /user_conversations/{uid} for the inbox. Live chat streams /conversations/{conversationId}/messages with child event listeners. Typing indicator debounces to /conversations/{conversationId}/typing/{userId}. Photo attachment compresses and uploads images. Case Resolution marks item as RESOLVED and awards "Reunited Hero" badge. FloatingOverlayService enables floating chat bubble multitasking. AppNotificationService delivers push notifications when app is closed or phone is locked.
+
+================================================================================
+SHARED APPLICATION ARCHITECTURE & INFRASTRUCTURE
+================================================================================
+* MainActivity (app/src/main/java/com/group3/lostandfound/MainActivity.kt & res/layout/activity_main.xml):
+  - Root single-activity container; handles fragment backstack transitions; initializes FirebaseManager; starts AppNotificationService on launch; manages window insets for keyboard adjustment; parses deep links (foundly://item/{id}); handles runtime POST_NOTIFICATIONS permission and global announcement broadcasts.
+* AppNotificationService (app/src/main/java/com/group3/lostandfound/service/AppNotificationService.kt):
+  - Sticky background service registered in AndroidManifest.xml; listens to /user_conversations/{uid}, /notifications/{uid}, and /announcements in Firebase Realtime Database; acquires PowerManager wake lock on locked devices to turn on screen and display heads-up alerts.
+* FCMService (app/src/main/java/com/group3/lostandfound/service/FCMService.kt):
+  - Creates high-importance notification channel ("Foundly Alerts & Messages") with custom sound and vibration; builds public lockscreen notifications.
+* FirebaseManager (app/src/main/java/com/group3/lostandfound/FirebaseManager.kt):
+  - Central Firebase Realtime Database connector with schema definitions, offline cache sync, and seed data initialization.
+
+================================================================================
+MEMBER-WISE SUMMARY MATRIX: FRONTEND SCREENS, BACKEND & FIREBASE OPERATIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. STUDENT INDEX NO: GAHNDSE261F-009
+--------------------------------------------------------------------------------
+* Scope: Core Platform Showcase, Administration, Analytics & Lifecycle Engine
+* Total Allocated Screens: 9 Screens
+
+A. FRONTEND SCREENS LIST:
+   1. Home Dashboard
+      - Layout XML: app/src/main/res/layout/fragment_home.xml
+      - Item Layouts: app/src/main/res/layout/item_urgent_slider.xml, app/src/main/res/layout/item_report_card.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/HomeFragment.kt
+
+   2. Item Details Screen
+      - Layout XML: app/src/main/res/layout/fragment_details.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/DetailsFragment.kt
+
+   3. Admin Operations Dashboard
+      - Layout XML: app/src/main/res/layout/fragment_admin.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/AdminFragment.kt
+
+   4. Content Moderation Queue
+      - Layout XML: app/src/main/res/layout/fragment_moderation.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/ModerationFragment.kt
+
+   5. System Analytics & Insights
+      - Layout XML: app/src/main/res/layout/fragment_analytics.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/AnalyticsFragment.kt
+
+   6. User Management & Access Control
+      - Layout XML: app/src/main/res/layout/fragment_user_management.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/UserManagementFragment.kt
+
+   7. My Reports Management
+      - Layout XML: app/src/main/res/layout/fragment_reports.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/ReportsFragment.kt
+
+   8. Saved Items / Bookmarks
+      - Layout XML: app/src/main/res/layout/fragment_saved_items.xml
+      - Sub-item Layout: app/src/main/res/layout/item_saved_card.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/SavedItemsFragment.kt
+
+   9. Item Flyer & QR Code Export Modal
+      - Dialog Layout: app/src/main/res/layout/dialog_share_flyer.xml
+      - Poster Layout: app/src/main/res/layout/layout_item_flyer.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/DetailsFragment.kt (showShareFlyerDialog)
+
+B. BACKEND ARCHITECTURE & LOGIC FILES:
+   - ViewModels: HomeViewModel.kt, DetailsViewModel.kt, ReportsViewModel.kt
+   - Repositories: ItemRepository.kt, ReportRepository.kt
+   - Database Manager: FirebaseManager.kt
+   - Push Notification Service: FCMService.kt
+   - Utility Engines: ZXing QR Code Engine, Android FileProvider Export Canvas
+
+C. FIREBASE OPERATIONS IMPLEMENTED:
+   [1] Realtime Database Nodes Accessed:
+       - /items
+       - /items/{itemId}
+       - /items/{itemId}/status
+       - /items/{itemId}/isFlagged
+       - /users/{userId}
+       - /users/{userId}/trustScore
+       - /users/{userId}/isBanned
+       - /admin_logs/{logId}
+       - /announcements
+       - /analytics_summary
+   [2] Read & Stream Operations:
+       - ValueEventListener attached to /items with .orderByChild("timestamp").limitToLast(30)
+       - Real-time StateFlow emissions in HomeViewModel for automated UI synchronization
+       - Single-record real-time ValueEventListener on /items/{itemId} in DetailsFragment
+       - Audit trail stream on /admin_logs ordered by timestamp
+       - Real-time observation of all accounts under /users in UserManagementFragment
+       - Metric aggregation across /items for analytics (Reunion rate formula: resolved / total * 100)
+   [3] Create & Write Operations:
+       - Post global announcements under /announcements with timestamp and title
+       - Insert admin audit logs into /admin_logs/{actionId} on moderation actions
+   [4] Update Operations:
+       - Moderation Approval: updates /items/{itemId}/status to "APPROVED" and isFlagged = false
+       - Moderation Rejection: updates /items/{itemId}/status to "REJECTED"
+       - Case Resolution: updates /items/{itemId}/status to "RESOLVED"
+       - Trust Score Updates: adjusts /users/{uid}/trustScore (+20 for reunion, -10 for violations)
+       - Account Ban Moderation: toggles /users/{uid}/isBanned between true and false
+   [5] Delete Operations:
+       - .removeValue() on /items/{itemId} in My Reports Management (permanent deletion)
+       - Cleanup of obsolete admin logs and flagged rejected items
+
+--------------------------------------------------------------------------------
+2. STUDENT INDEX NO: GAHNDSE261F-010
+--------------------------------------------------------------------------------
+* Scope: Discovery, Multi-Step Report Creation, UI Kit & Feedback Modals
+* Total Allocated Screens: 7 Screens
+
+A. FRONTEND SCREENS LIST:
+   1. Explore & Search Screen
+      - Layout XML: app/src/main/res/layout/fragment_explore.xml
+      - Card Layout: app/src/main/res/layout/item_report_card.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/ExploreFragment.kt
+
+   2. Onboarding Screen 1 ("Lost Something?")
+      - Layout XML: app/src/main/res/layout/fragment_onboarding.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/OnboardingFragment.kt
+
+   3. 5-Step Create Report Flow
+      - Layout XML: app/src/main/res/layout/fragment_create_report.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/CreateReportFragment.kt
+
+   4. UI Component Library (UI Kit)
+      - Layout XML: app/src/main/res/layout/fragment_ui_kit.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/UiKitFragment.kt
+
+   5. High-Resolution Photo Lightbox Modal
+      - Dialog Layout: app/src/main/res/layout/dialog_enlarged_photo.xml
+      - Kotlin UI Class: Invoked from DetailsFragment.kt & ChatFragment.kt
+
+   6. Rate App & Community Feedback Modal
+      - Dialog Layout: app/src/main/res/layout/dialog_rate_app.xml
+      - Kotlin UI Class: Invoked from ProfileFragment.kt & SettingsFragment.kt
+
+   7. Notification Options Bottom Sheet Modal
+      - Dialog Layout: app/src/main/res/layout/dialog_notification_options.xml
+      - Kotlin UI Class: Invoked from NotificationsFragment.kt & SettingsFragment.kt
+
+B. BACKEND ARCHITECTURE & LOGIC FILES:
+   - ViewModels: ExploreViewModel.kt, CreateReportViewModel.kt
+   - Repositories: ExploreRepository.kt, ReportRepository.kt
+   - Storage Managers: CloudinaryManager.kt, Android FileProvider Image Cache
+   - Utilities: ModernToast.kt, ImageLoader.kt
+
+C. FIREBASE OPERATIONS IMPLEMENTED:
+   [1] Realtime Database Nodes Accessed:
+       - /items
+       - /items/{itemId}
+       - /users/{uid}/itemsReported
+       - /app_feedback/{feedbackId}
+       - /notifications/{uid}
+   [2] Read & Stream Operations:
+       - Kotlin Flow streaming of /items in ExploreRepository
+       - Multi-criteria real-time filtering (keyword text, category chip, status tab, city)
+       - Lightbox image URL retrieval from /items/{itemId}/imageUrl
+   [3] Create & Write Operations:
+       - Generated push ID via FirebaseDatabase.getReference("items").push().key
+       - Full report insertion into /items/{itemId} with metadata (lat, lng, photo URLs, status)
+       - Insertion of user star rating and text reviews into /app_feedback/{feedbackId}
+       - Triggering notification record under /notifications upon successful report publishing
+   [4] Update Operations:
+       - Atomic increment of reporter statistics under /users/{uid}/itemsReported
+   [5] Storage & Media Operations:
+       - Multi-image compression pipeline (max 2048x2048, 92% quality)
+       - Upload to Firebase Storage / Cloudinary CDN with remote URL generation
+
+--------------------------------------------------------------------------------
+3. STUDENT INDEX NO: GAHNDSE261F-011
+--------------------------------------------------------------------------------
+* Scope: Application Entry, Onboarding Experience & User Account Management
+* Total Allocated Screens: 6 Screens
+
+A. FRONTEND SCREENS LIST:
+   1. Splash Screen
+      - Layout XML: app/src/main/res/layout/activity_splash.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/SplashActivity.kt
+
+   2. Onboarding Screen 2 ("Found Something?")
+      - Layout XML: app/src/main/res/layout/fragment_onboarding_found.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/OnboardingFoundFragment.kt
+
+   3. Onboarding Screen 3 ("Reunite & Connect")
+      - Layout XML: app/src/main/res/layout/fragment_onboarding_reunite.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/OnboardingReuniteFragment.kt
+
+   4. Login Screen
+      - Layout XML: app/src/main/res/layout/fragment_login.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/LoginFragment.kt
+
+   5. User Profile Screen
+      - Layout XML: app/src/main/res/layout/fragment_profile.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/ProfileFragment.kt
+
+   6. Edit Profile Bottom Sheet Modal
+      - Dialog Layout: app/src/main/res/layout/dialog_edit_profile.xml
+      - Kotlin UI Class: ProfileFragment.kt (showEditProfileDialog)
+
+B. BACKEND ARCHITECTURE & LOGIC FILES:
+   - ViewModels: AuthViewModel.kt
+   - Repositories: AuthRepository.kt
+   - Authentication Engine: com.google.firebase.auth.FirebaseAuth
+   - Services: AppNotificationService.kt, FCMService.kt
+   - Preferences: SharedPreferences ("findit_prefs")
+
+C. FIREBASE OPERATIONS IMPLEMENTED:
+   [1] Realtime Database Nodes Accessed:
+       - /users/{uid}
+       - /users/{uid}/role
+       - /users/{uid}/isBanned
+       - /users/{uid}/fcmToken
+       - /users/{uid}/fullName
+       - /users/{uid}/phoneNumber
+       - /users/{uid}/city
+       - /users/{uid}/avatarUrl
+   [2] Firebase Authentication Operations:
+       - FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+       - FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+       - FirebaseAuth.getInstance().signOut()
+       - Session verification on app launch via FirebaseAuth.currentUser
+   [3] Read & Stream Operations:
+       - ValueEventListener attached to /users/{currentUid} in ProfileFragment
+       - Dynamic display of verified badges, Trust Level, items reported, and items reunited
+       - Role authorization check querying /users/{uid}/role ("ADMIN" vs "USER")
+       - Ban status checking querying /users/{uid}/isBanned
+   [4] Update Operations:
+       - Updating user profile attributes under /users/{currentUid} (name, phone, city, avatarUrl)
+       - Syncing FCM device push token under /users/{uid}/fcmToken
+   [5] Storage & Upload Operations:
+       - Profile picture image upload and avatar URL synchronization
+
+--------------------------------------------------------------------------------
+4. STUDENT INDEX NO: GAHNDSE261F-015
+--------------------------------------------------------------------------------
+* Scope: Geo-Spatial Tracking, Trust Engine & Real-time Communication Services
+* Total Allocated Screens: 6 Screens
+
+A. FRONTEND SCREENS LIST:
+   1. Sign Up & Account Registration Screen
+      - Layout XML: app/src/main/res/layout/fragment_signup.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/SignUpFragment.kt
+
+   2. Interactive Map View Screen
+      - Layout XML: app/src/main/res/layout/fragment_map.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/MapFragment.kt
+
+   3. App Settings Screen
+      - Layout XML: app/src/main/res/layout/fragment_settings.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/SettingsFragment.kt
+
+   4. Trust & Achievements Screen
+      - Layout XML: app/src/main/res/layout/fragment_trust.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/TrustFragment.kt
+
+   5. Notifications & Alerts Screen
+      - Layout XML: app/src/main/res/layout/fragment_notifications.xml
+      - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/NotificationsFragment.kt
+
+   6. Live Chat Room & Messages Inbox
+      - Layout XMLs: app/src/main/res/layout/fragment_messages.xml,
+                     app/src/main/res/layout/fragment_chat.xml,
+                     app/src/main/res/layout/item_conversation.xml,
+                     app/src/main/res/layout/item_chat_message.xml,
+                     app/src/main/res/layout/layout_floating_bubble.xml
+      - Kotlin UI Classes: app/src/main/java/com/group3/lostandfound/MessagesFragment.kt,
+                           app/src/main/java/com/group3/lostandfound/ChatFragment.kt
+
+B. BACKEND ARCHITECTURE & LOGIC FILES:
+   - ViewModels: AuthViewModel.kt, MessagesViewModel.kt, ChatViewModel.kt
+   - Repositories: AuthRepository.kt, MessagesRepository.kt, ChatRepository.kt
+   - Background Services: AppNotificationService.kt, FloatingOverlayService.kt, FCMService.kt
+   - Location Framework: Android FusedLocationProviderClient
+
+C. FIREBASE OPERATIONS IMPLEMENTED:
+   [1] Realtime Database Nodes Accessed:
+       - /users/{uid}
+       - /users/{uid}/trustScore
+       - /users/{uid}/achievements
+       - /items
+       - /chat_conversations/{conversationId}/messages/{messageId}
+       - /chat_conversations/{conversationId}/typing/{userId}
+       - /user_conversations/{userId}/{conversationId}
+       - /notifications/{userId}
+       - /announcements
+   [2] Firebase Authentication Operations:
+       - FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+       - Initial profile record initialization under /users/{uid}
+   [3] Real-time Listeners & Stream Operations:
+       - ChildEventListener on /chat_conversations/{conversationId}/messages for instant chat
+       - ChildEventListener on /user_conversations/{uid} for live inbox preview and ordering
+       - ChildEventListener on /notifications/{uid} for message and system alerts
+       - ChildEventListener & ValueEventListener on /announcements for real-time global admin announcements
+       - ValueEventListener on /chat_conversations/{conversationId}/typing for typing indicators
+       - ValueEventListener on /users/{uid}/trustScore and achievements
+       - ValueEventListener on /items (filtering latitude/longitude != 0.0) for live map markers
+   [4] Create & Write Operations:
+       - Push new chat message to /chat_conversations/{conversationId}/messages/{msgId}
+       - Push notification item into /notifications/{recipientUserId} with preview and item ID
+       - Initialize user document in /users/{uid} with default 85 Trust XP and timestamps
+       - Write ephemeral typing presence state (true/false) under /typing/{userId}
+   [5] Update Operations:
+       - Update conversation metadata for sender under /user_conversations/{senderId}/{convId}
+       - Update conversation metadata for recipient under /user_conversations/{recipientId}/{convId}
+       - Unlock achievement nodes under /users/{uid}/achievements/{badgeId}
+       - Increment finder trust XP (+20) and owner XP (+15) upon case resolution
+       - Mark item status as "RESOLVED" in /items/{itemId}
+       - "Mark all as read": batch update or clear under /notifications/{uid}
+   [6] Background & Notification Services:
+       - AppNotificationService sticky background listener for incoming chat messages and announcements
+       - FCMService high-priority notifications with Apple chime and vibration
+       - FloatingOverlayService foreground chat bubble for multi-tasking
+
+================================================================================
+END OF MASTER COURSEWORK SPECIFICATION DOCUMENT
+================================================================================

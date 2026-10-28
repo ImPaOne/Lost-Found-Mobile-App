@@ -6,17 +6,17 @@
   <!-- Main 4-pointed sparkle -->
   <path
       android:fillColor="@android:color/transparent"
-      android:strokeColor="#3A2D28"
+      android:strokeColor="#003049"
       android:strokeWidth="1.8"
       android:strokeLineCap="round"
       android:strokeLineJoin="round"
       android:pathData="M11,3 C11,7 8,10 4,10 C8,10 11,13 11,17 C11,13 14,10 18,10 C14,10 11,7 11,3 Z" />
   <!-- Small sparkle top-right -->
   <path
-      android:fillColor="#3A2D28"
+      android:fillColor="#003049"
       android:pathData="M19,3 C19,4.2 18,5 17,5 C18,5 19,5.8 19,7 C19,5.8 20,5 21,5 C20,5 19,4.2 19,3 Z" />
   <!-- Small sparkle bottom-left -->
   <path
-      android:fillColor="#3A2D28"
+      android:fillColor="#003049"
       android:pathData="M4.5,16 C4.5,17 3.8,17.7 3,17.7 C3.8,17.7 4.5,18.4 4.5,19.4 C4.5,18.4 5.2,17.7 6,17.7 C5.2,17.7 4.5,17 4.5,16 Z" />
 </vector>

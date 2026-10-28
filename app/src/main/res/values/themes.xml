@@ -1,18 +1,25 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme — Emergency & Trust Lost/Found palette -->
     <style name="Base.Theme.LostAndFound" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Status bar styling to match clean white warm theme -->
-        <item name="android:statusBarColor">@color/white</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
-        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:statusBarColor">#FF003049</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:navigationBarColor">#FFFFFFFF</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+        <!-- Soft input mode: content scrolls above keyboard -->
+        <item name="android:windowSoftInputMode">adjustResize</item>
     </style>
 
     <style name="Theme.LostAndFound" parent="Base.Theme.LostAndFound" />
 
-    <!-- Style for rounded corner item preview images (18dp corner radius) -->
+    <!-- Rounded image corners -->
     <style name="ShapeAppearance.RoundedSquare" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">18dp</item>
+    </style>
+
+    <!-- Circular profile avatars -->
+    <style name="ShapeAppearance.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
     </style>
 </resources>

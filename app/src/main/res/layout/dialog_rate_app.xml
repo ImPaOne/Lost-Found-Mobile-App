@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet_rounded"
+    android:orientation="vertical">
+
+    <!-- Top Soft Mint Area -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rate_app_top"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="20dp">
+
+        <!-- Header: Title and Close -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvRateTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:fontFamily="sans-serif-bold"
+                android:text="How is Foundly doing?"
+                android:textColor="#002B3D"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/btnCloseRateDialog"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/bg_circle_icon_button"
+                android:clickable="true"
+                android:contentDescription="Close"
+                android:focusable="true"
+                android:padding="8dp"
+                android:src="@drawable/ic_close"
+                app:tint="#94A3B8" />
+        </RelativeLayout>
+
+        <!-- Centered Squircle Feedback Icon -->
+        <LinearLayout
+            android:layout_width="58dp"
+            android:layout_height="58dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_btn_cancel_edit"
+            android:elevation="2dp"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="Feedback icon"
+                android:src="@drawable/ic_report_hand_heart"
+                app:tint="#002B3D" />
+        </LinearLayout>
+
+        <!-- Subtitle -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:text="Your feedback helps us bring more lost belongings home."
+            android:textColor="#64748B"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- Lower White Area -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="24dp">
+
+        <!-- 5 Star Rating Row -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/star1"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="Star 1"
+                android:src="@drawable/ic_star_filled"
+                app:tint="#F59E0B" />
+
+            <ImageView
+                android:id="@+id/star2"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="Star 2"
+                android:src="@drawable/ic_star_filled"
+                app:tint="#F59E0B" />
+
+            <ImageView
+                android:id="@+id/star3"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="Star 3"
+                android:src="@drawable/ic_star_filled"
+                app:tint="#F59E0B" />
+
+            <ImageView
+                android:id="@+id/star4"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="Star 4"
+                android:src="@drawable/ic_star_filled"
+                app:tint="#F59E0B" />
+
+            <ImageView
+                android:id="@+id/star5"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:contentDescription="Star 5"
+                android:src="@drawable/ic_star_outline"
+                app:tint="#CBD5E1" />
+        </LinearLayout>
+
+        <!-- Rating badge: 4 out of 5 · Good -->
+        <TextView
+            android:id="@+id/badgeRatingPill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_badge_private_gold"
+            android:fontFamily="sans-serif-bold"
+            android:paddingStart="14dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="4dp"
+            android:text="4 out of 5 · Good"
+            android:textColor="#B45309"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="#E2E8F0" />
+
+        <!-- Feedback section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-bold"
+            android:text="What could we do better? (optional)"
+            android:textColor="#002B3D"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etFeedbackComment"
+            android:layout_width="match_parent"
+            android:layout_height="85dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_edit_photo_card"
+            android:fontFamily="sans-serif"
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:padding="14dp"
+            android:text="I'd love more precise nearby match alerts."
+            android:textColor="#64748B"
+            android:textSize="13sp" />
+
+        <!-- Disclaimer info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:contentDescription="Info"
+                android:src="@drawable/ic_info"
+                app:tint="#94A3B8" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif"
+                android:text="Please don't include personal details or report evidence in your feedback."
+                android:textColor="#94A3B8"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- Buttons -->
+        <TextView
+            android:id="@+id/btnSubmitFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_btn_save_profile"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="sans-serif-bold"
+            android:gravity="center"
+            android:text="Submit Feedback"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnMaybeLater"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="14dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="sans-serif-bold"
+            android:text="Maybe later"
+            android:textColor="#64748B"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+</LinearLayout>

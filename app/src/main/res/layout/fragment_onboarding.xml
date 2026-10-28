@@ -4,151 +4,222 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#FEF2F2"
     tools:context=".OnboardingFragment">
 
-    <!-- 1. Top Right Skip Button -->
-    <TextView
-        android:id="@+id/btnSkip"
+    <!-- Top Brand Logo -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="20dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:fontFamily="sans-serif"
-        android:padding="8dp"
-        android:text="Skip"
-        android:textColor="#8A786E"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <!-- 2. Center Content Container -->
-    <LinearLayout
-        android:id="@+id/boxCenterContent"
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:contentDescription="Foundly Logo"
+            android:src="@drawable/logoo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:fontFamily="sans-serif-bold"
+            android:text="Foundly"
+            android:textColor="#0B2032"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- 1. Top Concentric Circular Radar Illustration Area -->
+    <FrameLayout
+        android:id="@+id/boxIllustrationArea"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/dotsIndicator"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/cardBottomSheet"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSkip"
-        app:layout_constraintVertical_bias="0.42">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Concentric Circular Illustration -->
+        <!-- Outer Ring -->
         <FrameLayout
-            android:id="@+id/boxIllustration"
-            android:layout_width="196dp"
-            android:layout_height="196dp"
-            android:background="@drawable/bg_onboard_outer_circle">
+            android:layout_width="260dp"
+            android:layout_height="260dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_onboard_ring_outer">
 
-            <!-- Inner Circle -->
+            <!-- Middle Ring -->
             <FrameLayout
-                android:layout_width="156dp"
-                android:layout_height="156dp"
+                android:layout_width="196dp"
+                android:layout_height="196dp"
                 android:layout_gravity="center"
-                android:background="@drawable/bg_onboard_inner_circle">
+                android:background="@drawable/bg_onboard_ring_mid">
 
-                <!-- Center Squircle with Search Icon -->
+                <!-- Inner Ring -->
                 <FrameLayout
-                    android:layout_width="86dp"
-                    android:layout_height="86dp"
+                    android:layout_width="140dp"
+                    android:layout_height="140dp"
                     android:layout_gravity="center"
-                    android:background="@drawable/bg_onboard_squircle">
+                    android:background="@drawable/bg_onboard_ring_inner">
 
-                    <ImageView
-                        android:id="@+id/iconSearch"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                    <!-- Center Squircle with Logo -->
+                    <FrameLayout
+                        android:layout_width="84dp"
+                        android:layout_height="84dp"
                         android:layout_gravity="center"
-                        android:contentDescription="Search Icon"
-                        android:src="@drawable/ic_onboard_search" />
+                        android:background="@drawable/bg_onboard_squircle_lost"
+                        android:elevation="6dp">
+
+                        <ImageView
+                            android:id="@+id/iconSearch"
+                            android:layout_width="54dp"
+                            android:layout_height="54dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="Foundly App Logo"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/logoo" />
+                    </FrameLayout>
                 </FrameLayout>
             </FrameLayout>
         </FrameLayout>
+    </FrameLayout>
 
-        <!-- Main Title -->
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:fontFamily="sans-serif-bold"
-            android:gravity="center"
-            android:text="Lost Something?"
-            android:textColor="#3D2619"
-            android:textSize="26sp"
-            android:textStyle="bold" />
-
-        <!-- Subtitle Description -->
-        <TextView
-            android:id="@+id/tvDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:fontFamily="sans-serif"
-            android:gravity="center"
-            android:lineSpacingExtra="4dp"
-            android:paddingStart="36dp"
-            android:paddingEnd="36dp"
-            android:text="Report what you lost and alert trusted\npeople nearby across Sri Lanka."
-            android:textColor="#7D6F67"
-            android:textSize="14sp" />
-    </LinearLayout>
-
-    <!-- 3. Dots Indicator: 1 active pill + 2 inactive dots -->
-    <LinearLayout
-        android:id="@+id/dotsIndicator"
-        android:layout_width="wrap_content"
+    <!-- 2. Bottom Sheet Container (White card with rounded top corners) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cardBottomSheet"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/btnNext"
+        android:background="@drawable/bg_bottom_sheet_rounded"
+        android:elevation="8dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="36dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+        <!-- Drag Handle Pill -->
         <View
-            android:id="@+id/dotActive"
-            android:layout_width="22dp"
-            android:layout_height="5dp"
-            android:layout_marginEnd="6dp"
-            android:background="@drawable/bg_onboard_dot_active" />
+            android:id="@+id/handlePill"
+            android:layout_width="36dp"
+            android:layout_height="4dp"
+            android:background="@drawable/bg_sheet_drag_handle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <View
-            android:id="@+id/dotInactive1"
-            android:layout_width="5dp"
-            android:layout_height="5dp"
-            android:layout_marginEnd="6dp"
-            android:background="@drawable/bg_onboard_dot_inactive" />
+        <!-- Top Right "Skip" Pill Button -->
+        <TextView
+            android:id="@+id/btnSkip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/bg_btn_skip_pill"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="sans-serif-medium"
+            android:paddingStart="16dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="6dp"
+            android:text="Skip"
+            android:textColor="#475569"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/handlePill" />
 
-        <View
-            android:id="@+id/dotInactive2"
-            android:layout_width="5dp"
-            android:layout_height="5dp"
-            android:background="@drawable/bg_onboard_dot_inactive" />
-    </LinearLayout>
+        <!-- Main Title (Left aligned) -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:fontFamily="sans-serif-bold"
+            android:text="Lost Something?"
+            android:textColor="#0B2032"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnSkip" />
 
-    <!-- 4. Bottom "Next" Button -->
-    <TextView
-        android:id="@+id/btnNext"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="36dp"
-        android:background="@drawable/bg_btn_onboard"
-        android:clickable="true"
-        android:focusable="true"
-        android:fontFamily="sans-serif-medium"
-        android:gravity="center"
-        android:text="Next"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <!-- Subtitle Description (Left aligned) -->
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="24dp"
+            android:fontFamily="sans-serif"
+            android:lineSpacingExtra="4dp"
+            android:text="Report what you lost and alert trusted people nearby across Sri Lanka."
+            android:textColor="#64748B"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+        <!-- 3-Dot Page Indicator (Left aligned) -->
+        <LinearLayout
+            android:id="@+id/dotsIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvDescription">
+
+            <View
+                android:id="@+id/dotActive"
+                android:layout_width="22dp"
+                android:layout_height="6dp"
+                android:background="@drawable/bg_onboard_dot_active" />
+
+            <View
+                android:id="@+id/dotInactive1"
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_onboard_dot_inactive" />
+
+            <View
+                android:id="@+id/dotInactive2"
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_onboard_dot_inactive" />
+        </LinearLayout>
+
+        <!-- Primary Action "Next" Button -->
+        <TextView
+            android:id="@+id/btnNext"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/bg_btn_onboard"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="sans-serif-bold"
+            android:gravity="center"
+            android:text="Next"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dotsIndicator" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

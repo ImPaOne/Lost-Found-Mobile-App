@@ -4,10 +4,11 @@
     android:id="@+id/mainBox"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_screen"
+    android:background="@color/linen_bg"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <!-- Container for screen fragments -->
+    <!-- Screen Container: each screen layout includes its own bottom nav bar -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/screenBox"
         android:layout_width="match_parent"

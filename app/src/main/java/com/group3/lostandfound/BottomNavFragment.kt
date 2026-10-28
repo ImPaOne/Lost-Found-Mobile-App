@@ -12,8 +12,7 @@ import androidx.fragment.app.Fragment
 
 /**
  * Reusable 5-tab Bottom Navigation Component:
- * Home, Explore, + Post, Messages, Profile.
- * Uses clean human-written code with concise 3-8 character variable names.
+ * Home, Explore, (+) Post, Messages, Profile.
  */
 class BottomNavFragment : Fragment() {
 
@@ -92,12 +91,17 @@ class BottomNavFragment : Fragment() {
 
     private fun updateTabStyle(tab: NavigationTab) {
         val colAct = ContextCompat.getColor(requireContext(), R.color.text_primary)
-        val colInact = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+        val colInact = ContextCompat.getColor(requireContext(), R.color.text_hint)
 
         lblHome.setTextColor(if (tab == NavigationTab.HOME) colAct else colInact)
         lblExplore.setTextColor(if (tab == NavigationTab.EXPLORE) colAct else colInact)
         lblMessages.setTextColor(if (tab == NavigationTab.MESSAGES) colAct else colInact)
         lblProfile.setTextColor(if (tab == NavigationTab.PROFILE) colAct else colInact)
+
+        view?.findViewById<android.widget.ImageView>(R.id.imgHome)?.setColorFilter(if (tab == NavigationTab.HOME) colAct else colInact)
+        view?.findViewById<android.widget.ImageView>(R.id.imgExplore)?.setColorFilter(if (tab == NavigationTab.EXPLORE) colAct else colInact)
+        view?.findViewById<android.widget.ImageView>(R.id.imgMessages)?.setColorFilter(if (tab == NavigationTab.MESSAGES) colAct else colInact)
+        view?.findViewById<android.widget.ImageView>(R.id.imgProfile)?.setColorFilter(if (tab == NavigationTab.PROFILE) colAct else colInact)
     }
 
     override fun onDetach() {

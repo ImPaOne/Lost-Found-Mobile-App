@@ -1,0 +1,343 @@
+================================================================================
+FOUNDLY (LOST & FOUND SRI LANKA) - STUDENT SPECIFICATION & BACKEND MATRIX
+STUDENT INDEX: GAHNDSE261F-015
+================================================================================
+
+STUDENT SUMMARY
+---------------
+* Student Index Number: GAHNDSE261F-015
+* Responsibility / Scope: Geo-Spatial Tracking, Trust Engine & Real-time Communication Services
+* Total Allocated Screens: 6 Screens & Modals
+
+Allocated Screens List:
+1. Sign Up & Account Registration Screen
+2. Interactive Map View Screen
+3. App Settings Screen
+4. Trust & Achievements Screen
+5. Notifications & Alerts Screen
+6. Live Chat Room & Messages Inbox
+
+
+================================================================================
+DETAILED SCREEN SPECIFICATIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. SCREEN: Sign Up & Account Registration Screen
+--------------------------------------------------------------------------------
+* Screen Name: Sign Up & Account Registration Screen
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_signup.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/SignUpFragment.kt
+
+* Backend Architecture Files:
+  - ViewModel: app/src/main/java/com/group3/lostandfound/viewmodel/AuthViewModel.kt
+  - Repository: app/src/main/java/com/group3/lostandfound/repository/AuthRepository.kt
+  - Authentication Engine: com.google.firebase.auth.FirebaseAuth
+  - Database Node: /users/{uid}
+  - Background Service: app/src/main/java/com/group3/lostandfound/service/AppNotificationService.kt
+
+* UI Components & Features:
+  - Back arrow button to return to Login.
+  - "Create Account" header with subtitle.
+  - Form input fields:
+    * Full Name
+    * Email Address
+    * Phone Number (prefixed with +94)
+    * Password
+    * Confirm Password
+  - Checkbox: "I agree to the Terms of Service & Community Trust Pledge".
+  - Primary "Create Account" button (Navy #003049).
+  - Bottom navigation link: "Already have an account? Sign In".
+
+* Backend Logic:
+  - Validates user input (valid email, Sri Lankan phone number format, password at least 6 characters, passwords match).
+  - Creates the user account using FirebaseAuth.createUserWithEmailAndPassword.
+  - Seeds the initial user profile record under /users/{uid} in Firebase Realtime Database with:
+    * Default starting Trust Score of 85 XP
+    * isTrustedFinder = false
+    * itemsReported = 0, itemsReunited = 0
+    * Account creation timestamp
+  - Starts AppNotificationService and opens Home Dashboard.
+
+--------------------------------------------------------------------------------
+2. SCREEN: Interactive Map View Screen
+--------------------------------------------------------------------------------
+* Screen Name: Interactive Map View Screen
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_map.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/MapFragment.kt
+
+* Backend Architecture Files:
+  - Database Path: /items in Firebase Realtime Database
+  - Models: MapMarkerItem in app/src/main/java/com/group3/lostandfound/Models.kt
+  - Location Framework: Android FusedLocationProviderClient (Google Play Services Location)
+
+* UI Components & Features:
+  - Floating top search and location search bar.
+  - Filter chips on top of the map: "All", "Lost Items" (Red), "Found Items" (Green).
+  - Full-screen interactive map displaying custom map pins:
+    * Red map pins for Lost Items.
+    * Green map pins for Found Items.
+  - Floating Action Button (FAB) to center map on user's current GPS location.
+  - Floating bottom preview card that slides up when a pin is tapped:
+    * Shows item image thumbnail, title, city, distance from current location, and a "View Details" button.
+
+* Backend Logic:
+  - Uses FusedLocationProviderClient to get the user's current GPS coordinates.
+  - Queries /items in Firebase Realtime Database where latitude != 0.0 and longitude != 0.0.
+  - Converts items into MapMarkerItem objects and renders custom colored markers on the map canvas.
+  - Coordinate Picker Mode (when called from CreateReportFragment):
+    * User can tap anywhere on the map to set an exact pin.
+    * Returns the selected latitude and longitude back to CreateReportFragment using FragmentResultListener.
+
+--------------------------------------------------------------------------------
+3. SCREEN: App Settings Screen
+--------------------------------------------------------------------------------
+* Screen Name: App Settings Screen
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_settings.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/SettingsFragment.kt
+
+* Backend Architecture Files:
+  - Local Storage: SharedPreferences ("findit_prefs" keys "push_notifications_enabled", "sound_chime_enabled")
+  - Services: app/src/main/java/com/group3/lostandfound/service/AppNotificationService.kt, FCMService.kt
+
+* UI Components & Features:
+  - Top header with back button and "Settings" title.
+  - Notifications Section:
+    * "Push Alerts" toggle switch.
+    * "Sound & Vibration Chime" toggle switch.
+    * "Test Notification Sound & Vibration" action row.
+  - Privacy & Storage Section:
+    * "Blocked Users" list action.
+    * "Clear Cached Media" action row (clears temporary thumbnail files).
+  - About Section:
+    * Displays app version ("Foundly v1.0.0"), Terms of Service, and Open Source Licenses.
+
+* Backend Logic:
+  - Toggling switches saves boolean preferences into SharedPreferences.
+  - Tapping "Test Notification Sound & Vibration" calls FCMService.triggerPushNotification() to verify alert sounds on the physical phone.
+  - Tapping "Clear Cached Media" deletes cached images in cacheDir to free up phone storage.
+
+--------------------------------------------------------------------------------
+4. SCREEN: Trust & Achievements Screen
+--------------------------------------------------------------------------------
+* Screen Name: Trust & Achievements Screen
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_trust.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/TrustFragment.kt
+
+* Backend Architecture Files:
+  - Database Paths: /users/{uid}/trustScore and /users/{uid}/achievements in Firebase Realtime Database
+  - Data Models: UserData in app/src/main/java/com/group3/lostandfound/Models.kt
+
+* UI Components & Features:
+  - Header card with a circular Trust Score meter (e.g., 95 / 100, "Community Hero").
+  - XP progress bar showing progress toward the next Trust Level tier.
+  - 2-column Achievements badge grid displaying:
+    * "First Report" (unlocked upon submitting first item)
+    * "Reunited Hero" (unlocked upon resolving a case and returning an item)
+    * "Trusted Finder" (unlocked when Trust Score exceeds 90)
+    * "Community Guardian" (unlocked for community contributions)
+    * Badges show in full color when unlocked, or grayed-out with a lock icon when locked.
+  - Informational card explaining how the Trust System works (e.g., +20 points for returning items, -10 for fake reports).
+
+* Backend Logic:
+  - Reads live Trust Score from /users/{uid}/trustScore in Firebase Realtime Database.
+  - Reads unlocked badges from /users/{uid}/achievements.
+  - Calculates percentage for the circular meter and progress bar in Kotlin.
+
+--------------------------------------------------------------------------------
+5. SCREEN: Notifications & Alerts Screen
+--------------------------------------------------------------------------------
+* Screen Name: Notifications & Alerts Screen
+* Frontend UI Files:
+  - Main Layout: app/src/main/res/layout/fragment_notifications.xml
+  - Kotlin UI Class: app/src/main/java/com/group3/lostandfound/NotificationsFragment.kt
+
+* Backend Architecture Files:
+  - Database Path: /notifications/{currentUid} in Firebase Realtime Database
+  - Models: NotificationItem in app/src/main/java/com/group3/lostandfound/Models.kt
+  - Background Service: app/src/main/java/com/group3/lostandfound/service/AppNotificationService.kt
+
+* UI Components & Features:
+  - Top header with "Notifications" title and "Mark all read" button.
+  - Filter tabs: "All", "Messages", "Matches", "System".
+  - List of notification cards showing:
+    * Category icon (Message bubble, Match checkmark, System bell).
+    * Bold notification title and message snippet.
+    * Relative timestamp ("10 mins ago", "Yesterday").
+    * Blue unread dot indicator for new alerts.
+
+* Backend Logic:
+  - Attaches a ChildEventListener to /notifications/{currentUid} to receive incoming alerts instantly.
+  - Tapping an alert navigates directly to the relevant screen (e.g., chat room or item details).
+  - Tapping "Mark all read" updates read = true across all notification records in Firebase.
+
+--------------------------------------------------------------------------------
+6. SCREEN: Live Chat Room & Messages Inbox
+--------------------------------------------------------------------------------
+* Screen Name: Live Chat Room & Messages Inbox
+* Frontend UI Files:
+  - Layouts:
+    * app/src/main/res/layout/fragment_messages.xml (Inbox screen)
+    * app/src/main/res/layout/fragment_chat.xml (Active chat screen)
+    * app/src/main/res/layout/item_conversation.xml (Inbox conversation row)
+    * app/src/main/res/layout/item_chat_message.xml (Message bubble row)
+    * app/src/main/res/layout/layout_floating_bubble.xml (Floating chat bubble overlay)
+  - Kotlin UI Classes:
+    * app/src/main/java/com/group3/lostandfound/MessagesFragment.kt
+    * app/src/main/java/com/group3/lostandfound/ChatFragment.kt
+
+* Backend Architecture Files:
+  - ViewModels: app/src/main/java/com/group3/lostandfound/viewmodel/MessagesViewModel.kt, ChatViewModel.kt
+  - Repositories: app/src/main/java/com/group3/lostandfound/repository/MessagesRepository.kt, ChatRepository.kt
+  - Services: app/src/main/java/com/group3/lostandfound/service/AppNotificationService.kt, FloatingOverlayService.kt
+  - Data Models: ConversationMetadata, ChatMessage in app/src/main/java/com/group3/lostandfound/Models.kt
+
+* UI Components & Features:
+  - Messages Inbox (MessagesFragment):
+    * Search bar to find past conversations.
+    * List of active conversations: shows Foundly logo avatar (@drawable/logoo), contact name, item title, last message preview, timestamp, and unread badge.
+  - Live Chat Room (ChatFragment):
+    * Top bar with user avatar, name, and live online/typing indicator.
+    * Sticky item context bar at the top displaying item photo thumbnail, title, and a "Resolve Case" button.
+    * Quick reply chips for fast responses ("Is this still available?", "Where can we meet?").
+    * Chat message bubbles:
+      - Outgoing messages: Navy background (#003049), right-aligned, white text.
+      - Incoming messages: White background with subtle border, left-aligned, dark text.
+    * Quoted message reply box with min-width of 270dp so user names and replies are never clipped.
+    * Photo attachment preview card when sharing an image in chat.
+    * Bottom typing bar with photo attachment button, text input, and send button.
+  - Floating Chat Bubble (FloatingOverlayService):
+    * Chat head bubble that stays on screen over other apps for easy multitasking.
+
+* Backend Logic:
+  - Inbox: Streams /user_conversations/{uid} to display conversations ordered by last message time.
+  - Chat: Uses ChildEventListener on /chat_conversations/{conversationId}/messages for instant message delivery without reloading.
+  - Typing Indicator: Writes typing state to /chat_conversations/{conversationId}/typing/{userId} with debounce.
+  - Case Resolution: When owner taps "Resolve Case":
+    * Updates /items/{itemId}/status to "RESOLVED".
+    * Awards +20 Trust Points and the "Reunited Hero" achievement to the finder.
+    * Awards +15 Trust Points to the owner.
+  - Notifications: When a message arrives and the app is closed, AppNotificationService triggers a high-priority push notification.
+
+
+================================================================================
+BACKEND FILES & ARCHITECTURE EXPLANATION
+================================================================================
+
+1. AuthViewModel.kt
+   - Role: ViewModel for user registration and sign-up.
+   - Why it is used: Manages the sign-up form state, handles input validation, and triggers user creation in AuthRepository.
+
+2. MessagesViewModel.kt
+   - Role: ViewModel for the messages inbox.
+   - Why it is used: Holds the list of conversations in memory and updates the inbox list in real time.
+
+3. ChatViewModel.kt
+   - Role: ViewModel for the active chat room.
+   - Why it is used: Manages incoming and outgoing messages, typing indicators, photo uploads, and case resolution.
+
+4. AuthRepository.kt
+   - Role: Data repository for user authentication.
+   - Why it is used: Calls FirebaseAuth to create accounts and initializes the new user profile in Firebase Realtime Database.
+
+5. MessagesRepository.kt
+   - Role: Data repository for inbox conversations.
+   - Why it is used: Reads /user_conversations/{uid} and updates last message snippets and unread counters.
+
+6. ChatRepository.kt
+   - Role: Data repository for real-time chat messages.
+   - Why it is used: Sends chat messages to /chat_conversations/{id}/messages, handles image attachments, and triggers notification records for the recipient.
+
+7. AppNotificationService.kt
+   - Role: Sticky Android background service.
+   - Why it is used: Runs in the background to monitor incoming chat messages, notification alerts, and admin announcements. Acquires a PowerManager wake lock to show heads-up notifications even when the screen is locked.
+
+8. FloatingOverlayService.kt
+   - Role: Android Foreground Service for floating chat bubble.
+   - Why it is used: Renders a floating chat head on top of other Android applications using the Android WindowManager.
+
+9. FCMService.kt
+   - Role: Notification channel and sound manager.
+   - Why it is used: Handles device sound chimes, vibrations, and notification channel configurations.
+
+
+================================================================================
+FIREBASE OPERATIONS USED BY THIS STUDENT
+================================================================================
+
+1. Realtime Database Nodes Accessed:
+   - /users/{uid}
+     * What it is: User profile document.
+     * Why it is accessed: Initialized with default 85 Trust XP on sign-up.
+   - /users/{uid}/trustScore
+     * What it is: User's trust points score.
+     * Why it is accessed: Read on Trust & Achievements screen; updated when resolving a lost/found case (+20 points).
+   - /users/{uid}/achievements
+     * What it is: Badges and milestones unlocked by the user.
+     * Why it is accessed: Read on the Trust screen; updated when badges like "Reunited Hero" are awarded.
+   - /items
+     * What it is: All lost and found items.
+     * Why it is accessed: Read on the Map screen to plot GPS coordinates (pins) for lost and found items.
+   - /chat_conversations/{conversationId}/messages/{messageId}
+     * What it is: The real-time messages list inside a specific chat conversation.
+     * Why it is accessed: Read and written to for live two-way messaging between users.
+   - /chat_conversations/{conversationId}/typing/{userId}
+     * What it is: Real-time typing status flag for a conversation.
+     * Why it is accessed: Read and updated to show "...is typing" indicators in chat.
+   - /user_conversations/{userId}/{conversationId}
+     * What it is: Conversation metadata index for a specific user.
+     * Why it is accessed: Keeps track of all conversations a user is part of, with last message preview and unread counts.
+   - /notifications/{userId}
+     * What it is: User's notification inbox.
+     * Why it is accessed: Read to display notifications; written to when a user receives a new chat message or case update.
+   - /announcements
+     * What it is: System-wide announcements from admins.
+     * Why it is accessed: Read in real time by AppNotificationService to broadcast critical alerts to the user.
+
+2. Firebase Authentication Operations:
+   - FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+     * Why: Registers new citizen accounts securely with email and password hashing.
+
+3. Real-time Listeners & Stream Operations:
+   - ChildEventListener on /chat_conversations/{conversationId}/messages
+     * Why: Delivers each new message to the chat screen instantly as soon as it is sent.
+   - ChildEventListener on /user_conversations/{uid}
+     * Why: Keeps the messages inbox list updated with the latest message snippets in real time.
+   - ChildEventListener on /notifications/{uid}
+     * Why: Delivers notifications instantly to the notification inbox.
+   - ValueEventListener on /chat_conversations/{conversationId}/typing
+     * Why: Shows and hides the typing indicator in the chat room.
+   - ValueEventListener on /users/{uid}/trustScore and achievements
+     * Why: Updates the Trust Score meter and unlocked badge grid in real time.
+   - ValueEventListener on /items
+     * Why: Loads coordinates for all items where latitude and longitude are set to show pins on the map.
+
+4. Create & Write Operations:
+   - Writing to /chat_conversations/{conversationId}/messages/{msgId}
+     * Why: Stores chat messages with senderId, recipientId, text, photoUrl (if attached), and timestamp.
+   - Writing to /notifications/{recipientUserId}
+     * Why: Creates a new notification alert for the recipient when they get a new message or update.
+   - Initializing /users/{uid} on sign up
+     * Why: Seeds the user profile with full name, email, phone, city, and 85 starting trust points.
+   - Writing to /chat_conversations/{conversationId}/typing/{userId}
+     * Why: Sets typing status to true or false.
+
+5. Update Operations:
+   - Updating /user_conversations/{senderId}/{convId} and /user_conversations/{recipientId}/{convId}
+     * Why: Updates last message text, timestamp, and unread count for both users.
+   - Updating /users/{uid}/achievements/{badgeId}
+     * Why: Unlocks badges such as "Reunited Hero" upon successful case resolution.
+   - Updating /users/{uid}/trustScore
+     * Why: Awards +20 XP to the finder and +15 XP to the owner when an item is returned.
+   - Updating /items/{itemId}/status to "RESOLVED"
+     * Why: Closes the item report so it is marked as reunified.
+   - Updating /notifications/{uid} read status
+     * Why: Marks notifications as read when the user taps "Mark all read" or opens an alert.
+
+================================================================================
+END OF FILE: GAHNDSE261F-015
+================================================================================

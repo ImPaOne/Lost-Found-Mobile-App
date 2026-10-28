@@ -6,7 +6,7 @@
   <!-- Shield outline -->
   <path
       android:fillColor="@android:color/transparent"
-      android:strokeColor="#3A2D28"
+      android:strokeColor="#003049"
       android:strokeWidth="1.8"
       android:strokeLineCap="round"
       android:strokeLineJoin="round"
@@ -14,12 +14,12 @@
   <!-- Exclamation mark line -->
   <path
       android:fillColor="@android:color/transparent"
-      android:strokeColor="#3A2D28"
+      android:strokeColor="#003049"
       android:strokeWidth="1.8"
       android:strokeLineCap="round"
       android:pathData="M12,8 V12" />
   <!-- Exclamation mark dot -->
   <path
-      android:fillColor="#3A2D28"
+      android:fillColor="#003049"
       android:pathData="M12,14.5 A0.9,0.9 0 1,0 12,16.3 A0.9,0.9 0 1,0 12,14.5 Z" />
 </vector>

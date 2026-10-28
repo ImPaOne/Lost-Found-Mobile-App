@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- Top Navigation Bar -->
+    <RelativeLayout
+        android:id="@+id/topBarEnlarged"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:paddingStart="20dp"
+        android:paddingTop="42dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="12dp">
+
+        <!-- Close Button (Left) -->
+        <FrameLayout
+            android:id="@+id/btnCloseLargePhoto"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bg_dark_circle_button"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:contentDescription="Close"
+                android:src="@drawable/ic_close_white" />
+        </FrameLayout>
+
+        <!-- Photo Counter Badge (Center) -->
+        <LinearLayout
+            android:id="@+id/pillPhotoCounter"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/bg_photo_counter_pill"
+            android:gravity="center"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:id="@+id/tvPhotoCounter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-bold"
+                android:text="1/1"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Zoom Toggle Button (Right) -->
+        <FrameLayout
+            android:id="@+id/btnZoomPhoto"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bg_dark_circle_button"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:contentDescription="Zoom"
+                android:src="@drawable/ic_enlarged_zoom" />
+        </FrameLayout>
+    </RelativeLayout>
+
+    <!-- Full Screen Center Scrollable & Zoomable Photo View -->
+    <FrameLayout
+        android:id="@+id/photoContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000">
+
+        <ImageView
+            android:id="@+id/imgEnlargedView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:contentDescription="Enlarged photo"
+            android:scaleType="fitCenter"
+            tools:src="@drawable/img_wallet_details" />
+    </FrameLayout>
+
+    <!-- Bottom Information Card -->
+    <LinearLayout
+        android:id="@+id/bottomInfoCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/bg_enlarged_bottom_sheet"
+        android:elevation="8dp"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="12dp">
+
+        <!-- Drag handle bar -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/bg_photo_counter_pill"
+            android:backgroundTint="#323846" />
+
+        <!-- Item Title -->
+        <TextView
+            android:id="@+id/tvEnlargedTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-bold"
+            android:gravity="center"
+            android:text="Black leather wallet"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <!-- Reporter Row -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:background="@drawable/bg_dark_circle_button">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Reporter icon"
+                    android:src="@drawable/ic_person"
+                    app:tint="#94A3B8" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvEnlargedReporter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="sans-serif"
+                android:text="Photo from Tharindu Perera's report"
+                android:textColor="#9CA3AF"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Pinch or double-tap hint -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:contentDescription="Zoom hint"
+                android:src="@drawable/ic_pinch_frame" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="sans-serif"
+                android:text="Pinch or double-tap to zoom"
+                android:textColor="#64748B"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Action Buttons: Share, Save, Report -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
+
+            <!-- Share Button -->
+            <LinearLayout
+                android:id="@+id/btnSharePhoto"
+                android:layout_width="0dp"
+                android:layout_height="66dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_enlarged_action_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="Share"
+                    android:src="@drawable/ic_enlarged_share" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Share"
+                    android:textColor="#F3F4F6"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Save Button -->
+            <LinearLayout
+                android:id="@+id/btnSavePhoto"
+                android:layout_width="0dp"
+                android:layout_height="66dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_enlarged_action_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="Save"
+                    android:src="@drawable/ic_enlarged_save" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Save"
+                    android:textColor="#F3F4F6"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Report Button -->
+            <LinearLayout
+                android:id="@+id/btnReportPhoto"
+                android:layout_width="0dp"
+                android:layout_height="66dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_enlarged_action_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="Report"
+                    android:src="@drawable/ic_enlarged_flag" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Report"
+                    android:textColor="#F3F4F6"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Home Bar Indicator -->
+        <View
+            android:layout_width="134dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/bg_photo_counter_pill"
+            android:backgroundTint="#475569" />
+    </LinearLayout>
+
+</RelativeLayout>

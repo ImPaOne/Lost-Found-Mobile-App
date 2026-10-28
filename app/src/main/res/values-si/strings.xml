@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Foundly</string>
+    <string name="tagline">අඩු පාඩුවක් නැතිව, ඉක්මනින් සොයාගන්න.</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">මුල් පිටුව</string>
+    <string name="nav_reports">මගේ වාර්තා</string>
+    <string name="nav_post">වාර්තා කරන්න</string>
+    <string name="nav_map">සිතියම</string>
+    <string name="nav_profile">ගිණුම</string>
+    <string name="nav_messages">පණිවිඩ</string>
+    
+    <!-- Status Labels -->
+    <string name="status_lost">නැතිවූ</string>
+    <string name="status_found">හමුවූ</string>
+    <string name="status_resolved">විසඳන ලද</string>
+    <string name="status_claimed">හිමිකම් කියූ</string>
+    
+    <!-- Actions -->
+    <string name="action_search">අයිතම සහ ස්ථාන සොයන්න…</string>
+    <string name="action_filter">පෙරහන</string>
+    <string name="action_save">සුරකින්න</string>
+    <string name="action_saved">සුරකින ලදි</string>
+    <string name="action_share">පත්‍රිකාව බෙදාගන්න</string>
+    <string name="action_live_chat">සජීවී කතාබස්</string>
+    <string name="action_whatsapp">වට්ස්ඇප්</string>
+    <string name="action_contact">සම්බන්ධ වන්න</string>
+    <string name="action_report_lost">නැතිවූ භාණ්ඩයක් වාර්තා කරන්න</string>
+    <string name="action_report_found">හමුවූ භාණ්ඩයක් වාර්තා කරන්න</string>
+    <string name="action_submit">වාර්තාව ඉදිරිපත් කරන්න</string>
+    <string name="action_cancel">අවලංගු කරන්න</string>
+    <string name="action_delete">මකන්න</string>
+    <string name="action_delete_for_me">මට පමණක් මකන්න</string>
+    <string name="action_delete_for_everyone">සැමටම මකන්න</string>
+    <string name="action_reply">පිළිතුරු දෙන්න</string>
+    <string name="action_block">පරිශීලකයා අවහිර කරන්න</string>
+    
+    <!-- Categories -->
+    <string name="cat_all">සියලුම අයිතම</string>
+    <string name="cat_wallets">පසුම්බි සහ කාඩ්පත්</string>
+    <string name="cat_electronics">ඉලෙක්ට්‍රොනික උපාංග</string>
+    <string name="cat_keys">යතුරු</string>
+    <string name="cat_bags">බෑග් සහ ගමන් මලු</string>
+    <string name="cat_pets">සුරතල් සතුන්</string>
+    <string name="cat_documents">ලේඛන</string>
+    <string name="cat_other">වෙනත්</string>
+
+    <!-- Profile & Settings -->
+    <string name="profile_title">මගේ ගිණුම</string>
+    <string name="settings_title">සැකසුම්</string>
+    <string name="saved_items">සුරකින ලද අයිතම</string>
+    <string name="trust_score">විශ්වාසනීයත්වය සහ ජයග්‍රහණ</string>
+    <string name="language">භාෂාව</string>
+    <string name="theme">තේමාව</string>
+    <string name="edit_profile">ගිණුම සංස්කරණය</string>
+    <string name="change_password">මුරපදය වෙනස් කරන්න</string>
+    <string name="notifications">දැනුම්දීම්</string>
+    <string name="profile_visibility">ගිණුමේ දෘශ්‍යතාව</string>
+    <string name="block_list">අවහිර කළ පරිශීලකයින්</string>
+    <string name="about_app">Foundly ගැන</string>
+    <string name="rate_app">ඇගයීමක් ලබාදෙන්න</string>
+    <string name="logout">ඉවත් වන්න</string>
+
+    <!-- Stats -->
+    <string name="stat_items_found">හමුවූ අයිතම</string>
+    <string name="stat_items_returned">නැවත ලබාදුන්</string>
+    <string name="stat_trust_score">විශ්වාස ලකුණු</string>
+
+    <!-- Admin -->
+    <string name="admin_dashboard">පරිපාලක පුවරුව</string>
+    <string name="plus_six_today">+6 අද</string>
+    <string name="send_announcement">නිවේදනයක්\nයවන්න</string>
+    <string name="review_reports">වාර්තා සමාලෝචනය</string>
+    <string name="manage_users">පරිශීලකයින් කළමනාකරණය</string>
+</resources>

@@ -1,5 +1,72 @@
 <resources>
     <string name="app_name">Foundly</string>
+    <string name="tagline">Lost less. Found faster.</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_reports">My Reports</string>
+    <string name="nav_post">Post</string>
+    <string name="nav_map">Map</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_messages">Messages</string>
+    
+    <!-- Status Labels -->
+    <string name="status_lost">LOST</string>
+    <string name="status_found">FOUND</string>
+    <string name="status_resolved">RESOLVED</string>
+    <string name="status_claimed">CLAIMED</string>
+    
+    <!-- Actions -->
+    <string name="action_search">Search items, locations…</string>
+    <string name="action_filter">Filter</string>
+    <string name="action_save">Save</string>
+    <string name="action_saved">Saved</string>
+    <string name="action_share">Share Flyer</string>
+    <string name="action_live_chat">Live Chat</string>
+    <string name="action_whatsapp">WhatsApp</string>
+    <string name="action_contact">Contact</string>
+    <string name="action_report_lost">Report Lost Item</string>
+    <string name="action_report_found">Report Found Item</string>
+    <string name="action_submit">Submit Report</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_delete_for_me">Delete for me</string>
+    <string name="action_delete_for_everyone">Delete for everyone</string>
+    <string name="action_reply">Reply</string>
+    <string name="action_block">Block User</string>
+    
+    <!-- Categories -->
+    <string name="cat_all">All Items</string>
+    <string name="cat_wallets">Wallets &amp; Cards</string>
+    <string name="cat_electronics">Electronics</string>
+    <string name="cat_keys">Keys</string>
+    <string name="cat_bags">Bags &amp; Luggage</string>
+    <string name="cat_pets">Pets</string>
+    <string name="cat_documents">Documents</string>
+    <string name="cat_other">Other</string>
+
+    <!-- Profile & Settings -->
+    <string name="profile_title">My Profile</string>
+    <string name="settings_title">Settings</string>
+    <string name="saved_items">Saved Items</string>
+    <string name="trust_score">Trust &amp; Achievements</string>
+    <string name="language">Language</string>
+    <string name="theme">Theme</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="change_password">Change Password</string>
+    <string name="notifications">Push Notifications</string>
+    <string name="profile_visibility">Profile Visibility</string>
+    <string name="block_list">Blocked Users</string>
+    <string name="about_app">About Foundly</string>
+    <string name="rate_app">Rate App</string>
+    <string name="logout">Logout</string>
+
+    <!-- Stats -->
+    <string name="stat_items_found">Items found</string>
+    <string name="stat_items_returned">Returned</string>
+    <string name="stat_trust_score">Trust score</string>
+
+    <!-- Admin -->
     <string name="admin_dashboard">Admin Dashboard</string>
     <string name="plus_six_today">+6 today</string>
     <string name="send_announcement">Send\nAnnouncement</string>

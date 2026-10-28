@@ -2,6 +2,7 @@ package com.group3.lostandfound
 
 import android.os.Bundle
 import android.text.InputType
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,14 +11,19 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.group3.lostandfound.model.AuthUiState
+import com.group3.lostandfound.service.FCMService
+import com.group3.lostandfound.util.ModernToast
+import com.group3.lostandfound.viewmodel.AuthViewModel
+import kotlinx.coroutines.launch
 
 /**
- * SignUpFragment handles user registration for FindIt LK:
- * - Collects full name, email, phone number, NIC, and password
- * - Supports toggling password and confirm password visibility
- * - Validates terms acceptance and form inputs
- * - Links to Login and Home navigation
+ * SignUpFragment handles user registration for Foundly in MVVM architecture.
+ * Delegating authentication operations and state to AuthViewModel.
  */
 class SignUpFragment : Fragment() {
 
@@ -36,6 +42,7 @@ class SignUpFragment : Fragment() {
 
     private var isPasswordVisible = false
     private var isConfirmPasswordVisible = false
+    private lateinit var authViewModel: AuthViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,9 +55,15 @@ class SignUpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
+
+        // Smooth entry animation
+        view.alpha = 0f
+        view.animate().alpha(1f).setDuration(400).start()
+
         initViews(view)
-        setupListeners()
-        setupBottomNav(view)
+        setupListeners(view)
+        observeViewModel()
     }
 
     private fun initViews(view: View) {
@@ -66,51 +79,200 @@ class SignUpFragment : Fragment() {
         checkTerms = view.findViewById(R.id.checkTerms)
         btnCreateAccount = view.findViewById(R.id.btnCreateAccount)
         rowLogin = view.findViewById(R.id.rowLogin)
+
+        val textTerms = view.findViewById<TextView>(R.id.textTerms)
+        val termsHtml = "I agree to the <b><font color='#003049'>Terms of Service</font></b> and <b><font color='#003049'>Privacy Policy</font></b>"
+        textTerms.text = android.text.Html.fromHtml(termsHtml, android.text.Html.FROM_HTML_MODE_LEGACY)
+        textTerms.setOnClickListener {
+            checkTerms.isChecked = !checkTerms.isChecked
+        }
     }
 
-    private fun setupListeners() {
+    private fun setupListeners(view: View) {
         btnTogglePassword.setOnClickListener {
             isPasswordVisible = !isPasswordVisible
-            val cursorPosition = inputPassword.selectionStart
             if (isPasswordVisible) {
-                inputPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                inputPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                btnTogglePassword.alpha = 1.0f
             } else {
                 inputPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                btnTogglePassword.alpha = 0.5f
             }
-            inputPassword.setSelection(cursorPosition)
+            inputPassword.setSelection(inputPassword.text.length)
         }
 
         btnToggleConfirmPassword.setOnClickListener {
             isConfirmPasswordVisible = !isConfirmPasswordVisible
-            val cursorPosition = inputConfirmPassword.selectionStart
             if (isConfirmPasswordVisible) {
-                inputConfirmPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                inputConfirmPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                btnToggleConfirmPassword.alpha = 1.0f
             } else {
                 inputConfirmPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                btnToggleConfirmPassword.alpha = 0.5f
             }
-            inputConfirmPassword.setSelection(cursorPosition)
+            inputConfirmPassword.setSelection(inputConfirmPassword.text.length)
         }
+
+        rowLogin.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+
+        // Real-time error clearing
+        inputFullName.doAfterTextChanged { inputFullName.error = null }
+        inputEmail.doAfterTextChanged { inputEmail.error = null }
+        inputPhone.doAfterTextChanged { inputPhone.error = null }
+        inputNic.doAfterTextChanged { inputNic.error = null }
+        inputPassword.doAfterTextChanged { inputPassword.error = null }
+        inputConfirmPassword.doAfterTextChanged { inputConfirmPassword.error = null }
 
         btnCreateAccount.setOnClickListener {
             val name = inputFullName.text.toString().trim()
             val email = inputEmail.text.toString().trim()
-            val agreed = checkTerms.isChecked
+            val phone = inputPhone.text.toString().trim()
+            val nic = inputNic.text.toString().trim()
+            val password = inputPassword.text.toString().trim()
+            val confirmPassword = inputConfirmPassword.text.toString().trim()
 
-            if (!agreed) {
-                Toast.makeText(requireContext(), "Please agree to the Terms of Service", Toast.LENGTH_SHORT).show()
+            if (name.isEmpty()) {
+                inputFullName.error = "Full name is required"
+                inputFullName.requestFocus()
+                return@setOnClickListener
+            }
+            if (name.length < 2) {
+                inputFullName.error = "Name must be at least 2 characters"
+                inputFullName.requestFocus()
                 return@setOnClickListener
             }
 
-            val displayName = if (name.isNotEmpty()) name else "Nadeesha Silva"
-            Toast.makeText(requireContext(), "Account created for $displayName!", Toast.LENGTH_SHORT).show()
+            if (email.isEmpty()) {
+                inputEmail.error = "Email address is required"
+                inputEmail.requestFocus()
+                return@setOnClickListener
+            }
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                inputEmail.error = "Please enter a valid email address"
+                inputEmail.requestFocus()
+                return@setOnClickListener
+            }
 
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, HomeFragment.newInstance())
-                .commit()
+            if (phone.isEmpty()) {
+                inputPhone.error = "Phone number is required"
+                inputPhone.requestFocus()
+                return@setOnClickListener
+            }
+            if (!phone.matches(Regex("^[0-9+ -]{9,15}\$"))) {
+                inputPhone.error = "Please enter a valid phone number (9-15 digits)"
+                inputPhone.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (nic.isEmpty()) {
+                inputNic.error = "NIC or Identity number is required"
+                inputNic.requestFocus()
+                return@setOnClickListener
+            }
+            if (nic.length < 4) {
+                inputNic.error = "Identity number must be at least 4 characters"
+                inputNic.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (password.isEmpty()) {
+                inputPassword.error = "Password is required"
+                inputPassword.requestFocus()
+                return@setOnClickListener
+            }
+            if (password.length < 6) {
+                inputPassword.error = "Password must be at least 6 characters"
+                inputPassword.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (confirmPassword.isEmpty()) {
+                inputConfirmPassword.error = "Please confirm your password"
+                inputConfirmPassword.requestFocus()
+                return@setOnClickListener
+            }
+            if (password != confirmPassword) {
+                inputConfirmPassword.error = "Passwords do not match"
+                inputConfirmPassword.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (!checkTerms.isChecked) {
+                Toast.makeText(requireContext(), "Please agree to the Terms of Service to create an account", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            btnCreateAccount.isEnabled = false
+            btnCreateAccount.text = "Creating account..."
+            authViewModel.signUp(name, email, phone, nic, password)
         }
+    }
 
-        rowLogin.setOnClickListener {
-            Toast.makeText(requireContext(), "Navigate to Login", Toast.LENGTH_SHORT).show()
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            authViewModel.signUpState.collect { state ->
+                when (state) {
+                    is AuthUiState.Loading -> {
+                        btnCreateAccount.isEnabled = false
+                        btnCreateAccount.text = "Creating account..."
+                    }
+                    is AuthUiState.Success -> {
+                        btnCreateAccount.isEnabled = true
+                        btnCreateAccount.text = "Create Account"
+
+                        val safeCtx = context ?: return@collect
+                        val name = inputFullName.text.toString().trim()
+
+                        safeCtx.getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+                            .edit()
+                            .putBoolean("is_logged_in", true)
+                            .putBoolean("is_admin", false)
+                            .putString("user_uid", authViewModel.currentUid)
+                            .putString("saved_email", inputEmail.text.toString().trim())
+                            .putBoolean("onboarding_completed", true)
+                            .apply()
+
+                        FCMService.triggerPushNotification(
+                            safeCtx,
+                            "Account Registered",
+                            "Welcome to Foundly, $name. Your account has been created successfully."
+                        )
+
+                        FirebaseManager.customUid = authViewModel.currentUid
+                        FirebaseManager.customEmail = inputEmail.text.toString().trim()
+
+                        (activity as? MainActivity)?.setupIncomingMessageNotifications()
+
+                        ModernToast.show(
+                            safeCtx,
+                            "Account created successfully. Welcome to Foundly."
+                        )
+
+                        if (isAdded) {
+                            parentFragmentManager.beginTransaction()
+                                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                                .replace(R.id.screenBox, HomeFragment.newInstance())
+                                .commit()
+                        }
+                        authViewModel.resetSignUpState()
+                    }
+                    is AuthUiState.Error -> {
+                        btnCreateAccount.isEnabled = true
+                        btnCreateAccount.text = "Create Account"
+
+                        val safeCtx = context ?: return@collect
+                        ModernToast.show(safeCtx, state.message, view)
+                        Toast.makeText(safeCtx, state.message, Toast.LENGTH_LONG).show()
+                        authViewModel.resetSignUpState()
+                    }
+                    is AuthUiState.Idle -> {
+                        btnCreateAccount.isEnabled = true
+                        btnCreateAccount.text = "Create Account"
+                    }
+                }
+            }
         }
     }
 

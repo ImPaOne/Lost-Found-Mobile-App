@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/splashRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    tools:context=".SplashActivity">
+
+    <!-- Center Branding Container matching reference design -->
+    <LinearLayout
+        android:id="@+id/centerBrandingBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.44">
+
+        <!-- Outer Rounded Card with Soft Ambient Shadow/Glow -->
+        <FrameLayout
+            android:id="@+id/logoOuterBox"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@drawable/bg_splash_outer_card"
+            android:elevation="6dp">
+
+            <!-- App Logo -->
+            <ImageView
+                android:id="@+id/logoIcon"
+                android:layout_width="68dp"
+                android:layout_height="68dp"
+                android:layout_gravity="center"
+                android:adjustViewBounds="true"
+                android:contentDescription="Foundly App Logo"
+                android:scaleType="fitCenter"
+                android:src="@drawable/logoo" />
+        </FrameLayout>
+
+        <!-- App Name: Foundly in rich dark navy -->
+        <TextView
+            android:id="@+id/appNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.01"
+            android:text="Foundly"
+            android:textColor="#0B2540"
+            android:textSize="38sp"
+            android:textStyle="bold" />
+
+        <!-- Vibrant Teal Accent Divider -->
+        <View
+            android:id="@+id/brandDivider"
+            android:layout_width="34dp"
+            android:layout_height="3dp"
+            android:layout_marginTop="9dp"
+            android:background="@drawable/bg_splash_accent_bar" />
+
+        <!-- Tagline in soft slate gray -->
+        <TextView
+            android:id="@+id/taglineText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif"
+            android:letterSpacing="0.02"
+            android:text="Lost less. Found faster."
+            android:textColor="#627D98"
+            android:textSize="14.5sp" />
+    </LinearLayout>
+
+    <!-- Bottom 3 Dots Indicator matching reference image -->
+    <LinearLayout
+        android:id="@+id/dotsIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="54dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <View
+            android:layout_width="7dp"
+            android:layout_height="7dp"
+            android:background="@drawable/bg_splash_dot_1" />
+
+        <View
+            android:layout_width="7dp"
+            android:layout_height="7dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_splash_dot_2" />
+
+        <View
+            android:layout_width="7dp"
+            android:layout_height="7dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_splash_dot_3" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

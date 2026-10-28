@@ -7,13 +7,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 
-/**
- * OnboardingFragment displays the intro screen:
- * - Illustration with magnifying glass search icon
- * - "Lost Something?" heading and description
- * - Progress indicator dots
- * - "Skip" and "Next" navigation buttons
- */
 class OnboardingFragment : Fragment() {
 
     private lateinit var btnSkip: TextView
@@ -21,6 +14,7 @@ class OnboardingFragment : Fragment() {
     private lateinit var tvTitle: TextView
     private lateinit var tvDescription: TextView
 
+    // Creates and displays the onboarding screen layout.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -29,6 +23,7 @@ class OnboardingFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_onboarding, container, false)
     }
 
+    // Runs after the layout has been created.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -37,19 +32,31 @@ class OnboardingFragment : Fragment() {
         tvTitle = view.findViewById(R.id.tvTitle)
         tvDescription = view.findViewById(R.id.tvDescription)
 
-        btnSkip.setOnClickListener { navigateToHome() }
-        btnNext.setOnClickListener { navigateToSignUp() }
+        // Smooth entry animation
+        view.alpha = 0f
+        view.animate().alpha(1f).setDuration(400).start()
+
+        btnSkip.setOnClickListener { navigateToLogin() }
+        btnNext.setOnClickListener { navigateToFoundScreen() }
     }
 
-    private fun navigateToHome() {
+    // Saves the completion flag and navigates to the login screen.
+    private fun navigateToLogin() {
+        requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean("onboarding_completed", true)
+            .apply()
+
         parentFragmentManager.beginTransaction()
-            .replace(R.id.screenBox, HomeFragment.newInstance())
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+            .replace(R.id.screenBox, LoginFragment.newInstance())
             .commit()
     }
 
-    private fun navigateToSignUp() {
+    private fun navigateToFoundScreen() {
         parentFragmentManager.beginTransaction()
-            .replace(R.id.screenBox, SignUpFragment.newInstance())
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+            .replace(R.id.screenBox, OnboardingFoundFragment.newInstance())
             .addToBackStack(null)
             .commit()
     }

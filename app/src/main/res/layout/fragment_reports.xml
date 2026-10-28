@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_screen"
+    android:background="@color/white"
     android:orientation="vertical"
     tools:context=".ReportsFragment">
 
@@ -59,18 +59,26 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
+            <FrameLayout
                 android:id="@+id/btnAdd"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_squircle_dark"
                 android:clickable="true"
                 android:contentDescription="Add new report"
                 android:focusable="true"
-                android:padding="8dp"
-                android:src="@drawable/ic_add_header"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Add"
+                    android:src="@drawable/ic_plus"
+                    app:tint="@color/white" />
+            </FrameLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Segmented Tab Container (Active / Resolved / All) -->
@@ -152,9 +160,9 @@
                 android:id="@+id/img1"
                 android:layout_width="84dp"
                 android:layout_height="84dp"
-                android:contentDescription="Wallet item image"
+                android:contentDescription="Item image"
                 android:scaleType="centerCrop"
-                android:src="@drawable/img_wallet"
+                android:src="@drawable/ic_item_placeholder"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
             <LinearLayout
@@ -190,15 +198,31 @@
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
-                <TextView
+                <LinearLayout
                     android:id="@+id/sub1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Colombo 03 · 12 Sep"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:contentDescription="Location"
+                        android:src="@drawable/ic_location"
+                        app:tint="@color/text_hint" />
+
+                    <TextView
+                        android:id="@+id/tvSub1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Colombo 03 · 12 Sep"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <ImageView
@@ -229,9 +253,9 @@
                 android:id="@+id/img2"
                 android:layout_width="84dp"
                 android:layout_height="84dp"
-                android:contentDescription="Passport item image"
+                android:contentDescription="Item image"
                 android:scaleType="centerCrop"
-                android:src="@drawable/img_passport"
+                android:src="@drawable/ic_item_placeholder"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
             <LinearLayout
@@ -245,12 +269,12 @@
                     android:id="@+id/tag2"
                     android:layout_width="wrap_content"
                     android:layout_height="24dp"
-                    android:background="@drawable/bg_badge_neutral"
+                    android:background="@drawable/bg_badge_matched"
                     android:gravity="center"
                     android:paddingStart="10dp"
                     android:paddingEnd="10dp"
                     android:text="Matched"
-                    android:textColor="@color/see_all_color"
+                    android:textColor="@color/badge_matched_text"
                     android:textSize="11sp"
                     android:textStyle="bold" />
 
@@ -267,15 +291,31 @@
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
-                <TextView
+                <LinearLayout
                     android:id="@+id/sub2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Fort Railway · 08 Sep"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:contentDescription="Location"
+                        android:src="@drawable/ic_location"
+                        app:tint="@color/text_hint" />
+
+                    <TextView
+                        android:id="@+id/tvSub2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Fort Railway · 08 Sep"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <ImageView
@@ -306,9 +346,9 @@
                 android:id="@+id/img3"
                 android:layout_width="84dp"
                 android:layout_height="84dp"
-                android:contentDescription="AirPods Pro item image"
+                android:contentDescription="Item image"
                 android:scaleType="centerCrop"
-                android:src="@drawable/img_airpods"
+                android:src="@drawable/ic_item_placeholder"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.RoundedSquare" />
 
             <LinearLayout
@@ -322,12 +362,12 @@
                     android:id="@+id/tag3"
                     android:layout_width="wrap_content"
                     android:layout_height="24dp"
-                    android:background="@drawable/bg_badge_neutral"
+                    android:background="@drawable/bg_badge_resolved_green"
                     android:gravity="center"
                     android:paddingStart="10dp"
                     android:paddingEnd="10dp"
                     android:text="Resolved"
-                    android:textColor="@color/see_all_color"
+                    android:textColor="@color/badge_resolved_text"
                     android:textSize="11sp"
                     android:textStyle="bold" />
 
@@ -344,15 +384,31 @@
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
-                <TextView
+                <LinearLayout
                     android:id="@+id/sub3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Galle Face · 31 Aug"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:contentDescription="Location"
+                        android:src="@drawable/ic_location"
+                        app:tint="@color/text_hint" />
+
+                    <TextView
+                        android:id="@+id/tvSub3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Galle Face · 31 Aug"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <ImageView
@@ -365,6 +421,19 @@
                 android:padding="4dp"
                 android:src="@drawable/ic_more_dots" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvEmptyReports"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:text="No reports submitted yet.\nTap + to report a lost or found item."
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:lineSpacingExtra="4dp"
+            android:visibility="gone" />
 
     </LinearLayout>
     </androidx.core.widget.NestedScrollView>
