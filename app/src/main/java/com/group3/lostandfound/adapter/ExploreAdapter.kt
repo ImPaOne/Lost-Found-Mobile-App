@@ -38,6 +38,7 @@ class ExploreAdapter(
         return ViewHolder(view)
     }
 
+    // Connects the item's data to the views inside the card.
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         val context = holder.itemView.context
