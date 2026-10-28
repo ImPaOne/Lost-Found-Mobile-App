@@ -47,6 +47,7 @@ import java.io.FileOutputStream
  */
 class CreateReportFragment : Fragment() {
 
+    // Holds references to XML views using ViewBinding.
     private var _binding: FragmentCreateReportBinding? = null
     private val binding get() = _binding!!
 
