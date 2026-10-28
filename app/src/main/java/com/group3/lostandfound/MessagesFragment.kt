@@ -229,11 +229,10 @@ class MessagesFragment : Fragment() {
                 "drawable://img_airpods_bench" -> holder.imgThumb.setImageResource(R.drawable.img_airpods_bench)
                 "drawable://img_laptop" -> holder.imgThumb.setImageResource(R.drawable.img_laptop)
                 else -> {
-                    if (item.itemImageUrl.startsWith("http://") || item.itemImageUrl.startsWith("https://")) {
+                    if (item.itemImageUrl.startsWith("http://") || item.itemImageUrl.startsWith("https://") || item.itemImageUrl.startsWith("data:") || item.itemImageUrl.startsWith("file://") || item.itemImageUrl.startsWith("content://")) {
                         ImageLoader.load(context, item.itemImageUrl, holder.imgThumb)
                     } else {
-                        // Fallback to user dummy avatar image
-                        ImageLoader.load(context, DUMMY_AVATAR_URL, holder.imgThumb)
+                        holder.imgThumb.setImageResource(R.drawable.ic_item_placeholder)
                     }
                 }
             }
