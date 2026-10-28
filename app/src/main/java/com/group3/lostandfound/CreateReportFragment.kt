@@ -384,6 +384,7 @@ class CreateReportFragment : Fragment() {
         setupStepListeners()
         updateStepHeader()
         setupBottomNav(view, "post")
+        setupStep3Map()
 
         // Handle Back button to step backward if within flow
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
@@ -605,18 +606,17 @@ class CreateReportFragment : Fragment() {
         }
 
         // Step 3: Map card, GPS, Search, and Date/Time pickers
-        val openMapAction = View.OnClickListener {
-            if (::inputTitle.isInitialized) savedTitle = inputTitle.text.toString()
-            if (::inputDescription.isInitialized) savedDescription = inputDescription.text.toString()
-            if (::inputLocation.isInitialized) savedLandmark = inputLocation.text.toString()
-
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.screenBox, MapFragment.newInstance(isPickerMode = true))
-                .addToBackStack(null)
-                .commit()
+        btnGps.setOnClickListener {
+            val lat = 6.9042
+            val lng = 79.8530
+            selectedLatitude = lat
+            selectedLongitude = lng
+            selectedArea = "Colombo 03"
+            inputLocation.setText("Near $selectedArea, Western Province")
+            searchInput.setText("$selectedArea, Western Province")
+            binding.webViewStep3Map.evaluateJavascript("if (typeof updateCenter === 'function') { updateCenter($lat, $lng); }", null)
+            Toast.makeText(requireContext(), "Centered on GPS location (Colombo 03)", Toast.LENGTH_SHORT).show()
         }
-        mapCard.setOnClickListener(openMapAction)
-        btnGps.setOnClickListener(openMapAction)
 
         btnClearSearch.setOnClickListener {
             searchInput.text?.clear()
@@ -670,6 +670,123 @@ class CreateReportFragment : Fragment() {
         btnRetryUpload.setOnClickListener {
             submitReport()
         }
+    }
+
+    private fun setupStep3Map() {
+        val webView = binding.webViewStep3Map
+        val webSettings = webView.settings
+        webSettings.javaScriptEnabled = true
+        webSettings.domStorageEnabled = true
+        webSettings.useWideViewPort = true
+        webSettings.loadWithOverviewMode = true
+
+        webView.setOnTouchListener { v, event ->
+            when (event.action) {
+                android.view.MotionEvent.ACTION_DOWN, android.view.MotionEvent.ACTION_MOVE -> {
+                    v.parent?.requestDisallowInterceptTouchEvent(true)
+                }
+                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                    v.parent?.requestDisallowInterceptTouchEvent(false)
+                }
+            }
+            false
+        }
+
+        webView.addJavascriptInterface(object {
+            @android.webkit.JavascriptInterface
+            fun onLocationChanged(lat: Double, lng: Double) {
+                activity?.runOnUiThread {
+                    selectedLatitude = lat
+                    selectedLongitude = lng
+                    selectedArea = String.format(java.util.Locale.US, "%.4f, %.4f", lat, lng)
+                    inputLocation.setText("Selected coordinates: $selectedArea")
+                    searchInput.setText(selectedArea)
+                }
+            }
+        }, "AndroidBridge")
+
+        loadStep3MapHtml(selectedLatitude, selectedLongitude)
+    }
+
+    private fun loadStep3MapHtml(lat: Double, lng: Double) {
+        val pinColor = if (isLostSelected) "#DC2626" else "#059669"
+        val html = """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #e2e8f0;
+        }
+        .leaflet-control-attribution {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        var map = L.map('map', {
+            zoomControl: true,
+            dragging: true,
+            touchZoom: true,
+            scrollWheelZoom: true
+        }).setView([$lat, $lng], 15);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        var pinSvg = '<svg width="32" height="42" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));">' +
+            '<path d="M14 0C6.268 0 0 6.268 0 14C0 24.5 14 38 14 38C14 38 28 24.5 28 14C28 6.268 21.732 0 14 0Z" fill="$pinColor"/>' +
+            '<circle cx="14" cy="14" r="5" fill="#FFFFFF"/>' +
+            '</svg>';
+
+        var pinIcon = L.divIcon({
+            className: '',
+            html: pinSvg,
+            iconSize: [32, 42],
+            iconAnchor: [16, 42]
+        });
+
+        var marker = L.marker([$lat, $lng], { icon: pinIcon, draggable: true }).addTo(map);
+
+        marker.on('dragend', function(e) {
+            var position = marker.getLatLng();
+            if (window.AndroidBridge) {
+                window.AndroidBridge.onLocationChanged(position.lat, position.lng);
+            }
+        });
+
+        map.on('click', function(e) {
+            marker.setLatLng(e.latlng);
+            if (window.AndroidBridge) {
+                window.AndroidBridge.onLocationChanged(e.latlng.lat, e.latlng.lng);
+            }
+        });
+
+        function updateCenter(newLat, newLng) {
+            map.setView([newLat, newLng], 15);
+            marker.setLatLng([newLat, newLng]);
+        }
+    </script>
+</body>
+</html>
+        """.trimIndent()
+        binding.webViewStep3Map.loadDataWithBaseURL("https://osm.org", html, "text/html", "UTF-8", null)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding.webViewStep3Map.destroy()
+        _binding = null
     }
 
     private fun jumpToStep(targetStep: Int) {
