@@ -68,7 +68,10 @@ class SettingsFragment : Fragment() {
         }
 
         btnHeaderMenu.setOnClickListener {
-            Toast.makeText(requireContext(), "Settings options", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, AdminFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
         }
 
         switchNotifications.setOnCheckedChangeListener { _, isChecked ->
