@@ -141,6 +141,7 @@ class ReportRepository {
                 if (imageUri != null) {
                     onProgress(10)
                     try {
+                        // Compresses the selected image before uploading.
                         val compressedBytes = compressImageUri(context, imageUri, maxWidth = 1024, maxHeight = 1024, quality = 75)
                         var uploaded = false
 
