@@ -693,6 +693,7 @@ class CreateReportFragment : Fragment() {
             false
         }
 
+        // Connects the JavaScript map to Android Kotlin.
         webView.addJavascriptInterface(object {
             @android.webkit.JavascriptInterface
             fun onLocationChanged(lat: Double, lng: Double) {
