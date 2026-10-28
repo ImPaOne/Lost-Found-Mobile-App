@@ -214,4 +214,8 @@ class SavedItemsFragment : Fragment() {
     private fun updateCount() {
         filterItems()
     }
+
+    companion object {
+        fun newInstance(): SavedItemsFragment = SavedItemsFragment()
+    }
 }
