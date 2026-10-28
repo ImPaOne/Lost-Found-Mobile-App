@@ -21,6 +21,7 @@ import java.util.UUID
  */
 class ReportRepository {
 
+    // Connects to the Firebase Realtime Database's items collection.
     private val db = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("items")
     private val storage = FirebaseStorage.getInstance(FirebaseManager.STORAGE_BUCKET).getReference("item_images")
 
