@@ -11,11 +11,10 @@
         android:id="@+id/headerSavedItems"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
         android:paddingStart="20dp"
         android:paddingTop="14dp"
         android:paddingEnd="20dp"
-        android:paddingBottom="14dp">
+        android:paddingBottom="10dp">
 
         <!-- Back Button -->
         <FrameLayout
@@ -29,8 +28,8 @@
             android:focusable="true">
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:layout_gravity="center"
                 android:contentDescription="Back"
                 android:src="@drawable/ic_arrow_left_black"
@@ -70,7 +69,7 @@
         </FrameLayout>
     </RelativeLayout>
 
-    <!-- Scrollable Main Content -->
+    <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -89,7 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="12dp"
                 android:layout_marginEnd="20dp"
                 android:background="@drawable/bg_search_input"
                 android:gravity="center_vertical"
@@ -119,7 +118,7 @@
                     android:textSize="14.5sp" />
             </LinearLayout>
 
-            <!-- Filter Chips -->
+            <!-- Filter Chips Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -225,7 +224,7 @@
                     android:textStyle="bold" />
             </RelativeLayout>
 
-            <!-- Saved Cards Container -->
+            <!-- Saved Cards List -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -245,8 +244,8 @@
                     android:padding="12dp">
 
                     <com.google.android.material.card.MaterialCardView
-                        android:layout_width="82dp"
-                        android:layout_height="82dp"
+                        android:layout_width="74dp"
+                        android:layout_height="74dp"
                         app:cardCornerRadius="14dp"
                         app:cardElevation="0dp"
                         app:strokeWidth="0dp">
@@ -255,8 +254,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:contentDescription="Wallet"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/img_wallet" />
+                            android:scaleType="fitXY"
+                            android:src="@drawable/img_saved_wallet" />
                     </com.google.android.material.card.MaterialCardView>
 
                     <LinearLayout
@@ -288,8 +287,8 @@
 
                             <ImageView
                                 android:id="@+id/btnBookmarkWallet"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:layout_alignParentEnd="true"
                                 android:layout_centerVertical="true"
                                 android:clickable="true"
@@ -358,8 +357,8 @@
                     android:padding="12dp">
 
                     <com.google.android.material.card.MaterialCardView
-                        android:layout_width="82dp"
-                        android:layout_height="82dp"
+                        android:layout_width="74dp"
+                        android:layout_height="74dp"
                         app:cardCornerRadius="14dp"
                         app:cardElevation="0dp"
                         app:strokeWidth="0dp">
@@ -368,8 +367,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:contentDescription="Dog"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/img_dog_milo" />
+                            android:scaleType="fitXY"
+                            android:src="@drawable/img_saved_dog" />
                     </com.google.android.material.card.MaterialCardView>
 
                     <LinearLayout
@@ -401,8 +400,8 @@
 
                             <ImageView
                                 android:id="@+id/btnBookmarkDog"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:layout_alignParentEnd="true"
                                 android:layout_centerVertical="true"
                                 android:clickable="true"
@@ -471,8 +470,8 @@
                     android:padding="12dp">
 
                     <com.google.android.material.card.MaterialCardView
-                        android:layout_width="82dp"
-                        android:layout_height="82dp"
+                        android:layout_width="74dp"
+                        android:layout_height="74dp"
                         app:cardCornerRadius="14dp"
                         app:cardElevation="0dp"
                         app:strokeWidth="0dp">
@@ -481,8 +480,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:contentDescription="Card Holder"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/img_brown_card_holder" />
+                            android:scaleType="fitXY"
+                            android:src="@drawable/img_saved_cardholder" />
                     </com.google.android.material.card.MaterialCardView>
 
                     <LinearLayout
@@ -514,8 +513,8 @@
 
                             <ImageView
                                 android:id="@+id/btnBookmarkCardHolder"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:layout_alignParentEnd="true"
                                 android:layout_centerVertical="true"
                                 android:clickable="true"
