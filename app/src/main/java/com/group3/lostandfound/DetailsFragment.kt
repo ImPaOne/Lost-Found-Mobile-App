@@ -241,6 +241,7 @@ class DetailsFragment : Fragment() {
                         if (report.userId.isNotEmpty()) {
                             reporterUserId = report.userId
                             val currentUid = FirebaseManager.currentUid
+                            val isOwner = currentUid.isNotEmpty() && (reporterUserId == currentUid || report.userId == currentUid)
                             btnBookmark.visibility = View.VISIBLE
                             rowOwnerActions?.visibility = if (isOwner) View.VISIBLE else View.GONE
                             btnDeleteReport?.visibility = if (isOwner) View.VISIBLE else View.GONE
@@ -523,6 +524,7 @@ class DetailsFragment : Fragment() {
         isBookmarked = itemId != null && currentSet.contains(itemId)
         btnBookmark.setImageResource(if (isBookmarked) R.drawable.ic_nav_my_reports else R.drawable.ic_bookmark_outline)
 
+        val currentUid = FirebaseManager.currentUid
         btnBookmark.visibility = View.VISIBLE
 
         btnBookmark.setOnClickListener {
