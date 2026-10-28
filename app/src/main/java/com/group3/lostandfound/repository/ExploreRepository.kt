@@ -22,6 +22,7 @@ class ExploreRepository {
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val items = mutableListOf<ItemReport>()
+                // Convert Firebase records into ItemReport objects.
                 for (child in snapshot.children) {
                     try {
                         val report = ItemReport.fromSnapshot(child)
