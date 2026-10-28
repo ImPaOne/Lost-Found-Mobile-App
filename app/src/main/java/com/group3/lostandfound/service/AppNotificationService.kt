@@ -103,6 +103,10 @@ class AppNotificationService : Service() {
         if (isAnnouncementListenerStarted) return
         isAnnouncementListenerStarted = true
 
+        val prefs = getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+        val lastSeenTime = prefs.getLong("last_seen_announcement_time", 0L)
+        val thresholdTime = if (lastSeenTime > 0L) lastSeenTime else serviceStartTime
+
         val database = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
         val annRef = database.getReference("announcements")
         annRef.addChildEventListener(object : ChildEventListener {
@@ -110,11 +114,18 @@ class AppNotificationService : Service() {
                 try {
                     val timestamp = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
                     val annKey = snapshot.key ?: "ann_$timestamp"
-                    if (!notifiedAlertIds.contains(annKey) && timestamp > serviceStartTime) {
+                    val notifiedSet = prefs.getStringSet("notified_ann_ids", emptySet()) ?: emptySet()
+                    if (!notifiedSet.contains(annKey) && timestamp > thresholdTime) {
+                        val newSet = notifiedSet.toMutableSet()
+                        newSet.add(annKey)
+                        prefs.edit()
+                            .putStringSet("notified_ann_ids", newSet)
+                            .putLong("last_seen_announcement_time", timestamp)
+                            .apply()
                         notifiedAlertIds.add(annKey)
+
                         val title = snapshot.child("title").getValue(String::class.java) ?: "Foundly Official Announcement"
                         val message = snapshot.child("message").getValue(String::class.java) ?: ""
-                        val prefs = getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
                         val enabled = prefs.getBoolean("push_notifications_enabled", true)
                         if (enabled && message.isNotEmpty()) {
                             FCMService.triggerPushNotification(
@@ -132,6 +143,27 @@ class AppNotificationService : Service() {
             override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
             override fun onCancelled(error: DatabaseError) {}
         })
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        try {
+            val restartIntent = Intent(applicationContext, AppNotificationService::class.java).apply {
+                putExtra("user_uid", myUid)
+            }
+            val pendingIntent = PendingIntent.getService(
+                applicationContext,
+                101,
+                restartIntent,
+                PendingIntent.FLAG_ONE_SHOT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+            )
+            val alarmManager = getSystemService(Context.ALARM_SERVICE) as? android.app.AlarmManager
+            alarmManager?.set(
+                android.app.AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + 1500,
+                pendingIntent
+            )
+        } catch (_: Exception) {}
+        super.onTaskRemoved(rootIntent)
     }
 
     private fun startListening() {
