@@ -99,6 +99,7 @@ class ExploreFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        // Collect UI state while this Fragment's view is active.
         viewLifecycleOwner.lifecycleScope.launch {
             exploreViewModel.uiState.collect { state ->
                 exploreAdapter.updateItems(state.items)
