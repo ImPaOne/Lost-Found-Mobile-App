@@ -83,10 +83,10 @@ fun Fragment.setupBottomNav(rootView: View, activeTab: String = "") {
     val isTabMessages = activeTab == "messages" || activeTab == "chat"
     val isTabProfile = activeTab == "profile" || activeTab == "settings" || activeTab == "saved" || activeTab == "trust"
 
-    boxHome?.setBackgroundResource(0)
-    boxExplore?.setBackgroundResource(0)
-    boxMessages?.setBackgroundResource(0)
-    boxProfile?.setBackgroundResource(0)
+    boxHome?.setBackgroundResource(if (isTabHome) R.drawable.bg_nav_tab_active_pill else 0)
+    boxExplore?.setBackgroundResource(if (isTabExplore) R.drawable.bg_nav_tab_active_pill else 0)
+    boxMessages?.setBackgroundResource(if (isTabMessages) R.drawable.bg_nav_tab_active_pill else 0)
+    boxProfile?.setBackgroundResource(if (isTabProfile) R.drawable.bg_nav_tab_active_pill else 0)
 
     lblHome?.setTextColor(if (isTabHome) activeColor else inactiveColor)
     lblExplore?.setTextColor(if (isTabExplore) activeColor else inactiveColor)

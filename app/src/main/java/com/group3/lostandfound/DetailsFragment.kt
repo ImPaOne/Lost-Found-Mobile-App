@@ -581,21 +581,10 @@ class DetailsFragment : Fragment() {
 
         // Social Media & Messaging Sharing with Modern QR Flyer
         btnShare.setOnClickListener {
-            val reportToShare = currentItemReport ?: ItemReport(
-                itemId = itemId.orEmpty(),
-                userId = reporterUserId,
-                title = tvItemTitle.text.toString(),
-                description = tvDescription.text.toString(),
-                status = tagStatus.text.toString(),
-                location = tvLocationText.text.toString(),
-                latitude = itemLatitude,
-                longitude = itemLongitude,
-                authorName = reporterName
-            )
-            FlyerGenerator.showFlyerShareDialog(
-                requireActivity(),
-                reportToShare
-            )
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.screenBox, ShareFlyerFragment.newInstance())
+                .addToBackStack("share_flyer")
+                .commit()
         }
 
         btnMoreOptions?.setOnClickListener { showOptionsMenu() }

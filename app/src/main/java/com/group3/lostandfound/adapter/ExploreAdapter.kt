@@ -31,12 +31,14 @@ class ExploreAdapter(
         var imageJob: Job? = null
     }
 
+    // Creates a new item card using the XML layout.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_report_card, parent, false)
         return ViewHolder(view)
     }
 
+    // Connects the item's data to the views inside the card.
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         val context = holder.itemView.context
@@ -74,8 +76,10 @@ class ExploreAdapter(
         }
     }
 
+    // Returns the total number of items to display.
     override fun getItemCount(): Int = items.size
 
+    // Updates the list and refreshes the displayed cards.
     fun updateItems(newItems: List<ItemReport>) {
         items = newItems
         notifyDataSetChanged()

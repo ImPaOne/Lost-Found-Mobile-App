@@ -37,6 +37,7 @@ class NotificationsFragment : Fragment() {
     private var adminAlertTitle = "Admin alert"
     private var adminAlertMessage = "Please verify your contact number."
 
+    //	Loads the notification screen layout from fragment_notifications.xml.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,6 +46,7 @@ class NotificationsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_notifications, container, false)
     }
 
+    //Initializes the screen and sets up listeners and notification loading.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -55,6 +57,7 @@ class NotificationsFragment : Fragment() {
         loadLiveNotifications(view)
     }
 
+    //Connects Kotlin variables to UI elements
     private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         btnCheckAll = view.findViewById(R.id.btnCheckAll)
@@ -72,6 +75,7 @@ class NotificationsFragment : Fragment() {
         dotGalleFace = view.findViewById(R.id.dotGalleFace)
     }
 
+    //Handles the back and mark-all-as-read buttons.
     private fun setupHeaderActions() {
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
@@ -94,6 +98,7 @@ class NotificationsFragment : Fragment() {
         }
     }
 
+    //Defines what happens when a notification card is clicked.
     private fun setupCardClicks() {
         itemWallet.setOnClickListener {
             dotWallet.visibility = View.GONE
@@ -191,6 +196,7 @@ class NotificationsFragment : Fragment() {
         }
     }
 
+    //Retrieves notifications and administrator announcements from Firebase
     private fun loadLiveNotifications(view: View) {
         val currentUid = FirebaseManager.currentUid
         if (currentUid.isEmpty()) return
