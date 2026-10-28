@@ -56,7 +56,7 @@ class ExploreViewModel(
         _uiState.value = _uiState.value.copy(isGridMode = isGrid)
     }
 
-    //// Retrieves items from the repository using the current search and filter.
+    // Retrieves items from the repository using the current search and filter.
     private fun applyFilter() {
         val currentQuery = _uiState.value.query
         val currentStatus = _uiState.value.filterStatus
