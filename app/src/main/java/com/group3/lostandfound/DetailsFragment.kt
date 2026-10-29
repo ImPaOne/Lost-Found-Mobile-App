@@ -1695,8 +1695,8 @@ private fun showReportPhotoDialog(title: String) {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                adjustViewBounds = true
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                adjustViewBounds = false
             }
             return PhotoViewHolder(img)
         }
