@@ -208,7 +208,9 @@ class ExploreFragment : Fragment() {
                     location = if (item.latitude != 0.0 || item.longitude != 0.0) "${item.latitude}, ${item.longitude}" else "Colombo 03",
                     itemId = item.itemId,
                     reporterUserId = item.userId,
-                    authorName = item.authorName
+                    authorName = item.authorName,
+                    latitude = item.latitude,
+                    longitude = item.longitude
                 )
             )
             .addToBackStack(null)
