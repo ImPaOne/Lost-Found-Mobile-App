@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.content.ContentValues
@@ -106,8 +108,8 @@ class DetailsFragment : Fragment() {
     private var btnOpenFullMap: View? = null
     private var mapClickOverlay: View? = null
     private var tvMapCoordinates: TextView? = null
-    private var itemLatitude: Double = 6.9140
-    private var itemLongitude: Double = 79.8630
+    private var itemLatitude: Double = 6.0367
+    private var itemLongitude: Double = 80.2170
     private var currentItemReport: ItemReport? = null
 
     private lateinit var detailsViewModel: DetailsViewModel
@@ -231,6 +233,19 @@ private fun bindData() {
     tvDescription.text = initialDesc
     updateStatusTag(initialStatus)
     tvLocationText.text = initialLocation
+
+    // Resolve initial coordinates immediately (defaulting to Galle: 6.0367° N, 80.2170° E)
+    val argLat = arguments?.getDouble("arg_latitude", 0.0) ?: 0.0
+    val argLng = arguments?.getDouble("arg_longitude", 0.0) ?: 0.0
+    if (argLat != 0.0 && argLng != 0.0) {
+        itemLatitude = argLat
+        itemLongitude = argLng
+    } else {
+        val resolved = resolveFallbackCoordinates(initialLocation)
+        itemLatitude = resolved.first
+        itemLongitude = resolved.second
+    }
+    loadEmbeddedMap(itemLatitude, itemLongitude, initialStatus, initialTitle)
 
     // Retrieve the initial photo URL, or use an empty string if missing.
     val initialImageUrl = arguments?.getString("arg_image_url").orEmpty()
@@ -918,23 +933,16 @@ private fun promptEditReport() {
 
 
         val openMapAction = View.OnClickListener {
-            parentFragmentManager.beginTransaction()
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                .replace(
-                    R.id.screenBox,
-                    MapFragment.newInstance(
-                        isPickerMode = false,
-                        targetLat = itemLatitude,
-                        targetLng = itemLongitude,
-                        targetItemId = itemId.orEmpty()
-                    )
-                )
-                .addToBackStack(null)
-                .commit()
+            openFullMapPage()
         }
         bannerLocation.setOnClickListener(openMapAction)
         btnOpenFullMap?.setOnClickListener(openMapAction)
         mapClickOverlay?.setOnClickListener(openMapAction)
+        view?.findViewById<View>(R.id.cardItemMapContainer)?.setOnClickListener(openMapAction)
+        view?.findViewById<View>(R.id.badgeOpenMapPill)?.setOnClickListener(openMapAction)
+        view?.findViewById<View>(R.id.boxMapCoordinatesBadge)?.setOnClickListener(openMapAction)
+        tvMapCoordinates?.setOnClickListener(openMapAction)
+        tvLocationText.setOnClickListener(openMapAction)
 
         val openSeeAllAction = View.OnClickListener {
             parentFragmentManager.beginTransaction()
@@ -1973,33 +1981,72 @@ private fun showReportPhotoDialog(title: String) {
         settings.domStorageEnabled = true
         settings.loadWithOverviewMode = true
         settings.useWideViewPort = true
+        settings.databaseEnabled = true
+        settings.cacheMode = WebSettings.LOAD_DEFAULT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        }
+        webView.setBackgroundColor(Color.parseColor("#EBF2F7"))
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         webView.webChromeClient = WebChromeClient()
-        webView.webViewClient = WebViewClient()
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                webView.evaluateJavascript("if (typeof map !== 'undefined') { map.invalidateSize(); }", null)
+            }
+        }
+        webView.addJavascriptInterface(object : Any() {
+            @JavascriptInterface
+            fun openFullMap() {
+                activity?.runOnUiThread {
+                    openFullMapPage()
+                }
+            }
+        }, "AndroidBridge")
         loadEmbeddedMap(itemLatitude, itemLongitude, tagStatus.text.toString(), tvItemTitle.text.toString())
     }
 
     private fun loadEmbeddedMap(lat: Double, lng: Double, status: String, title: String) {
-        val html = buildEmbeddedMapHtml(lat, lng, status, title)
+        val effectiveLat = if (lat != 0.0) lat else 6.0367
+        val effectiveLng = if (lng != 0.0) lng else 80.2170
+        val html = buildEmbeddedMapHtml(effectiveLat, effectiveLng, status, title)
         webViewItemMap?.loadDataWithBaseURL("https://leafletjs.com/", html, "text/html", "UTF-8", null)
-        tvMapCoordinates?.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Tap to explore", lat, lng)
+        tvMapCoordinates?.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Tap for full map", effectiveLat, effectiveLng)
+    }
+
+    private fun openFullMapPage() {
+        if (!isAdded) return
+        parentFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+            .replace(
+                R.id.screenBox,
+                MapFragment.newInstance(
+                    isPickerMode = false,
+                    targetLat = if (itemLatitude != 0.0) itemLatitude else 6.0367,
+                    targetLng = if (itemLongitude != 0.0) itemLongitude else 80.2170,
+                    targetItemId = itemId.orEmpty()
+                )
+            )
+            .addToBackStack("details_map")
+            .commit()
     }
 
     private fun resolveFallbackCoordinates(location: String): Pair<Double, Double> {
         val lower = location.lowercase(java.util.Locale.US)
         return when {
+            lower.contains("galle") -> Pair(6.0367, 80.2170)
             lower.contains("vihara") || lower.contains("park") -> Pair(6.9140, 79.8630)
             lower.contains("independence") || lower.contains("colombo 07") -> Pair(6.9044, 79.8679)
             lower.contains("duplication") || lower.contains("colombo 03") || lower.contains("kollupitiya") -> Pair(6.8974, 79.8562)
             lower.contains("bambalapitiya") || lower.contains("colombo 04") -> Pair(6.8884, 79.8587)
             lower.contains("fort") || lower.contains("colombo 01") || lower.contains("galle face") -> Pair(6.9344, 79.8428)
             lower.contains("kandy") -> Pair(7.2906, 80.6337)
-            lower.contains("galle") -> Pair(6.0535, 80.2210)
-            else -> Pair(6.9271, 79.8612)
+            else -> Pair(6.0367, 80.2170)
         }
     }
 
     private fun buildEmbeddedMapHtml(lat: Double, lng: Double, status: String, title: String): String {
-        val pinColor = if (status.equals("LOST", ignoreCase = true)) "#E53935" else "#2E7D32"
+        val pinColor = if (status.equals("LOST", ignoreCase = true)) "#DC2626" else "#059669"
         val cleanTitle = title.replace("'", "\\'").replace("\"", "\\\"").replace("\n", " ").take(40)
         return """
 <!DOCTYPE html>
@@ -2008,51 +2055,123 @@ private fun showReportPhotoDialog(title: String) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        html, body, #map {
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        html, body {
             width: 100%;
             height: 100%;
             margin: 0;
             padding: 0;
-            background: #F7F5F0;
+            background: #EBF2F7;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            cursor: pointer;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #EBF2F7;
+            background-image: 
+                linear-gradient(rgba(180, 205, 225, 0.35) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(180, 205, 225, 0.35) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
         .leaflet-control-attribution {
             display: none !important;
         }
+        .fallback-pin {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+        .fallback-bubble {
+            background: #002840;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
-<body>
+<body onclick="triggerOpenMap()">
     <div id="map"></div>
+    <div id="fallbackVisual" class="fallback-pin" style="display: none;">
+        <div class="fallback-bubble">$cleanTitle</div>
+        <svg width="28" height="38" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+            <path d="M14 0C6.268 0 0 6.268 0 14C0 24.5 14 38 14 38C14 38 28 24.5 28 14C28 6.268 21.732 0 14 0Z" fill="$pinColor"/>
+            <circle cx="14" cy="14" r="5" fill="#FFFFFF"/>
+        </svg>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        var map = L.map('map', {
-            zoomControl: false,
-            dragging: false,
-            touchZoom: false,
-            doubleClickZoom: false,
-            scrollWheelZoom: false,
-            boxZoom: false
-        }).setView([$lat, $lng], 15);
+        function triggerOpenMap() {
+            if (window.AndroidBridge && window.AndroidBridge.openFullMap) {
+                window.AndroidBridge.openFullMap();
+            }
+        }
 
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19
-        }).addTo(map);
+        if (typeof L === 'undefined') {
+            document.getElementById('fallbackVisual').style.display = 'flex';
+        } else {
+            try {
+                var map = L.map('map', {
+                    zoomControl: false,
+                    dragging: false,
+                    touchZoom: false,
+                    doubleClickZoom: false,
+                    scrollWheelZoom: false,
+                    boxZoom: false,
+                    attributionControl: false
+                }).setView([$lat, $lng], 15);
 
-        var pinSvg = '<svg width="28" height="38" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">' +
-            '<path d="M14 0C6.268 0 0 6.268 0 14C0 24.5 14 38 14 38C14 38 28 24.5 28 14C28 6.268 21.732 0 14 0Z" fill="$pinColor"/>' +
-            '<circle cx="14" cy="14" r="5" fill="#FFFFFF"/>' +
-            '</svg>';
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19
+                }).addTo(map);
 
-        var pinIcon = L.divIcon({
-            className: '',
-            html: pinSvg,
-            iconSize: [28, 38],
-            iconAnchor: [14, 38],
-            popupAnchor: [0, -34]
-        });
+                var pinSvg = '<svg width="28" height="38" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">' +
+                    '<path d="M14 0C6.268 0 0 6.268 0 14C0 24.5 14 38 14 38C14 38 28 24.5 28 14C28 6.268 21.732 0 14 0Z" fill="$pinColor"/>' +
+                    '<circle cx="14" cy="14" r="5" fill="#FFFFFF"/>' +
+                    '</svg>';
 
-        L.marker([$lat, $lng], { icon: pinIcon }).addTo(map)
-            .bindPopup("<b>$cleanTitle</b><br/>$status Location").openPopup();
+                var pinIcon = L.divIcon({
+                    className: '',
+                    html: pinSvg,
+                    iconSize: [28, 38],
+                    iconAnchor: [14, 38],
+                    popupAnchor: [0, -34]
+                });
+
+                var marker = L.marker([$lat, $lng], { icon: pinIcon }).addTo(map);
+                marker.bindPopup("<b>$cleanTitle</b><br/>$status Location").openPopup();
+
+                map.on('click', triggerOpenMap);
+                marker.on('click', triggerOpenMap);
+
+                setTimeout(function() { map.invalidateSize(); }, 200);
+                setTimeout(function() { map.invalidateSize(); }, 500);
+                setTimeout(function() { map.invalidateSize(); }, 1200);
+            } catch(e) {
+                document.getElementById('fallbackVisual').style.display = 'flex';
+            }
+        }
     </script>
 </body>
 </html>
