@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { playPingSound, playClickSound, playSuccessSound } from '../utils/audio';
 
-const APK_DOWNLOAD_URL = "https://download1351.mediafire.com/ll4hx3iaubegyM2xP0I87v5hJqRC_ITjqclnBlh_WJ_tLNKFGkSun8c-nwe-pYyVpr8XNZUv0LtJpCsEZBiuEI0l5YUdp1mysRAKnX03S7KDHrDYISzf80FPmZHE2dFAML6ZU8pScVq3Z7NohH7L8n0JCG36Jh0Z1b9_py32YuJVc-bL/mwtagyhadwo9ssk/app-debug.apk";
+const APK_DOWNLOAD_URL = "https://download1085.mediafire.com/n5a6lagfhntgl5jcQFwPnLKT1a_S7BSkRa-zuDeFN2UHqLqbn5W20PE05JIStP51SkI0RjOCCnbYqo3L2DOibWcQ2WPmPOwuCk4xl3FTrTNlEJ1HAulg75rmEWWKlowA6oNh7zOdFJAcIzCCTb3IEFFgIUE9xVkSDlJoAvDOMyYXJg/1aeww8y7i8qaja8/foundly.apk";
 
 export default function InteractivePhoneSimulator({ onDownloadApk, onOpenQR }) {
   const handleDownload = () => {
@@ -405,7 +405,7 @@ export default function InteractivePhoneSimulator({ onDownloadApk, onOpenQR }) {
                     {/* QR Code in phone pass */}
                     <div style={{ background: '#FFF', padding: '12px', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', margin: '0 auto', width: 'fit-content' }}>
                       <img 
-                        src="https://i.postimg.cc/GmQmXXNG/Untitled-(1).png" 
+                        src="https://i.postimg.cc/CKkS022d/qr.png" 
                         alt="Foundly QR Code"
                         style={{ width: '120px', height: '120px', objectFit: 'contain', display: 'block' }}
                       />
