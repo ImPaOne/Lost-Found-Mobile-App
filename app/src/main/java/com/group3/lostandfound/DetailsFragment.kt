@@ -609,6 +609,11 @@ private fun updateReportProgressUI(status: String) {
  * Deletes the report from Firebase only when the user confirms.
  */
 private fun promptDeleteReport() {
+    if (!isCurrentUserOwner()) {
+        Toast.makeText(requireContext(), "Permission denied: Only the report owner can delete this post.", Toast.LENGTH_SHORT).show()
+        return
+    }
+
     // Stop if there is no current report ID.
     val currentItemId = itemId ?: return
 
@@ -659,6 +664,11 @@ private fun promptDeleteReport() {
  * Saves the updated title, description, and location to Firebase.
  */
 private fun promptEditReport() {
+    if (!isCurrentUserOwner()) {
+        Toast.makeText(requireContext(), "Permission denied: Only the report owner can edit this post.", Toast.LENGTH_SHORT).show()
+        return
+    }
+
     // Stop if there is no current report ID.
     val currentItemId = itemId ?: return
 
@@ -755,19 +765,69 @@ private fun promptEditReport() {
         .show()
 }
 
+    private fun isCurrentUserOwner(): Boolean {
+        val currentUid = FirebaseManager.currentUid
+        if (currentUid.isEmpty()) return false
+        val reportUid = currentItemReport?.userId?.takeIf { it.isNotEmpty() }
+            ?: reporterUserId.takeIf { it.isNotEmpty() && !it.startsWith("user_") }
+            ?: arguments?.getString(ARG_REPORTER_UID)?.takeIf { it.isNotEmpty() }
+        return reportUid != null && reportUid == currentUid
+    }
+
     private fun showOptionsMenu() {
-        val options = arrayOf("Share Flyer & QR Code", "Edit Report", "Mark as Resolved", "Delete Report")
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle(tvItemTitle.text.toString())
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> btnShare.performClick()
-                    1 -> promptEditReport()
-                    2 -> markItemAsResolved()
-                    3 -> promptDeleteReport()
+        if (isCurrentUserOwner()) {
+            val options = arrayOf(
+                "Share Flyer & QR Code",
+                "Edit Report Details",
+                "Mark as Resolved / Returned",
+                "Delete Report"
+            )
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle(tvItemTitle.text.toString())
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> btnShare.performClick()
+                        1 -> promptEditReport()
+                        2 -> markItemAsResolved()
+                        3 -> promptDeleteReport()
+                    }
                 }
-            }
-            .show()
+                .show()
+        } else {
+            val options = arrayOf(
+                "Share Flyer & QR Code",
+                "Copy Report Information",
+                "Report Inappropriate Content"
+            )
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle(tvItemTitle.text.toString())
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> btnShare.performClick()
+                        1 -> {
+                            val clipData = "Foundly Report: ${tvItemTitle.text}\nStatus: ${tagStatus.text}\nLocation: ${tvLocationText.text}\nDescription: ${tvDescription.text}"
+                            val clipboard = requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
+                            clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("Report Details", clipData))
+                            Toast.makeText(requireContext(), "Report details copied to clipboard!", Toast.LENGTH_SHORT).show()
+                        }
+                        2 -> {
+                            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                                .setTitle("Report Inappropriate Content")
+                                .setMessage("Flag this report ('${tvItemTitle.text}') for moderator review?")
+                                .setPositiveButton("Flag Report") { _, _ ->
+                                    val currentItemId = itemId
+                                    if (currentItemId != null) {
+                                        FirebaseManager.itemsRef.child(currentItemId).child("flagged").setValue(true)
+                                    }
+                                    Toast.makeText(requireContext(), "Thank you. This report has been flagged for admin moderation.", Toast.LENGTH_LONG).show()
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
+                        }
+                    }
+                }
+                .show()
+        }
     }
 
     private fun updateDots(selectedIndex: Int) {
@@ -879,6 +939,10 @@ private fun promptEditReport() {
 
         // Live status resolution & management
         tagStatus.setOnClickListener {
+            if (!isCurrentUserOwner()) {
+                Toast.makeText(requireContext(), "Only the report owner can change the item status.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val currentItemId = itemId ?: return@setOnClickListener
             val itemTitle = tvItemTitle.text.toString()
             val options = arrayOf("Mark as RESOLVED / RETURNED", "Mark as LOST", "Mark as FOUND")
@@ -956,6 +1020,10 @@ private fun promptEditReport() {
     }
 
     private fun markItemAsResolved() {
+        if (!isCurrentUserOwner()) {
+            Toast.makeText(requireContext(), "Permission denied: Only the report owner can mark this item as resolved.", Toast.LENGTH_SHORT).show()
+            return
+        }
         val currentItemId = itemId ?: return
         val itemTitle = tvItemTitle.text.toString()
         val currentUid = FirebaseManager.currentUid
