@@ -468,6 +468,98 @@
                         android:textColor="#64748B"
                         android:textSize="12.5sp" />
                 </LinearLayout>
+
+                <!-- Small Interactive Leaflet Map Preview below Item Details -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardItemMapContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="175dp"
+                    android:layout_marginTop="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="visible"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#E2E8F0"
+                    app:strokeWidth="1dp">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <WebView
+                            android:id="@+id/webViewItemMap"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                        <!-- Transparent overlay ensuring whole card tap opens MapFragment -->
+                        <View
+                            android:id="@+id/mapClickOverlay"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true" />
+
+                        <!-- Top-Right Fullscreen / Open Map Badge -->
+                        <LinearLayout
+                            android:id="@+id/badgeOpenMapPill"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top|end"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@drawable/bg_photo_counter_pill"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="5dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="5dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-bold"
+                                android:text="Open Map ↗"
+                                android:textColor="#FFFFFF"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Bottom Coordinates & Tap Hint Badge Overlay -->
+                        <LinearLayout
+                            android:id="@+id/boxMapCoordinatesBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom|start"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginBottom="10dp"
+                            android:background="@drawable/bg_photo_counter_pill"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="5dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="5dp">
+
+                            <ImageView
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:contentDescription="Location pin"
+                                android:src="@drawable/ic_location"
+                                app:tint="#FFFFFF" />
+
+                            <TextView
+                                android:id="@+id/tvMapCoordinates"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="5dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:text="6.0367° N, 80.2170° E · Tap for full map"
+                                android:textColor="#FFFFFF"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <!-- 5. Card 3: MATCHING SUGGESTIONS (Matching Reference Image) -->
@@ -704,15 +796,7 @@
                 <TextView android:id="@+id/btnOpenFullMap" android:layout_width="wrap_content" android:layout_height="wrap_content" />
             </LinearLayout>
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardItemMapContainer"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:visibility="gone">
-                <WebView android:id="@+id/webViewItemMap" android:layout_width="match_parent" android:layout_height="match_parent" />
-                <View android:id="@+id/mapClickOverlay" android:layout_width="match_parent" android:layout_height="match_parent" />
-                <TextView android:id="@+id/tvMapCoordinates" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-            </com.google.android.material.card.MaterialCardView>
+
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardSimilarItem"
