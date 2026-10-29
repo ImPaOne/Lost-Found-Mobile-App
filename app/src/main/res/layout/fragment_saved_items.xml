@@ -218,358 +218,65 @@
                     android:paddingTop="6dp"
                     android:paddingEnd="12dp"
                     android:paddingBottom="6dp"
-                    android:text="Recently saved â†“"
+                    android:text="Recently saved"
                     android:textColor="#0B1B2B"
                     android:textSize="12sp"
                     android:textStyle="bold" />
             </RelativeLayout>
 
-            <!-- Saved Cards List -->
-            <LinearLayout
+            <!-- Dynamic Saved Cards RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSavedItems"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
-                android:orientation="vertical">
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never" />
 
-                <!-- Card 1: Black leather wallet -->
-                <LinearLayout
-                    android:id="@+id/cardWallet"
-                    android:layout_width="match_parent"
+            <!-- Empty State Layout -->
+            <LinearLayout
+                android:id="@+id/layoutEmptySaved"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="32dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:contentDescription="No saved items"
+                    android:src="@drawable/ic_bookmark_outline"
+                    app:tint="#CBD5E1" />
+
+                <TextView
+                    android:id="@+id/tvEmptyTitle"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:background="@drawable/bg_saved_card"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="sans-serif-bold"
+                    android:text="No saved items yet"
+                    android:textColor="#0B1B2B"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="74dp"
-                        android:layout_height="74dp"
-                        app:cardCornerRadius="14dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="0dp">
-
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:contentDescription="Wallet"
-                            android:scaleType="fitXY"
-                            android:src="@drawable/img_saved_wallet" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <RelativeLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_alignParentStart="true"
-                                android:layout_centerVertical="true"
-                                android:background="@drawable/bg_tag_lost"
-                                android:fontFamily="sans-serif-bold"
-                                android:paddingStart="8dp"
-                                android:paddingTop="2dp"
-                                android:paddingEnd="8dp"
-                                android:paddingBottom="2dp"
-                                android:text="LOST"
-                                android:textColor="#DC2626"
-                                android:textSize="10.5sp"
-                                android:textStyle="bold" />
-
-                            <ImageView
-                                android:id="@+id/btnBookmarkWallet"
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
-                                android:layout_alignParentEnd="true"
-                                android:layout_centerVertical="true"
-                                android:clickable="true"
-                                android:contentDescription="Bookmark"
-                                android:focusable="true"
-                                android:src="@drawable/ic_bookmark_filled"
-                                app:tint="#0B2238" />
-                        </RelativeLayout>
-
-                        <TextView
-                            android:id="@+id/tvWalletTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="sans-serif-bold"
-                            android:text="Black leather wallet"
-                            android:textColor="#0B1B2B"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="14dp"
-                                android:layout_height="14dp"
-                                android:contentDescription="Location"
-                                android:src="@drawable/ic_location"
-                                app:tint="#9CA3AF" />
-
-                            <TextView
-                                android:id="@+id/tvWalletLocation"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:fontFamily="sans-serif"
-                                android:text="Colombo 03"
-                                android:textColor="#9CA3AF"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="sans-serif"
-                            android:text="Saved today"
-                            android:textColor="#94A3B8"
-                            android:textSize="11.5sp" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <!-- Card 2: Golden retriever, Milo -->
-                <LinearLayout
-                    android:id="@+id/cardDog"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/tvEmptySubtitle"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:background="@drawable/bg_saved_card"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="74dp"
-                        android:layout_height="74dp"
-                        app:cardCornerRadius="14dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="0dp">
-
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:contentDescription="Dog"
-                            android:scaleType="fitXY"
-                            android:src="@drawable/img_saved_dog" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <RelativeLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_alignParentStart="true"
-                                android:layout_centerVertical="true"
-                                android:background="@drawable/bg_tag_found"
-                                android:fontFamily="sans-serif-bold"
-                                android:paddingStart="8dp"
-                                android:paddingTop="2dp"
-                                android:paddingEnd="8dp"
-                                android:paddingBottom="2dp"
-                                android:text="FOUND"
-                                android:textColor="#059669"
-                                android:textSize="10.5sp"
-                                android:textStyle="bold" />
-
-                            <ImageView
-                                android:id="@+id/btnBookmarkDog"
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
-                                android:layout_alignParentEnd="true"
-                                android:layout_centerVertical="true"
-                                android:clickable="true"
-                                android:contentDescription="Bookmark"
-                                android:focusable="true"
-                                android:src="@drawable/ic_bookmark_filled"
-                                app:tint="#0B2238" />
-                        </RelativeLayout>
-
-                        <TextView
-                            android:id="@+id/tvDogTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="sans-serif-bold"
-                            android:text="Golden retriever, Milo"
-                            android:textColor="#0B1B2B"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="14dp"
-                                android:layout_height="14dp"
-                                android:contentDescription="Location"
-                                android:src="@drawable/ic_location"
-                                app:tint="#9CA3AF" />
-
-                            <TextView
-                                android:id="@+id/tvDogLocation"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:fontFamily="sans-serif"
-                                android:text="Viharamahadevi Park"
-                                android:textColor="#94A3B8"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="sans-serif"
-                            android:text="Saved today"
-                            android:textColor="#94A3B8"
-                            android:textSize="11.5sp" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <!-- Card 3: Brown card holder -->
-                <LinearLayout
-                    android:id="@+id/cardCardHolder"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="14dp"
-                    android:background="@drawable/bg_saved_card"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="74dp"
-                        android:layout_height="74dp"
-                        app:cardCornerRadius="14dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="0dp">
-
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:contentDescription="Card Holder"
-                            android:scaleType="fitXY"
-                            android:src="@drawable/img_saved_cardholder" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <RelativeLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_alignParentStart="true"
-                                android:layout_centerVertical="true"
-                                android:background="@drawable/bg_tag_found"
-                                android:fontFamily="sans-serif-bold"
-                                android:paddingStart="8dp"
-                                android:paddingTop="2dp"
-                                android:paddingEnd="8dp"
-                                android:paddingBottom="2dp"
-                                android:text="FOUND"
-                                android:textColor="#059669"
-                                android:textSize="10.5sp"
-                                android:textStyle="bold" />
-
-                            <ImageView
-                                android:id="@+id/btnBookmarkCardHolder"
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
-                                android:layout_alignParentEnd="true"
-                                android:layout_centerVertical="true"
-                                android:clickable="true"
-                                android:contentDescription="Bookmark"
-                                android:focusable="true"
-                                android:src="@drawable/ic_bookmark_filled"
-                                app:tint="#0B2238" />
-                        </RelativeLayout>
-
-                        <TextView
-                            android:id="@+id/tvCardHolderTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="sans-serif-bold"
-                            android:text="Brown card holder"
-                            android:textColor="#0B1B2B"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="14dp"
-                                android:layout_height="14dp"
-                                android:contentDescription="Location"
-                                android:src="@drawable/ic_location"
-                                app:tint="#9CA3AF" />
-
-                            <TextView
-                                android:id="@+id/tvCardHolderLocation"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:fontFamily="sans-serif"
-                                android:text="Kollupitiya"
-                                android:textColor="#94A3B8"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="sans-serif"
-                            android:text="Saved yesterday"
-                            android:textColor="#94A3B8"
-                            android:textSize="11.5sp" />
-                    </LinearLayout>
-                </LinearLayout>
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="3dp"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:text="Items you bookmark while browsing reports will be saved here for instant access."
+                    android:textColor="#64748B"
+                    android:textSize="13.5sp" />
             </LinearLayout>
 
             <!-- Bottom Notice Box -->
