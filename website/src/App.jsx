@@ -10,8 +10,8 @@ import { Download, QrCode } from 'lucide-react';
 import { playSuccessSound } from './utils/audio';
 import './App.css';
 
-export const APK_DOWNLOAD_URL = "https://download1351.mediafire.com/ll4hx3iaubegyM2xP0I87v5hJqRC_ITjqclnBlh_WJ_tLNKFGkSun8c-nwe-pYyVpr8XNZUv0LtJpCsEZBiuEI0l5YUdp1mysRAKnX03S7KDHrDYISzf80FPmZHE2dFAML6ZU8pScVq3Z7NohH7L8n0JCG36Jh0Z1b9_py32YuJVc-bL/mwtagyhadwo9ssk/app-debug.apk";
-export const QR_CODE_IMAGE_URL = "https://i.postimg.cc/GmQmXXNG/Untitled-(1).png";
+export const APK_DOWNLOAD_URL = "https://download1085.mediafire.com/vzvk5smz39jgpbHU1sIWknTozxfuxUGwpMjCBqxvMiA7Anyc72sUr8fFMx2mcLWoV_9oOd7lKi6exXPRMfo5I0LhI4RJgG6fnVEzdBqjNhy1E5YIiKyRkJPM8ITC4jbeCPP0pyS-wM23zdDxKbv4REcaqKxE_4sznSjneJmeb0djuw/1aeww8y7i8qaja8/foundly.apk";
+export const QR_CODE_IMAGE_URL = "https://i.postimg.cc/CKkS022d/qr.png";
 
 export default function App() {
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);

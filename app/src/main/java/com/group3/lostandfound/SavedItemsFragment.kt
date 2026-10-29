@@ -1,5 +1,6 @@
 package com.group3.lostandfound
 
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,6 +14,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.group3.lostandfound.model.ItemReport
+import com.group3.lostandfound.util.ImageLoader
 
 class SavedItemsFragment : Fragment() {
 
@@ -27,20 +36,23 @@ class SavedItemsFragment : Fragment() {
     private lateinit var tvSavedCount: TextView
     private lateinit var btnSort: TextView
 
-    private lateinit var cardWallet: LinearLayout
-    private lateinit var cardDog: LinearLayout
-    private lateinit var cardCardHolder: LinearLayout
+    private lateinit var rvSavedItems: RecyclerView
+    private lateinit var layoutEmptySaved: LinearLayout
+    private lateinit var tvEmptyTitle: TextView
+    private lateinit var tvEmptySubtitle: TextView
 
-    private lateinit var btnBookmarkWallet: ImageView
-    private lateinit var btnBookmarkDog: ImageView
-    private lateinit var btnBookmarkCardHolder: ImageView
+    private lateinit var adapter: SavedItemsAdapter
 
     private var selectedCategory = "ALL" // "ALL", "LOST", "FOUND"
     private var searchQuery = ""
+    private var isSortAlphabetical = false
 
-    private var isWalletSaved = true
-    private var isDogSaved = true
-    private var isCardHolderSaved = true
+    private val allSavedItems = mutableListOf<ItemReport>()
+    private val displayedItems = mutableListOf<ItemReport>()
+    private val savedIdsSet = mutableSetOf<String>()
+
+    private var savedItemsListener: ValueEventListener? = null
+    private var allItemsListener: ValueEventListener? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,7 +65,14 @@ class SavedItemsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize views
+        initViews(view)
+        setupRecyclerView()
+        setupListeners()
+        loadSavedItemsLive()
+        NavigationHelper.setup(this, view, NavigationHelper.Tab.PROFILE)
+    }
+
+    private fun initViews(view: View) {
         btnBack = view.findViewById(R.id.btnBack)
         btnMore = view.findViewById(R.id.btnMore)
         searchField = view.findViewById(R.id.searchField)
@@ -65,85 +84,97 @@ class SavedItemsFragment : Fragment() {
         tvSavedCount = view.findViewById(R.id.tvSavedCount)
         btnSort = view.findViewById(R.id.btnSort)
 
-        cardWallet = view.findViewById(R.id.cardWallet)
-        cardDog = view.findViewById(R.id.cardDog)
-        cardCardHolder = view.findViewById(R.id.cardCardHolder)
+        rvSavedItems = view.findViewById(R.id.rvSavedItems)
+        layoutEmptySaved = view.findViewById(R.id.layoutEmptySaved)
+        tvEmptyTitle = view.findViewById(R.id.tvEmptyTitle)
+        tvEmptySubtitle = view.findViewById(R.id.tvEmptySubtitle)
+    }
 
-        btnBookmarkWallet = view.findViewById(R.id.btnBookmarkWallet)
-        btnBookmarkDog = view.findViewById(R.id.btnBookmarkDog)
-        btnBookmarkCardHolder = view.findViewById(R.id.btnBookmarkCardHolder)
+    private fun setupRecyclerView() {
+        adapter = SavedItemsAdapter(
+            items = displayedItems,
+            onItemClick = { report ->
+                parentFragmentManager.beginTransaction()
+                    .replace(
+                        R.id.screenBox,
+                        DetailsFragment.newInstance(
+                            itemId = report.itemId,
+                            title = report.title,
+                            desc = report.description,
+                            status = report.status,
+                            location = report.location,
+                            imageUrl = report.imageUrl,
+                            reporterUserId = report.userId,
+                            authorName = report.authorName,
+                            latitude = report.latitude,
+                            longitude = report.longitude
+                        )
+                    )
+                    .addToBackStack("saved_details")
+                    .commit()
+            },
+            onRemoveBookmark = { report ->
+                removeSavedItem(report)
+            }
+        )
+        rvSavedItems.layoutManager = LinearLayoutManager(requireContext())
+        rvSavedItems.adapter = adapter
+    }
 
-        // Navigation
+    private fun setupListeners() {
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
         btnMore.setOnClickListener {
-            Toast.makeText(requireContext(), "More options", Toast.LENGTH_SHORT).show()
+            val options = arrayOf("Clear All Saved Items", "Refresh")
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Saved Items Options")
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> confirmClearAllSaved()
+                        1 -> loadSavedItemsLive()
+                    }
+                }
+                .show()
         }
 
         btnSort.setOnClickListener {
-            Toast.makeText(requireContext(), "Sorted by recently saved", Toast.LENGTH_SHORT).show()
+            isSortAlphabetical = !isSortAlphabetical
+            btnSort.text = if (isSortAlphabetical) "Title (A-Z)" else "Recently saved"
+            applyFilterAndSort()
         }
 
-        // Category Filter Chips
         chipAll.setOnClickListener {
             selectedCategory = "ALL"
             updateChipStyles()
-            filterItems()
+            applyFilterAndSort()
         }
 
         chipLost.setOnClickListener {
             selectedCategory = "LOST"
             updateChipStyles()
-            filterItems()
+            applyFilterAndSort()
         }
 
         chipFound.setOnClickListener {
             selectedCategory = "FOUND"
             updateChipStyles()
-            filterItems()
-        }     // Search text watcher filters saved items whenever the search text changes.
+            applyFilterAndSort()
+        }
+
         searchField.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Convert the search text to lowercase and remove extra spaces for matching.
                 searchQuery = s?.toString()?.trim()?.lowercase() ?: ""
-                filterItems()
+                applyFilterAndSort()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
-
-        // Toggle the wallet bookmark and refresh its visibility, notification, and saved count.
-        btnBookmarkWallet.setOnClickListener {
-            isWalletSaved = !isWalletSaved
-            cardWallet.visibility = if (isWalletSaved) View.VISIBLE else View.GONE
-            Toast.makeText(requireContext(), if (isWalletSaved) "Wallet saved" else "Wallet removed from saved", Toast.LENGTH_SHORT).show()
-            updateCount()
-        }
-
-        // Toggle the dog's saved status and update the displayed saved items.
-        btnBookmarkDog.setOnClickListener {
-            isDogSaved = !isDogSaved
-            cardDog.visibility = if (isDogSaved) View.VISIBLE else View.GONE
-            Toast.makeText(requireContext(), if (isDogSaved) "Dog saved" else "Dog removed from saved", Toast.LENGTH_SHORT).show()
-            updateCount()
-        }
-
-        // Toggle the card holder's saved status and refresh the saved list.
-        btnBookmarkCardHolder.setOnClickListener {
-            isCardHolderSaved = !isCardHolderSaved
-            cardCardHolder.visibility = if (isCardHolderSaved) View.VISIBLE else View.GONE
-            Toast.makeText(requireContext(), if (isCardHolderSaved) "Card holder saved" else "Card holder removed from saved", Toast.LENGTH_SHORT).show()
-            updateCount()
-        }
-
-        // Configure bottom navigation and mark the Profile tab as active.
-        setupBottomNav(view, "profile")
     }
 
-    // Apply the appropriate background and text color to each category filter chip.
     private fun updateChipStyles() {
+        if (!isAdded) return
         val darkBg = ContextCompat.getDrawable(requireContext(), R.drawable.bg_pill_dark)
         val outlineBg = ContextCompat.getDrawable(requireContext(), R.drawable.bg_pill_outline)
 
@@ -152,7 +183,6 @@ class SavedItemsFragment : Fragment() {
         val foundColor = 0xFF059669.toInt()
         val darkNavy = 0xFF0B2238.toInt()
 
-        // Highlight the All chip when every category is selected.
         if (selectedCategory == "ALL") {
             chipAll.background = darkBg
             chipAll.setTextColor(whiteColor)
@@ -161,7 +191,6 @@ class SavedItemsFragment : Fragment() {
             chipAll.setTextColor(darkNavy)
         }
 
-        // Highlight the Lost chip and use red text when it is not selected.
         if (selectedCategory == "LOST") {
             chipLost.background = darkBg
             chipLost.setTextColor(whiteColor)
@@ -170,7 +199,6 @@ class SavedItemsFragment : Fragment() {
             chipLost.setTextColor(lostColor)
         }
 
-        // Highlight the Found chip and use green text when it is not selected.
         if (selectedCategory == "FOUND") {
             chipFound.background = darkBg
             chipFound.setTextColor(whiteColor)
@@ -180,51 +208,272 @@ class SavedItemsFragment : Fragment() {
         }
     }
 
-    // Filter saved items by category and search text, then update their visibility and total count.
-    private fun filterItems() {
-        var visibleCount = 0
+    private fun loadSavedItemsLive() {
+        val currentUid = FirebaseManager.currentUid
+        val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+        val localBookmarked = prefs.getStringSet("bookmarked_ids", emptySet()) ?: emptySet()
+        savedIdsSet.clear()
+        savedIdsSet.addAll(localBookmarked)
 
-        // Show the wallet only when it is saved and matches the selected category and search.
-        // Wallet details: LOST, "Black leather wallet", "Colombo 03".
-        val walletMatchesCategory = (selectedCategory == "ALL" || selectedCategory == "LOST")
-        val walletMatchesSearch = searchQuery.isEmpty() ||
-                "black leather wallet".contains(searchQuery) ||
-                "colombo 03".contains(searchQuery)
-        val showWallet = isWalletSaved && walletMatchesCategory && walletMatchesSearch
-        cardWallet.visibility = if (showWallet) View.VISIBLE else View.GONE
-        if (showWallet) visibleCount++
+        if (currentUid.isNotEmpty()) {
+            val userSavedRef = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                .getReference("users")
+                .child(currentUid)
+                .child("saved_items")
 
-        // Show the dog only when it is saved and matches the selected category and search.
-        // Dog details: FOUND, "Golden retriever, Milo", "Viharamahadevi Park".
-        val dogMatchesCategory = (selectedCategory == "ALL" || selectedCategory == "FOUND")
-        val dogMatchesSearch = searchQuery.isEmpty() ||
-                "golden retriever, milo".contains(searchQuery) ||
-                "viharamahadevi park".contains(searchQuery)
-        val showDog = isDogSaved && dogMatchesCategory && dogMatchesSearch
-        cardDog.visibility = if (showDog) View.VISIBLE else View.GONE
-        if (showDog) visibleCount++
+            savedItemsListener?.let { userSavedRef.removeEventListener(it) }
+            val listener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    savedIdsSet.clear()
+                    savedIdsSet.addAll(localBookmarked)
+                    for (child in snapshot.children) {
+                        val itemId = child.key ?: ""
+                        val isSaved = child.getValue(Boolean::class.java) ?: true
+                        if (itemId.isNotEmpty() && isSaved) {
+                            savedIdsSet.add(itemId)
+                        }
+                    }
+                    fetchItemsDetails()
+                }
 
-        // Show the card holder only when it is saved and matches the selected category and search.
-        // Card holder details: FOUND, "Brown card holder", "Kollupitiya".
-        val cardHolderMatchesCategory = (selectedCategory == "ALL" || selectedCategory == "FOUND")
-        val cardHolderMatchesSearch = searchQuery.isEmpty() ||
-                "brown card holder".contains(searchQuery) ||
-                "kollupitiya".contains(searchQuery)
-        val showCardHolder = isCardHolderSaved && cardHolderMatchesCategory && cardHolderMatchesSearch
-        cardCardHolder.visibility = if (showCardHolder) View.VISIBLE else View.GONE
-        if (showCardHolder) visibleCount++
-
-        // Display the number of matching saved items with the correct singular or plural wording.
-        tvSavedCount.text = "$visibleCount saved item${if (visibleCount == 1) "" else "s"}"
+                override fun onCancelled(error: DatabaseError) {
+                    fetchItemsDetails()
+                }
+            }
+            savedItemsListener = listener
+            userSavedRef.addValueEventListener(listener)
+        } else {
+            fetchItemsDetails()
+        }
     }
 
-    // Reapply the filters to refresh the saved item list and count after bookmark changes.
-    private fun updateCount() {
-        filterItems()
+    private fun fetchItemsDetails() {
+        val itemsRef = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+            .getReference("items")
+
+        allItemsListener?.let { itemsRef.removeEventListener(it) }
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!isAdded) return
+                allSavedItems.clear()
+                for (child in snapshot.children) {
+                    val key = child.key ?: ""
+                    val reportId = child.child("itemId").getValue(String::class.java) ?: key
+                    if (savedIdsSet.contains(reportId) || savedIdsSet.contains(key)) {
+                        val report = child.getValue(ItemReport::class.java)
+                        if (report != null) {
+                            allSavedItems.add(report.copy(itemId = if (report.itemId.isNotEmpty()) report.itemId else key))
+                        }
+                    }
+                }
+                applyFilterAndSort()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                if (!isAdded) return
+                Toast.makeText(requireContext(), "Failed to sync saved items: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+        allItemsListener = listener
+        itemsRef.addValueEventListener(listener)
+    }
+
+    private fun applyFilterAndSort() {
+        if (!isAdded) return
+
+        val totalAll = allSavedItems.size
+        val totalLost = allSavedItems.count { it.status.equals("LOST", ignoreCase = true) }
+        val totalFound = allSavedItems.count { it.status.equals("FOUND", ignoreCase = true) }
+
+        chipAll.text = "All · $totalAll"
+        chipLost.text = "Lost · $totalLost"
+        chipFound.text = "Found · $totalFound"
+
+        displayedItems.clear()
+        val filtered = allSavedItems.filter { item ->
+            val matchesCategory = when (selectedCategory) {
+                "LOST" -> item.status.equals("LOST", ignoreCase = true)
+                "FOUND" -> item.status.equals("FOUND", ignoreCase = true)
+                else -> true
+            }
+
+            val matchesSearch = if (searchQuery.isEmpty()) {
+                true
+            } else {
+                item.title.lowercase().contains(searchQuery) ||
+                        item.location.lowercase().contains(searchQuery) ||
+                        item.description.lowercase().contains(searchQuery)
+            }
+
+            matchesCategory && matchesSearch
+        }
+
+        val sorted = if (isSortAlphabetical) {
+            filtered.sortedBy { it.title.lowercase() }
+        } else {
+            filtered.reversed()
+        }
+
+        displayedItems.addAll(sorted)
+        adapter.notifyDataSetChanged()
+
+        val count = displayedItems.size
+        tvSavedCount.text = "$count saved item${if (count == 1) "" else "s"}"
+
+        if (displayedItems.isEmpty()) {
+            rvSavedItems.visibility = View.GONE
+            layoutEmptySaved.visibility = View.VISIBLE
+            if (allSavedItems.isEmpty()) {
+                tvEmptyTitle.text = "No saved items yet"
+                tvEmptySubtitle.text = "Items you bookmark while browsing reports will be saved here for instant access."
+            } else {
+                tvEmptyTitle.text = "No matching saved items"
+                tvEmptySubtitle.text = "Try switching category filters or clearing your search query."
+            }
+        } else {
+            rvSavedItems.visibility = View.VISIBLE
+            layoutEmptySaved.visibility = View.GONE
+        }
+    }
+
+    private fun removeSavedItem(report: ItemReport) {
+        val currentUid = FirebaseManager.currentUid
+        val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+
+        // Update local SharedPreferences
+        val localSet = prefs.getStringSet("bookmarked_ids", emptySet())?.toMutableSet() ?: mutableSetOf()
+        localSet.remove(report.itemId)
+        prefs.edit().putStringSet("bookmarked_ids", localSet).apply()
+
+        savedIdsSet.remove(report.itemId)
+
+        // Remove from Firebase Realtime Database
+        if (currentUid.isNotEmpty()) {
+            FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                .getReference("users")
+                .child(currentUid)
+                .child("saved_items")
+                .child(report.itemId)
+                .removeValue()
+        }
+
+        allSavedItems.removeAll { it.itemId == report.itemId }
+        applyFilterAndSort()
+
+        Toast.makeText(requireContext(), "Removed '${report.title}' from saved items", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun confirmClearAllSaved() {
+        if (allSavedItems.isEmpty()) {
+            Toast.makeText(requireContext(), "No saved items to clear", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Clear All Saved Items")
+            .setMessage("Are you sure you want to remove all saved items from your bookmarks?")
+            .setPositiveButton("Clear All") { _, _ ->
+                val currentUid = FirebaseManager.currentUid
+                val prefs = requireContext().getSharedPreferences("findit_prefs", Context.MODE_PRIVATE)
+                prefs.edit().remove("bookmarked_ids").apply()
+
+                if (currentUid.isNotEmpty()) {
+                    FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                        .getReference("users")
+                        .child(currentUid)
+                        .child("saved_items")
+                        .removeValue()
+                }
+
+                savedIdsSet.clear()
+                allSavedItems.clear()
+                applyFilterAndSort()
+                Toast.makeText(requireContext(), "All saved items cleared", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        val currentUid = FirebaseManager.currentUid
+        if (currentUid.isNotEmpty() && savedItemsListener != null) {
+            FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                .getReference("users")
+                .child(currentUid)
+                .child("saved_items")
+                .removeEventListener(savedItemsListener!!)
+        }
+        if (allItemsListener != null) {
+            FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL)
+                .getReference("items")
+                .removeEventListener(allItemsListener!!)
+        }
     }
 
     companion object {
-        // Provide a standard way to create a new SavedItemsFragment instance.
         fun newInstance(): SavedItemsFragment = SavedItemsFragment()
+    }
+
+    private class SavedItemsAdapter(
+        private val items: List<ItemReport>,
+        private val onItemClick: (ItemReport) -> Unit,
+        private val onRemoveBookmark: (ItemReport) -> Unit
+    ) : RecyclerView.Adapter<SavedItemsAdapter.ViewHolder>() {
+
+        class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val imgItemThumb: ImageView = view.findViewById(R.id.imgItemThumb)
+            val tagStatus: TextView = view.findViewById(R.id.tagStatus)
+            val tvTitle: TextView = view.findViewById(R.id.tvTitle)
+            val tvLocation: TextView = view.findViewById(R.id.tvLocation)
+            val btnRemoveBookmark: ImageView = view.findViewById(R.id.btnRemoveBookmark)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_saved_card, parent, false)
+            return ViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val item = items[position]
+            holder.tvTitle.text = item.title
+            holder.tvLocation.text = if (item.location.isNotEmpty()) item.location else "Sri Lanka"
+
+            val statusUpper = item.status.uppercase()
+            holder.tagStatus.text = statusUpper
+
+            val context = holder.itemView.context
+            when (statusUpper) {
+                "LOST" -> {
+                    holder.tagStatus.setBackgroundResource(R.drawable.bg_tag_lost_outlined)
+                    holder.tagStatus.setTextColor(ContextCompat.getColor(context, R.color.tag_lost_color))
+                }
+                "FOUND" -> {
+                    holder.tagStatus.setBackgroundResource(R.drawable.bg_tag_found)
+                    holder.tagStatus.setTextColor(ContextCompat.getColor(context, R.color.tag_found_color))
+                }
+                else -> {
+                    holder.tagStatus.setBackgroundResource(R.drawable.bg_pill_dark)
+                    holder.tagStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
+                }
+            }
+
+            if (item.imageUrl.isNotEmpty()) {
+                ImageLoader.load(holder.imgItemThumb, item.imageUrl, R.drawable.ic_item_placeholder)
+            } else {
+                holder.imgItemThumb.setImageResource(R.drawable.ic_item_placeholder)
+            }
+
+            holder.itemView.setOnClickListener {
+                onItemClick(item)
+            }
+
+            holder.btnRemoveBookmark.setOnClickListener {
+                onRemoveBookmark(item)
+            }
+        }
+
+        override fun getItemCount(): Int = items.size
     }
 }

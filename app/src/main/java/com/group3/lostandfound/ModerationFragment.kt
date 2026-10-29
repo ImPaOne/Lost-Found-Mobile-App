@@ -1,25 +1,35 @@
 package com.group3.lostandfound
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 
 /**
- * ModerationFragment handles moderation and review of lost & found reports:
- * - Live real-time sync with Firebase Realtime Database
- * - Flag items using updateChildren()
- * - Remove items using removeValue()
- * - Ban reported users via /users/{uid}/isBanned = true
+ * ModerationFragment handles live moderation and review of lost & found reports:
+ * - Live real-time sync with Firebase Realtime Database (/items)
+ * - Lists ALL real community reports dynamically in RecyclerView
+ * - Tabbed filtering: Pending Review, Flagged, Approved
+ * - Approve reports using FirebaseManager.approveItem()
+ * - Reject/remove reports using FirebaseManager.removeItem()
+ * - Escalate, Edit, Flag/Unflag, Ban User via moderation options dialog
+ * - Bulk selection and batch approval
  * - Logs audit trails to /admin_logs/{actionId}
  * - Admin authorization checks with PERMISSION_DENIED alerts
  */
@@ -39,25 +49,17 @@ class ModerationFragment : Fragment() {
     private lateinit var buttonApproveSelected: TextView
     private lateinit var textReportsCountSummary: TextView
 
-    // Report Cards
-    private lateinit var cardReportPassport: View
-    private lateinit var cardReportIPhone: View
-    private lateinit var cardReportBracelet: View
+    // Dynamic List Views
+    private lateinit var pbLoadingModeration: ProgressBar
+    private lateinit var layoutEmptyModeration: View
+    private lateinit var textEmptyModerationTitle: TextView
+    private lateinit var textEmptyModerationSubtitle: TextView
+    private lateinit var rvModerationReports: RecyclerView
 
-    // Passport Card buttons
-    private lateinit var buttonPassportApprove: TextView
-    private lateinit var buttonPassportReject: TextView
-    private lateinit var buttonPassportEscalate: TextView
-
-    // iPhone Card buttons
-    private lateinit var buttonIPhoneApprove: TextView
-    private lateinit var buttonIPhoneReject: TextView
-    private lateinit var buttonIPhoneEscalate: TextView
-
-    // Bracelet Card buttons
-    private lateinit var buttonBraceletApprove: TextView
-    private lateinit var buttonBraceletReject: TextView
-    private lateinit var buttonBraceletEscalate: TextView
+    private lateinit var adapter: ModerationReportsAdapter
+    private val allModerationReports = mutableListOf<ReportItem>()
+    private val displayedReports = mutableListOf<ReportItem>()
+    private val selectedReportIds = mutableSetOf<String>()
 
     private var activeTabName = "PENDING"
     private var allSelected = false
@@ -74,6 +76,7 @@ class ModerationFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initViews(view)
+        setupRecyclerView()
         setupClickListeners()
         setupBottomNav(view, "moderation")
         observeFirebaseModerationQueue()
@@ -91,249 +94,196 @@ class ModerationFragment : Fragment() {
         buttonApproveSelected = view.findViewById(R.id.buttonApproveSelected)
         textReportsCountSummary = view.findViewById(R.id.textReportsCountSummary)
 
-        cardReportPassport = view.findViewById(R.id.cardReportPassport)
-        cardReportIPhone = view.findViewById(R.id.cardReportIPhone)
-        cardReportBracelet = view.findViewById(R.id.cardReportBracelet)
+        pbLoadingModeration = view.findViewById(R.id.pbLoadingModeration)
+        layoutEmptyModeration = view.findViewById(R.id.layoutEmptyModeration)
+        textEmptyModerationTitle = view.findViewById(R.id.textEmptyModerationTitle)
+        textEmptyModerationSubtitle = view.findViewById(R.id.textEmptyModerationSubtitle)
+        rvModerationReports = view.findViewById(R.id.rvModerationReports)
+    }
 
-        buttonPassportApprove = view.findViewById(R.id.buttonPassportApprove)
-        buttonPassportReject = view.findViewById(R.id.buttonPassportReject)
-        buttonPassportEscalate = view.findViewById(R.id.buttonPassportEscalate)
+    private fun setupRecyclerView() {
+        adapter = ModerationReportsAdapter(
+            reports = displayedReports,
+            selectedIds = selectedReportIds,
+            onApprove = { report ->
+                approveReport(report.itemId, report.title)
+            },
+            onReject = { report ->
+                confirmRemoveReport(report.itemId, report.title)
+            },
+            onEscalate = { report ->
+                showEscalationDialog(report)
+            },
+            onItemClick = { report ->
+                showEscalationDialog(report)
+            },
+            onSelectToggle = { report, isChecked ->
+                if (isChecked) {
+                    selectedReportIds.add(report.itemId)
+                } else {
+                    selectedReportIds.remove(report.itemId)
+                }
+                updateSelectAllButtonText()
+            }
+        )
 
-        buttonIPhoneApprove = view.findViewById(R.id.buttonIPhoneApprove)
-        buttonIPhoneReject = view.findViewById(R.id.buttonIPhoneReject)
-        buttonIPhoneEscalate = view.findViewById(R.id.buttonIPhoneEscalate)
+        rvModerationReports.layoutManager = LinearLayoutManager(requireContext())
+        rvModerationReports.adapter = adapter
+    }
 
-        buttonBraceletApprove = view.findViewById(R.id.buttonBraceletApprove)
-        buttonBraceletReject = view.findViewById(R.id.buttonBraceletReject)
-        buttonBraceletEscalate = view.findViewById(R.id.buttonBraceletEscalate)
+    private fun updateSelectAllButtonText() {
+        val allChecked = displayedReports.isNotEmpty() && selectedReportIds.containsAll(displayedReports.map { it.itemId })
+        allSelected = allChecked
+        buttonSelectAll.text = if (allChecked) "Deselect all" else "Select all"
     }
 
     /**
      * Realtime Database observation for moderation queue
-     */    // Stores all moderation reports retrieved from Firebase.
-    private val allModerationReports = mutableListOf<ReportItem>()
-
-    // Listens for changes to the Firebase moderation queue in real time.
+     */
     private fun observeFirebaseModerationQueue() {
+        pbLoadingModeration.visibility = View.VISIBLE
+
         FirebaseManager.itemsRef.addValueEventListener(object : ValueEventListener {
-            // Executes whenever Firebase data is initially loaded or updated.
             override fun onDataChange(snapshot: DataSnapshot) {
-                // Clears the previous reports before loading the latest data.
+                if (!isAdded) return
+
                 allModerationReports.clear()
 
-                // Keeps track of the number of reports awaiting moderation.
-                var pendingCount = 0
-
-                // Iterates through each report stored in the Firebase snapshot.
                 for (child in snapshot.children) {
-                    // Converts the current Firebase child into a ReportItem object.
                     val report = ReportItem.fromSnapshot(child)
-
-                    // Adds the report if it contains an item ID or a title.
                     if (report.itemId.isNotEmpty() || report.title.isNotEmpty()) {
                         allModerationReports.add(report)
-
-                        // Increases the count if the report status is PENDING.
-                        if (report.status.equals("PENDING", ignoreCase = true)) {
-                            pendingCount++
-                        }
                     }
                 }
 
-                // Displays the total number of reports awaiting review.
-                textReportsCountSummary.text = "• $pendingCount reports awaiting review"
+                // Sort newest reports first
+                allModerationReports.sortByDescending { it.timestamp }
 
-                // Refreshes the moderation cards using the latest report data.
+                pbLoadingModeration.visibility = View.GONE
                 updateModerationCardsVisibility()
             }
 
-            // Executes if Firebase fails to retrieve the moderation queue.
             override fun onCancelled(error: DatabaseError) {
-                // Displays an alert if access is denied by Firebase security rules.
+                if (!isAdded) return
+                pbLoadingModeration.visibility = View.GONE
                 if (error.code == DatabaseError.PERMISSION_DENIED) {
                     showPermissionDeniedAlert()
+                } else {
+                    Toast.makeText(requireContext(), "Failed to load moderation queue: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         })
     }
 
-    // Filters the reports and updates the visibility and content of moderation cards.
+    // Filters reports according to active tab and updates UI
     private fun updateModerationCardsVisibility() {
-        // Selects reports based on the currently active moderation tab.
         val filtered = when (activeTabName) {
-            // Shows pending, lost, and found reports in the pending review tab.
-            "PENDING" -> allModerationReports.filter {
-                it.status.equals("PENDING", ignoreCase = true) || it.status.equals("LOST", ignoreCase = true) || it.status.equals("FOUND", ignoreCase = true)
+            "FLAGGED" -> allModerationReports.filter {
+                it.isFlagged || it.status.equals("FLAGGED", ignoreCase = true) || it.flagReason.isNotBlank()
             }
-            // Shows only reports that have been flagged for review.
-            "FLAGGED" -> allModerationReports.filter { it.isFlagged }
-            // Shows reports that have been approved or resolved.
             "APPROVED" -> allModerationReports.filter {
                 it.status.equals("APPROVED", ignoreCase = true) || it.status.equals("RESOLVED", ignoreCase = true)
             }
-            // Returns all reports if no specific tab matches.
-            else -> allModerationReports
+            else -> allModerationReports.filter {
+                !it.status.equals("APPROVED", ignoreCase = true) &&
+                !it.status.equals("RESOLVED", ignoreCase = true) &&
+                !it.status.equals("REJECTED", ignoreCase = true)
+            }
         }
 
-        // Card 1: Displays the first report in the filtered list.
-        if (filtered.isNotEmpty()) {
-            // Retrieves the first report.
-            val item1 = filtered[0]
+        displayedReports.clear()
+        displayedReports.addAll(filtered)
+        adapter.notifyDataSetChanged()
 
-            // Makes the first moderation card visible.
-            cardReportPassport.visibility = View.VISIBLE
+        // Update Summary Text
+        textReportsCountSummary.text = when (activeTabName) {
+            "FLAGGED" -> "• ${filtered.size} flagged report${if (filtered.size == 1) "" else "s"} requiring attention"
+            "APPROVED" -> "• ${filtered.size} approved & resolved report${if (filtered.size == 1) "" else "s"}"
+            else -> "• ${filtered.size} report${if (filtered.size == 1) "" else "s"} awaiting review"
+        }
 
-            // Displays the report title.
-            cardReportPassport.findViewById<TextView>(R.id.textPassportTitle)?.text = item1.title
+        // Empty state handling
+        if (filtered.isEmpty()) {
+            layoutEmptyModeration.visibility = View.VISIBLE
+            rvModerationReports.visibility = View.GONE
 
-            // Displays the author's name and location, using fallback values if empty.
-            cardReportPassport.findViewById<TextView>(R.id.textPassportAuthorLocation)?.text =
-                "${item1.authorName.ifEmpty { "Community Member" }} · ${item1.location.ifEmpty { "Colombo" }}"
+            textEmptyModerationTitle.text = when (activeTabName) {
+                "FLAGGED" -> "No flagged reports"
+                "APPROVED" -> "No approved reports yet"
+                else -> "No reports awaiting review"
+            }
 
-            // Displays the flag reason if flagged; otherwise, shows the default moderation message.
-            cardReportPassport.findViewById<TextView>(R.id.textPassportWarningNote)?.text =
-                if (item1.isFlagged) item1.flagReason.ifEmpty { "Flagged for administrative review" } else "Community report awaiting moderation"
-
-            // Approves the report when the approve button is clicked.
-            buttonPassportApprove.setOnClickListener { approveReport(item1.itemId, item1.title) }
-
-            // Requests confirmation before removing the report when the reject button is clicked.
-            buttonPassportReject.setOnClickListener { confirmRemoveReport(item1.itemId, item1.title) }
-
-            // Opens the escalation dialog when the escalate button is clicked.
-            buttonPassportEscalate.setOnClickListener { showEscalationDialog(item1) }
-
-            // Opens the escalation dialog when the report card is clicked.
-            cardReportPassport.setOnClickListener { showEscalationDialog(item1) }
+            textEmptyModerationSubtitle.text = when (activeTabName) {
+                "FLAGGED" -> "No community reports currently have active flags."
+                "APPROVED" -> "Reports approved by moderators will appear here."
+                else -> "All submitted community reports have been reviewed."
+            }
         } else {
-            // Hides the first card when no reports are available.
-            cardReportPassport.visibility = View.GONE
+            layoutEmptyModeration.visibility = View.GONE
+            rvModerationReports.visibility = View.VISIBLE
         }
 
-        // Card 2: Displays the second report in the filtered list.
-        if (filtered.size > 1) {
-            // Retrieves the second report.
-            val item2 = filtered[1]
-
-            // Makes the second moderation card visible.
-            cardReportIPhone.visibility = View.VISIBLE
-
-            // Displays the report title.
-            cardReportIPhone.findViewById<TextView>(R.id.textIPhoneTitle)?.text = item2.title
-
-            // Displays the author's name and location, using fallback values if empty.
-            cardReportIPhone.findViewById<TextView>(R.id.textIPhoneAuthorLocation)?.text =
-                "${item2.authorName.ifEmpty { "Community Member" }} · ${item2.location.ifEmpty { "Colombo" }}"
-
-            // Displays the flag reason if flagged; otherwise, shows the default moderation message.
-            cardReportIPhone.findViewById<TextView>(R.id.textIPhoneWarningNote)?.text =
-                if (item2.isFlagged) item2.flagReason.ifEmpty { "Flagged for administrative review" } else "Community report awaiting moderation"
-
-            // Approves the report when the approve button is clicked.
-            buttonIPhoneApprove.setOnClickListener { approveReport(item2.itemId, item2.title) }
-
-            // Requests confirmation before removing the report when the reject button is clicked.
-            buttonIPhoneReject.setOnClickListener { confirmRemoveReport(item2.itemId, item2.title) }
-
-            // Opens the escalation dialog when the escalate button is clicked.
-            buttonIPhoneEscalate.setOnClickListener { showEscalationDialog(item2) }
-
-            // Opens the escalation dialog when the report card is clicked.
-            cardReportIPhone.setOnClickListener { showEscalationDialog(item2) }
-        } else {
-            // Hides the second card when fewer than two reports are available.
-            cardReportIPhone.visibility = View.GONE
-        }
-
-        // Card 3: Displays the third report in the filtered list.
-        if (filtered.size > 2) {
-            // Retrieves the third report.
-            val item3 = filtered[2]
-
-            // Makes the third moderation card visible.
-            cardReportBracelet.visibility = View.VISIBLE
-
-            // Displays the report title.
-            cardReportBracelet.findViewById<TextView>(R.id.textBraceletTitle)?.text = item3.title
-
-            // Displays the author's name and location, using fallback values if empty.
-            cardReportBracelet.findViewById<TextView>(R.id.textBraceletAuthorLocation)?.text =
-                "${item3.authorName.ifEmpty { "Community Member" }} · ${item3.location.ifEmpty { "Colombo" }}"
-
-            // Displays the flag reason if flagged; otherwise, shows the default moderation message.
-            cardReportBracelet.findViewById<TextView>(R.id.textBraceletWarningNote)?.text =
-                if (item3.isFlagged) item3.flagReason.ifEmpty { "Flagged for administrative review" } else "Community report awaiting moderation"
-
-            // Approves the report when the approve button is clicked.
-            buttonBraceletApprove.setOnClickListener { approveReport(item3.itemId, item3.title) }
-
-            // Requests confirmation before removing the report when the reject button is clicked.
-            buttonBraceletReject.setOnClickListener { confirmRemoveReport(item3.itemId, item3.title) }
-
-            // Opens the escalation dialog when the escalate button is clicked.
-            buttonBraceletEscalate.setOnClickListener { showEscalationDialog(item3) }
-
-            // Opens the escalation dialog when the report card is clicked.
-            cardReportBracelet.setOnClickListener { showEscalationDialog(item3) }
-        } else {
-            // Hides the third card when fewer than three reports are available.
-            cardReportBracelet.visibility = View.GONE
-        }
+        updateSelectAllButtonText()
     }
 
-    // Sets up click listeners for navigation, search, tabs, and bulk actions.
+    // Sets up click listeners for navigation, tabs, and bulk actions.
     private fun setupClickListeners() {
-        // Returns to the previous fragment when the back button is clicked.
         buttonBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
-        // Shows a message when the search button is clicked.
         buttonSearch.setOnClickListener {
             com.group3.lostandfound.util.ModernToast.show(requireContext(), "Filtering moderation queue...", view)
         }
 
-        // Tabs: Handles switching between moderation categories.
-
-        // Activates the pending review tab and refreshes the displayed cards.
+        // Tabs
         tabPendingReview.setOnClickListener {
             activeTabName = "PENDING"
             selectTab(tabPendingReview)
+            selectedReportIds.clear()
             updateModerationCardsVisibility()
         }
 
-        // Activates the flagged reports tab and refreshes the displayed cards.
         tabFlagged.setOnClickListener {
             activeTabName = "FLAGGED"
             selectTab(tabFlagged)
+            selectedReportIds.clear()
             updateModerationCardsVisibility()
         }
 
-        // Activates the approved reports tab and refreshes the displayed cards.
         tabApproved.setOnClickListener {
             activeTabName = "APPROVED"
             selectTab(tabApproved)
+            selectedReportIds.clear()
             updateModerationCardsVisibility()
         }
 
-        // Bulk Actions: Handles selecting reports for batch operations.
-
-        // Toggles between selecting all reports and clearing the selection.
+        // Bulk Actions
         buttonSelectAll.setOnClickListener {
-            allSelected = !allSelected
+            if (displayedReports.isEmpty()) {
+                com.group3.lostandfound.util.ModernToast.show(requireContext(), "No reports to select", view)
+                return@setOnClickListener
+            }
 
-            // Updates the button label to reflect the current selection state.
-            buttonSelectAll.text = if (allSelected) "Deselect all" else "Select all"
-
-            // Displays feedback indicating whether reports are selected or cleared.
-            com.group3.lostandfound.util.ModernToast.show(requireContext(), if (allSelected) "All reports selected" else "Selection cleared", view)
+            if (allSelected) {
+                selectedReportIds.clear()
+                allSelected = false
+                buttonSelectAll.text = "Select all"
+                com.group3.lostandfound.util.ModernToast.show(requireContext(), "Selection cleared", view)
+            } else {
+                selectedReportIds.addAll(displayedReports.map { it.itemId })
+                allSelected = true
+                buttonSelectAll.text = "Deselect all"
+                com.group3.lostandfound.util.ModernToast.show(requireContext(), "All ${displayedReports.size} reports selected", view)
+            }
+            adapter.notifyDataSetChanged()
         }
 
-        // Approves the reports selected for a bulk action.
         buttonApproveSelected.setOnClickListener {
             approveBatchReports()
         }
     }
+
     /**
      * Approve Report using updateChildren()
      */
@@ -341,215 +291,167 @@ class ModerationFragment : Fragment() {
         FirebaseManager.approveItem(
             itemId = itemId,
             onSuccess = {
-                com.group3.lostandfound.util.ModernToast.show(requireContext(), "Approved report: $title", view)
+                if (isAdded) {
+                    com.group3.lostandfound.util.ModernToast.show(requireContext(), "Approved report: $title", view)
+                }
             },
             onError = { error ->
-                showAuthorizationAlert(error)
+                if (isAdded) {
+                    showAuthorizationAlert(error)
+                }
             }
         )
     }
 
     /**
      * Remove / Reject Report using removeValue()
-     */    // Displays a confirmation dialog before permanently removing a report.
+     */
     private fun confirmRemoveReport(itemId: String, title: String) {
-        // Creates an alert dialog using the current fragment context.
         AlertDialog.Builder(requireContext())
-            // Sets the dialog title.
             .setTitle("Remove Report")
-            // Asks the administrator to confirm the removal of the report.
             .setMessage("Are you sure you want to permanently remove '$title' from the database?")
-            // Executes the removal operation when the Remove button is clicked.
             .setPositiveButton("Remove") { _, _ ->
-                // Requests FirebaseManager to remove the report using its item ID.
                 FirebaseManager.removeItem(
                     itemId = itemId,
-                    // Displays a success message after the report is removed successfully.
                     onSuccess = {
-                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "Removed item: $title", view)
+                        if (isAdded) {
+                            com.group3.lostandfound.util.ModernToast.show(requireContext(), "Removed item: $title", view)
+                        }
                     },
-                    // Displays an authorization alert if the removal operation fails.
                     onError = { error ->
-                        showAuthorizationAlert(error)
+                        if (isAdded) {
+                            showAuthorizationAlert(error)
+                        }
                     }
                 )
             }
-            // Closes the dialog without removing the report.
             .setNegativeButton("Cancel", null)
-            // Displays the confirmation dialog.
             .show()
     }
 
     /**
      * Displays an escalation dialog offering Edit Post, Flag Item, Unflag Item, Delete Post, or Ban User.
-     * Supports Admin Functional Requirements 3.2 #3 and #4.
      */
     private fun showEscalationDialog(report: ReportItem) {
-        // Defines the administrative actions available for the selected report.
         val actions = arrayOf(
+            "View Full Details",
             "Edit Post Details (Fake/Inappropriate)",
-            "Flag Item for Review",
-            "Unflag Item",
+            if (report.isFlagged) "Unflag Item" else "Flag Item for Review",
             "Permanently Delete Post",
             "Ban User Account"
         )
-        // Creates a dialog for managing the selected report.
+
         AlertDialog.Builder(requireContext())
-            // Displays the report title, limited to 24 characters.
-            .setTitle("Manage Report: ${report.title.take(24)}")
-            // Displays the available actions and handles the selected option.
+            .setTitle("Manage: ${report.title.take(24)}")
             .setItems(actions) { _, which ->
-                // Executes the action corresponding to the selected array index.
                 when (which) {
                     0 -> {
-                        // Admin Requirement 3.2 #3: Opens the dialog for editing post details.
-                        showEditPostDialog(report)
+                        // Open DetailsFragment
+                        parentFragmentManager.beginTransaction()
+                            .replace(
+                                R.id.screenBox,
+                                DetailsFragment.newInstance(
+                                    itemId = report.itemId,
+                                    title = report.title,
+                                    desc = report.description,
+                                    status = report.status,
+                                    location = report.location,
+                                    imageUrl = report.imageUrl,
+                                    reporterUserId = report.userId,
+                                    authorName = report.authorName
+                                )
+                            )
+                            .addToBackStack(null)
+                            .commit()
                     }
                     1 -> {
-                        // Flags the report for administrative review in Firebase.
-                        FirebaseManager.flagItem(
-                            itemId = report.itemId,
-                            isFlagged = true,
-                            // Displays a success message after the report is flagged.
-                            onSuccess = {
-                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "'${report.title}' marked as Flagged", view)
-                            },
-                            // Displays an authorization alert if the operation fails.
-                            onError = { showAuthorizationAlert(it) }
-                        )
+                        showEditPostDialog(report)
                     }
                     2 -> {
-                        // Removes the flagged state from the report in Firebase.
+                        val newFlagState = !report.isFlagged
                         FirebaseManager.flagItem(
                             itemId = report.itemId,
-                            isFlagged = false,
-                            // Displays a success message after the report is unflagged.
+                            isFlagged = newFlagState,
                             onSuccess = {
-                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "'${report.title}' unflagged", view)
+                                if (isAdded) {
+                                    com.group3.lostandfound.util.ModernToast.show(
+                                        requireContext(),
+                                        if (newFlagState) "'${report.title}' marked as Flagged" else "'${report.title}' unflagged",
+                                        view
+                                    )
+                                }
                             },
-                            // Displays an authorization alert if the operation fails.
                             onError = { showAuthorizationAlert(it) }
                         )
                     }
                     3 -> {
-                        // Admin Requirement 3.2 #3: Requests confirmation before deleting the post.
                         confirmRemoveReport(report.itemId, report.title)
                     }
                     4 -> {
-                        // Admin Requirement 3.2 #4: Requests confirmation before banning the report owner's account.
                         confirmBanUser(report.userId)
                     }
                 }
             }
-            // Adds a Close button that dismisses the dialog without performing an action.
             .setNegativeButton("Close", null)
-            // Displays the escalation dialog.
             .show()
     }
 
     /**
-     * Creates an edit dialog that allows an administrator to modify the post title, category,
-     * location, description, or status.
-     * Supports Admin Functional Requirement 3.2 #3.
+     * Dialog to edit post details if information is misleading or inappropriate
      */
     private fun showEditPostDialog(report: ReportItem) {
-        // Creates a vertical LinearLayout to hold the header and input fields.
-        val layout = android.widget.LinearLayout(requireContext()).apply {
-            // Arranges the child views vertically.
-            orientation = android.widget.LinearLayout.VERTICAL
-            // Converts 16 density-independent pixels into physical pixels for padding.
-            val pad = (16 * resources.displayMetrics.density).toInt()
-            // Applies equal padding to all four sides of the layout.
+        val layout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = (20 * resources.displayMetrics.density).toInt()
             setPadding(pad, pad, pad, pad)
         }
 
-        // Creates an input field for editing the report title.
-        val editTitle = android.widget.EditText(requireContext()).apply {
-            // Displays a hint describing the title field.
-            hint = "Report Title"
-            // Pre-fills the field with the existing report title.
+        val editTitle = EditText(requireContext()).apply {
+            hint = "Item Title"
             setText(report.title)
         }
-        // Creates an input field for editing the report category.
-        val editCategory = android.widget.EditText(requireContext()).apply {
-            // Provides example categories to guide the administrator.
-            hint = "Category (e.g. Electronics, Bags)"
-            // Pre-fills the field with the existing category.
+        val editCategory = EditText(requireContext()).apply {
+            hint = "Category (Electronics, Documents, etc.)"
             setText(report.category)
         }
-        // Creates an input field for editing the report location.
-        val editLocation = android.widget.EditText(requireContext()).apply {
-            // Displays a hint describing the location field.
+        val editLocation = EditText(requireContext()).apply {
             hint = "Location"
-            // Pre-fills the field with the existing location.
             setText(report.location)
         }
-        // Creates an input field for editing the report description.
-        val editDescription = android.widget.EditText(requireContext()).apply {
-            // Displays a hint describing the description field.
+        val editDescription = EditText(requireContext()).apply {
             hint = "Description"
-            // Pre-fills the field with the existing description.
             setText(report.description)
-            // Ensures the input field displays at least two lines.
-            minLines = 2
         }
-        // Creates an input field for editing the report status.
-        val editStatus = android.widget.EditText(requireContext()).apply {
-            // Lists the status values that the administrator can enter.
+        val editStatus = EditText(requireContext()).apply {
             hint = "Status (PENDING, APPROVED, RESOLVED, LOST, FOUND)"
-            // Pre-fills the field with the existing status.
             setText(report.status)
         }
 
-        // Creates a header label for the administrator edit form.
-        val tvHeader = android.widget.TextView(requireContext()).apply {
-            // Sets the text displayed in the header.
-            text = "Edit Post Details (Administrator Mode)"
-            // Sets the header text size to 14 scaled pixels.
-            textSize = 14f
-            // Makes the header text bold.
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            // Applies the primary text color defined in the app resources.
+        val tvHeader = TextView(requireContext()).apply {
+            text = "Edit Post Information"
+            textSize = 15f
             setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-            // Adds bottom padding to separate the header from the input fields.
             setPadding(0, 0, 0, (8 * resources.displayMetrics.density).toInt())
         }
 
-        // Adds the header to the layout.
         layout.addView(tvHeader)
-        // Adds the title input field to the layout.
         layout.addView(editTitle)
-        // Adds the category input field to the layout.
         layout.addView(editCategory)
-        // Adds the location input field to the layout.
         layout.addView(editLocation)
-        // Adds the description input field to the layout.
         layout.addView(editDescription)
-        // Adds the status input field to the layout.
         layout.addView(editStatus)
 
-        // Builds the dialog containing the post editing form.
         AlertDialog.Builder(requireContext())
-            // Displays the ID of the report being edited in the dialog title.
-            .setTitle("Edit Post: ${report.itemId}")
-            // Places the custom layout inside the dialog.
+            .setTitle("Edit Post: ${report.itemId.take(16)}")
             .setView(layout)
-            // Saves the changes when the Save Changes button is clicked.
             .setPositiveButton("Save Changes") { _, _ ->
-                // Retrieves the new title and removes leading and trailing whitespace.
                 val newTitle = editTitle.text.toString().trim()
-                // Retrieves the new category and removes leading and trailing whitespace.
                 val newCat = editCategory.text.toString().trim()
-                // Retrieves the new location and removes leading and trailing whitespace.
                 val newLoc = editLocation.text.toString().trim()
-                // Retrieves the new description and removes leading and trailing whitespace.
                 val newDesc = editDescription.text.toString().trim()
-                // Retrieves the new status, removes surrounding whitespace, and converts it to uppercase.
                 val newStat = editStatus.text.toString().trim().uppercase()
 
-                // Continues with the update only if the title is not empty.
                 if (newTitle.isNotEmpty()) {
-                    // Sends the edited report details to Firebase.
                     FirebaseManager.editItem(
                         itemId = report.itemId,
                         title = newTitle,
@@ -557,18 +459,16 @@ class ModerationFragment : Fragment() {
                         location = newLoc,
                         description = newDesc,
                         status = newStat,
-                        // Displays a success message after the report is updated.
                         onSuccess = {
-                            com.group3.lostandfound.util.ModernToast.show(requireContext(), "Report updated successfully", view)
+                            if (isAdded) {
+                                com.group3.lostandfound.util.ModernToast.show(requireContext(), "Report updated successfully", view)
+                            }
                         },
-                        // Displays an authorization alert if the update fails.
                         onError = { showAuthorizationAlert(it) }
                     )
                 }
             }
-            // Closes the dialog without saving changes.
             .setNegativeButton("Cancel", null)
-            // Displays the edit dialog.
             .show()
     }
 
@@ -576,47 +476,65 @@ class ModerationFragment : Fragment() {
      * Confirms the user ban and sets /users/{uid}/isBanned = true through FirebaseManager.
      */
     private fun confirmBanUser(targetUid: String) {
-        // Creates a confirmation dialog for banning the selected user.
+        if (targetUid.isBlank()) {
+            Toast.makeText(requireContext(), "No author ID associated with this report.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         AlertDialog.Builder(requireContext())
-            // Sets the dialog title.
             .setTitle("Ban User Account")
-            // Explains the effect of banning the user's account.
             .setMessage("Ban user '$targetUid' from creating new reports or contacting members?")
-            // Performs the ban operation when the Ban User button is clicked.
             .setPositiveButton("Ban User") { _, _ ->
-                // Updates the user's banned status in Firebase.
                 FirebaseManager.banUser(
                     targetUid = targetUid,
                     isBanned = true,
-                    // Displays a longer success message after the user is banned.
                     onSuccess = {
-                        com.group3.lostandfound.util.ModernToast.show(requireContext(), "User '$targetUid' has been banned", view, durationLong = true)
+                        if (isAdded) {
+                            com.group3.lostandfound.util.ModernToast.show(requireContext(), "User '$targetUid' has been banned", view, durationLong = true)
+                        }
                     },
-                    // Displays an authorization alert if the ban operation fails.
                     onError = { showAuthorizationAlert(it) }
                 )
             }
-            // Closes the dialog without banning the user.
             .setNegativeButton("Cancel", null)
-            // Displays the ban confirmation dialog.
             .show()
     }
+
     /**
      * Approve batch reports
      */
     private fun approveBatchReports() {
-        allModerationReports.forEach { report ->
+        val targets = if (selectedReportIds.isNotEmpty()) {
+            displayedReports.filter { selectedReportIds.contains(it.itemId) }
+        } else {
+            displayedReports.filter { !it.status.equals("APPROVED", true) && !it.status.equals("RESOLVED", true) }
+        }
+
+        if (targets.isEmpty()) {
+            com.group3.lostandfound.util.ModernToast.show(requireContext(), "No pending reports selected to approve", view)
+            return
+        }
+
+        var count = 0
+        targets.forEach { report ->
             if (report.itemId.isNotEmpty()) {
-                FirebaseManager.approveItem(report.itemId, {}, {})
+                FirebaseManager.approveItem(report.itemId, {
+                    count++
+                }, {})
             }
         }
-        com.group3.lostandfound.util.ModernToast.show(requireContext(), "All active reports approved", view)
+
+        selectedReportIds.clear()
+        allSelected = false
+        buttonSelectAll.text = "Select all"
+        com.group3.lostandfound.util.ModernToast.show(requireContext(), "Approved ${targets.size} reports", view)
     }
 
     /**
      * Display authorization alert on DatabaseError.PERMISSION_DENIED or failed checks
      */
     private fun showAuthorizationAlert(error: String) {
+        if (!isAdded) return
         AlertDialog.Builder(requireContext())
             .setTitle("Authorization Alert")
             .setMessage("Action Failed: $error\nEnsure your account role is set to 'ADMIN'.")
@@ -625,6 +543,7 @@ class ModerationFragment : Fragment() {
     }
 
     private fun showPermissionDeniedAlert() {
+        if (!isAdded) return
         AlertDialog.Builder(requireContext())
             .setTitle("Permission Denied")
             .setMessage("Firebase DatabaseError.PERMISSION_DENIED: Access restricted to administrators.")
@@ -643,6 +562,117 @@ class ModerationFragment : Fragment() {
                 tab.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
             }
         }
+    }
+
+    /**
+     * Dynamic Moderation Reports Adapter for RecyclerView
+     */
+    class ModerationReportsAdapter(
+        private val reports: List<ReportItem>,
+        private val selectedIds: MutableSet<String>,
+        private val onApprove: (ReportItem) -> Unit,
+        private val onReject: (ReportItem) -> Unit,
+        private val onEscalate: (ReportItem) -> Unit,
+        private val onItemClick: (ReportItem) -> Unit,
+        private val onSelectToggle: (ReportItem, Boolean) -> Unit
+    ) : RecyclerView.Adapter<ModerationReportsAdapter.ViewHolder>() {
+
+        class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val cardReport: View = view.findViewById(R.id.cardReport)
+            val cbSelectReport: CheckBox = view.findViewById(R.id.cbSelectReport)
+            val textReportTitle: TextView = view.findViewById(R.id.textReportTitle)
+            val badgeReportStatus: TextView = view.findViewById(R.id.badgeReportStatus)
+            val textReportAuthorLocation: TextView = view.findViewById(R.id.textReportAuthorLocation)
+            val bannerReportWarning: View = view.findViewById(R.id.bannerReportWarning)
+            val textReportWarningNote: TextView = view.findViewById(R.id.textReportWarningNote)
+            val buttonReportApprove: TextView = view.findViewById(R.id.buttonReportApprove)
+            val buttonReportReject: TextView = view.findViewById(R.id.buttonReportReject)
+            val buttonReportEscalate: TextView = view.findViewById(R.id.buttonReportEscalate)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_moderation_report_card, parent, false)
+            return ViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val report = reports[position]
+            val context = holder.itemView.context
+
+            holder.textReportTitle.text = report.title.ifEmpty { "Community Item Report" }
+
+            val author = report.authorName.ifEmpty { "Community Member" }
+            val location = report.location.ifEmpty { "Colombo" }
+            val category = report.category.ifEmpty { "General" }
+            holder.textReportAuthorLocation.text = "$author · $location · $category"
+
+            // Status Badge Appearance
+            val isApproved = report.status.equals("APPROVED", ignoreCase = true) || report.status.equals("RESOLVED", ignoreCase = true)
+            val isFlagged = report.isFlagged || report.status.equals("FLAGGED", ignoreCase = true) || report.flagReason.isNotBlank()
+
+            when {
+                isApproved -> {
+                    holder.badgeReportStatus.text = "Approved"
+                    holder.badgeReportStatus.setBackgroundResource(R.drawable.bg_badge_resolved_green)
+                    holder.badgeReportStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
+                }
+                isFlagged -> {
+                    holder.badgeReportStatus.text = "Flagged"
+                    holder.badgeReportStatus.setBackgroundResource(R.drawable.bg_badge_flagged)
+                    holder.badgeReportStatus.setTextColor(ContextCompat.getColor(context, R.color.badge_flagged_text))
+                }
+                else -> {
+                    holder.badgeReportStatus.text = "Pending"
+                    holder.badgeReportStatus.setBackgroundResource(R.drawable.bg_badge_review_due)
+                    holder.badgeReportStatus.setTextColor(0xFFB45309.toInt())
+                }
+            }
+
+            // Warning Alert Banner
+            if (isFlagged) {
+                holder.bannerReportWarning.visibility = View.VISIBLE
+                val reason = report.flagReason.ifEmpty { "Flagged for administrative review" }
+                holder.textReportWarningNote.text = reason
+            } else {
+                holder.bannerReportWarning.visibility = View.GONE
+            }
+
+            // Checkbox selection
+            holder.cbSelectReport.setOnCheckedChangeListener(null)
+            holder.cbSelectReport.isChecked = selectedIds.contains(report.itemId)
+            holder.cbSelectReport.setOnCheckedChangeListener { _, isChecked ->
+                onSelectToggle(report, isChecked)
+            }
+
+            // Action Buttons
+            if (isApproved) {
+                holder.buttonReportApprove.text = "Approved ✓"
+                holder.buttonReportApprove.alpha = 0.65f
+                holder.buttonReportApprove.setOnClickListener {
+                    onApprove(report)
+                }
+            } else {
+                holder.buttonReportApprove.text = "Approve"
+                holder.buttonReportApprove.alpha = 1.0f
+                holder.buttonReportApprove.setOnClickListener {
+                    onApprove(report)
+                }
+            }
+
+            holder.buttonReportReject.setOnClickListener {
+                onReject(report)
+            }
+
+            holder.buttonReportEscalate.setOnClickListener {
+                onEscalate(report)
+            }
+
+            holder.cardReport.setOnClickListener {
+                onItemClick(report)
+            }
+        }
+
+        override fun getItemCount(): Int = reports.size
     }
 
     companion object {

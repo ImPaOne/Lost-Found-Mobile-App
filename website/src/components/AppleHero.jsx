@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Smartphone, Download, QrCode, Radio, Camera, MapPin, Sparkles, CheckCircle2 } from 'lucide-react';
 
-const APK_DOWNLOAD_URL = "https://download1351.mediafire.com/ll4hx3iaubegyM2xP0I87v5hJqRC_ITjqclnBlh_WJ_tLNKFGkSun8c-nwe-pYyVpr8XNZUv0LtJpCsEZBiuEI0l5YUdp1mysRAKnX03S7KDHrDYISzf80FPmZHE2dFAML6ZU8pScVq3Z7NohH7L8n0JCG36Jh0Z1b9_py32YuJVc-bL/mwtagyhadwo9ssk/app-debug.apk";
+const APK_DOWNLOAD_URL = "https://download1085.mediafire.com/vzvk5smz39jgpbHU1sIWknTozxfuxUGwpMjCBqxvMiA7Anyc72sUr8fFMx2mcLWoV_9oOd7lKi6exXPRMfo5I0LhI4RJgG6fnVEzdBqjNhy1E5YIiKyRkJPM8ITC4jbeCPP0pyS-wM23zdDxKbv4REcaqKxE_4sznSjneJmeb0djuw/1aeww8y7i8qaja8/foundly.apk";
 
 export default function AppleHero({ onDownloadApk, onOpenQR }) {
   const handleDownload = () => {

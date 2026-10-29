@@ -147,9 +147,9 @@ class CreateReportFragment : Fragment() {
     private var isLostSelected = true
     private var selectedDate = "Today"
     private var selectedCategory = "Personal items"
-    private var selectedArea = "Colombo 03"
-    private var selectedLatitude = 6.9042
-    private var selectedLongitude = 79.8530
+    private var selectedArea = "Galle"
+    private var selectedLatitude = 6.0367
+    private var selectedLongitude = 80.2170
     private var photosCount = 0
     private var selectedImageUri: Uri? = null
     private val attachedImagesList = ArrayList<Uri>()
@@ -626,15 +626,15 @@ class CreateReportFragment : Fragment() {
         binding.pillMapHint.setOnClickListener(openEnlargedMapAction)
 
         btnGps.setOnClickListener {
-            val lat = 6.9042
-            val lng = 79.8530
+            val lat = 6.0367
+            val lng = 80.2170
             selectedLatitude = lat
             selectedLongitude = lng
-            selectedArea = "Colombo 03"
-            inputLocation.setText("Near $selectedArea, Western Province")
-            searchInput.setText("$selectedArea, Western Province")
+            selectedArea = "Galle"
+            inputLocation.setText("Near $selectedArea, Southern Province")
+            searchInput.setText("$selectedArea, Southern Province")
             binding.webViewStep3Map.evaluateJavascript("if (typeof updateCenter === 'function') { updateCenter($lat, $lng); }", null)
-            Toast.makeText(requireContext(), "Centered on GPS location (Colombo 03)", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Centered on GPS location (Galle: 6.0367° N, 80.2170° E)", Toast.LENGTH_SHORT).show()
         }
 
         btnClearSearch.setOnClickListener {
@@ -1365,8 +1365,8 @@ class CreateReportFragment : Fragment() {
         //Creates a Fragment with optional initial report type and location arguments.
         fun newInstance(
             isLost: Boolean = true,
-            latitude: Double = 6.9042,
-            longitude: Double = 79.8530,
+            latitude: Double = 6.0367,
+            longitude: Double = 80.2170,
             locationName: String? = null
         ): CreateReportFragment {
             val fragment = CreateReportFragment()

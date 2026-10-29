@@ -340,6 +340,20 @@ private fun setupMap() {
             "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36 LostAndFoundApp/1.0"
     }
 
+    webHeatMap.addJavascriptInterface(object {
+        @android.webkit.JavascriptInterface
+        fun openFullMap() {
+            webHeatMap.post {
+                if (isAdded) {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.screenBox, MapFragment.newInstance())
+                        .addToBackStack("admin_analytics_map")
+                        .commit()
+                }
+            }
+        }
+    }, "AndroidInterface")
+
     // Prevent the parent NestedScrollView from intercepting map gestures.
     webHeatMap.setOnTouchListener { v, event ->
         v.parent?.requestDisallowInterceptTouchEvent(true)
@@ -444,55 +458,37 @@ private fun setupMap() {
             </div>
 
             <script>
-                // Initialize the map centered on Sri Lanka.
+                // Initialize the map centered on Galle / Southern Sri Lanka.
                 var map = L.map('map', {
                     zoomControl: true,
                     dragging: true,
                     touchZoom: true,
                     scrollWheelZoom: true,
                     attributionControl: false
-                }).setView([7.8731, 80.7718], 7);
+                }).setView([6.0367, 80.2170], 9);
 
                 // Load the map tiles from OpenStreetMap.
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 18
                 }).addTo(map);
 
-                // Group dynamic heat layers, circles and markers for easy replacement.
+                // Group dynamic markers for easy replacement.
                 var dynamicLayerGroup = L.layerGroup().addTo(map);
 
                 // Update the map using the report locations received from Kotlin.
                 function updateMapPoints(items) {
-
-                    // Remove old report layers before drawing the latest data.
                     dynamicLayerGroup.clearLayers();
+                    var activePoints = items || [];
 
-                    // Use supplied reports, or sample locations if none are provided.
-                    var activePoints = items && items.length > 0 ? items : [
-                        { lat: 6.9319, lng: 79.8478, title: 'MacBook Pro - Colombo Fort', status: 'LOST', color: '#C1121F' },
-                        { lat: 7.2906, lng: 80.6337, title: 'National Identity Card - Kandy', status: 'FOUND', color: '#2A9D8F' },
-                        { lat: 6.0535, lng: 80.2210, title: 'Puppy Buddy - Galle Fort', status: 'LOST', color: '#C1121F' },
-                        { lat: 6.9040, lng: 79.8530, title: 'Bifold Wallet - Liberty Plaza', status: 'RESOLVED', color: '#003049' },
-                        { lat: 7.1808, lng: 79.8836, title: 'Sony Headphones - Negombo', status: 'FOUND', color: '#2A9D8F' },
-                        { lat: 6.9120, lng: 79.8510, title: 'Certificates - Kollupitiya', status: 'RESOLVED', color: '#003049' },
-                        { lat: 7.2930, lng: 80.6350, title: 'Persian Cat - KCC Kandy', status: 'FOUND', color: '#2A9D8F' },
-                        { lat: 7.0840, lng: 79.9940, title: 'Car Key - Gampaha', status: 'LOST', color: '#C1121F' }
-                    ];
-
-                    // 1. Build the heatmap layer to visualize report density.
-                    if (typeof L.heatLayer === 'function') {
+                    // 1. Build the heatmap layer to visualize report density if points exist.
+                    if (typeof L.heatLayer === 'function' && activePoints.length > 0) {
                         var heatPoints = activePoints.map(function(item) {
-
-                            // Give each status a different heat intensity.
                             var intensity = item.status === 'LOST'
                                 ? 1.0
                                 : (item.status === 'FOUND' ? 0.7 : 0.4);
-
-                            // Heatmap points use latitude, longitude and intensity.
                             return [item.lat, item.lng, intensity];
                         });
 
-                        // Draw the heatmap with the configured radius, blur and gradient.
                         L.heatLayer(heatPoints, {
                             radius: 32,
                             blur: 18,
@@ -506,52 +502,56 @@ private fun setupMap() {
                         }).addTo(dynamicLayerGroup);
                     }
 
-                    // 2. Add a colored circle and a clickable marker for every report.
+                    // 2. Add a colored circle and an interactive pin marker for every report.
                     activePoints.forEach(function(item) {
-
-                        // Draw a larger translucent circle around the report location.
                         L.circle([item.lat, item.lng], {
                             color: item.color,
                             fillColor: item.color,
-                            fillOpacity: 0.22,
+                            fillOpacity: 0.18,
                             weight: 1,
-                            radius: 12000
+                            radius: 4000
                         }).addTo(dynamicLayerGroup);
 
-                        // Draw the smaller marker that users can click.
                         L.circleMarker([item.lat, item.lng], {
-                            radius: 7,
+                            radius: 8,
                             color: '#FFFFFF',
                             fillColor: item.color,
-                            fillOpacity: 0.95,
+                            fillOpacity: 1.0,
                             weight: 2
                         }).addTo(dynamicLayerGroup).bindPopup(
-
-                            // Show the report status, title and coordinates in a popup.
-                            '<div style="line-height:1.4; padding:3px; min-width:140px;">' +
+                            '<div style="line-height:1.4; padding:4px; min-width:150px; font-family:sans-serif;">' +
                             '<span style="display:inline-block; font-size:10px; font-weight:800; padding:2px 7px; border-radius:4px; color:#ffffff; background:' + item.color + ';">' + item.status + '</span>' +
-                            '<div style="font-size:12px; font-weight:bold; margin-top:5px; color:#003049;">' + item.title + '</div>' +
+                            '<div style="font-size:12px; font-weight:bold; margin-top:5px; color:#0B1B2B;">' + item.title + '</div>' +
                             '<div style="font-size:10px; color:#64748B; margin-top:3px;">📍 ' + item.lat.toFixed(4) + ', ' + item.lng.toFixed(4) + '</div>' +
+                            '<button onclick="if(window.AndroidInterface){window.AndroidInterface.openFullMap();}" style="margin-top:8px; width:100%; border:none; background:#0B2238; color:#ffffff; border-radius:6px; padding:5px 8px; font-size:11px; font-weight:bold; cursor:pointer;">Open Full Map ↗</button>' +
                             '</div>'
                         );
                     });
 
-                    // Automatically adjust the map to show all report locations.
+                    // Automatically adjust the map to fit all report pins, or default to Galle.
                     if (activePoints.length > 0) {
                         var bounds = L.latLngBounds(
                             activePoints.map(function(p) {
                                 return [p.lat, p.lng];
                             })
                         );
-
                         map.fitBounds(bounds, {
-                            padding: [30, 30],
-                            maxZoom: 12
+                            padding: [25, 25],
+                            maxZoom: 13
                         });
+                    } else {
+                        map.setView([6.0367, 80.2170], 9);
                     }
                 }
 
-                // Initialize the map with the sample locations.
+                // Global map click opens full map
+                map.on('click', function(e) {
+                    if (window.AndroidInterface && !e.originalEvent.target.closest('.leaflet-popup')) {
+                        window.AndroidInterface.openFullMap();
+                    }
+                });
+
+                // Initialize the map
                 updateMapPoints([]);
             </script>
         </body>
@@ -566,6 +566,42 @@ private fun setupMap() {
         "UTF-8",
         null
     )
+
+    // Direct live fetch from Firebase items to ensure pins populate immediately
+    FirebaseManager.itemsRef.addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
+        override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+            val points = mutableListOf<MapMarkerItem>()
+            for (child in snapshot.children) {
+                val title = child.child("title").getValue(String::class.java) ?: "Reported Item"
+                val status = child.child("status").getValue(String::class.java) ?: "LOST"
+                var lat = child.child("latitude").getValue(Double::class.java) ?: 0.0
+                var lng = child.child("longitude").getValue(Double::class.java) ?: 0.0
+                val loc = child.child("location").getValue(String::class.java) ?: ""
+                if (lat == 0.0 && lng == 0.0) {
+                    val offset = (child.key.hashCode() % 100) / 1000.0
+                    val locLower = loc.lowercase()
+                    if (locLower.contains("colombo")) {
+                        lat = 6.9271 + offset
+                        lng = 79.8612 + offset
+                    } else if (locLower.contains("kandy")) {
+                        lat = 7.2906 + offset
+                        lng = 80.6337 + offset
+                    } else {
+                        lat = 6.0367 + offset
+                        lng = 80.2170 + offset
+                    }
+                }
+                points.add(MapMarkerItem(child.key ?: "", title, status, lat, lng))
+            }
+            if (points.isNotEmpty()) {
+                latestPoints = points
+                if (isMapReady) {
+                    loadRealPointsToMap(latestPoints)
+                }
+            }
+        }
+        override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+    })
 }
 
 /**
@@ -646,6 +682,17 @@ private fun setupClickListeners() {
             view
         )
     }
+
+    // Open full Map view when admin clicks on the map, the expand button, or header button
+    val openFullMapAction = View.OnClickListener {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.screenBox, MapFragment.newInstance())
+            .addToBackStack("admin_analytics_map")
+            .commit()
+    }
+    view?.findViewById<View>(R.id.btnOpenFullMap)?.setOnClickListener(openFullMapAction)
+    view?.findViewById<View>(R.id.btnMapOverlayExpand)?.setOnClickListener(openFullMapAction)
+    view?.findViewById<View>(R.id.cardGeographicHeatMap)?.setOnClickListener(openFullMapAction)
 }
 
 /**

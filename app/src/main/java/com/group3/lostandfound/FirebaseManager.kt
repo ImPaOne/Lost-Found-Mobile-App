@@ -140,8 +140,8 @@ object FirebaseManager {
                                 resolvedLng = 80.6337 + offset
                             }
                             locLower.contains("galle") || locLower.contains("unawatuna") -> {
-                                resolvedLat = 6.0535 + offset
-                                resolvedLng = 80.2210 + offset
+                                resolvedLat = 6.0367 + offset
+                                resolvedLng = 80.2170 + offset
                             }
                             locLower.contains("jaffna") -> {
                                 resolvedLat = 9.6615 + offset
@@ -152,9 +152,9 @@ object FirebaseManager {
                                 resolvedLng = 79.8736 + offset
                             }
                             else -> {
-                                // Default to Colombo metropolitan area with scatter
-                                resolvedLat = 6.9271 + offset
-                                resolvedLng = 79.8612 + offset
+                                // Default to Galle base location with scatter
+                                resolvedLat = 6.0367 + offset
+                                resolvedLng = 80.2170 + offset
                             }
                         }
                     }

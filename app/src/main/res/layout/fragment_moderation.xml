@@ -179,432 +179,65 @@
             android:textColor="@color/text_secondary"
             android:textSize="14sp" />
 
-        <!-- ================= CARD 1: Sri Lankan passport ================= -->
+        <!-- Loading Progress Bar -->
+        <ProgressBar
+            android:id="@+id/pbLoadingModeration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="32dp"
+            android:indeterminate="true"
+            android:indeterminateTint="#0B2238"
+            android:visibility="visible" />
+
+        <!-- Empty State Container -->
         <LinearLayout
-            android:id="@+id/cardReportPassport"
+            android:id="@+id/layoutEmptyModeration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_settings_card"
-            android:elevation="1dp"
+            android:layout_marginTop="36dp"
+            android:layout_marginBottom="36dp"
+            android:gravity="center"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:visibility="gone">
 
-            <!-- Title & Flagged Badge -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:alpha="0.4"
+                android:contentDescription="No reports"
+                android:src="@drawable/ic_search" />
 
-                <TextView
-                    android:id="@+id/textPassportTitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="Sri Lankan passport"
-                    android:textColor="@color/text_primary"
-                    android:textSize="17sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@+id/badgePassportFlagged"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/badgePassportFlagged"
-                    android:layout_width="wrap_content"
-                    android:layout_height="26dp"
-                    android:background="@drawable/bg_badge_flagged"
-                    android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:text="Flagged"
-                    android:textColor="@color/badge_flagged_text"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Subtitle info -->
             <TextView
-                android:id="@+id/textPassportAuthorLocation"
+                android:id="@+id/textEmptyModerationTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="Dilshan Perera · Colombo Fort"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
-
-            <!-- Warning Alert Note -->
-            <LinearLayout
-                android:id="@+id/bannerPassportWarning"
-                android:layout_width="match_parent"
-                android:layout_height="38dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_warning_banner"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp">
-
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:contentDescription="Alert Flag"
-                    android:src="@drawable/ic_flag_alert"
-                    app:tint="@color/badge_flagged_text" />
-
-                <TextView
-                    android:id="@+id/textPassportWarningNote"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Sensitive document posted publicly"
-                    android:textColor="@color/badge_flagged_text"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <!-- Action Buttons: Approve, Reject, Escalate -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:orientation="horizontal">
+                android:fontFamily="sans-serif-bold"
+                android:text="No reports in this category"
+                android:textColor="#0B1B2B"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/buttonPassportApprove"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_marginEnd="6dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_btn_approve"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:text="Approve"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/buttonPassportReject"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_btn_reject"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:text="Reject"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/buttonPassportEscalate"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_marginStart="6dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_btn_escalate"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:text="Escalate"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+            <TextView
+                android:id="@+id/textEmptyModerationSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="All community reports in this category are up to date."
+                android:textColor="#64748B"
+                android:textSize="13sp" />
         </LinearLayout>
 
-        <!-- ================= CARD 2: iPhone 14 Pro ================= -->
-        <LinearLayout
-            android:id="@+id/cardReportIPhone"
+        <!-- Dynamic Moderation Reports RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvModerationReports"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_settings_card"
-            android:elevation="1dp"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <!-- Title & Pending Badge -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/textIPhoneTitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="iPhone 14 Pro"
-                    android:textColor="@color/text_primary"
-                    android:textSize="17sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@+id/badgeIPhonePending"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/badgeIPhonePending"
-                    android:layout_width="wrap_content"
-                    android:layout_height="26dp"
-                    android:background="@drawable/bg_badge_pending"
-                    android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:text="Pending"
-                    android:textColor="@color/badge_pending_text"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Subtitle info -->
-            <TextView
-                android:id="@+id/textIPhoneAuthorLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="Tharushi Jayasinghe · Kandy"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
-
-            <!-- Warning Alert Note -->
-            <LinearLayout
-                android:id="@+id/bannerIPhoneWarning"
-                android:layout_width="match_parent"
-                android:layout_height="38dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_warning_banner_amber"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp">
-
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:contentDescription="Alert Flag"
-                    android:src="@drawable/ic_flag_alert"
-                    app:tint="@color/badge_pending_text" />
-
-                <TextView
-                    android:id="@+id/textIPhoneWarningNote"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Duplicate image detected"
-                    android:textColor="@color/badge_pending_text"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <!-- Action Buttons: Approve, Reject, Escalate -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/buttonIPhoneApprove"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_marginEnd="6dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_btn_approve"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:text="Approve"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/buttonIPhoneReject"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_btn_reject"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:text="Reject"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/buttonIPhoneEscalate"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_marginStart="6dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_btn_escalate"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:text="Escalate"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- ================= CARD 3: Gold bracelet ================= -->
-        <LinearLayout
-            android:id="@+id/cardReportBracelet"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:background="@drawable/bg_settings_card"
-            android:elevation="1dp"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <!-- Title & Pending Badge -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/textBraceletTitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="Gold bracelet"
-                    android:textColor="@color/text_primary"
-                    android:textSize="17sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@+id/badgeBraceletPending"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/badgeBraceletPending"
-                    android:layout_width="wrap_content"
-                    android:layout_height="26dp"
-                    android:background="@drawable/bg_badge_pending"
-                    android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:text="Pending"
-                    android:textColor="@color/badge_pending_text"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Subtitle info -->
-            <TextView
-                android:id="@+id/textBraceletAuthorLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="M. Fathima · Dehiwala"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
-
-            <!-- Warning Alert Note -->
-            <LinearLayout
-                android:id="@+id/bannerBraceletWarning"
-                android:layout_width="match_parent"
-                android:layout_height="38dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_warning_banner_amber"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp">
-
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:contentDescription="Alert Flag"
-                    android:src="@drawable/ic_flag_alert"
-                    app:tint="@color/badge_pending_text" />
-
-                <TextView
-                    android:id="@+id/textBraceletWarningNote"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="High-value item; proof required"
-                    android:textColor="@color/badge_pending_text"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <!-- Action Buttons: Approve, Reject, Escalate -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/buttonBraceletApprove"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_marginEnd="6dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_btn_approve"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:text="Approve"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/buttonBraceletReject"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_btn_reject"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:text="Reject"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/buttonBraceletEscalate"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_marginStart="6dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_btn_escalate"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:text="Escalate"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </LinearLayout>
-
+            android:layout_marginTop="2dp"
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never" />
     </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

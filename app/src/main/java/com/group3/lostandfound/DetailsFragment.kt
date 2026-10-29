@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.content.ContentValues
@@ -106,8 +108,8 @@ class DetailsFragment : Fragment() {
     private var btnOpenFullMap: View? = null
     private var mapClickOverlay: View? = null
     private var tvMapCoordinates: TextView? = null
-    private var itemLatitude: Double = 6.9140
-    private var itemLongitude: Double = 79.8630
+    private var itemLatitude: Double = 6.0367
+    private var itemLongitude: Double = 80.2170
     private var currentItemReport: ItemReport? = null
 
     private lateinit var detailsViewModel: DetailsViewModel
@@ -231,6 +233,19 @@ private fun bindData() {
     tvDescription.text = initialDesc
     updateStatusTag(initialStatus)
     tvLocationText.text = initialLocation
+
+    // Resolve initial coordinates immediately (defaulting to Galle: 6.0367° N, 80.2170° E)
+    val argLat = arguments?.getDouble("arg_latitude", 0.0) ?: 0.0
+    val argLng = arguments?.getDouble("arg_longitude", 0.0) ?: 0.0
+    if (argLat != 0.0 && argLng != 0.0) {
+        itemLatitude = argLat
+        itemLongitude = argLng
+    } else {
+        val resolved = resolveFallbackCoordinates(initialLocation)
+        itemLatitude = resolved.first
+        itemLongitude = resolved.second
+    }
+    loadEmbeddedMap(itemLatitude, itemLongitude, initialStatus, initialTitle)
 
     // Retrieve the initial photo URL, or use an empty string if missing.
     val initialImageUrl = arguments?.getString("arg_image_url").orEmpty()
@@ -594,6 +609,11 @@ private fun updateReportProgressUI(status: String) {
  * Deletes the report from Firebase only when the user confirms.
  */
 private fun promptDeleteReport() {
+    if (!isCurrentUserOwner()) {
+        Toast.makeText(requireContext(), "Permission denied: Only the report owner can delete this post.", Toast.LENGTH_SHORT).show()
+        return
+    }
+
     // Stop if there is no current report ID.
     val currentItemId = itemId ?: return
 
@@ -644,6 +664,11 @@ private fun promptDeleteReport() {
  * Saves the updated title, description, and location to Firebase.
  */
 private fun promptEditReport() {
+    if (!isCurrentUserOwner()) {
+        Toast.makeText(requireContext(), "Permission denied: Only the report owner can edit this post.", Toast.LENGTH_SHORT).show()
+        return
+    }
+
     // Stop if there is no current report ID.
     val currentItemId = itemId ?: return
 
@@ -740,19 +765,69 @@ private fun promptEditReport() {
         .show()
 }
 
+    private fun isCurrentUserOwner(): Boolean {
+        val currentUid = FirebaseManager.currentUid
+        if (currentUid.isEmpty()) return false
+        val reportUid = currentItemReport?.userId?.takeIf { it.isNotEmpty() }
+            ?: reporterUserId.takeIf { it.isNotEmpty() && !it.startsWith("user_") }
+            ?: arguments?.getString(ARG_REPORTER_UID)?.takeIf { it.isNotEmpty() }
+        return reportUid != null && reportUid == currentUid
+    }
+
     private fun showOptionsMenu() {
-        val options = arrayOf("Share Flyer & QR Code", "Edit Report", "Mark as Resolved", "Delete Report")
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle(tvItemTitle.text.toString())
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> btnShare.performClick()
-                    1 -> promptEditReport()
-                    2 -> markItemAsResolved()
-                    3 -> promptDeleteReport()
+        if (isCurrentUserOwner()) {
+            val options = arrayOf(
+                "Share Flyer & QR Code",
+                "Edit Report Details",
+                "Mark as Resolved / Returned",
+                "Delete Report"
+            )
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle(tvItemTitle.text.toString())
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> btnShare.performClick()
+                        1 -> promptEditReport()
+                        2 -> markItemAsResolved()
+                        3 -> promptDeleteReport()
+                    }
                 }
-            }
-            .show()
+                .show()
+        } else {
+            val options = arrayOf(
+                "Share Flyer & QR Code",
+                "Copy Report Information",
+                "Report Inappropriate Content"
+            )
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle(tvItemTitle.text.toString())
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> btnShare.performClick()
+                        1 -> {
+                            val clipData = "Foundly Report: ${tvItemTitle.text}\nStatus: ${tagStatus.text}\nLocation: ${tvLocationText.text}\nDescription: ${tvDescription.text}"
+                            val clipboard = requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
+                            clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("Report Details", clipData))
+                            Toast.makeText(requireContext(), "Report details copied to clipboard!", Toast.LENGTH_SHORT).show()
+                        }
+                        2 -> {
+                            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                                .setTitle("Report Inappropriate Content")
+                                .setMessage("Flag this report ('${tvItemTitle.text}') for moderator review?")
+                                .setPositiveButton("Flag Report") { _, _ ->
+                                    val currentItemId = itemId
+                                    if (currentItemId != null) {
+                                        FirebaseManager.itemsRef.child(currentItemId).child("flagged").setValue(true)
+                                    }
+                                    Toast.makeText(requireContext(), "Thank you. This report has been flagged for admin moderation.", Toast.LENGTH_LONG).show()
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
+                        }
+                    }
+                }
+                .show()
+        }
     }
 
     private fun updateDots(selectedIndex: Int) {
@@ -782,6 +857,9 @@ private fun promptEditReport() {
         }
 
         badgeEnlargeHint.setOnClickListener {
+            showEnlargedPhotoDialog(activeImageUrl, tvItemTitle.text.toString())
+        }
+        view?.findViewById<View>(R.id.cardPhotoContainer)?.setOnClickListener {
             showEnlargedPhotoDialog(activeImageUrl, tvItemTitle.text.toString())
         }
 
@@ -861,6 +939,10 @@ private fun promptEditReport() {
 
         // Live status resolution & management
         tagStatus.setOnClickListener {
+            if (!isCurrentUserOwner()) {
+                Toast.makeText(requireContext(), "Only the report owner can change the item status.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val currentItemId = itemId ?: return@setOnClickListener
             val itemTitle = tvItemTitle.text.toString()
             val options = arrayOf("Mark as RESOLVED / RETURNED", "Mark as LOST", "Mark as FOUND")
@@ -915,23 +997,16 @@ private fun promptEditReport() {
 
 
         val openMapAction = View.OnClickListener {
-            parentFragmentManager.beginTransaction()
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                .replace(
-                    R.id.screenBox,
-                    MapFragment.newInstance(
-                        isPickerMode = false,
-                        targetLat = itemLatitude,
-                        targetLng = itemLongitude,
-                        targetItemId = itemId.orEmpty()
-                    )
-                )
-                .addToBackStack(null)
-                .commit()
+            openFullMapPage()
         }
         bannerLocation.setOnClickListener(openMapAction)
         btnOpenFullMap?.setOnClickListener(openMapAction)
         mapClickOverlay?.setOnClickListener(openMapAction)
+        view?.findViewById<View>(R.id.cardItemMapContainer)?.setOnClickListener(openMapAction)
+        view?.findViewById<View>(R.id.badgeOpenMapPill)?.setOnClickListener(openMapAction)
+        view?.findViewById<View>(R.id.boxMapCoordinatesBadge)?.setOnClickListener(openMapAction)
+        tvMapCoordinates?.setOnClickListener(openMapAction)
+        tvLocationText.setOnClickListener(openMapAction)
 
         val openSeeAllAction = View.OnClickListener {
             parentFragmentManager.beginTransaction()
@@ -945,6 +1020,10 @@ private fun promptEditReport() {
     }
 
     private fun markItemAsResolved() {
+        if (!isCurrentUserOwner()) {
+            Toast.makeText(requireContext(), "Permission denied: Only the report owner can mark this item as resolved.", Toast.LENGTH_SHORT).show()
+            return
+        }
         val currentItemId = itemId ?: return
         val itemTitle = tvItemTitle.text.toString()
         val currentUid = FirebaseManager.currentUid
@@ -1116,7 +1195,7 @@ private fun promptEditReport() {
     }
 
     private fun showEnlargedPhotoDialog(imageUrl: String, title: String) {
-        val dialog = Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar)
+        val dialog = Dialog(requireContext(), R.style.Theme_LostAndFound_FullScreenDialog)
         dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_enlarged_photo)
         dialog.setCancelable(true)
@@ -1134,11 +1213,12 @@ private fun promptEditReport() {
         }
 
         val topBarEnlarged = dialog.findViewById<View>(R.id.topBarEnlarged)
+        topBarEnlarged?.bringToFront()
         if (topBarEnlarged != null) {
             androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(topBarEnlarged) { v, insets ->
                 val statusBarHeight = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.statusBars()).top
-                val topPadding = if (statusBarHeight > 0) statusBarHeight + 10 else 36
-                v.setPadding(v.paddingLeft, topPadding, v.paddingRight, v.paddingBottom)
+                val safeTop = if (statusBarHeight > 0) statusBarHeight + 12 else (v.resources.displayMetrics.density * 36).toInt()
+                v.setPadding(v.paddingLeft, safeTop, v.paddingRight, v.paddingBottom)
                 insets
             }
         }
@@ -1194,6 +1274,7 @@ private fun promptEditReport() {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
+            topBarEnlarged?.bringToFront()
         }
         dialog.show()
         dialog.window?.setLayout(
@@ -1683,6 +1764,7 @@ private fun showReportPhotoDialog(title: String) {
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
                 scaleType = ImageView.ScaleType.CENTER_CROP
+                adjustViewBounds = false
             }
             return PhotoViewHolder(img)
         }
@@ -1967,33 +2049,96 @@ private fun showReportPhotoDialog(title: String) {
         settings.domStorageEnabled = true
         settings.loadWithOverviewMode = true
         settings.useWideViewPort = true
+        settings.databaseEnabled = true
+        settings.cacheMode = WebSettings.LOAD_DEFAULT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        }
+        webView.setBackgroundColor(Color.parseColor("#EBF2F7"))
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         webView.webChromeClient = WebChromeClient()
-        webView.webViewClient = WebViewClient()
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                webView.evaluateJavascript("if (typeof map !== 'undefined') { map.invalidateSize(); }", null)
+            }
+        }
+        webView.addJavascriptInterface(object : Any() {
+            @JavascriptInterface
+            fun openFullMap() {
+                activity?.runOnUiThread {
+                    openFullMapPage()
+                }
+            }
+        }, "AndroidBridge")
         loadEmbeddedMap(itemLatitude, itemLongitude, tagStatus.text.toString(), tvItemTitle.text.toString())
     }
 
     private fun loadEmbeddedMap(lat: Double, lng: Double, status: String, title: String) {
-        val html = buildEmbeddedMapHtml(lat, lng, status, title)
+        val effectiveLat = if (lat != 0.0) lat else 6.8974
+        val effectiveLng = if (lng != 0.0) lng else 79.8562
+        val distKm = calculateDistanceKm(6.0367, 80.2170, effectiveLat, effectiveLng)
+        val distText = if (distKm < 0.2) "At your location in Galle" else String.format(java.util.Locale.US, "%.1f km from your location (Galle)", distKm)
+        val html = buildEmbeddedMapHtml(effectiveLat, effectiveLng, status, title, distText)
         webViewItemMap?.loadDataWithBaseURL("https://leafletjs.com/", html, "text/html", "UTF-8", null)
-        tvMapCoordinates?.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Tap to explore", lat, lng)
+        tvMapCoordinates?.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · %s · Tap for full map", effectiveLat, effectiveLng, distText)
+    }
+
+    private fun openFullMapPage() {
+        if (!isAdded) return
+        parentFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+            .replace(
+                R.id.screenBox,
+                MapFragment.newInstance(
+                    isPickerMode = false,
+                    targetLat = if (itemLatitude != 0.0) itemLatitude else 6.8974,
+                    targetLng = if (itemLongitude != 0.0) itemLongitude else 79.8562,
+                    targetItemId = itemId.orEmpty()
+                )
+            )
+            .addToBackStack("details_map")
+            .commit()
     }
 
     private fun resolveFallbackCoordinates(location: String): Pair<Double, Double> {
-        val lower = location.lowercase(java.util.Locale.US)
+        val lower = location.lowercase(java.util.Locale.US).trim()
+        val coordMatch = Regex("""(-?\d+\.\d+)[,\s]+(-?\d+\.\d+)""").find(lower)
+        if (coordMatch != null) {
+            val lat = coordMatch.groupValues[1].toDoubleOrNull()
+            val lng = coordMatch.groupValues[2].toDoubleOrNull()
+            if (lat != null && lng != null && lat != 0.0 && lng != 0.0) {
+                return Pair(lat, lng)
+            }
+        }
         return when {
-            lower.contains("vihara") || lower.contains("park") -> Pair(6.9140, 79.8630)
-            lower.contains("independence") || lower.contains("colombo 07") -> Pair(6.9044, 79.8679)
-            lower.contains("duplication") || lower.contains("colombo 03") || lower.contains("kollupitiya") -> Pair(6.8974, 79.8562)
-            lower.contains("bambalapitiya") || lower.contains("colombo 04") -> Pair(6.8884, 79.8587)
-            lower.contains("fort") || lower.contains("colombo 01") || lower.contains("galle face") -> Pair(6.9344, 79.8428)
-            lower.contains("kandy") -> Pair(7.2906, 80.6337)
-            lower.contains("galle") -> Pair(6.0535, 80.2210)
-            else -> Pair(6.9271, 79.8612)
+            lower.contains("liberty") || lower.contains("kollupitiya") || lower.contains("colombo 03") -> Pair(6.8974, 79.8562)
+            lower.contains("bambalapitiya") || lower.contains("colombo 04") || lower.contains("majestic") -> Pair(6.8884, 79.8587)
+            lower.contains("vihara") || lower.contains("victoria park") -> Pair(6.9140, 79.8630)
+            lower.contains("independence") || lower.contains("colombo 07") || lower.contains("cinnamon") -> Pair(6.9044, 79.8679)
+            lower.contains("fort") || lower.contains("colombo 01") || lower.contains("pettah") -> Pair(6.9344, 79.8428)
+            lower.contains("galle face") -> Pair(6.9271, 79.8433)
+            lower.contains("borella") || lower.contains("colombo 08") -> Pair(6.9147, 79.8776)
+            lower.contains("dehiwala") || lower.contains("mount lavinia") -> Pair(6.8402, 79.8712)
+            lower.contains("nugegoda") || lower.contains("kohuwala") -> Pair(6.8724, 79.8997)
+            lower.contains("rajagiriya") || lower.contains("kotte") -> Pair(6.9090, 79.8970)
+            lower.contains("negombo") || lower.contains("katunayake") -> Pair(7.2008, 79.8736)
+            lower.contains("kandy") || lower.contains("peradeniya") -> Pair(7.2906, 80.6337)
+            lower.contains("unawatuna") || lower.contains("galle fort") || lower.contains("karapitiya") || lower.contains("galle") -> Pair(6.0367, 80.2170)
+            lower.contains("hikkaduwa") -> Pair(6.1406, 80.1011)
+            lower.contains("matara") || lower.contains("mirissa") -> Pair(5.9549, 80.5550)
+            lower.contains("jaffna") -> Pair(9.6615, 80.0255)
+            lower.contains("kurunegala") -> Pair(7.4863, 80.3623)
+            lower.contains("anuradhapura") -> Pair(8.3114, 80.4037)
+            lower.contains("badulla") || lower.contains("ella") -> Pair(6.9934, 81.0550)
+            lower.contains("batticaloa") -> Pair(7.7102, 81.6924)
+            lower.contains("trincomalee") -> Pair(8.5874, 81.2152)
+            else -> Pair(6.8974, 79.8562)
         }
     }
 
-    private fun buildEmbeddedMapHtml(lat: Double, lng: Double, status: String, title: String): String {
-        val pinColor = if (status.equals("LOST", ignoreCase = true)) "#E53935" else "#2E7D32"
+    private fun buildEmbeddedMapHtml(lat: Double, lng: Double, status: String, title: String, distText: String = ""): String {
+        val pinColor = if (status.equals("LOST", ignoreCase = true)) "#DC2626" else "#059669"
         val cleanTitle = title.replace("'", "\\'").replace("\"", "\\\"").replace("\n", " ").take(40)
         return """
 <!DOCTYPE html>
@@ -2002,51 +2147,151 @@ private fun showReportPhotoDialog(title: String) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        html, body, #map {
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        html, body {
             width: 100%;
             height: 100%;
             margin: 0;
             padding: 0;
-            background: #F7F5F0;
+            background: #EBF2F7;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            cursor: pointer;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #EBF2F7;
+            background-image: 
+                linear-gradient(rgba(180, 205, 225, 0.35) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(180, 205, 225, 0.35) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
         .leaflet-control-attribution {
             display: none !important;
         }
+        @keyframes user-pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.6); opacity: 0.3; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        .fallback-pin {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+        .fallback-bubble {
+            background: #002840;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
-<body>
+<body onclick="triggerOpenMap()">
     <div id="map"></div>
+    <div id="fallbackVisual" class="fallback-pin" style="display: none;">
+        <div class="fallback-bubble">$cleanTitle</div>
+        <svg width="28" height="38" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+            <path d="M14 0C6.268 0 0 6.268 0 14C0 24.5 14 38 14 38C14 38 28 24.5 28 14C28 6.268 21.732 0 14 0Z" fill="$pinColor"/>
+            <circle cx="14" cy="14" r="5" fill="#FFFFFF"/>
+        </svg>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        var map = L.map('map', {
-            zoomControl: false,
-            dragging: false,
-            touchZoom: false,
-            doubleClickZoom: false,
-            scrollWheelZoom: false,
-            boxZoom: false
-        }).setView([$lat, $lng], 15);
+        function triggerOpenMap() {
+            if (window.AndroidBridge && window.AndroidBridge.openFullMap) {
+                window.AndroidBridge.openFullMap();
+            }
+        }
 
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19
-        }).addTo(map);
+        if (typeof L === 'undefined') {
+            document.getElementById('fallbackVisual').style.display = 'flex';
+        } else {
+            try {
+                var userLat = 6.0367;
+                var userLng = 80.2170;
+                var itemLat = $lat;
+                var itemLng = $lng;
 
-        var pinSvg = '<svg width="28" height="38" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">' +
-            '<path d="M14 0C6.268 0 0 6.268 0 14C0 24.5 14 38 14 38C14 38 28 24.5 28 14C28 6.268 21.732 0 14 0Z" fill="$pinColor"/>' +
-            '<circle cx="14" cy="14" r="5" fill="#FFFFFF"/>' +
-            '</svg>';
+                // 1. Initialize map view centered at user location in Galle
+                var map = L.map('map', {
+                    zoomControl: false,
+                    dragging: false,
+                    touchZoom: false,
+                    doubleClickZoom: false,
+                    scrollWheelZoom: false,
+                    boxZoom: false,
+                    attributionControl: false
+                }).setView([userLat, userLng], 12);
 
-        var pinIcon = L.divIcon({
-            className: '',
-            html: pinSvg,
-            iconSize: [28, 38],
-            iconAnchor: [14, 38],
-            popupAnchor: [0, -34]
-        });
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19
+                }).addTo(map);
 
-        L.marker([$lat, $lng], { icon: pinIcon }).addTo(map)
-            .bindPopup("<b>$cleanTitle</b><br/>$status Location").openPopup();
+                // 2. Add Current User Location Pin (Galle)
+                var userIcon = L.divIcon({
+                    className: '',
+                    html: '<div style="position:relative;width:24px;height:24px;"><div style="position:absolute;width:24px;height:24px;border-radius:50%;background:rgba(2,132,199,0.35);animation:user-pulse 1.8s infinite;"></div><div style="position:absolute;top:4px;left:4px;width:16px;height:16px;border-radius:50%;background:#0284C7;border:2.5px solid #FFFFFF;box-shadow:0 2px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;"><div style="width:5px;height:5px;border-radius:50%;background:#FFFFFF;"></div></div></div>',
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+                var userMarker = L.marker([userLat, userLng], { icon: userIcon, zIndexOffset: 2000 }).addTo(map);
+                userMarker.bindPopup("<b>📍 Your Location</b><br/>Galle (6.0367° N, 80.2170° E)");
+
+                // 3. Add Item Pinned Location Pin
+                var pinSvg = '<svg width="28" height="38" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">' +
+                    '<path d="M14 0C6.268 0 0 6.268 0 14C0 24.5 14 38 14 38C14 38 28 24.5 28 14C28 6.268 21.732 0 14 0Z" fill="$pinColor"/>' +
+                    '<circle cx="14" cy="14" r="5" fill="#FFFFFF"/>' +
+                    '</svg>';
+
+                var pinIcon = L.divIcon({
+                    className: '',
+                    html: pinSvg,
+                    iconSize: [28, 38],
+                    iconAnchor: [14, 38],
+                    popupAnchor: [0, -34]
+                });
+
+                var itemMarker = L.marker([itemLat, itemLng], { icon: pinIcon, zIndexOffset: 1500 }).addTo(map);
+                itemMarker.bindPopup("<b>$cleanTitle</b><br/>$status Location<br/><span style='color:#64748B;font-size:11px;'>📍 $distText</span>");
+
+                map.on('click', triggerOpenMap);
+                itemMarker.on('click', triggerOpenMap);
+                userMarker.on('click', triggerOpenMap);
+
+                // 4. Smoothly animate and zoom into item's pinned location from Galle
+                setTimeout(function() {
+                    map.invalidateSize();
+                    map.flyTo([itemLat, itemLng], 15, { duration: 1.8 });
+                    setTimeout(function() {
+                        itemMarker.openPopup();
+                    }, 1900);
+                }, 450);
+            } catch(e) {
+                document.getElementById('fallbackVisual').style.display = 'flex';
+            }
+        }
     </script>
 </body>
 </html>
@@ -2301,6 +2546,8 @@ private fun showReportPhotoDialog(title: String) {
         private const val ARG_IMAGE_RES = "arg_image_res"
         private const val ARG_REPORTER_UID = "arg_reporter_uid"
         private const val ARG_AUTHOR_NAME = "arg_author_name"
+        private const val ARG_LATITUDE = "arg_latitude"
+        private const val ARG_LONGITUDE = "arg_longitude"
 
         // Creates a DetailsFragment using a drawable resource for the item image.
         fun newInstance(
@@ -2311,7 +2558,9 @@ private fun showReportPhotoDialog(title: String) {
             imageResId: Int = R.drawable.ic_item_placeholder,
             itemId: String? = null,
             reporterUserId: String? = null,
-            authorName: String? = null
+            authorName: String? = null,
+            latitude: Double = 0.0,
+            longitude: Double = 0.0
         ): DetailsFragment {
             // Create a new Fragment instance.
             val fragment = DetailsFragment()
@@ -2325,6 +2574,8 @@ private fun showReportPhotoDialog(title: String) {
                 putInt(ARG_IMAGE_RES, imageResId)
                 putString(ARG_REPORTER_UID, reporterUserId)
                 putString(ARG_AUTHOR_NAME, authorName)
+                putDouble(ARG_LATITUDE, latitude)
+                putDouble(ARG_LONGITUDE, longitude)
             }
             // Attach the arguments to the Fragment.
             fragment.arguments = args
@@ -2341,7 +2592,9 @@ private fun showReportPhotoDialog(title: String) {
             location: String,
             imageUrl: String = "",
             reporterUserId: String? = null,
-            authorName: String? = null
+            authorName: String? = null,
+            latitude: Double = 0.0,
+            longitude: Double = 0.0
         ): DetailsFragment {
             // Create a new Fragment instance.
             val fragment = DetailsFragment()
@@ -2357,6 +2610,8 @@ private fun showReportPhotoDialog(title: String) {
                 putInt(ARG_IMAGE_RES, R.drawable.ic_item_placeholder)
                 putString(ARG_REPORTER_UID, reporterUserId)
                 putString(ARG_AUTHOR_NAME, authorName)
+                putDouble(ARG_LATITUDE, latitude)
+                putDouble(ARG_LONGITUDE, longitude)
             }
             // Attach the arguments to the Fragment.
             fragment.arguments = args

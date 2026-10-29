@@ -414,59 +414,9 @@ class ProfileFragment : Fragment() {
         bottomSheet.show()
     }
 
-    // Displays bookmarked reports and allows the user to open or clear saved items.
+    // Displays bookmarked reports by navigating to SavedItemsFragment
     private fun showSavedItemsDialog() {
-        val prefs = requireContext().getSharedPreferences("findit_prefs", android.content.Context.MODE_PRIVATE)
-        val savedIds = prefs.getStringSet("bookmarked_ids", emptySet()) ?: emptySet()
-
-        if (savedIds.isEmpty()) {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Saved Items (0)")
-                .setMessage("No bookmarked reports yet.\n\nBrowse items and tap the bookmark ribbon icon on any item detail page to save it here for instant access.")
-                .setPositiveButton("Browse Items") { _, _ ->
-                    navigateTo(HomeFragment.newInstance())
-                }
-                .setNegativeButton("Close", null)
-                .show()
-            return
-        }
-
-        FirebaseManager.itemsRef.get().addOnSuccessListener { snapshot ->
-            val matchingItems = mutableListOf<com.group3.lostandfound.model.ItemReport>()
-            for (child in snapshot.children) {
-                val id = child.child("itemId").getValue(String::class.java) ?: child.key.orEmpty()
-                if (savedIds.contains(id)) {
-                    val report = child.getValue(com.group3.lostandfound.model.ItemReport::class.java)
-                    if (report != null) {
-                        matchingItems.add(report.copy(itemId = id))
-                    }
-                }
-            }
-
-            if (matchingItems.isEmpty()) {
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Saved Items")
-                    .setMessage("Saved reports are no longer available in the active directory.")
-                    .setPositiveButton("OK", null)
-                    .show()
-            } else {
-                val itemTitles = matchingItems.map { "${it.title} (${it.status}) · ${it.location}" }.toTypedArray()
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Saved Items (${matchingItems.size})")
-                    .setItems(itemTitles) { _, which ->
-                        val selected = matchingItems[which]
-                        navigateTo(DetailsFragment.newInstance(selected.itemId, selected.title, selected.description, selected.status, selected.location, selected.imageUrl, selected.userId, selected.authorName))
-                    }
-                    .setNeutralButton("Clear All") { _, _ ->
-                        prefs.edit().remove("bookmarked_ids").apply()
-                        Toast.makeText(requireContext(), "Saved bookmarks cleared", Toast.LENGTH_SHORT).show()
-                    }
-                    .setNegativeButton("Close", null)
-                    .show()
-            }
-        }.addOnFailureListener {
-            Toast.makeText(requireContext(), "Failed to load saved items: ${it.message}", Toast.LENGTH_SHORT).show()
-        }
+        navigateTo(SavedItemsFragment.newInstance())
     }
 
     private fun showHelpCenterDialog() {

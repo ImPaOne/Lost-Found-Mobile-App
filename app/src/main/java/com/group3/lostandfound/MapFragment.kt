@@ -64,8 +64,8 @@ class MapFragment : Fragment() {
 
     // Pinned location tracking
     private var isLocationPinned = false
-    private var pinnedLat: Double = 6.9140
-    private var pinnedLng: Double = 79.8630
+    private var pinnedLat: Double = 6.0367
+    private var pinnedLng: Double = 80.2170
     private var isPickerMode = false
 
     private var targetLat: Double = 0.0
@@ -152,6 +152,54 @@ class MapFragment : Fragment() {
         webViewLeafletMap.loadDataWithBaseURL("https://leafletjs.com/", htmlContent, "text/html", "UTF-8", null)
     }
 
+    private fun calculateDistanceKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val r = 6371.0
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2)
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        return r * c
+    }
+
+    private fun resolveLocationCoordinates(location: String, id: String): Pair<Double, Double> {
+        val lower = location.lowercase(java.util.Locale.US).trim()
+        val coordMatch = Regex("""(-?\d+\.\d+)[,\s]+(-?\d+\.\d+)""").find(lower)
+        if (coordMatch != null) {
+            val lat = coordMatch.groupValues[1].toDoubleOrNull()
+            val lng = coordMatch.groupValues[2].toDoubleOrNull()
+            if (lat != null && lng != null && lat != 0.0 && lng != 0.0) {
+                return Pair(lat, lng)
+            }
+        }
+        val offset = (id.hashCode() % 15) * 0.0015
+        return when {
+            lower.contains("liberty") || lower.contains("kollupitiya") || lower.contains("colombo 03") -> Pair(6.8974 + offset, 79.8562 + offset)
+            lower.contains("bambalapitiya") || lower.contains("colombo 04") || lower.contains("majestic") -> Pair(6.8884 + offset, 79.8587 + offset)
+            lower.contains("vihara") || lower.contains("victoria park") -> Pair(6.9140 + offset, 79.8630 + offset)
+            lower.contains("independence") || lower.contains("colombo 07") || lower.contains("cinnamon") -> Pair(6.9044 + offset, 79.8679 + offset)
+            lower.contains("fort") || lower.contains("colombo 01") || lower.contains("pettah") -> Pair(6.9344 + offset, 79.8428 + offset)
+            lower.contains("galle face") -> Pair(6.9271 + offset, 79.8433 + offset)
+            lower.contains("borella") || lower.contains("colombo 08") -> Pair(6.9147 + offset, 79.8776 + offset)
+            lower.contains("dehiwala") || lower.contains("mount lavinia") -> Pair(6.8402 + offset, 79.8712 + offset)
+            lower.contains("nugegoda") || lower.contains("kohuwala") -> Pair(6.8724 + offset, 79.8997 + offset)
+            lower.contains("rajagiriya") || lower.contains("kotte") -> Pair(6.9090 + offset, 79.8970 + offset)
+            lower.contains("negombo") || lower.contains("katunayake") -> Pair(7.2008 + offset, 79.8736 + offset)
+            lower.contains("kandy") || lower.contains("peradeniya") -> Pair(7.2906 + offset, 80.6337 + offset)
+            lower.contains("unawatuna") || lower.contains("galle fort") || lower.contains("karapitiya") || lower.contains("galle") -> Pair(6.0367 + offset, 80.2170 + offset)
+            lower.contains("hikkaduwa") -> Pair(6.1406 + offset, 80.1011 + offset)
+            lower.contains("matara") || lower.contains("mirissa") -> Pair(5.9549 + offset, 80.5550 + offset)
+            lower.contains("jaffna") -> Pair(9.6615 + offset, 80.0255 + offset)
+            lower.contains("kurunegala") -> Pair(7.4863 + offset, 80.3623 + offset)
+            lower.contains("anuradhapura") -> Pair(8.3114 + offset, 80.4037 + offset)
+            lower.contains("badulla") || lower.contains("ella") -> Pair(6.9934 + offset, 81.0550 + offset)
+            lower.contains("batticaloa") -> Pair(7.7102 + offset, 81.6924 + offset)
+            lower.contains("trincomalee") -> Pair(8.5874 + offset, 81.2152 + offset)
+            else -> Pair(6.8974 + offset, 79.8562 + offset)
+        }
+    }
+
     private fun loadLiveFirebaseMarkers() {
         val dbRef = FirebaseDatabase.getInstance(FirebaseManager.DATABASE_URL).getReference("items")
         dbRef.limitToLast(50).addValueEventListener(object : ValueEventListener {
@@ -183,33 +231,86 @@ class MapFragment : Fragment() {
                         else -> "LOST" // safe default
                     }
 
-                    if (lat != 0.0 && lng != 0.0) {
-                        val report = com.group3.lostandfound.model.ItemReport(
-                            itemId = id,
-                            title = title,
-                            description = desc,
-                            category = category,
-                            status = status,
-                            location = location,
-                            latitude = lat,
-                            longitude = lng,
-                            imageUrl = imageUrl
-                        )
-                        markerReportsMap[id] = report
+                    val resolved = if (lat != 0.0 && lng != 0.0) Pair(lat, lng) else resolveLocationCoordinates(location, id)
+                    val effectiveLat = resolved.first
+                    val effectiveLng = resolved.second
 
-                        val safeTitle = title.replace("'", "\\'").replace("\n", " ").take(40)
-                        val safeLoc = location.replace("'", "\\'").replace("\n", " ").take(30)
-                        // Pass itemType separately so pin color is always LOST=red / FOUND=blue
-                        // regardless of whether admin has approved the item (status -> "APPROVED")
-                        jsBuilder.append("items.push({id:'$id',title:'$safeTitle',location:'$safeLoc',status:'$status',itemType:'$itemType',lat:$lat,lng:$lng});\n")
-                    }
+                    val report = com.group3.lostandfound.model.ItemReport(
+                        itemId = id,
+                        title = title,
+                        description = desc,
+                        category = category,
+                        status = status,
+                        location = location,
+                        latitude = effectiveLat,
+                        longitude = effectiveLng,
+                        imageUrl = imageUrl
+                    )
+                    markerReportsMap[id] = report
+
+                    val distKm = calculateDistanceKm(6.0367, 80.2170, effectiveLat, effectiveLng)
+                    val distStr = if (distKm < 0.2) "Near you in Galle" else String.format(java.util.Locale.US, "%.1f km from Galle", distKm)
+
+                    val safeTitle = title.replace("'", "\\'").replace("\n", " ").take(40)
+                    val safeLoc = location.replace("'", "\\'").replace("\n", " ").take(30)
+                    jsBuilder.append("items.push({id:'$id',title:'$safeTitle',location:'$safeLoc',status:'$status',itemType:'$itemType',lat:$effectiveLat,lng:$effectiveLng,dist:'$distStr'});\n")
                 }
 
                 jsBuilder.append("renderMarkers('all');\n")
                 if (targetLat != 0.0 && targetLng != 0.0) {
-                    jsBuilder.append("map.flyTo([$targetLat, $targetLng], 16, { duration: 1.2 });\n")
+                    jsBuilder.append("animateToTargetItem($targetLat, $targetLng, '$targetItemId');\n")
+                } else {
+                    jsBuilder.append("map.setView([6.0367, 80.2170], 13);\n")
                 }
                 webViewLeafletMap.evaluateJavascript(jsBuilder.toString(), null)
+
+                // If targetItemId is specified and was not in snapshot, fetch it directly
+                if (targetItemId.isNotEmpty() && !markerReportsMap.containsKey(targetItemId)) {
+                    dbRef.child(targetItemId).addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(targetSnap: DataSnapshot) {
+                            if (!isAdded || view == null) return
+                            val tTitle = targetSnap.child("title").getValue(String::class.java) ?: "Selected Item"
+                            val tStatus = targetSnap.child("status").getValue(String::class.java) ?: "LOST"
+                            val tDesc = targetSnap.child("description").getValue(String::class.java) ?: ""
+                            val tCat = targetSnap.child("category").getValue(String::class.java) ?: "General"
+                            val tLoc = targetSnap.child("location").getValue(String::class.java) ?: "Location"
+                            val tImg = targetSnap.child("imageUrl").getValue(String::class.java) ?: ""
+                            val tLatVal = targetSnap.child("latitude").getValue(Double::class.java) ?: 0.0
+                            val tLngVal = targetSnap.child("longitude").getValue(Double::class.java) ?: 0.0
+                            val tResolved = if (targetLat != 0.0 && targetLng != 0.0) Pair(targetLat, targetLng)
+                                            else if (tLatVal != 0.0 && tLngVal != 0.0) Pair(tLatVal, tLngVal)
+                                            else resolveLocationCoordinates(tLoc, targetItemId)
+                            val tLat = tResolved.first
+                            val tLng = tResolved.second
+
+                            val tReport = com.group3.lostandfound.model.ItemReport(
+                                itemId = targetItemId,
+                                title = tTitle,
+                                description = tDesc,
+                                category = tCat,
+                                status = tStatus,
+                                location = tLoc,
+                                latitude = tLat,
+                                longitude = tLng,
+                                imageUrl = tImg
+                            )
+                            markerReportsMap[targetItemId] = tReport
+                            val distKm = calculateDistanceKm(6.0367, 80.2170, tLat, tLng)
+                            val distStr = if (distKm < 0.2) "Near you in Galle" else String.format(java.util.Locale.US, "%.1f km from Galle", distKm)
+
+                            val safeTitle = tTitle.replace("'", "\\'").replace("\n", " ").take(40)
+                            val safeLoc = tLoc.replace("'", "\\'").replace("\n", " ").take(30)
+                            val singleJs = """
+                                items.push({id:'$targetItemId',title:'$safeTitle',location:'$safeLoc',status:'$tStatus',itemType:'$tStatus',lat:$tLat,lng:$tLng,dist:'$distStr'});
+                                renderMarkers('all');
+                                animateToTargetItem($tLat, $tLng, '$targetItemId');
+                            """.trimIndent()
+                            webViewLeafletMap.evaluateJavascript(singleJs, null)
+                        }
+
+                        override fun onCancelled(err: DatabaseError) {}
+                    })
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -257,7 +358,7 @@ class MapFragment : Fragment() {
 
         btnGpsTarget.setOnClickListener {
             webViewLeafletMap.evaluateJavascript("recenterMap();", null)
-            Toast.makeText(requireContext(), "Centered to Colombo, Sri Lanka", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Centered to Galle, Sri Lanka (6.0367° N, 80.2170° E)", Toast.LENGTH_SHORT).show()
         }
 
         cardLaptopItem.setOnClickListener {
@@ -271,18 +372,22 @@ class MapFragment : Fragment() {
                 if (isLocationPinned) {
                     navigateToCreateReport(pinnedLat, pinnedLng)
                 } else if (currentId.isNotEmpty() || currentTitle.isNotEmpty()) {
+                    val currentReport = markerReportsMap[currentId]
                     parentFragmentManager.beginTransaction()
                         .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                         .replace(
                             R.id.screenBox,
                             DetailsFragment.newInstance(
+                                itemId = currentId,
                                 title = currentTitle,
                                 desc = currentDesc,
                                 status = currentStatus,
                                 location = currentLocation,
-                                imageResId = R.drawable.ic_item_placeholder,
-                                itemId = currentId,
-                                reporterUserId = currentUserId
+                                imageUrl = currentReport?.imageUrl.orEmpty(),
+                                reporterUserId = currentUserId,
+                                authorName = currentReport?.authorName,
+                                latitude = currentReport?.latitude ?: targetLat,
+                                longitude = currentReport?.longitude ?: targetLng
                             )
                         )
                         .addToBackStack(null)
@@ -324,7 +429,16 @@ class MapFragment : Fragment() {
 
                 cardLaptopItem.visibility = View.VISIBLE
                 textItemTitle.text = currentTitle
-                textItemLocation.text = currentLocation
+                
+                val lat = report?.latitude ?: 0.0
+                val lng = report?.longitude ?: 0.0
+                if (lat != 0.0 && lng != 0.0) {
+                    val distKm = calculateDistanceKm(6.0367, 80.2170, lat, lng)
+                    val distStr = if (distKm < 0.2) "Near you in Galle" else String.format(java.util.Locale.US, "%.1f km from Galle", distKm)
+                    textItemLocation.text = "$currentLocation · $distStr"
+                } else {
+                    textItemLocation.text = currentLocation
+                }
                 tagFoundStatus.text = currentStatus
 
                 if (currentStatus.equals("LOST", ignoreCase = true)) {
@@ -467,6 +581,11 @@ class MapFragment : Fragment() {
             box-shadow: 0 4px 14px rgba(193,18,31,0.7);
             animation: pulse-pin 1.2s infinite;
         }
+        @keyframes user-pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.6); opacity: 0.3; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
         @keyframes pulse-pin {
             0% { transform: scale(1); }
             50% { transform: scale(1.18); }
@@ -505,16 +624,39 @@ class MapFragment : Fragment() {
     <div id="map"></div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Initialize Leaflet map centered on Colombo, Sri Lanka
+        // Current User Location: Galle, Sri Lanka (6.0367° N, 80.2170° E)
+        var userLat = 6.0367;
+        var userLng = 80.2170;
+
+        // Initialize Leaflet map centered at user's current location in Galle
         var map = L.map('map', {
             zoomControl: false,
             attributionControl: false
-        }).setView([6.9140, 79.8630], 13);
+        }).setView([userLat, userLng], 13);
 
         // OpenStreetMap tile layer
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19
         }).addTo(map);
+
+        // Current User Location Marker (Galle)
+        var userIconHtml = '<div style="position:relative;width:28px;height:28px;">' +
+            '<div style="position:absolute;width:28px;height:28px;border-radius:50%;background:rgba(2,132,199,0.35);animation:user-pulse 1.8s infinite;"></div>' +
+            '<div style="position:absolute;top:5px;left:5px;width:18px;height:18px;border-radius:50%;background:#0284C7;border:3px solid #FFFFFF;box-shadow:0 3px 10px rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;">' +
+            '<div style="width:6px;height:6px;border-radius:50%;background:#FFFFFF;"></div>' +
+            '</div>' +
+            '</div>';
+
+        var userIcon = L.divIcon({
+            className: '',
+            html: userIconHtml,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+            popupAnchor: [0, -16]
+        });
+
+        var userMarker = L.marker([userLat, userLng], { icon: userIcon, zIndexOffset: 2000 }).addTo(map);
+        userMarker.bindPopup('<div class="popup-box"><div class="popup-badge" style="background:#E0F2FE;color:#0284C7;font-weight:bold;">YOUR CURRENT LOCATION</div><div><strong>Galle, Sri Lanka</strong></div><div style="font-size:11px;color:#64748B;">6.0367° N, 80.2170° E</div></div>');
 
         // Item markers dataset
         var items = [];
@@ -547,10 +689,12 @@ class MapFragment : Fragment() {
                     var marker = L.marker([item.lat, item.lng], { icon: customIcon });
 
                     var badgeClass = item.status === 'LOST' ? 'badge-lost' : 'badge-found';
+                    var distInfo = item.dist ? '<div style="color: #0284C7; font-size: 11px; font-weight: 600; margin-top: 3px;">📍 ' + item.dist + '</div>' : '';
                     var popupHtml = '<div class="popup-box">' +
                         '<div class="popup-badge ' + badgeClass + '">' + item.status + '</div>' +
                         '<div><strong>' + item.title + '</strong></div>' +
                         '<div style="color: #64748B; font-size: 11px;">' + item.location + '</div>' +
+                        distInfo +
                         '</div>';
                     marker.bindPopup(popupHtml);
 
@@ -638,8 +782,30 @@ class MapFragment : Fragment() {
             renderMarkers(type);
         }
 
+        function animateToTargetItem(tLat, tLng, itemId) {
+            setTimeout(function() {
+                map.flyTo([tLat, tLng], 16, { duration: 2.2 });
+                setTimeout(function() {
+                    markersGroup.eachLayer(function(layer) {
+                        var pos = layer.getLatLng();
+                        if (Math.abs(pos.lat - tLat) < 0.001 && Math.abs(pos.lng - tLng) < 0.001) {
+                            layer.openPopup();
+                        }
+                    });
+                    if (window.AndroidInterface && itemId) {
+                        window.AndroidInterface.onMarkerClicked(itemId);
+                    }
+                }, 2300);
+            }, 500);
+        }
+
         function recenterMap() {
-            map.flyTo([6.9140, 79.8630], 14, { duration: 1.2 });
+            map.flyTo([6.0367, 80.2170], 14, { duration: 1.2 });
+            setTimeout(function() {
+                if (typeof userMarker !== 'undefined') {
+                    userMarker.openPopup();
+                }
+            }, 1300);
         }
     </script>
 </body>
