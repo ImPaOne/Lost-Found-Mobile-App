@@ -2007,11 +2007,13 @@ private fun showReportPhotoDialog(title: String) {
     }
 
     private fun loadEmbeddedMap(lat: Double, lng: Double, status: String, title: String) {
-        val effectiveLat = if (lat != 0.0) lat else 6.0367
-        val effectiveLng = if (lng != 0.0) lng else 80.2170
-        val html = buildEmbeddedMapHtml(effectiveLat, effectiveLng, status, title)
+        val effectiveLat = if (lat != 0.0) lat else 6.8974
+        val effectiveLng = if (lng != 0.0) lng else 79.8562
+        val distKm = calculateDistanceKm(6.0367, 80.2170, effectiveLat, effectiveLng)
+        val distText = if (distKm < 0.2) "At your location in Galle" else String.format(java.util.Locale.US, "%.1f km from your location (Galle)", distKm)
+        val html = buildEmbeddedMapHtml(effectiveLat, effectiveLng, status, title, distText)
         webViewItemMap?.loadDataWithBaseURL("https://leafletjs.com/", html, "text/html", "UTF-8", null)
-        tvMapCoordinates?.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · Tap for full map", effectiveLat, effectiveLng)
+        tvMapCoordinates?.text = String.format(java.util.Locale.US, "%.4f° N, %.4f° E · %s · Tap for full map", effectiveLat, effectiveLng, distText)
     }
 
     private fun openFullMapPage() {
@@ -2022,8 +2024,8 @@ private fun showReportPhotoDialog(title: String) {
                 R.id.screenBox,
                 MapFragment.newInstance(
                     isPickerMode = false,
-                    targetLat = if (itemLatitude != 0.0) itemLatitude else 6.0367,
-                    targetLng = if (itemLongitude != 0.0) itemLongitude else 80.2170,
+                    targetLat = if (itemLatitude != 0.0) itemLatitude else 6.8974,
+                    targetLng = if (itemLongitude != 0.0) itemLongitude else 79.8562,
                     targetItemId = itemId.orEmpty()
                 )
             )
@@ -2032,20 +2034,42 @@ private fun showReportPhotoDialog(title: String) {
     }
 
     private fun resolveFallbackCoordinates(location: String): Pair<Double, Double> {
-        val lower = location.lowercase(java.util.Locale.US)
+        val lower = location.lowercase(java.util.Locale.US).trim()
+        val coordMatch = Regex("""(-?\d+\.\d+)[,\s]+(-?\d+\.\d+)""").find(lower)
+        if (coordMatch != null) {
+            val lat = coordMatch.groupValues[1].toDoubleOrNull()
+            val lng = coordMatch.groupValues[2].toDoubleOrNull()
+            if (lat != null && lng != null && lat != 0.0 && lng != 0.0) {
+                return Pair(lat, lng)
+            }
+        }
         return when {
-            lower.contains("galle") -> Pair(6.0367, 80.2170)
-            lower.contains("vihara") || lower.contains("park") -> Pair(6.9140, 79.8630)
-            lower.contains("independence") || lower.contains("colombo 07") -> Pair(6.9044, 79.8679)
-            lower.contains("duplication") || lower.contains("colombo 03") || lower.contains("kollupitiya") -> Pair(6.8974, 79.8562)
-            lower.contains("bambalapitiya") || lower.contains("colombo 04") -> Pair(6.8884, 79.8587)
-            lower.contains("fort") || lower.contains("colombo 01") || lower.contains("galle face") -> Pair(6.9344, 79.8428)
-            lower.contains("kandy") -> Pair(7.2906, 80.6337)
-            else -> Pair(6.0367, 80.2170)
+            lower.contains("liberty") || lower.contains("kollupitiya") || lower.contains("colombo 03") -> Pair(6.8974, 79.8562)
+            lower.contains("bambalapitiya") || lower.contains("colombo 04") || lower.contains("majestic") -> Pair(6.8884, 79.8587)
+            lower.contains("vihara") || lower.contains("victoria park") -> Pair(6.9140, 79.8630)
+            lower.contains("independence") || lower.contains("colombo 07") || lower.contains("cinnamon") -> Pair(6.9044, 79.8679)
+            lower.contains("fort") || lower.contains("colombo 01") || lower.contains("pettah") -> Pair(6.9344, 79.8428)
+            lower.contains("galle face") -> Pair(6.9271, 79.8433)
+            lower.contains("borella") || lower.contains("colombo 08") -> Pair(6.9147, 79.8776)
+            lower.contains("dehiwala") || lower.contains("mount lavinia") -> Pair(6.8402, 79.8712)
+            lower.contains("nugegoda") || lower.contains("kohuwala") -> Pair(6.8724, 79.8997)
+            lower.contains("rajagiriya") || lower.contains("kotte") -> Pair(6.9090, 79.8970)
+            lower.contains("negombo") || lower.contains("katunayake") -> Pair(7.2008, 79.8736)
+            lower.contains("kandy") || lower.contains("peradeniya") -> Pair(7.2906, 80.6337)
+            lower.contains("unawatuna") || lower.contains("galle fort") || lower.contains("karapitiya") || lower.contains("galle") -> Pair(6.0367, 80.2170)
+            lower.contains("hikkaduwa") -> Pair(6.1406, 80.1011)
+            lower.contains("matara") || lower.contains("mirissa") -> Pair(5.9549, 80.5550)
+            lower.contains("jaffna") -> Pair(9.6615, 80.0255)
+            lower.contains("kurunegala") -> Pair(7.4863, 80.3623)
+            lower.contains("anuradhapura") -> Pair(8.3114, 80.4037)
+            lower.contains("badulla") || lower.contains("ella") -> Pair(6.9934, 81.0550)
+            lower.contains("batticaloa") -> Pair(7.7102, 81.6924)
+            lower.contains("trincomalee") -> Pair(8.5874, 81.2152)
+            else -> Pair(6.8974, 79.8562)
         }
     }
 
-    private fun buildEmbeddedMapHtml(lat: Double, lng: Double, status: String, title: String): String {
+    private fun buildEmbeddedMapHtml(lat: Double, lng: Double, status: String, title: String, distText: String = ""): String {
         val pinColor = if (status.equals("LOST", ignoreCase = true)) "#DC2626" else "#059669"
         val cleanTitle = title.replace("'", "\\'").replace("\"", "\\\"").replace("\n", " ").take(40)
         return """
@@ -2085,6 +2109,11 @@ private fun showReportPhotoDialog(title: String) {
         }
         .leaflet-control-attribution {
             display: none !important;
+        }
+        @keyframes user-pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.6); opacity: 0.3; }
+            100% { transform: scale(1); opacity: 0.8; }
         }
         .fallback-pin {
             position: absolute;
@@ -2132,6 +2161,12 @@ private fun showReportPhotoDialog(title: String) {
             document.getElementById('fallbackVisual').style.display = 'flex';
         } else {
             try {
+                var userLat = 6.0367;
+                var userLng = 80.2170;
+                var itemLat = $lat;
+                var itemLng = $lng;
+
+                // 1. Initialize map view centered at user location in Galle
                 var map = L.map('map', {
                     zoomControl: false,
                     dragging: false,
@@ -2140,12 +2175,23 @@ private fun showReportPhotoDialog(title: String) {
                     scrollWheelZoom: false,
                     boxZoom: false,
                     attributionControl: false
-                }).setView([$lat, $lng], 15);
+                }).setView([userLat, userLng], 12);
 
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19
                 }).addTo(map);
 
+                // 2. Add Current User Location Pin (Galle)
+                var userIcon = L.divIcon({
+                    className: '',
+                    html: '<div style="position:relative;width:24px;height:24px;"><div style="position:absolute;width:24px;height:24px;border-radius:50%;background:rgba(2,132,199,0.35);animation:user-pulse 1.8s infinite;"></div><div style="position:absolute;top:4px;left:4px;width:16px;height:16px;border-radius:50%;background:#0284C7;border:2.5px solid #FFFFFF;box-shadow:0 2px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;"><div style="width:5px;height:5px;border-radius:50%;background:#FFFFFF;"></div></div></div>',
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+                var userMarker = L.marker([userLat, userLng], { icon: userIcon, zIndexOffset: 2000 }).addTo(map);
+                userMarker.bindPopup("<b>📍 Your Location</b><br/>Galle (6.0367° N, 80.2170° E)");
+
+                // 3. Add Item Pinned Location Pin
                 var pinSvg = '<svg width="28" height="38" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">' +
                     '<path d="M14 0C6.268 0 0 6.268 0 14C0 24.5 14 38 14 38C14 38 28 24.5 28 14C28 6.268 21.732 0 14 0Z" fill="$pinColor"/>' +
                     '<circle cx="14" cy="14" r="5" fill="#FFFFFF"/>' +
@@ -2159,15 +2205,21 @@ private fun showReportPhotoDialog(title: String) {
                     popupAnchor: [0, -34]
                 });
 
-                var marker = L.marker([$lat, $lng], { icon: pinIcon }).addTo(map);
-                marker.bindPopup("<b>$cleanTitle</b><br/>$status Location").openPopup();
+                var itemMarker = L.marker([itemLat, itemLng], { icon: pinIcon, zIndexOffset: 1500 }).addTo(map);
+                itemMarker.bindPopup("<b>$cleanTitle</b><br/>$status Location<br/><span style='color:#64748B;font-size:11px;'>📍 $distText</span>");
 
                 map.on('click', triggerOpenMap);
-                marker.on('click', triggerOpenMap);
+                itemMarker.on('click', triggerOpenMap);
+                userMarker.on('click', triggerOpenMap);
 
-                setTimeout(function() { map.invalidateSize(); }, 200);
-                setTimeout(function() { map.invalidateSize(); }, 500);
-                setTimeout(function() { map.invalidateSize(); }, 1200);
+                // 4. Smoothly animate and zoom into item's pinned location from Galle
+                setTimeout(function() {
+                    map.invalidateSize();
+                    map.flyTo([itemLat, itemLng], 15, { duration: 1.8 });
+                    setTimeout(function() {
+                        itemMarker.openPopup();
+                    }, 1900);
+                }, 450);
             } catch(e) {
                 document.getElementById('fallbackVisual').style.display = 'flex';
             }
@@ -2426,6 +2478,8 @@ private fun showReportPhotoDialog(title: String) {
         private const val ARG_IMAGE_RES = "arg_image_res"
         private const val ARG_REPORTER_UID = "arg_reporter_uid"
         private const val ARG_AUTHOR_NAME = "arg_author_name"
+        private const val ARG_LATITUDE = "arg_latitude"
+        private const val ARG_LONGITUDE = "arg_longitude"
 
         // Creates a DetailsFragment using a drawable resource for the item image.
         fun newInstance(
@@ -2436,7 +2490,9 @@ private fun showReportPhotoDialog(title: String) {
             imageResId: Int = R.drawable.ic_item_placeholder,
             itemId: String? = null,
             reporterUserId: String? = null,
-            authorName: String? = null
+            authorName: String? = null,
+            latitude: Double = 0.0,
+            longitude: Double = 0.0
         ): DetailsFragment {
             // Create a new Fragment instance.
             val fragment = DetailsFragment()
@@ -2450,6 +2506,8 @@ private fun showReportPhotoDialog(title: String) {
                 putInt(ARG_IMAGE_RES, imageResId)
                 putString(ARG_REPORTER_UID, reporterUserId)
                 putString(ARG_AUTHOR_NAME, authorName)
+                putDouble(ARG_LATITUDE, latitude)
+                putDouble(ARG_LONGITUDE, longitude)
             }
             // Attach the arguments to the Fragment.
             fragment.arguments = args
@@ -2466,7 +2524,9 @@ private fun showReportPhotoDialog(title: String) {
             location: String,
             imageUrl: String = "",
             reporterUserId: String? = null,
-            authorName: String? = null
+            authorName: String? = null,
+            latitude: Double = 0.0,
+            longitude: Double = 0.0
         ): DetailsFragment {
             // Create a new Fragment instance.
             val fragment = DetailsFragment()
@@ -2482,6 +2542,8 @@ private fun showReportPhotoDialog(title: String) {
                 putInt(ARG_IMAGE_RES, R.drawable.ic_item_placeholder)
                 putString(ARG_REPORTER_UID, reporterUserId)
                 putString(ARG_AUTHOR_NAME, authorName)
+                putDouble(ARG_LATITUDE, latitude)
+                putDouble(ARG_LONGITUDE, longitude)
             }
             // Attach the arguments to the Fragment.
             fragment.arguments = args
