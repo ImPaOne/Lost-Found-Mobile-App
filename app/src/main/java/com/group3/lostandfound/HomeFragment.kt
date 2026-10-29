@@ -330,7 +330,9 @@ class HomeFragment : Fragment() {
                     location = report.location,
                     imageUrl = report.imageUrl,
                     reporterUserId = report.userId,
-                    authorName = report.authorName
+                    authorName = report.authorName,
+                    latitude = report.latitude,
+                    longitude = report.longitude
                 )
             )
             .addToBackStack(null)
