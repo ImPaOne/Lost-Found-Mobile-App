@@ -114,9 +114,11 @@ class UserManagementFragment : Fragment() {
             users = displayedUsersList,
             // Expands or collapses the selected user's details.
             onExpandToggle = { position ->
-                val user = displayedUsersList[position]
-                user.isExpanded = !user.isExpanded
-                adapter.notifyItemChanged(position)
+                if (position in 0 until displayedUsersList.size) {
+                    val user = displayedUsersList[position]
+                    user.isExpanded = !user.isExpanded
+                    adapter.notifyItemChanged(position)
+                }
             },
             // Saves changes to the selected user's role and access status.
             onSaveAccess = { user, newRole, newAccess ->
@@ -215,21 +217,26 @@ class UserManagementFragment : Fragment() {
                     // Retrieves the user's email or uses an empty string if unavailable.
                     val email = child.child("email").getValue(String::class.java).orEmpty()
 
-                    // Purge and ignore seeded dummy test records if they were saved in Firebase
-                    val isDummySeededUser = uid == "user_tharindu_001" || uid == "user_ama_002" || uid == "user_kasun_003"
-                        || uid.startsWith("user_tharindu") || uid.startsWith("user_ama") || uid.startsWith("user_kasun")
-                        || email.equals("tharindu.p@gmail.com", ignoreCase = true)
-                        || email.equals("ama.fernando@gmail.com", ignoreCase = true)
-                        || email.equals("kasun.j@gmail.com", ignoreCase = true)
-                    if (isDummySeededUser) {
-                        FirebaseManager.usersRef.child(uid).removeValue()
-                        continue
-                    }
                     // Retrieves the user's name from available database fields, using a fallback if necessary.
                     val fullName = child.child("fullName").getValue(String::class.java)
                         ?: child.child("displayName").getValue(String::class.java)
                         ?: child.child("name").getValue(String::class.java)
                         ?: if (email.isNotEmpty()) email.substringBefore("@").replaceFirstChar { it.uppercase() } else "Community Member"
+
+                    // Purge and ignore dummy/sample test records if they were saved in Firebase
+                    val isDummySeededUser = uid == "user_tharindu_001" || uid == "user_ama_002" || uid == "user_kasun_003"
+                        || uid.startsWith("user_tharindu") || uid.startsWith("user_ama") || uid.startsWith("user_kasun")
+                        || uid.contains("tharindu", ignoreCase = true) || uid.contains("ama", ignoreCase = true) || uid.contains("kasun", ignoreCase = true)
+                        || email.contains("tharindu", ignoreCase = true)
+                        || email.contains("ama.fernando", ignoreCase = true)
+                        || email.contains("kasun.j", ignoreCase = true)
+                        || fullName.contains("Tharindu", ignoreCase = true)
+                        || fullName.contains("Ama Fernando", ignoreCase = true)
+                        || fullName.contains("Kasun Jayawardena", ignoreCase = true)
+                    if (isDummySeededUser) {
+                        FirebaseManager.usersRef.child(uid).removeValue()
+                        continue
+                    }
 
                     // Retrieves the user's phone number from either supported field.
                     val phone = child.child("phone").getValue(String::class.java)
@@ -397,47 +404,53 @@ class UserManagementFragment : Fragment() {
 
     // Displays a dialog allowing the administrator to filter users by role.
     private fun showRoleFilterDialog() {
-        // Defines the available role filter options.
         val roles = arrayOf("All Roles", "Admin", "Moderator", "Member")
+        val currentIdx = when (selectedRoleFilter) {
+            "Admin" -> 1
+            "Moderator" -> 2
+            "Member" -> 3
+            else -> 0
+        }
         AlertDialog.Builder(requireContext())
-            // Sets the dialog title.
             .setTitle("Filter by Role")
-            // Updates the selected role when an option is clicked.
-            .setItems(roles) { _, which ->
+            .setSingleChoiceItems(roles, currentIdx) { dialog, which ->
+                dialog.dismiss()
                 selectedRoleFilter = when (which) {
                     1 -> "Admin"
                     2 -> "Moderator"
                     3 -> "Member"
                     else -> "All"
                 }
-                // Refreshes the filter chip labels and the displayed user list.
                 updateFilterChipsUi()
                 applyFilters()
             }
-            // Displays the role filter dialog.
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
     // Displays a dialog allowing the administrator to filter users by access status.
     private fun showStatusFilterDialog() {
-        // Defines the available access status filter options.
         val statuses = arrayOf("All Statuses", "Active", "Restricted", "Suspended")
+        val currentIdx = when (selectedStatusFilter) {
+            "Active" -> 1
+            "Restricted" -> 2
+            "Suspended" -> 3
+            else -> 0
+        }
         AlertDialog.Builder(requireContext())
-            // Sets the dialog title.
             .setTitle("Filter by Status")
-            // Updates the selected status when an option is clicked.
-            .setItems(statuses) { _, which ->
+            .setSingleChoiceItems(statuses, currentIdx) { dialog, which ->
+                dialog.dismiss()
                 selectedStatusFilter = when (which) {
                     1 -> "Active"
                     2 -> "Restricted"
                     3 -> "Suspended"
                     else -> "All"
                 }
-                // Refreshes the filter chip labels and the displayed user list.
                 updateFilterChipsUi()
                 applyFilters()
             }
-            // Displays the status filter dialog.
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
@@ -462,6 +475,10 @@ class UserManagementFragment : Fragment() {
             "access" to newAccess
         )
 
+        // Immediately refresh the item in adapter for instant responsiveness
+        val localIndex = displayedUsersList.indexOfFirst { it.uid == user.uid }
+        if (localIndex >= 0) adapter.notifyItemChanged(localIndex)
+
         // Updates the selected user's record in the Firebase database.
         FirebaseManager.usersRef.child(user.uid).updateChildren(updates)
             // Handles a successful database update.
@@ -469,7 +486,9 @@ class UserManagementFragment : Fragment() {
                 // Stops processing if the fragment is no longer attached.
                 if (!isAdded) return@addOnSuccessListener
                 // Confirms the updated role and access status to the administrator.
-                Toast.makeText(requireContext(), "Updated access for ${user.fullName}: $newRole ($newAccess)", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Updated ${user.fullName} to $newRole ($newAccess)", Toast.LENGTH_SHORT).show()
+                val freshIndex = displayedUsersList.indexOfFirst { it.uid == user.uid }
+                if (freshIndex >= 0) adapter.notifyItemChanged(freshIndex)
 
                 // Log audit action to Firebase /admin_logs
                 // Generates a unique ID for the audit record, with a fallback if unavailable.
@@ -627,6 +646,7 @@ class UserManagementFragment : Fragment() {
     ) : RecyclerView.Adapter<UserManagementAdapter.UserViewHolder>() {
 
         class UserViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val cardUser: View = view.findViewById(R.id.cardUser)
             val rowUserHeader: View = view.findViewById(R.id.rowUserHeader)
             val tvUserAvatar: TextView = view.findViewById(R.id.tvUserAvatar)
             val tvUserName: TextView = view.findViewById(R.id.tvUserName)
@@ -716,17 +736,23 @@ class UserManagementFragment : Fragment() {
             )
 
             val toggleExpand = View.OnClickListener {
-                onExpandToggle(holder.bindingAdapterPosition)
+                val pos = holder.bindingAdapterPosition
+                if (pos != RecyclerView.NO_POSITION && pos < users.size) {
+                    onExpandToggle(pos)
+                }
             }
             holder.rowUserHeader.setOnClickListener(toggleExpand)
             holder.iconChevron.setOnClickListener(toggleExpand)
+            holder.cardUser.setOnClickListener(toggleExpand)
 
             // Role selection dropdown
             holder.boxRoleSelect.setOnClickListener {
                 val roles = arrayOf("Member", "Moderator", "Admin")
+                val curRoleIdx = roles.indexOf(user.role).let { if (it >= 0) it else 0 }
                 AlertDialog.Builder(context)
-                    .setTitle("Select Role for ${user.fullName}")
-                    .setItems(roles) { _, which ->
+                    .setTitle("Change Role for ${user.fullName}")
+                    .setSingleChoiceItems(roles, curRoleIdx) { d, which ->
+                        d.dismiss()
                         val selectedRole = roles[which]
                         holder.lblRoleValue.text = selectedRole
                         user.role = selectedRole
@@ -745,17 +771,24 @@ class UserManagementFragment : Fragment() {
                                 holder.tvUserAvatar.setTextColor(0xFF059669.toInt())
                             }
                         }
+                        val pos = holder.bindingAdapterPosition
+                        if (pos != RecyclerView.NO_POSITION && pos < users.size) {
+                            notifyItemChanged(pos)
+                        }
                         onSaveAccess(user, selectedRole, user.access)
                     }
+                    .setNegativeButton("Cancel", null)
                     .show()
             }
 
             // Access selection dropdown
             holder.boxAccessSelect.setOnClickListener {
                 val accessOptions = arrayOf("Active", "Restricted", "Suspended")
+                val curAccessIdx = accessOptions.indexOf(user.access).let { if (it >= 0) it else 0 }
                 AlertDialog.Builder(context)
-                    .setTitle("Select Access Status for ${user.fullName}")
-                    .setItems(accessOptions) { _, which ->
+                    .setTitle("Change Access Status for ${user.fullName}")
+                    .setSingleChoiceItems(accessOptions, curAccessIdx) { d, which ->
+                        d.dismiss()
                         val selectedAccess = accessOptions[which]
                         holder.lblAccessValue.text = selectedAccess
                         user.access = selectedAccess
@@ -773,8 +806,13 @@ class UserManagementFragment : Fragment() {
                         } else {
                             holder.badgeStatusFlag.visibility = View.GONE
                         }
+                        val pos = holder.bindingAdapterPosition
+                        if (pos != RecyclerView.NO_POSITION && pos < users.size) {
+                            notifyItemChanged(pos)
+                        }
                         onSaveAccess(user, user.role, selectedAccess)
                     }
+                    .setNegativeButton("Cancel", null)
                     .show()
             }
 
