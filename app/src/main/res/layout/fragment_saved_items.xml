@@ -140,7 +140,7 @@
                     android:paddingTop="8dp"
                     android:paddingEnd="16dp"
                     android:paddingBottom="8dp"
-                    android:text="All · 3"
+                    android:text="All Â· 3"
                     android:textColor="@color/white"
                     android:textSize="13sp"
                     android:textStyle="bold" />
@@ -159,7 +159,7 @@
                     android:paddingTop="8dp"
                     android:paddingEnd="16dp"
                     android:paddingBottom="8dp"
-                    android:text="Lost · 1"
+                    android:text="Lost Â· 1"
                     android:textColor="#DC2626"
                     android:textSize="13sp"
                     android:textStyle="bold" />
@@ -178,7 +178,7 @@
                     android:paddingTop="8dp"
                     android:paddingEnd="16dp"
                     android:paddingBottom="8dp"
-                    android:text="Found · 2"
+                    android:text="Found Â· 2"
                     android:textColor="#059669"
                     android:textSize="13sp"
                     android:textStyle="bold" />
@@ -218,7 +218,7 @@
                     android:paddingTop="6dp"
                     android:paddingEnd="12dp"
                     android:paddingBottom="6dp"
-                    android:text="Recently saved ↓"
+                    android:text="Recently saved â†“"
                     android:textColor="#0B1B2B"
                     android:textSize="12sp"
                     android:textStyle="bold" />
