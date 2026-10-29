@@ -70,7 +70,7 @@ export default function DownloadModal({ isOpen, onClose, onDownloadAndroid }) {
               alignItems: 'center'
             }}>
               <img 
-                src="https://i.postimg.cc/GmQmXXNG/Untitled-(1).png" 
+                src="https://i.postimg.cc/CKkS022d/qr.png" 
                 alt="Scan QR Code to Download Foundly" 
                 style={{ 
                   width: '110px', 
