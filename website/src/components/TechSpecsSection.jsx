@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Copy, Check, ShieldCheck, Download, Smartphone } from 'lucide-react';
 
-const APK_DOWNLOAD_URL = "https://download1085.mediafire.com/n5a6lagfhntgl5jcQFwPnLKT1a_S7BSkRa-zuDeFN2UHqLqbn5W20PE05JIStP51SkI0RjOCCnbYqo3L2DOibWcQ2WPmPOwuCk4xl3FTrTNlEJ1HAulg75rmEWWKlowA6oNh7zOdFJAcIzCCTb3IEFFgIUE9xVkSDlJoAvDOMyYXJg/1aeww8y7i8qaja8/foundly.apk";
+const APK_DOWNLOAD_URL = "https://download1085.mediafire.com/vzvk5smz39jgpbHU1sIWknTozxfuxUGwpMjCBqxvMiA7Anyc72sUr8fFMx2mcLWoV_9oOd7lKi6exXPRMfo5I0LhI4RJgG6fnVEzdBqjNhy1E5YIiKyRkJPM8ITC4jbeCPP0pyS-wM23zdDxKbv4REcaqKxE_4sznSjneJmeb0djuw/1aeww8y7i8qaja8/foundly.apk";
 
 export default function TechSpecsSection({ onDownloadApk }) {
   const [copied, setCopied] = useState(false);
